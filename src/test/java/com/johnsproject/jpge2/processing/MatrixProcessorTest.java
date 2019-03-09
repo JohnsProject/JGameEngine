@@ -18,23 +18,28 @@ public class MatrixProcessorTest {
 	
 	@Test
 	public void multiplyTest() throws Exception {
+		int val = MathProcessor.FP_VALUE;
 		int[][] out = new int[4][4];
-		int[][] matrix1 = MatrixProcessor.generate();
-		matrix1[3][0] = 4096;
-		matrix1[3][1] = 4096 * 2;
-		matrix1[3][2] = 4096 * 3;
-		int[][] matrix2 = MatrixProcessor.generate();
-		matrix2[0][0] = 4096 * 2;
-		matrix2[1][1] = 4096 * 2;
-		matrix2[2][2] = 4096 * 2;
+		int[][] matrix1 = new int[][] {
+			{1 * val, 1 * val, 1 * val, 1 * val},
+			{2 * val, 2 * val, 2 * val, 2 * val},
+			{3 * val, 3 * val, 3 * val, 3 * val},
+			{4 * val, 4 * val, 4 * val, 4 * val}
+		};
+		int[][] matrix2 = new int[][] {
+			{1 * val, 4 * val, 1 * val, 4 * val},
+			{2 * val, 3 * val, 2 * val, 3 * val},
+			{3 * val, 2 * val, 3 * val, 2 * val},
+			{4 * val, 1 * val, 4 * val, 1 * val}
+		};
+		int[][] result = new int[][] {
+			{28 * val, 28 * val, 28 * val, 28 * val},
+			{26 * val, 26 * val, 26 * val, 26 * val},
+			{24 * val, 24 * val, 24 * val, 24 * val},
+			{22 * val, 22 * val, 22 * val, 22 * val}
+		};
 		MatrixProcessor.multiply(matrix1, matrix2, out);
-		assert(out[0][0] == 4096 * 2);
-		assert(out[1][1] == 4096 * 2);
-		assert(out[2][2] == 4096 * 2);
-		assert(out[3][3] == 4096);
-		assert(out[3][0] == 4096);
-		assert(out[3][1] == 4096 * 2);
-		assert(out[3][2] == 4096 * 3);
+		assert(MatrixProcessor.equals(out, result));
 	}
 
 }

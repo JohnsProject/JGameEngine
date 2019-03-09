@@ -41,11 +41,11 @@ public class MatrixProcessor {
 	public static void multiply(int[][] matrix1, int[][] matrix2, int[][] out) {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				long result = (long)matrix1[0][j] * (long)matrix2[i][0] +
-						(long)matrix1[1][j] * (long)matrix2[i][1] +
-						(long)matrix1[2][j] * (long)matrix2[i][2] +
-						(long)matrix1[3][j] * (long)matrix2[i][3];
-				out[i][j] = (int)(result >> MathProcessor.FP_SHIFT);
+				long result = (long)matrix1[0][j] * (long)matrix2[i][0];
+				result += (long)matrix1[1][j] * (long)matrix2[i][1];
+				result += (long)matrix1[2][j] * (long)matrix2[i][2];
+				result += (long)matrix1[3][j] * (long)matrix2[i][3];
+				out[i][j] = (int)(result >>> MathProcessor.FP_SHIFT);
 			}
 		}
 	}

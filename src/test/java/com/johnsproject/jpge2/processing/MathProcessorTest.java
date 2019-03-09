@@ -5,7 +5,7 @@ import org.junit.Test;
 public class MathProcessorTest {
 
 	@Test
-	public void genLookupTableTest() throws Exception {
+	public void genLookupTable() throws Exception {
 		for (int angle = 0; angle < 91; angle++) {
 			System.out.print((int)Math.round(Math.sin(Math.toRadians(angle)) * MathProcessor.FP_VALUE) + ", ");
 		}

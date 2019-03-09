@@ -6,6 +6,15 @@ public class VectorProcessor {
 	public static final byte VECTOR_Y = 1;
 	public static final byte VECTOR_Z = 2;
 	public static final byte VECTOR_W = 3;
+	
+	public static final int[] VECTOR_UP = new int[] {0, 1, 0};
+	public static final int[] VECTOR_DOWN = new int[] {0, -1, 0};
+	public static final int[] VECTOR_RIGHT = new int[] {1, 0, 0};
+	public static final int[] VECTOR_LEFT = new int[] {-1, 0, 0};
+	public static final int[] VECTOR_FORWARD = new int[] {0, 0, 1};
+	public static final int[] VECTOR_BACK = new int[] {0, 0, -1};
+	public static final int[] VECTOR_ONE = new int[] {1, 1, 1};
+	public static final int[] VECTOR_ZERO = new int[] {0, 0, 0};
 
 	/**
 	 * Generates a vector using the given values and returns it. <br>
@@ -132,10 +141,10 @@ public class VectorProcessor {
 	 */
 	public static void multiply(int[] vector, int[][] matrix, int[] out) {
 		for (int i = 0; i < 4; i++) {
-			long result = (long)matrix[0][i] * (long)vector[VECTOR_X]
-					+ (long)matrix[1][i] * (long)vector[VECTOR_Y]
-					+ (long)matrix[2][i] * (long)vector[VECTOR_Z]
-					+ (long)matrix[3][i] * (long)vector[VECTOR_W];
+			long result = (long)matrix[0][i] * (long)vector[VECTOR_X];
+			result += (long)matrix[1][i] * (long)vector[VECTOR_Y];
+			result += (long)matrix[2][i] * (long)vector[VECTOR_Z];
+			result += (long)matrix[3][i] * (long)vector[VECTOR_W];
 			out[i] = (int)(result >> MathProcessor.FP_SHIFT);
 		}
 	}

@@ -16,6 +16,7 @@ public class GraphicsProcessor {
 	private static final int FOV = 60;
 
 	private static final int[][] transformMatrix = MatrixProcessor.generate();	
+	private static final int[][] matrixCache1 = MatrixProcessor.generate();
 	private static final int[][] spaceMatrix = MatrixProcessor.generate();
 
 	
@@ -27,14 +28,15 @@ public class GraphicsProcessor {
 //			int[][] view = worldToView(camera);
 			for (int j = 0; j < scene.getModels().size(); j++) {
 				Model model = scene.getModels().get(j);
-//				model.getTransform().setLocation(0, 13000, 0);
-				model.getTransform().rotate(0, 0, 1);
+//				model.getTransform().translate(0, 5, 0);
+				model.getTransform().rotate(1, 1, 0);
 //				model.getTransform().setScale(2, 2, 2);
-				int[][] world = modelToWorld(model);
+				MatrixProcessor.reset(spaceMatrix);
+				modelToWorld(spaceMatrix, model);
 				for (int k = 0; k < model.getVertexes().length; k++) {
 					model.getVertex(k).reset();
 					int[] loc = model.getVertex(k).getLocation();
-					VectorProcessor.multiply(loc, world, loc);
+					VectorProcessor.multiply(loc, spaceMatrix, loc);
 //					VectorProcessor.multiply(loc, view, loc);
 //					loc[vx] = (FOV * loc[vx]) / (FOV + loc[vz]) + (graphicsBuffer.getWidth() >> 1);
 //					loc[vy] = (FOV * loc[vy]) / (FOV + loc[vz]) + (graphicsBuffer.getHeight() >> 1);
@@ -76,76 +78,105 @@ public class GraphicsProcessor {
 		}
 	}
 
-	public static int[][] modelToWorld(Model model) {
+	public static void modelToWorld(int[][] matrix, Model model) {
 		Transform transform = model.getTransform();
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-		MatrixProcessor.copy(spaceMatrix, rotateX(rotation[vx]));
-		MatrixProcessor.multiply(rotateY(rotation[vy]), spaceMatrix, spaceMatrix);
-		MatrixProcessor.multiply(rotateZ(rotation[vz]), spaceMatrix, spaceMatrix);
-		MatrixProcessor.multiply(scale(scale[vx], scale[vy], scale[vz]), spaceMatrix, spaceMatrix);
-		MatrixProcessor.multiply(translate(location[vx], location[vy], location[vz]), spaceMatrix, spaceMatrix);
-		return spaceMatrix;
+//		rotate(matrix, rotation[vx], VectorProcessor.VECTOR_RIGHT);
+//		rotate(matrix, rotation[vy], VectorProcessor.VECTOR_UP);
+//		rotate(matrix, rotation[vz], VectorProcessor.VECTOR_FORWARD);
+		rotateX(matrix, rotation[vx]);
+		rotateY(matrix, rotation[vy]);
+		rotateZ(matrix, rotation[vz]);
+		scale(matrix, scale);
+		translate(matrix, location);
 	}
 
-	public static int[][] worldToView(Camera camera) {
-		Transform transform = camera.getTransform();
-		int[] location = transform.getLocation();
-		int[] rotation = transform.getRotation();
-		MatrixProcessor.copy(spaceMatrix, rotateX(-rotation[vx]));
-		MatrixProcessor.multiply(rotateY(-rotation[vy]), spaceMatrix, spaceMatrix);
-		MatrixProcessor.multiply(rotateZ(-rotation[vz]), spaceMatrix, spaceMatrix);
-		MatrixProcessor.multiply(translate(-location[vx], -location[vy], -location[vz]), spaceMatrix, spaceMatrix);
-		return spaceMatrix;
-	}
+//	public static int[][] worldToView(Camera camera) {
+//		Transform transform = camera.getTransform();
+//		int[] location = transform.getLocation();
+//		int[] rotation = transform.getRotation();
+//		MatrixProcessor.copy(spaceMatrix, rotateX(-rotation[vx]));
+//		MatrixProcessor.multiply(rotateY(-rotation[vy]), spaceMatrix, spaceMatrix);
+//		MatrixProcessor.multiply(rotateZ(-rotation[vz]), spaceMatrix, spaceMatrix);
+//		MatrixProcessor.multiply(translate(-location[vx], -location[vy], -location[vz]), spaceMatrix, spaceMatrix);
+//		return spaceMatrix;
+//	}
 
-	public static int[][] translate(int x, int y, int z) {
+	public static void translate(int[][] matrix, int[] vector) {
 		MatrixProcessor.reset(transformMatrix);
-		transformMatrix[3][0] = x << MathProcessor.FP_SHIFT;
-		transformMatrix[3][1] = y << MathProcessor.FP_SHIFT;
-		transformMatrix[3][2] = z << MathProcessor.FP_SHIFT;
-		return transformMatrix;
+		MatrixProcessor.copy(matrixCache1, matrix);
+		transformMatrix[3][0] = vector[vx] << MathProcessor.FP_SHIFT;
+		transformMatrix[3][1] = vector[vy] << MathProcessor.FP_SHIFT;
+		transformMatrix[3][2] = vector[vz] << MathProcessor.FP_SHIFT;
+		MatrixProcessor.multiply(matrixCache1, transformMatrix, matrix);
 	}
 
-	public static int[][] scale(int x, int y, int z) {
+	public static void scale(int[][] matrix, int[] vector) {
 		MatrixProcessor.reset(transformMatrix);
-		transformMatrix[0][0] = x << MathProcessor.FP_SHIFT;
-		transformMatrix[1][1] = y << MathProcessor.FP_SHIFT;
-		transformMatrix[2][2] = z << MathProcessor.FP_SHIFT;
-		return transformMatrix;
+		MatrixProcessor.copy(matrixCache1, matrix);
+		transformMatrix[0][0] = vector[vx] << MathProcessor.FP_SHIFT;
+		transformMatrix[1][1] = vector[vy] << MathProcessor.FP_SHIFT;
+		transformMatrix[2][2] = vector[vz] << MathProcessor.FP_SHIFT;
+		MatrixProcessor.multiply(matrixCache1, transformMatrix, matrix);
+	}
+	
+	public static void rotate(int[][] matrix, int angle, int[] axis) {
+		MatrixProcessor.reset(transformMatrix);
+		MatrixProcessor.copy(matrixCache1, matrix);
+		int cos = MathProcessor.cos(angle);
+		int sin = MathProcessor.sin(angle);
+		int cos1 = MathProcessor.FP_VALUE - MathProcessor.cos(angle);
+		
+		transformMatrix[0][0] = cos1 * axis[vx] * axis[vx] + cos;
+		transformMatrix[0][1] = cos1 * axis[vx] * axis[vy] + sin * axis[vz];
+		transformMatrix[0][2] = cos1 * axis[vx] * axis[vz] - sin * axis[vy];
+		
+		transformMatrix[1][0] = cos1 * axis[vx] * axis[vy] - sin * axis[vz];
+		transformMatrix[1][1] = cos1 * axis[vy] * axis[vy] + cos;
+		transformMatrix[1][2] = cos1 * axis[vz] * axis[vy] + sin * axis[vx];
+		
+		transformMatrix[1][0] = cos1 * axis[vx] * axis[vz] + sin * axis[vy];
+		transformMatrix[1][1] = cos1 * axis[vy] * axis[vz] - sin * axis[vx];
+		transformMatrix[1][2] = cos1 * axis[vz] * axis[vz] + cos;
+		
+		MatrixProcessor.multiply(matrixCache1, transformMatrix, matrix);
 	}
 
-	public static int[][] rotateX(int angle) {
+	public static void rotateX(int[][] matrix, int angle) {
 		MatrixProcessor.reset(transformMatrix);
+		MatrixProcessor.copy(matrixCache1, matrix);
 		int cos = MathProcessor.cos(angle);
 		int sin = MathProcessor.sin(angle);
 		transformMatrix[1][1] = cos;
 		transformMatrix[1][2] = sin;
 		transformMatrix[2][1] = -sin;
 		transformMatrix[2][2] = cos;
-		return transformMatrix;
+		MatrixProcessor.multiply(matrixCache1, transformMatrix, matrix);
 	}
 
-	public static int[][] rotateY(int angle) {
+	public static void rotateY(int[][] matrix, int angle) {
 		MatrixProcessor.reset(transformMatrix);
+		MatrixProcessor.copy(matrixCache1, matrix);
 		int cos = MathProcessor.cos(angle);
 		int sin = MathProcessor.sin(angle);
 		transformMatrix[0][0] = cos;
 		transformMatrix[0][2] = -sin;
 		transformMatrix[2][0] = sin;
 		transformMatrix[2][2] = cos;
-		return transformMatrix;
+		MatrixProcessor.multiply(matrixCache1, transformMatrix, matrix);
 	}
 
-	public static int[][] rotateZ(int angle) {
+	public static void rotateZ(int[][] matrix, int angle) {
 		MatrixProcessor.reset(transformMatrix);
+		MatrixProcessor.copy(matrixCache1, matrix);
 		int cos = MathProcessor.cos(angle);
 		int sin = MathProcessor.sin(angle);
 		transformMatrix[0][0] = cos;
 		transformMatrix[0][1] = sin;
 		transformMatrix[1][0] = -sin;
 		transformMatrix[1][1] = cos;
-		return transformMatrix;
+		MatrixProcessor.multiply(matrixCache1, transformMatrix, matrix);
 	}
 }
