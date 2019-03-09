@@ -13,7 +13,7 @@ public class GraphicsProcessor {
 	private static final int vy = VectorProcessor.VECTOR_Y;
 	private static final int vz = VectorProcessor.VECTOR_Z;
 	
-	private static final int FOV = 60;
+	private static final int FOV = 20;
 
 	private static final int[][] transformMatrix = MatrixProcessor.generate();	
 	private static final int[][] matrixCache1 = MatrixProcessor.generate();
@@ -29,7 +29,7 @@ public class GraphicsProcessor {
 			for (int j = 0; j < scene.getModels().size(); j++) {
 				Model model = scene.getModels().get(j);
 //				model.getTransform().translate(0, 5, 0);
-				model.getTransform().rotate(1, 1, 0);
+				model.getTransform().rotate(0, 1, 0);
 //				model.getTransform().setScale(2, 2, 2);
 				MatrixProcessor.reset(spaceMatrix);
 				modelToWorld(spaceMatrix, model);
@@ -38,8 +38,8 @@ public class GraphicsProcessor {
 					int[] loc = model.getVertex(k).getLocation();
 					VectorProcessor.multiply(loc, spaceMatrix, loc);
 //					VectorProcessor.multiply(loc, view, loc);
-//					loc[vx] = (FOV * loc[vx]) / (FOV + loc[vz]) + (graphicsBuffer.getWidth() >> 1);
-//					loc[vy] = (FOV * loc[vy]) / (FOV + loc[vz]) + (graphicsBuffer.getHeight() >> 1);
+//					loc[vx] = (loc[vx] << MathProcessor.FP_SHIFT) / (loc[vz] + 500000) + (graphicsBuffer.getWidth() >> 1);
+//					loc[vy] = (loc[vy] << MathProcessor.FP_SHIFT) / (loc[vz] + 500000) + (graphicsBuffer.getHeight() >> 1);
 					loc[vx] = ((loc[vx] * FOV) >> MathProcessor.FP_SHIFT) + (graphicsBuffer.getWidth() >> 1);
 					loc[vy] = ((loc[vy] * FOV) >> MathProcessor.FP_SHIFT) + (graphicsBuffer.getHeight() >> 1);
 				}
@@ -86,6 +86,7 @@ public class GraphicsProcessor {
 //		rotate(matrix, rotation[vx], VectorProcessor.VECTOR_RIGHT);
 //		rotate(matrix, rotation[vy], VectorProcessor.VECTOR_UP);
 //		rotate(matrix, rotation[vz], VectorProcessor.VECTOR_FORWARD);
+//		rotate(matrix, rotation);
 		rotateX(matrix, rotation[vx]);
 		rotateY(matrix, rotation[vy]);
 		rotateZ(matrix, rotation[vz]);
@@ -122,24 +123,28 @@ public class GraphicsProcessor {
 		MatrixProcessor.multiply(matrixCache1, transformMatrix, matrix);
 	}
 	
-	public static void rotate(int[][] matrix, int angle, int[] axis) {
+	public static void rotate(int[][] matrix, int[] rotation) {
 		MatrixProcessor.reset(transformMatrix);
 		MatrixProcessor.copy(matrixCache1, matrix);
-		int cos = MathProcessor.cos(angle);
-		int sin = MathProcessor.sin(angle);
-		int cos1 = MathProcessor.FP_VALUE - MathProcessor.cos(angle);
+		int cosA = MathProcessor.cos(rotation[vx]);
+		int sinA = MathProcessor.sin(rotation[vx]);
+		int cosB = MathProcessor.cos(rotation[vy]);
+		int sinB = MathProcessor.sin(rotation[vy]);
+		int cosC = MathProcessor.cos(rotation[vz]);
+		int sinC = MathProcessor.sin(rotation[vz]);
+		int shift = MathProcessor.FP_SHIFT;
 		
-		transformMatrix[0][0] = cos1 * axis[vx] * axis[vx] + cos;
-		transformMatrix[0][1] = cos1 * axis[vx] * axis[vy] + sin * axis[vz];
-		transformMatrix[0][2] = cos1 * axis[vx] * axis[vz] - sin * axis[vy];
+		transformMatrix[0][0] = (cosA * cosC) >> shift - ((sinA * cosB) >> shift * sinC) >> shift;
+		transformMatrix[0][1] = (sinA * cosC) >> shift + ((cosA * cosB) >> shift * sinC) >> shift;
+		transformMatrix[0][2] = (sinB * sinC) >> shift;
 		
-		transformMatrix[1][0] = cos1 * axis[vx] * axis[vy] - sin * axis[vz];
-		transformMatrix[1][1] = cos1 * axis[vy] * axis[vy] + cos;
-		transformMatrix[1][2] = cos1 * axis[vz] * axis[vy] + sin * axis[vx];
+		transformMatrix[1][0] = (-cosA * sinC) >> shift - ((sinA * cosB) >> shift * cosC) >> shift;
+		transformMatrix[1][1] = (-sinA * sinC) >> shift + ((cosA * cosB) >> shift * cosC) >> shift;
+		transformMatrix[1][2] = (sinB * cosC) >> shift;
 		
-		transformMatrix[1][0] = cos1 * axis[vx] * axis[vz] + sin * axis[vy];
-		transformMatrix[1][1] = cos1 * axis[vy] * axis[vz] - sin * axis[vx];
-		transformMatrix[1][2] = cos1 * axis[vz] * axis[vz] + cos;
+		transformMatrix[1][0] = (sinA * sinB) >> shift;
+		transformMatrix[1][1] = (-cosA * sinB) >> shift;
+		transformMatrix[1][2] = cosB;
 		
 		MatrixProcessor.multiply(matrixCache1, transformMatrix, matrix);
 	}
