@@ -2,6 +2,10 @@ package com.johnsproject.jpge2.processing;
 
 public class MatrixProcessor {
 
+	private static final int[][] matrixCache1 = MatrixProcessor.generate();
+	private static final int[][] matrixCache2 = MatrixProcessor.generate();
+	private static final int[][] transformMatrix = MatrixProcessor.generate();
+	
 	/**
 	 * Returns an identity matrix.
 	 * 
@@ -24,9 +28,12 @@ public class MatrixProcessor {
 	 * @param out
 	 */
 	public static void add(int[][] matrix1, int[][] matrix2, int[][] out) {
+		// ensures that will return right values if matrix or matrix two is the same as out
+		copy(matrixCache1, matrix1);
+		copy(matrixCache2, matrix2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				out[i][j] = matrix1[i][j] + matrix2[i][j];
+				out[i][j] = matrixCache1[i][j] + matrixCache2[i][j];
 			}
 		}
 	}
@@ -39,15 +46,102 @@ public class MatrixProcessor {
 	 * @param out
 	 */
 	public static void multiply(int[][] matrix1, int[][] matrix2, int[][] out) {
+		// ensures that will return right values if matrix or matrix two is the same as out
+		copy(matrixCache1, matrix1);
+		copy(matrixCache2, matrix2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				long result = (long)matrix1[0][j] * (long)matrix2[i][0];
-				result += (long)matrix1[1][j] * (long)matrix2[i][1];
-				result += (long)matrix1[2][j] * (long)matrix2[i][2];
-				result += (long)matrix1[3][j] * (long)matrix2[i][3];
-				out[i][j] = (int)(result >>> MathProcessor.FP_SHIFT);
+				long result = (long)matrixCache1[0][j] * (long)matrixCache2[i][0];
+				result += (long)matrixCache1[1][j] * (long)matrixCache2[i][1];
+				result += (long)matrixCache1[2][j] * (long)matrixCache2[i][2];
+				result += (long)matrixCache1[3][j] * (long)matrixCache2[i][3];
+				out[i][j] = (int)((result + MathProcessor.FP_ROUND) >> MathProcessor.FP_SHIFT);
 			}
 		}
+	}
+	
+	
+	/**
+	 * Translates the matrix to the given position.
+	 * 
+	 * @param matrix
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
+	public static void translate(int[][] matrix, int x, int y, int z) {
+		reset(transformMatrix);
+		transformMatrix[3][0] = x << MathProcessor.FP_SHIFT;
+		transformMatrix[3][1] = y << MathProcessor.FP_SHIFT;
+		transformMatrix[3][2] = z << MathProcessor.FP_SHIFT;
+		multiply(transformMatrix, matrix, matrix);
+	}
+
+	/**
+	 * Scales the matrix by the given scale.
+	 * 
+	 * @param matrix
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
+	public static void scale(int[][] matrix, int x, int y, int z) {
+		reset(transformMatrix);
+		transformMatrix[0][0] = x << MathProcessor.FP_SHIFT;
+		transformMatrix[1][1] = y << MathProcessor.FP_SHIFT;
+		transformMatrix[2][2] = z << MathProcessor.FP_SHIFT;
+		multiply(transformMatrix, matrix, matrix);
+	}
+
+	/**
+	 * Rotates the matrix around the x axis by the given angle.
+	 * 
+	 * @param matrix
+	 * @param angle
+	 */
+	public static void rotateX(int[][] matrix, int angle) {
+		reset(transformMatrix);
+		int cos = MathProcessor.cos(angle);
+		int sin = MathProcessor.sin(angle);
+		transformMatrix[1][1] = cos;
+		transformMatrix[1][2] = sin;
+		transformMatrix[2][1] = -sin;
+		transformMatrix[2][2] = cos;
+		multiply(transformMatrix, matrix, matrix);
+	}
+
+	/**
+	 * Rotates the matrix around the y axis by the given angle.
+	 * 
+	 * @param matrix
+	 * @param angle
+	 */
+	public static void rotateY(int[][] matrix, int angle) {
+		reset(transformMatrix);
+		int cos = MathProcessor.cos(angle);
+		int sin = MathProcessor.sin(angle);
+		transformMatrix[0][0] = cos;
+		transformMatrix[0][2] = -sin;
+		transformMatrix[2][0] = sin;
+		transformMatrix[2][2] = cos;
+		multiply(transformMatrix, matrix, matrix);
+	}
+
+	/**
+	 * Rotates the matrix around the z axis by the given angle.
+	 * 
+	 * @param matrix
+	 * @param angle
+	 */
+	public static void rotateZ(int[][] matrix, int angle) {
+		reset(transformMatrix);
+		int cos = MathProcessor.cos(angle);
+		int sin = MathProcessor.sin(angle);
+		transformMatrix[0][0] = cos;
+		transformMatrix[0][1] = sin;
+		transformMatrix[1][0] = -sin;
+		transformMatrix[1][1] = cos;
+		multiply(transformMatrix, matrix, matrix);
 	}
 	
 	/**

@@ -7,15 +7,18 @@ public class VectorProcessor {
 	public static final byte VECTOR_Z = 2;
 	public static final byte VECTOR_W = 3;
 	
-	public static final int[] VECTOR_UP = new int[] {0, 1, 0};
-	public static final int[] VECTOR_DOWN = new int[] {0, -1, 0};
-	public static final int[] VECTOR_RIGHT = new int[] {1, 0, 0};
-	public static final int[] VECTOR_LEFT = new int[] {-1, 0, 0};
-	public static final int[] VECTOR_FORWARD = new int[] {0, 0, 1};
-	public static final int[] VECTOR_BACK = new int[] {0, 0, -1};
-	public static final int[] VECTOR_ONE = new int[] {1, 1, 1};
-	public static final int[] VECTOR_ZERO = new int[] {0, 0, 0};
-
+	public static final int[] VECTOR_UP = generate(0, 1, 0);
+	public static final int[] VECTOR_DOWN = generate(0, -1, 0);
+	public static final int[] VECTOR_RIGHT = generate(1, 0, 0);
+	public static final int[] VECTOR_LEFT = generate(-1, 0, 0);
+	public static final int[] VECTOR_FORWARD = generate(0, 0, 1);
+	public static final int[] VECTOR_BACK = generate(0, 0, -1);
+	public static final int[] VECTOR_ONE = generate(1, 1, 1);
+	public static final int[] VECTOR_ZERO = generate(0, 0, 0);
+	
+	
+	private static final int[] vectorCache1 = VectorProcessor.generate();
+	
 	/**
 	 * Generates a vector using the given values and returns it. <br>
 	 * <code>
@@ -140,12 +143,14 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public static void multiply(int[] vector, int[][] matrix, int[] out) {
+		// ensures that will return right values if vector is the same as out
+		copy(vectorCache1, vector);
 		for (int i = 0; i < 4; i++) {
-			long result = (long)matrix[0][i] * (long)vector[VECTOR_X];
-			result += (long)matrix[1][i] * (long)vector[VECTOR_Y];
-			result += (long)matrix[2][i] * (long)vector[VECTOR_Z];
-			result += (long)matrix[3][i] * (long)vector[VECTOR_W];
-			out[i] = (int)(result >> MathProcessor.FP_SHIFT);
+			long result = (long)matrix[0][i] * (long)vectorCache1[VECTOR_X];
+			result += (long)matrix[1][i] * (long)vectorCache1[VECTOR_Y];
+			result += (long)matrix[2][i] * (long)vectorCache1[VECTOR_Z];
+			result += (long)matrix[3][i] * (long)vectorCache1[VECTOR_W];
+			out[i] = (int)((result + MathProcessor.FP_ROUND) >> MathProcessor.FP_SHIFT);
 		}
 	}
 

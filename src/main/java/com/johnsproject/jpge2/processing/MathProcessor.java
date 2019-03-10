@@ -15,7 +15,7 @@ public class MathProcessor {
 	 * conversion by bit shifting. Bit shift left to convert to fixed point and
 	 * right to get integer values.
 	 */
-	public static final int FP_SHIFT = 12, FP_VALUE = 1 << FP_SHIFT;
+	public static final int FP_SHIFT = 12, FP_VALUE = 1 << FP_SHIFT, FP_ROUND = 1 << (FP_SHIFT - 1);
 
 	/**
 	 * Returns the fixed point sine of the given angle.

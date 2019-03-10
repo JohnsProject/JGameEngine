@@ -30,7 +30,6 @@ public class Vertex {
 	private static final int vx = VectorProcessor.VECTOR_X;
 	private static final int vy = VectorProcessor.VECTOR_Y;
 	private static final int vz = VectorProcessor.VECTOR_Z;
-	private static final int vw = VectorProcessor.VECTOR_W;
 	
 	private int index;
 	private int[] startLocation;
@@ -83,7 +82,6 @@ public class Vertex {
 		this.location[vx] = startLocation[vx];
 		this.location[vy] = startLocation[vy];
 		this.location[vz] = startLocation[vz];
-		this.location[vw] = startLocation[vw];
 	}
 	
 	public int[] getNormal() {
