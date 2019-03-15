@@ -10,10 +10,10 @@ public class MatrixProcessorTest {
 		int[][] matrix1 = MatrixProcessor.generate();
 		int[][] matrix2 = MatrixProcessor.generate();
 		MatrixProcessor.add(matrix1, matrix2, out);
-		assert(out[0][0] == 8192);
-		assert(out[1][1] == 8192);
-		assert(out[2][2] == 8192);
-		assert(out[3][3] == 8192);
+		assert(out[0][0] == 2048);
+		assert(out[1][1] == 2048);
+		assert(out[2][2] == 2048);
+		assert(out[3][3] == 2048);
 	}
 	
 	@Test
@@ -23,6 +23,7 @@ public class MatrixProcessorTest {
 		matrix1[3][0] = 4096;
 		matrix1[3][1] = 4096 * 2;
 		matrix1[3][2] = 4096 * 3;
+		matrix1[3][3] = 4096;
 		int[][] matrix2 = MatrixProcessor.generate();
 		matrix2[0][0] = 4096 * 2;
 		matrix2[1][1] = 4096 * 2;
@@ -71,8 +72,8 @@ public class MatrixProcessorTest {
 		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);
 		assert(out[0] == 100);
-		assert(out[1] == 37);
-		assert(out[2] == 137);
+		assert(out[1] == 36);
+		assert(out[2] == 136);
 		assert(out[3] == 1);
 	}
 	
@@ -83,9 +84,9 @@ public class MatrixProcessorTest {
 		MatrixProcessor.rotateY(matrix, 30);
 		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);
-		assert(out[0] == 137);
+		assert(out[0] == 136);
 		assert(out[1] == 100);
-		assert(out[2] == 37);
+		assert(out[2] == 36);
 		assert(out[3] == 1);
 	}
 	
@@ -96,8 +97,8 @@ public class MatrixProcessorTest {
 		MatrixProcessor.rotateZ(matrix, 30);
 		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);
-		assert(out[0] == 37);
-		assert(out[1] == 137);
+		assert(out[0] == 36);
+		assert(out[1] == 136);
 		assert(out[2] == 100);
 		assert(out[3] == 1);
 	}

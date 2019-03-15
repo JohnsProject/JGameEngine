@@ -10,6 +10,15 @@ public class MathProcessorTest {
 			System.out.print((int)Math.round(Math.sin(Math.toRadians(angle)) * MathProcessor.FP_VALUE) + ", ");
 		}
 	}
+	
+	@Test
+	public void test() throws Exception {
+		// just tests with fixed point math
+		assert(((2 << MathProcessor.FP_SHIFT) + (2 << MathProcessor.FP_SHIFT)) >> MathProcessor.FP_SHIFT == 4);
+		assert(((4 << MathProcessor.FP_SHIFT) - (2 << MathProcessor.FP_SHIFT)) >> MathProcessor.FP_SHIFT == 2);
+		assert(((2 << MathProcessor.FP_SHIFT) * (2 << MathProcessor.FP_SHIFT)) >> (MathProcessor.FP_SHIFT * 2) == 4);
+		assert(((4 << MathProcessor.FP_SHIFT) / 2) >> MathProcessor.FP_SHIFT == 2);
+	}
 
 	@Test
 	public void sintest() throws Exception {

@@ -44,7 +44,7 @@ public class Transform {
 	public Transform() {
 		this.location = VectorProcessor.generate();
 		this.rotation = VectorProcessor.generate();
-		this.scale = VectorProcessor.generate(1, 1, 1);
+		this.scale = VectorProcessor.generate(10, 10, 10);
 	}
 
 	public void translate(int x, int y, int z) {

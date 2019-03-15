@@ -2,6 +2,8 @@ package com.johnsproject.jpge2.processing;
 
 public class MatrixProcessor {
 
+	public static final int[][] IDENTITY = MatrixProcessor.generate();
+	
 	private static final int[][] matrixCache1 = MatrixProcessor.generate();
 	private static final int[][] matrixCache2 = MatrixProcessor.generate();
 	private static final int[][] transformMatrix = MatrixProcessor.generate();
@@ -51,11 +53,11 @@ public class MatrixProcessor {
 		copy(matrixCache2, matrix2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				long result = (long)matrixCache1[0][j] * (long)matrixCache2[i][0];
-				result += (long)matrixCache1[1][j] * (long)matrixCache2[i][1];
-				result += (long)matrixCache1[2][j] * (long)matrixCache2[i][2];
-				result += (long)matrixCache1[3][j] * (long)matrixCache2[i][3];
-				out[i][j] = (int)((result + MathProcessor.FP_ROUND) >> MathProcessor.FP_SHIFT);
+				int result = MathProcessor.multiply(matrixCache1[0][j], matrixCache2[i][0]);
+				result += MathProcessor.multiply(matrixCache1[1][j], matrixCache2[i][1]);
+				result += MathProcessor.multiply(matrixCache1[2][j], matrixCache2[i][2]);
+				result += MathProcessor.multiply(matrixCache1[3][j], matrixCache2[i][3]);
+				out[i][j] = result;
 			}
 		}
 	}
@@ -71,6 +73,7 @@ public class MatrixProcessor {
 	 */
 	public static void translate(int[][] matrix, int x, int y, int z) {
 		reset(transformMatrix);
+		//not so big translation values needed
 		transformMatrix[3][0] = x << MathProcessor.FP_SHIFT;
 		transformMatrix[3][1] = y << MathProcessor.FP_SHIFT;
 		transformMatrix[3][2] = z << MathProcessor.FP_SHIFT;
@@ -202,7 +205,7 @@ public class MatrixProcessor {
 		for (int i = 0; i < 4; i++) {
 			result += '|';
 			for (int j = 0; j < 4; j++) {
-				result += matrix[i][j] + ",";
+				result += matrix[j][i] + ",";
 			}
 			result += "|\n";
 		}

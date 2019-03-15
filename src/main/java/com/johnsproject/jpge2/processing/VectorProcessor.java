@@ -20,12 +20,22 @@ public class VectorProcessor {
 	private static final int[] vectorCache1 = VectorProcessor.generate();
 	
 	/**
-	 * Generates a vector using the given values and returns it. <br>
-	 * <code>
-	 * <br> new int[] {x, y, z};
-	 * <br></code> <br>
+	 * Generates a vector using the given values and returns it.
 	 * This vector can be used as location, rotation or scale vector.
 	 * 
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public static int[] generate(int x, int y, int z, int w) {
+		return new int[] {x, y, z, w};
+	}
+	
+	/**
+	 * Generates a vector using the given values and returns it.
+	 * This vector can be used as location, rotation or scale vector.
+	 *  
 	 * @param x
 	 * @param y
 	 * @param z
@@ -134,6 +144,32 @@ public class VectorProcessor {
 		out[VECTOR_Y] = vector1[VECTOR_Y] - vector2[VECTOR_Y];
 		out[VECTOR_Z] = vector1[VECTOR_Z] - vector2[VECTOR_Z];
 	}
+	
+	/**
+	 * Sets out equals the result of the multiplication of vector1 and vector2.
+	 * 
+	 * @param vector1
+	 * @param vector2
+	 * @param out
+	 */
+	public static void multiply(int[] vector1, int[] vector2, int[] out) {
+		out[VECTOR_X] = vector1[VECTOR_X] * vector2[VECTOR_X];
+		out[VECTOR_Y] = vector1[VECTOR_Y] * vector2[VECTOR_Y];
+		out[VECTOR_Z] = vector1[VECTOR_Z] * vector2[VECTOR_Z];
+	}
+
+	/**
+	 * Sets out equals the result of the division of vector1 and vector2.
+	 * 
+	 * @param vector1
+	 * @param vector2
+	 * @param out
+	 */
+	public static void divide(int[] vector1, int[] vector2, int[] out) {
+		out[VECTOR_X] = vector1[VECTOR_X] / vector2[VECTOR_X];
+		out[VECTOR_Y] = vector1[VECTOR_Y] / vector2[VECTOR_Y];
+		out[VECTOR_Z] = vector1[VECTOR_Z] / vector2[VECTOR_Z];
+	}
 
 	/**
 	 * Sets out equals the result of the multiplication of vector and matrix.
@@ -146,11 +182,11 @@ public class VectorProcessor {
 		// ensures that will return right values if vector is the same as out
 		copy(vectorCache1, vector);
 		for (int i = 0; i < 4; i++) {
-			long result = (long)matrix[0][i] * (long)vectorCache1[VECTOR_X];
-			result += (long)matrix[1][i] * (long)vectorCache1[VECTOR_Y];
-			result += (long)matrix[2][i] * (long)vectorCache1[VECTOR_Z];
-			result += (long)matrix[3][i] * (long)vectorCache1[VECTOR_W];
-			out[i] = (int)((result + MathProcessor.FP_ROUND) >> MathProcessor.FP_SHIFT);
+			int result = MathProcessor.multiply(matrix[0][i], vectorCache1[VECTOR_X]);
+			result += MathProcessor.multiply(matrix[1][i], vectorCache1[VECTOR_Y]);
+			result += MathProcessor.multiply(matrix[2][i], vectorCache1[VECTOR_Z]);
+			result += MathProcessor.multiply(matrix[3][i], vectorCache1[VECTOR_W]);
+			out[i] = result;
 		}
 	}
 

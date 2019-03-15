@@ -20,19 +20,19 @@ public class GraphicsProcessorTest {
 		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);
 //		// test x rotation 
-//		assert(out[0] == 100);
-//		assert(out[1] == 37);
-//		assert(out[2] == 137);
-//		assert(out[3] == 1);
+//		assert(out[0] == 1000);
+//		assert(out[1] == 366);
+//		assert(out[2] == 1366);
+//		assert(out[3] == 10);
 //		// test y rotation
-//		assert(out[0] == 137);
-//		assert(out[1] == 100);
-//		assert(out[2] == 37);
-//		assert(out[3] == 1);
+//		assert(out[0] == 1366);
+//		assert(out[1] == 1000);
+//		assert(out[2] == 366);
+//		assert(out[3] == 10);
 		// test z rotation
-		assert(out[0] == 37);
-		assert(out[1] == 137);
-		assert(out[2] == 100);
+		assert(out[0] == 366);
+		assert(out[1] == 1366);
+		assert(out[2] == 1000);
 		assert(out[3] == 1);
 	}
 	

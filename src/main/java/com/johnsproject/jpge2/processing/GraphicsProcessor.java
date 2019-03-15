@@ -12,32 +12,31 @@ public class GraphicsProcessor {
 	private static final int vx = VectorProcessor.VECTOR_X;
 	private static final int vy = VectorProcessor.VECTOR_Y;
 	private static final int vz = VectorProcessor.VECTOR_Z;
-	
-	private static final int FOV = 60;
-
-	private static final int[][] spaceMatrix = MatrixProcessor.generate();
+	private static final int vw = VectorProcessor.VECTOR_W;
 	
 	public static void process(Scene scene, GraphicsBuffer graphicsBuffer) {
 		graphicsBuffer.clearFrameBuffer();
 		graphicsBuffer.clearDepthBuffer();
 		for (int i = 0; i < scene.getCameras().size(); i++) {
 			Camera camera = scene.getCameras().get(i);
-//			int[][] view = worldToView(camera);
+			int[][] view = worldToView(camera);
+			int[][] orthographic = viewToPerspective(camera);
+			int[][] screen = projectionToScreen(camera);
 			for (int j = 0; j < scene.getModels().size(); j++) {
 				Model model = scene.getModels().get(j);
-//				model.getTransform().translate(0, 50, 0);
-				model.getTransform().rotate(1, 1, 1);
-//				model.getTransform().setScale(2, 2, 2);
+				model.getTransform().translate(0, 100, 0);
+				model.getTransform().rotate(1, 1, 0);
+				model.getTransform().setScale(20, 20, 20);
 				int[][] world = modelToWorld(model);
 				for (int k = 0; k < model.getVertexes().length; k++) {
 					model.getVertex(k).reset();
 					int[] loc = model.getVertex(k).getLocation();
 					VectorProcessor.multiply(loc, world, loc);
-//					VectorProcessor.multiply(loc, view, loc);
-//					loc[vx] = (FOV * loc[vx]) / (FOV + loc[vz]) + (graphicsBuffer.getWidth() >> 1);
-//					loc[vy] = (FOV * loc[vy]) / (FOV + loc[vz]) + (graphicsBuffer.getHeight() >> 1);
-					loc[vx] = ((loc[vx] * FOV) >> MathProcessor.FP_SHIFT) + (graphicsBuffer.getWidth() >> 1);
-					loc[vy] = ((loc[vy] * FOV) >> MathProcessor.FP_SHIFT) + (graphicsBuffer.getHeight() >> 1);
+					VectorProcessor.multiply(loc, view, loc);
+					VectorProcessor.multiply(loc, orthographic, loc);
+					loc[vx] /= loc[vz];
+					loc[vy] /= -loc[vz];
+					VectorProcessor.multiply(loc, screen, loc);
 				}
 				for (int k = 0; k < model.getFaces().length; k++) {
 					Face face = model.getFace(k);
@@ -52,8 +51,60 @@ public class GraphicsProcessor {
 		}
 	}
 
-	public static void drawLine(int x1, int y1, int x2, int y2, int z, int color, Camera camera,
-			GraphicsBuffer graphicsBuffer) {
+	public static int[][] modelToWorld(Model model) {
+		Transform transform = model.getTransform();
+		int[] location = transform.getLocation();
+		int[] rotation = transform.getRotation();
+		int[] scale = transform.getScale();
+		int[][] matrix = MatrixProcessor.generate();
+		MatrixProcessor.rotateX(matrix, rotation[vx]);
+		MatrixProcessor.rotateY(matrix, rotation[vy]);
+		MatrixProcessor.rotateZ(matrix, rotation[vz]);
+		MatrixProcessor.scale(matrix, scale[vx], scale[vy], scale[vz]);
+		MatrixProcessor.translate(matrix, location[vx], location[vy], location[vz]);
+		return matrix;
+	}
+
+	public static int[][] worldToView(Camera camera) {
+		Transform transform = camera.getTransform();
+		int[] location = transform.getLocation();
+		int[] rotation = transform.getRotation();
+		int[][] matrix = MatrixProcessor.generate();
+		MatrixProcessor.rotateX(matrix, -rotation[vx]);
+		MatrixProcessor.rotateY(matrix, -rotation[vy]);
+		MatrixProcessor.rotateZ(matrix, -rotation[vz]);
+		MatrixProcessor.translate(matrix, -location[vx], -location[vy], -location[vz]);
+		return matrix;
+	}
+	
+	public static int[][] viewToOrthographic(Camera camera) {
+		int[][] matrix = MatrixProcessor.generate();
+		matrix[0][0] = 1;
+		matrix[1][1] = 1;
+		matrix[2][2] = 0;
+		matrix[3][2] = MathProcessor.FP_VALUE;
+		return matrix;
+	}
+	
+	public static int[][] viewToPerspective(Camera camera) {
+		int[] frustum = camera.getViewFrustum();
+		int[][] matrix = MatrixProcessor.generate();
+		matrix[0][0] = frustum[vx] * 4;
+		matrix[1][1] = frustum[vx] * 4;
+		matrix[2][2] = 1;
+		matrix[3][2] = frustum[vx] << MathProcessor.FP_SHIFT;
+		return matrix;
+	}
+	
+	public static int[][] projectionToScreen(Camera camera) {
+		int[] canvas = camera.getCanvas();
+		int[][] matrix = MatrixProcessor.generate();
+		matrix[3][0] = (canvas[vz] >> 1) << MathProcessor.FP_SHIFT;
+		matrix[3][1] = (canvas[vw] >> 1) << MathProcessor.FP_SHIFT;
+		return matrix;
+	}
+	
+	public static void drawLine(int x1, int y1, int x2, int y2, int z, int color, Camera camera, GraphicsBuffer graphicsBuffer) {
 		int dx = Math.abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
 		int dy = -Math.abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
 		int err = dx + dy, e2; /* error value e_xy */
@@ -72,31 +123,5 @@ public class GraphicsProcessor {
 				y1 += sy;
 			} /* e_xy+e_y < 0 */
 		}
-	}
-
-	public static int[][] modelToWorld(Model model) {
-		Transform transform = model.getTransform();
-		int[] location = transform.getLocation();
-		int[] rotation = transform.getRotation();
-		int[] scale = transform.getScale();
-		MatrixProcessor.reset(spaceMatrix);
-		MatrixProcessor.rotateX(spaceMatrix, rotation[vx]);
-		MatrixProcessor.rotateY(spaceMatrix, rotation[vy]);
-		MatrixProcessor.rotateZ(spaceMatrix, rotation[vz]);
-		MatrixProcessor.scale(spaceMatrix, scale[vx], scale[vy], scale[vz]);
-		MatrixProcessor.translate(spaceMatrix, location[vx], location[vy], location[vz]);
-		return spaceMatrix;
-	}
-
-	public static int[][] worldToView(Camera camera) {
-		Transform transform = camera.getTransform();
-		int[] location = transform.getLocation();
-		int[] rotation = transform.getRotation();
-		MatrixProcessor.reset(spaceMatrix);
-		MatrixProcessor.rotateX(spaceMatrix, -rotation[vx]);
-		MatrixProcessor.rotateY(spaceMatrix, -rotation[vy]);
-		MatrixProcessor.rotateZ(spaceMatrix, -rotation[vz]);
-		MatrixProcessor.translate(spaceMatrix, -location[vx], -location[vy], -location[vz]);
-		return spaceMatrix;
 	}
 }

@@ -23,30 +23,50 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.processing.VectorProcessor;
+
 public class Camera extends SceneObject {
 	
-	private int[] screenPosition;
-	private int[] screenSize;
+	private static final int vx = VectorProcessor.VECTOR_X;
+	private static final int vy = VectorProcessor.VECTOR_Y;
+	private static final int vz = VectorProcessor.VECTOR_Z;
+	private static final int vw = VectorProcessor.VECTOR_W;
+	
+	private int[] canvas;
+	private int[] viewFrustum;
 
-	public Camera(String name, Transform transform, int[] screenPosition, int[] screenSize) {
+	public Camera(String name, Transform transform, int[] canvas) {
 		super(name, transform);
-		this.screenPosition = screenPosition;
-		this.screenSize = screenSize;
+		this.canvas = canvas;
+		this.viewFrustum = VectorProcessor.generate(60, 1, 1024);
 	}
 
-	public int[] getScreenPosition() {
-		return screenPosition;
+	public int[] getCanvas() {
+		return canvas;
 	}
 
-	public void setScreenPosition(int[] screenPosition) {
-		this.screenPosition = screenPosition;
+	public void setCanvas(int[] canvas) {
+		this.canvas = canvas;
+	}
+	
+	public void setCanvas(int x, int y, int width, int height) {
+		this.canvas[vx] = x;
+		this.canvas[vy] = y;
+		this.canvas[vz] = width;
+		this.canvas[vw] = height;
 	}
 
-	public int[] getScreenSize() {
-		return screenSize;
+	public int[] getViewFrustum() {
+		return viewFrustum;
 	}
 
-	public void setScreenSize(int[] screenSize) {
-		this.screenSize = screenSize;
-	}	
+	public void setViewFrustum(int[] clippingPlanes) {
+		this.viewFrustum = clippingPlanes;
+	}
+	
+	public void setViewFrustum(int fov, int near, int far) {
+		this.viewFrustum[vx] = fov;
+		this.viewFrustum[vy] = near;
+		this.viewFrustum[vz] = far;
+	}
 }

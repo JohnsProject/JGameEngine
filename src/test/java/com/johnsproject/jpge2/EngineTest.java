@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.importers.SOMImporter;
+import com.johnsproject.jpge2.processing.VectorProcessor;
 
 public class EngineTest {
 
@@ -19,7 +20,8 @@ public class EngineTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Camera camera = new Camera("Cam", new Transform(new int[] {0, 0, -20}, new int[3], new int[3]), new int[2], new int[] {WINDOW_W, WINDOW_H});
+		Transform camTransform = new Transform(VectorProcessor.generate(0, 0, 9000), VectorProcessor.generate(), VectorProcessor.generate()); 
+		Camera camera = new Camera("Cam", camTransform, VectorProcessor.generate(0, 0, WINDOW_W, WINDOW_H));
 		Engine.getInstance().getScene().addCamera(camera);
 	}
 

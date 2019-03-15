@@ -3,19 +3,18 @@ package com.johnsproject.jpge2.processing;
 public class MathProcessor {
 
 	// sine lookup table containing sine values from 0-90 degrees
-	private static final short[] SIN_LUT = { 0, 71, 143, 214, 286, 357, 428, 499, 570, 641, 711, 782, 852, 921, 991,
-			1060, 1129, 1198, 1266, 1334, 1401, 1468, 1534, 1600, 1666, 1731, 1796, 1860, 1923, 1986, 2048, 2110, 2171,
-			2231, 2290, 2349, 2408, 2465, 2522, 2578, 2633, 2687, 2741, 2793, 2845, 2896, 2946, 2996, 3044, 3091, 3138,
-			3183, 3228, 3271, 3314, 3355, 3396, 3435, 3474, 3511, 3547, 3582, 3617, 3650, 3681, 3712, 3742, 3770, 3798,
-			3824, 3849, 3873, 3896, 3917, 3937, 3956, 3974, 3991, 4006, 4021, 4034, 4046, 4056, 4065, 4074, 4080, 4086,
-			4090, 4094, 4095, 4096 };
+	private static final short[] SIN_LUT = { 0, 18, 36, 54, 71, 89, 107, 125, 143, 160, 178, 195, 213, 230, 248, 265,
+			282, 299, 316, 333, 350, 367, 384, 400, 416, 433, 449, 465, 481, 496, 512, 527, 543, 558, 573, 587, 602,
+			616, 630, 644, 658, 672, 685, 698, 711, 724, 737, 749, 761, 773, 784, 796, 807, 818, 828, 839, 849, 859,
+			868, 878, 887, 896, 904, 912, 920, 928, 935, 943, 949, 956, 962, 968, 974, 979, 984, 989, 994, 998, 1002,
+			1005, 1008, 1011, 1014, 1016, 1018, 1020, 1022, 1023, 1023, 1024, 1024};
 
 	/**
 	 * FP_SHIFT and FP_VALUE are the values used to do integer to fixed point
 	 * conversion by bit shifting. Bit shift left to convert to fixed point and
 	 * right to get integer values.
 	 */
-	public static final int FP_SHIFT = 12, FP_VALUE = 1 << FP_SHIFT, FP_ROUND = 1 << (FP_SHIFT - 1);
+	public static final int FP_SHIFT = 10, FP_VALUE = 1 << FP_SHIFT, FP_ROUND = 1 << (FP_SHIFT - 1);
 
 	/**
 	 * Returns the fixed point sine of the given angle.
@@ -101,9 +100,9 @@ public class MathProcessor {
 	 * Returns the given value in the range min-max.
 	 * 
 	 * @param value value to wrap.
-	 * @param min   min value.
-	 * @param max   max value.
-	 * @return value in the range min-max.
+	 * @param min
+	 * @param max
+	 * @return
 	 */
 	public static int wrap(int value, int min, int max) {
 		int range = max - min;
@@ -115,9 +114,9 @@ public class MathProcessor {
 	 * > max return max.
 	 * 
 	 * @param value value to clamp.
-	 * @param min   min value.
-	 * @param max   max value.
-	 * @return clamped value.
+	 * @param min
+	 * @param max
+	 * @return
 	 */
 	public static int clamp(int value, int min, int max) {
 		if (value < min)
@@ -132,7 +131,7 @@ public class MathProcessor {
 	/**
 	 * Returns a pseudo generated random value.
 	 * 
-	 * @return a pseudo generated random value.
+	 * @return
 	 */
 	public static int random() {
 		r += r + (r & r);
@@ -144,7 +143,7 @@ public class MathProcessor {
 	 * 
 	 * @param min lowest random value.
 	 * @param max highest random value.
-	 * @return a pseudo generated random value.
+	 * @return
 	 */
 	public static int random(int min, int max) {
 		r += r + (r & r);
@@ -155,8 +154,8 @@ public class MathProcessor {
 	 * Returns the square root of the given number. If number < 0 the method returns
 	 * 0.
 	 * 
-	 * @param number number.
-	 * @return square root of the given number.
+	 * @param number
+	 * @return
 	 */
 	public static int sqrt(int number) {
 		int res = 0;
@@ -176,9 +175,9 @@ public class MathProcessor {
 	/**
 	 * Returns the power of the given number.
 	 * 
-	 * @param base base.
-	 * @param exp  exp.
-	 * @return power of the given number.
+	 * @param base
+	 * @param exp
+	 * @return
 	 */
 	public static int pow(int base, int exp) {
 		int result = base;
@@ -186,5 +185,28 @@ public class MathProcessor {
 			result *= base;
 		}
 		return result;
+	}
+	
+	/**
+	 * Returns the product of the multiplication of value1 and value2.
+	 * 
+	 * @param value1
+	 * @param value2
+	 * @return
+	 */
+	public static int multiply(int value1, int value2) {
+		return (int)((((long)value1 * (long)value2) + FP_ROUND) >> FP_SHIFT);
+	}
+	
+	/**
+	 * Returns the quotient of the division.
+	 * 
+	 * @param dividend
+	 * @param divisor
+	 * @return
+	 */
+	public static int divide(int dividend, int divisor) {
+		if(divisor == 0) return 0;
+		return (int)((((long)dividend << FP_SHIFT) / divisor) >> FP_SHIFT);
 	}
 }

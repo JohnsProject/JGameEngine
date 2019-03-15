@@ -23,14 +23,8 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processing.VectorProcessor;
-
 public class SceneObject {
-	
-	private static final int vx = VectorProcessor.VECTOR_X;
-	private static final int vy = VectorProcessor.VECTOR_Y;
-	private static final int vz = VectorProcessor.VECTOR_Z;
-	
+		
 	private String name;
 	private Transform transform;
 	private boolean changed;
