@@ -74,7 +74,7 @@ public class GraphicsProcessor {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		MatrixProcessor.reset(matrix);
-		MatrixProcessor.translate(matrix, -location[vx], -location[vy], -location[vz]);
+		MatrixProcessor.translate(matrix, -location[vx], -location[vy], location[vz]);
 		MatrixProcessor.rotateX(matrix, -rotation[vx]);
 		MatrixProcessor.rotateY(matrix, -rotation[vy]);
 		MatrixProcessor.rotateZ(matrix, -rotation[vz]);
