@@ -109,7 +109,7 @@ public class SOMImporter {
 				materials[i/4] = new Material(i/4, ColorProcessor.convert(r, g, b, a), new Texture(10, 10));
 			}
 		}else {
-			materials = new Material[] {new Material(0, ColorProcessor.convert(0, 0, 0, 255), new Texture(10, 10))};
+			materials = new Material[] {new Material(0, ColorProcessor.convert(0, 0, 0), new Texture(10, 10))};
 		}
 		return materials;
 	}

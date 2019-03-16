@@ -153,9 +153,9 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public static void multiply(int[] vector1, int[] vector2, int[] out) {
-		out[VECTOR_X] = vector1[VECTOR_X] * vector2[VECTOR_X];
-		out[VECTOR_Y] = vector1[VECTOR_Y] * vector2[VECTOR_Y];
-		out[VECTOR_Z] = vector1[VECTOR_Z] * vector2[VECTOR_Z];
+		out[VECTOR_X] = MathProcessor.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
+		out[VECTOR_Y] = MathProcessor.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		out[VECTOR_Z] = MathProcessor.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 	}
 
 	/**
@@ -197,9 +197,9 @@ public class VectorProcessor {
 	 * @return
 	 */
 	public static int magnitude(int[] vector) {
-		int x = vector[VECTOR_X] * vector[VECTOR_X];
-		int y = vector[VECTOR_Y] * vector[VECTOR_Y];
-		int z = vector[VECTOR_Z] * vector[VECTOR_Z];
+		int x = MathProcessor.multiply(vector[VECTOR_X], vector[VECTOR_X]);
+		int y = MathProcessor.multiply(vector[VECTOR_Y], vector[VECTOR_Y]);
+		int z = MathProcessor.multiply(vector[VECTOR_Z], vector[VECTOR_Z]);
 		return MathProcessor.sqrt(x + y + z);
 	}
 
@@ -211,9 +211,9 @@ public class VectorProcessor {
 	 * @return
 	 */
 	public static int dotProduct(int[] vector1, int[] vector2) {
-		int x = vector1[VECTOR_X] * vector2[VECTOR_X];
-		int y = vector1[VECTOR_Y] * vector2[VECTOR_Y];
-		int z = vector1[VECTOR_Z] * vector2[VECTOR_Z];
+		int x = MathProcessor.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
+		int y = MathProcessor.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		int z = MathProcessor.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return x + y + z;
 	}
 
@@ -225,9 +225,18 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public static void crossProduct(int[] vector1, int[] vector2, int[] out) {
-		out[VECTOR_X] = vector1[VECTOR_Y] * vector2[VECTOR_Z] - vector1[VECTOR_Z] * vector2[VECTOR_Y];
-		out[VECTOR_Y] = vector1[VECTOR_Z] * vector2[VECTOR_X] - vector1[VECTOR_X] * vector2[VECTOR_Z];
-		out[VECTOR_Z] = vector1[VECTOR_X] * vector2[VECTOR_Y] - vector1[VECTOR_Y] * vector2[VECTOR_X];
+		out[VECTOR_X] = MathProcessor.multiply(vector1[VECTOR_Y], vector2[VECTOR_Z]) - MathProcessor.multiply(vector1[VECTOR_Z], vector2[VECTOR_Y]);
+		out[VECTOR_Y] = MathProcessor.multiply(vector1[VECTOR_Z], vector2[VECTOR_X]) - MathProcessor.multiply(vector1[VECTOR_X], vector2[VECTOR_Z]);
+		out[VECTOR_Z] = MathProcessor.multiply(vector1[VECTOR_X], vector2[VECTOR_Y]) - MathProcessor.multiply(vector1[VECTOR_Y], vector2[VECTOR_X]);
+	}
+	
+	public static void normalize(int[] a, int[] out) {
+		int m = magnitude(a);
+		if (m != 0) {
+			out[VECTOR_X] = (a[VECTOR_X] << MathProcessor.FP_SHIFT) / m;
+			out[VECTOR_Y] = (a[VECTOR_Y] << MathProcessor.FP_SHIFT) / m;
+			out[VECTOR_Z] = (a[VECTOR_Z] << MathProcessor.FP_SHIFT) / m;
+		}
 	}
 
 	/**

@@ -2,8 +2,6 @@ package com.johnsproject.jpge2.processing;
 
 public class ColorProcessor {
 
-	private static final int MAXFACTOR = 5;
-	private static final int MAXVALUE = MAXFACTOR + 1;
 	private static final byte GREENSHIFT = 8;
 	private static final byte REDSHIFT = 16;
 	private static final byte ALPHASHIFT = 24;
@@ -43,25 +41,22 @@ public class ColorProcessor {
 		return (color >> ALPHASHIFT) & HEX;
 	}
 
-	public static int darker(int color, int factor) {
+	public static int multiply(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
-		if (factor <= 0) factor = 0;
-		if (factor > MAXFACTOR)
-			factor = MAXFACTOR;
-		r -= (r >> (MAXVALUE - factor));
-		g -= (g >> (MAXVALUE - factor));
-		b -= (b >> (MAXVALUE - factor));
+		factor += 255;
+		r = (r * factor) >> 8;
+		g = (g * factor) >> 8;
+		b = (b * factor) >> 8;
 		return convert(r, g, b, a);
 	}
-
-	public static int brighter(int color, int factor) {
+	
+	public static int multiplyRBGA(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
-		if (factor < 0) factor = 0;
-		if (factor > MAXFACTOR)
-			factor = MAXFACTOR;
-		r += (r >> (MAXVALUE - factor));
-		g += (g >> (MAXVALUE - factor));
-		b += (b >> (MAXVALUE - factor));
+		factor += 255;
+		r = (r * factor) >> 8;
+		g = (g * factor) >> 8;
+		b = (b * factor) >> 8;
+		a = (a * factor) >> 8;
 		return convert(r, g, b, a);
 	}
 	

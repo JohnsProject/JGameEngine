@@ -17,7 +17,8 @@ public class EngineTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Engine.getInstance().getScene().getModels().get(0).getTransform().setScale(20, 20, 20);
+		Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, -100);
+		Engine.getInstance().getScene().getLights().get(0).getTransform().translate(0, 0, 10);
 	}
 
 }

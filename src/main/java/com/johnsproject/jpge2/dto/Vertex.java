@@ -34,6 +34,7 @@ public class Vertex {
 	private int index;
 	private int[] startLocation;
 	private int[] location;
+	private int[] startNormal;
 	private int[] normal;
 	private int materialIndex;
 	private Material material;
@@ -43,6 +44,7 @@ public class Vertex {
 		this.index = index;
 		this.startLocation = location.clone();
 		this.location = location;
+		this.startNormal = normal.clone();
 		this.normal = normal;
 		this.materialIndex = material;
 	}
@@ -81,9 +83,8 @@ public class Vertex {
 	}
 
 	public void reset() {
-		this.location[vx] = startLocation[vx];
-		this.location[vy] = startLocation[vy];
-		this.location[vz] = startLocation[vz];
+		VectorProcessor.copy(location, startLocation);
+		VectorProcessor.copy(normal, startNormal);
 	}
 	
 	public int[] getNormal() {

@@ -23,15 +23,20 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.processing.ColorProcessor;
+
 public class Light extends SceneObject{
 	
-	private int type = 0;
-	private int strength = 100;
-	private int color = 0;
+	public static final int LIGHT_DIRECTIONAL = 1;
+	
+	private int type;
+	private int strength;
+	private int color;
 	
 	public Light(String name, Transform transform) {
 		super(name, transform);
-		this.color = 0;
+		this.type = LIGHT_DIRECTIONAL;
+		this.color = ColorProcessor.convert(100, 100, 100);
 	}
 
 	public int getType() {

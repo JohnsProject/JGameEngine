@@ -23,6 +23,7 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.processing.MathProcessor;
 import com.johnsproject.jpge2.processing.VectorProcessor;
 
 public class Transform {
@@ -48,9 +49,9 @@ public class Transform {
 	}
 
 	public void translate(int x, int y, int z) {
-		location[vx] += x;
-		location[vy] += y;
-		location[vz] += z;
+		location[vx] += x << MathProcessor.FP_SHIFT;
+		location[vy] += y << MathProcessor.FP_SHIFT;
+		location[vz] += z << MathProcessor.FP_SHIFT;
 	}
 
 	public void rotate(int x, int y, int z) {
@@ -60,9 +61,9 @@ public class Transform {
 	}
 
 	public void translate(int[] vector) {
-		location[vx] += vector[vx];
-		location[vy] += vector[vz];
-		location[vy] += vector[vz];
+		location[vx] += vector[vx] << MathProcessor.FP_SHIFT;
+		location[vy] += vector[vz] << MathProcessor.FP_SHIFT;
+		location[vy] += vector[vz] << MathProcessor.FP_SHIFT;
 	}
 
 	public void rotate(int[] vector) {
@@ -76,9 +77,9 @@ public class Transform {
 	}
 
 	public void setLocation(int x, int y, int z) {
-		location[vx] = x;
-		location[vy] = y;
-		location[vz] = z;
+		location[vx] = x << MathProcessor.FP_SHIFT;
+		location[vy] = y << MathProcessor.FP_SHIFT;
+		location[vz] = z << MathProcessor.FP_SHIFT;
 	}
 
 	public int[] getRotation() {

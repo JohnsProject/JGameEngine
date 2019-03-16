@@ -35,7 +35,9 @@ public class GraphicsProcessor {
 						Vertex vertex = model.getVertex(l);
 						vertex.reset();
 						int[] location = vertex.getLocation();
+						int[] normal = vertex.getNormal();
 						VectorProcessor.multiply(location, world, location);
+						VectorProcessor.multiply(normal, world, normal);
 						vertex.getMaterial().getShader().vertex(vertex);
 						VectorProcessor.multiply(location, view, location);
 						VectorProcessor.multiply(location, projection, location);
@@ -45,6 +47,9 @@ public class GraphicsProcessor {
 					}
 					for (int l = 0; l < model.getFaces().length; l++) {
 						Face face = model.getFace(l);
+						face.reset();
+						int[] normal = face.getNormal();
+						VectorProcessor.multiply(normal, world, normal);
 						face.getMaterial().getShader().geometry(face, light);
 						drawFace(face, graphicsBuffer);
 					}
@@ -93,7 +98,7 @@ public class GraphicsProcessor {
 		MatrixProcessor.reset(matrix);
 		matrix[0][0] = -frustum[vx] * 4;
 		matrix[1][1] = -frustum[vx] * 4;
-		matrix[2][2] = 1;
+		matrix[2][2] = -1;
 		matrix[3][2] = frustum[vx] << MathProcessor.FP_SHIFT;
 		return matrix;
 	}
