@@ -23,18 +23,21 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.Shader;
+import com.johnsproject.jpge2.shaders.FlatShader;
+
 public class Material {
 
-	private int index = 0;
-	private int color = 0;
-//	private int ambientColor;
-	private Texture texture = null;
+	private int index;
+	private int color;
+	private Texture texture;
+	private Shader shader;
 	
 	public Material(int index, int color, Texture texture){
 		this.index = index;
 		this.color = color;
-//		this.ambientColor = ColorUtils.convert(20, 20, 20);
 		this.texture = texture;
+		this.shader = new FlatShader();
 	}
 
 	public int getIndex() {
@@ -55,5 +58,13 @@ public class Material {
 
 	public void setTexture(Texture texture) {
 		this.texture = texture;
+	}
+	
+	public Shader getShader() {
+		return shader;
+	}
+
+	public void setShader(Shader shader) {
+		this.shader = shader;
 	}
 }

@@ -23,37 +23,35 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processing.Shader;
+import com.johnsproject.jpge2.processing.GraphicsProcessor;
+import com.johnsproject.jpge2.processing.MatrixProcessor;
 
 public class Model extends SceneObject {
 	
-	private Vertex[] vertexes;
+	private Vertex[] vertices;
 	private Face[] faces;
 	private Material[] materials;
-	private Shader shader;
+	private int[][] modelMatrix = MatrixProcessor.generate();
 	
-	public Model (String name, Transform transform, Vertex[] vertexes, Face[] faces, Material[] materials) {
+	public Model (String name, Transform transform, Vertex[] vertices, Face[] faces, Material[] materials) {
 		super(name, transform);
-		this.vertexes = vertexes;
-		for (int i = 0; i < vertexes.length; i++) {
-			if (vertexes[i] != null)
-				vertexes[i].setModel(this);
+		this.materials = materials;
+		this.vertices = vertices;
+		for (int i = 0; i < vertices.length; i++) {
+			vertices[i].setModel(this);
 		}
 		this.faces = faces;
 		for (int i = 0; i < faces.length; i++) {
-			if (faces[i] != null)
-				faces[i].setModel(this);
+			faces[i].setModel(this);
 		}
-		this.materials = materials;
-		this.shader = new Shader();
 	}
 	
-	public Vertex[] getVertexes(){
-		return vertexes;
+	public Vertex[] getVertices(){
+		return vertices;
 	}
 	
 	public Vertex getVertex(int index){
-		return vertexes[index];
+		return vertices[index];
 	}
 	
 	public Face[] getFaces() {
@@ -72,11 +70,10 @@ public class Model extends SceneObject {
 		return materials[index];
 	}
 
-	public Shader getShader() {
-		return shader;
-	}
-
-	public void setShader(Shader shader) {
-		this.shader = shader;
+	public int[][] getModelMatrix() {
+		if (this.hasChanged()) {
+			GraphicsProcessor.modelToWorldMatrix(modelMatrix, this);
+		}
+		return modelMatrix;
 	}
 }

@@ -2,10 +2,7 @@ package com.johnsproject.jpge2;
 
 import java.io.IOException;
 
-import com.johnsproject.jpge2.dto.Camera;
-import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.importers.SOMImporter;
-import com.johnsproject.jpge2.processing.VectorProcessor;
 
 public class EngineTest {
 
@@ -20,9 +17,7 @@ public class EngineTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Transform camTransform = new Transform(VectorProcessor.generate(0, 0, 9000), VectorProcessor.generate(), VectorProcessor.generate()); 
-		Camera camera = new Camera("Cam", camTransform, VectorProcessor.generate(0, 0, WINDOW_W, WINDOW_H));
-		Engine.getInstance().getScene().addCamera(camera);
+		Engine.getInstance().getScene().getModels().get(0).getTransform().setScale(50, 50, 50);
 	}
 
 }

@@ -1,11 +1,14 @@
 package com.johnsproject.jpge2.processing;
 
+import com.johnsproject.jpge2.Shader;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.GraphicsBuffer;
+import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Transform;
+import com.johnsproject.jpge2.dto.Vertex;
 
 public class GraphicsProcessor {
 
@@ -13,50 +16,48 @@ public class GraphicsProcessor {
 	private static final int vy = VectorProcessor.VECTOR_Y;
 	private static final int vz = VectorProcessor.VECTOR_Z;
 	private static final int vw = VectorProcessor.VECTOR_W;
-	
+
 	public static void process(Scene scene, GraphicsBuffer graphicsBuffer) {
 		graphicsBuffer.clearFrameBuffer();
 		graphicsBuffer.clearDepthBuffer();
 		for (int i = 0; i < scene.getCameras().size(); i++) {
 			Camera camera = scene.getCameras().get(i);
-			int[][] view = worldToView(camera);
-			int[][] orthographic = viewToPerspective(camera);
-			int[][] screen = projectionToScreen(camera);
 			for (int j = 0; j < scene.getModels().size(); j++) {
 				Model model = scene.getModels().get(j);
-				model.getTransform().translate(0, 100, 0);
-				model.getTransform().rotate(1, 1, 0);
-				model.getTransform().setScale(20, 20, 20);
-				int[][] world = modelToWorld(model);
-				for (int k = 0; k < model.getVertexes().length; k++) {
-					model.getVertex(k).reset();
-					int[] loc = model.getVertex(k).getLocation();
-					VectorProcessor.multiply(loc, world, loc);
-					VectorProcessor.multiply(loc, view, loc);
-					VectorProcessor.multiply(loc, orthographic, loc);
-					loc[vx] /= loc[vz];
-					loc[vy] /= -loc[vz];
-					VectorProcessor.multiply(loc, screen, loc);
-				}
-				for (int k = 0; k < model.getFaces().length; k++) {
-					Face face = model.getFace(k);
-					int[] loc1 = face.getVertex1().getLocation();
-					int[] loc2 = face.getVertex2().getLocation();
-					int[] loc3 = face.getVertex3().getLocation();
-					drawLine(loc1[vx], loc1[vy], loc2[vx], loc2[vy], 0, 0, camera, graphicsBuffer);
-					drawLine(loc2[vx], loc2[vy], loc3[vx], loc3[vy], 0, 0, camera, graphicsBuffer);
-					drawLine(loc1[vx], loc1[vy], loc3[vx], loc3[vy], 0, 0, camera, graphicsBuffer);
+				for (int k = 0; k < scene.getLights().size(); k++) {
+					Light light = scene.getLights().get(k);
+					int[][] world = model.getModelMatrix();
+					int[][] view = camera.getViewMatrix();
+					int[][] projection = camera.getOrthographicMatrix();
+					int[][] screen = camera.getScreenMatrix();
+					for (int l = 0; l < model.getVertices().length; l++) {
+						Vertex vertex = model.getVertex(l);
+						vertex.reset();
+						int[] location = vertex.getLocation();
+						VectorProcessor.multiply(location, world, location);
+						vertex.getMaterial().getShader().vertex(vertex);
+						VectorProcessor.multiply(location, view, location);
+						VectorProcessor.multiply(location, projection, location);
+						location[vx] /= location[vz];
+						location[vy] /= location[vz];
+						VectorProcessor.multiply(location, screen, location);
+					}
+					for (int l = 0; l < model.getFaces().length; l++) {
+						Face face = model.getFace(l);
+						face.getMaterial().getShader().geometry(face, light);
+						drawFace(face, graphicsBuffer);
+					}
 				}
 			}
 		}
 	}
 
-	public static int[][] modelToWorld(Model model) {
+	public static int[][] modelToWorldMatrix(int[][] matrix, Model model) {
 		Transform transform = model.getTransform();
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-		int[][] matrix = MatrixProcessor.generate();
+		MatrixProcessor.reset(matrix);
 		MatrixProcessor.rotateX(matrix, rotation[vx]);
 		MatrixProcessor.rotateY(matrix, rotation[vy]);
 		MatrixProcessor.rotateZ(matrix, rotation[vz]);
@@ -65,63 +66,128 @@ public class GraphicsProcessor {
 		return matrix;
 	}
 
-	public static int[][] worldToView(Camera camera) {
+	public static int[][] worldToViewMatrix(int[][] matrix, Camera camera) {
 		Transform transform = camera.getTransform();
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
-		int[][] matrix = MatrixProcessor.generate();
+		MatrixProcessor.reset(matrix);
 		MatrixProcessor.rotateX(matrix, -rotation[vx]);
 		MatrixProcessor.rotateY(matrix, -rotation[vy]);
 		MatrixProcessor.rotateZ(matrix, -rotation[vz]);
 		MatrixProcessor.translate(matrix, -location[vx], -location[vy], -location[vz]);
 		return matrix;
 	}
-	
-	public static int[][] viewToOrthographic(Camera camera) {
-		int[][] matrix = MatrixProcessor.generate();
-		matrix[0][0] = 1;
-		matrix[1][1] = 1;
+
+	public static int[][] viewToOrthographicMatrix(int[][] matrix, Camera camera) {
+		MatrixProcessor.reset(matrix);
+		matrix[0][0] = -1;
+		matrix[1][1] = -1;
 		matrix[2][2] = 0;
 		matrix[3][2] = MathProcessor.FP_VALUE;
 		return matrix;
 	}
-	
-	public static int[][] viewToPerspective(Camera camera) {
+
+	public static int[][] viewToPerspectiveMatrix(int[][] matrix, Camera camera) {
 		int[] frustum = camera.getViewFrustum();
-		int[][] matrix = MatrixProcessor.generate();
-		matrix[0][0] = frustum[vx] * 4;
-		matrix[1][1] = frustum[vx] * 4;
+		MatrixProcessor.reset(matrix);
+		matrix[0][0] = -frustum[vx] * 4;
+		matrix[1][1] = -frustum[vx] * 4;
 		matrix[2][2] = 1;
 		matrix[3][2] = frustum[vx] << MathProcessor.FP_SHIFT;
 		return matrix;
 	}
-	
-	public static int[][] projectionToScreen(Camera camera) {
+
+	public static int[][] projectionToScreenMatrix(int[][] matrix, Camera camera) {
 		int[] canvas = camera.getCanvas();
-		int[][] matrix = MatrixProcessor.generate();
+		MatrixProcessor.reset(matrix);
 		matrix[3][0] = (canvas[vz] >> 1) << MathProcessor.FP_SHIFT;
 		matrix[3][1] = (canvas[vw] >> 1) << MathProcessor.FP_SHIFT;
 		return matrix;
 	}
-	
-	public static void drawLine(int x1, int y1, int x2, int y2, int z, int color, Camera camera, GraphicsBuffer graphicsBuffer) {
-		int dx = Math.abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
-		int dy = -Math.abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
-		int err = dx + dy, e2; /* error value e_xy */
 
-		while (true) {
-			graphicsBuffer.setPixel(x1, y1, 1, ColorProcessor.convert(0, 0, 0));
-			if (x1 == x2 && y1 == y2)
-				break;
-			e2 = 2 * err;
-			if (e2 > dy) {
-				err += dy;
-				x1 += sx;
-			} /* e_xy+e_x > 0 */
-			if (e2 < dx) {
-				err += dx;
-				y1 += sy;
-			} /* e_xy+e_y < 0 */
+	public static void drawFace(Face face, GraphicsBuffer graphicsBuffer) {
+		int[] location1 = face.getVertex1().getLocation();
+		int[] location2 = face.getVertex2().getLocation();
+		int[] location3 = face.getVertex3().getLocation();
+		// y sorting
+		if (location1[vy] > location2[vy]) {
+			location1 = face.getVertex2().getLocation();
+			location2 = face.getVertex1().getLocation();
+		}
+		if (location2[vy] > location3[vy]) {
+			location2 = face.getVertex3().getLocation();
+			location3 = face.getVertex1().getLocation();
+		}
+		if (location1[vy] > location2[vy]) {
+			location1 = face.getVertex3().getLocation();
+			location2 = face.getVertex2().getLocation();
+		}
+		// delta x (how much x changes for each y value)
+		int dx1 = 0;
+		int dx2 = 0;
+		int dx3 = 0;
+		// delta z (how much z changes for each x value)
+		int dz = 0;
+		// delta z (how much z changes for each y value)
+		int dz1 = 0;
+		int dz2 = 0;
+		int dz3 = 0;
+		// y distance
+		int y2y1 = location2[vy] - location1[vy];
+		int y3y1 = location3[vy] - location1[vy];
+		int y3y2 = location3[vy] - location2[vy];
+		if (y2y1 > 0) {
+			dx1 = ((location2[vx] - location1[vx]) << MathProcessor.FP_SHIFT) / y2y1;
+			dz1 = ((location2[vz] - location1[vz]) << MathProcessor.FP_SHIFT) / y2y1;
+		}
+		if (y3y1 > 0) {
+			dx2 = ((location3[vx] - location1[vx]) << MathProcessor.FP_SHIFT) / y3y1;
+			dz2 = ((location3[vz] - location1[vz]) << MathProcessor.FP_SHIFT) / y3y1;
+		}
+		if (y3y2 > 0) {
+			dx3 = ((location3[vx] - location2[vx]) << MathProcessor.FP_SHIFT) / y3y2;
+			dz3 = ((location3[vz] - location2[vz]) << MathProcessor.FP_SHIFT) / y3y2;
+		}
+		int sx = location1[vx] << MathProcessor.FP_SHIFT;
+		int ex = location1[vx] << MathProcessor.FP_SHIFT;
+		int sz = location1[vz] << MathProcessor.FP_SHIFT;
+		int sy = location1[vy];
+		int dxdx = dx1 - dx2;
+		if (dxdx > 0) {
+			dz = ((dz1 - dz2) << MathProcessor.FP_SHIFT) / dxdx;
+		}
+		for (; sy < location2[vy]; sy++) {
+			drawHorizontalLine(sx >> MathProcessor.FP_SHIFT, ex >> MathProcessor.FP_SHIFT, sz, dz3, sy, face.getMaterial().getShader(), graphicsBuffer);
+			sx += dx2;
+			ex += dx1;
+			sz += dz2;
+		}
+		ex = location2[vx] << MathProcessor.FP_SHIFT;
+		dxdx = dx3 - dx2;
+		if (dxdx > 0) {
+			dz = ((dz3 - dz2) << MathProcessor.FP_SHIFT) / dxdx;
+		}
+		for (; sy < location3[vy]; sy++) {
+			drawHorizontalLine(sx >> MathProcessor.FP_SHIFT, ex >> MathProcessor.FP_SHIFT, sz, dz3, sy, face.getMaterial().getShader(), graphicsBuffer);
+			sx += dx2;
+			ex += dx3;
+			sz += dz2;
+		}
+	}
+
+	private static void drawHorizontalLine(int sx, int ex, int sz, int dz, int sy, Shader shader, GraphicsBuffer graphicsBuffer) {
+		if (sx < ex) {
+			for (; sx < ex; sx++) {
+				int color = shader.fragment(sx, sy, sz);
+				graphicsBuffer.setPixel(sx, sy, sz, color);
+				sz += dz;
+			}
+		} else {
+			for (; sx > ex; sx--) {
+				int color = shader.fragment(sx, sy, sz);
+				graphicsBuffer.setPixel(sx, sy, sz, color);
+				sz -= dz;
+			}
 		}
 	}
 }

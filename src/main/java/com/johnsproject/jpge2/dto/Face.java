@@ -26,24 +26,28 @@ package com.johnsproject.jpge2.dto;
 public class Face {
 		
 	private int index;
-	private int vertex1;
-	private int vertex2;
-	private int vertex3;
+	private int vertex1Index;
+	private int vertex2Index;
+	private int vertex3Index;
+	private Vertex vertex1;
+	private Vertex vertex2;
+	private Vertex vertex3;
 	private int[] uv1;
 	private int[] uv2;
 	private int[] uv3;
-	private int material;
+	private int materialIndex;
+	private Material material;
 	private Model model;	
 
 	public Face(int index, int vertex1, int vertex2, int vertex3, int material, int[] uv1, int[] uv2, int[] uv3) {
 		this.index = index;
-		this.vertex1 = vertex1;
-		this.vertex2 = vertex2;
-		this.vertex3 = vertex3;
+		this.vertex1Index = vertex1;
+		this.vertex2Index = vertex2;
+		this.vertex3Index = vertex3;
 		this.uv1 = uv1;
 		this.uv2 = uv2;
 		this.uv3 = uv3;
-		this.material = material;
+		this.materialIndex = material;
 	}
 
 	public int getIndex() {
@@ -55,19 +59,23 @@ public class Face {
 	}
 
 	public void setModel(Model model) {
+		this.vertex1 = model.getVertex(vertex1Index);
+		this.vertex2 = model.getVertex(vertex2Index);
+		this.vertex3 = model.getVertex(vertex3Index);
+		this.material = model.getMaterial(materialIndex);
 		this.model = model;
 	}
 
 	public Vertex getVertex1() {
-		return model.getVertex(vertex1);
+		return vertex1;
 	}
 
 	public Vertex getVertex2() {
-		return model.getVertex(vertex2);
+		return vertex2;
 	}
 
 	public Vertex getVertex3() {
-		return model.getVertex(vertex3);
+		return vertex3;
 	}
 
 	public int[] getUV1() {
@@ -83,6 +91,6 @@ public class Face {
 	}
 
 	public Material getMaterial() {
-		return model.getMaterial(material);
+		return material;
 	}
 }

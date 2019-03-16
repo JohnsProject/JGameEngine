@@ -23,6 +23,8 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.processing.GraphicsProcessor;
+import com.johnsproject.jpge2.processing.MatrixProcessor;
 import com.johnsproject.jpge2.processing.VectorProcessor;
 
 public class Camera extends SceneObject {
@@ -34,6 +36,10 @@ public class Camera extends SceneObject {
 	
 	private int[] canvas;
 	private int[] viewFrustum;
+	private int[][] viewMatrix = MatrixProcessor.generate();
+	private int[][] perspectiveMatrix = MatrixProcessor.generate();
+	private int[][] orthographicMatrix = MatrixProcessor.generate();
+	private int[][] screenMatrix = MatrixProcessor.generate();
 
 	public Camera(String name, Transform transform, int[] canvas) {
 		super(name, transform);
@@ -68,5 +74,33 @@ public class Camera extends SceneObject {
 		this.viewFrustum[vx] = fov;
 		this.viewFrustum[vy] = near;
 		this.viewFrustum[vz] = far;
+	}
+
+	public int[][] getViewMatrix() {
+		if (this.hasChanged()) {
+			GraphicsProcessor.worldToViewMatrix(viewMatrix, this);
+		}
+		return viewMatrix;
+	}
+
+	public int[][] getPerspectiveMatrix() {
+		if (this.hasChanged()) {
+			GraphicsProcessor.viewToPerspectiveMatrix(perspectiveMatrix, this);
+		}
+		return perspectiveMatrix;
+	}
+
+	public int[][] getOrthographicMatrix() {
+		if (this.hasChanged()) {
+			GraphicsProcessor.viewToOrthographicMatrix(orthographicMatrix, this);
+		}
+		return orthographicMatrix;
+	}
+
+	public int[][] getScreenMatrix() {
+		if (this.hasChanged()) {
+			GraphicsProcessor.projectionToScreenMatrix(screenMatrix, this);
+		}
+		return screenMatrix;
 	}
 }
