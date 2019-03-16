@@ -15,6 +15,7 @@ public class MathProcessorTest {
 	public void test() throws Exception {
 		// just tests with fixed point math
 		assert(((2 << MathProcessor.FP_SHIFT) + (2 << MathProcessor.FP_SHIFT)) >> MathProcessor.FP_SHIFT == 4);
+		assert(((2 << MathProcessor.FP_SHIFT) + (2 << MathProcessor.FP_SHIFT) + (2 << MathProcessor.FP_SHIFT)) >> MathProcessor.FP_SHIFT == 6);
 		assert(((4 << MathProcessor.FP_SHIFT) - (2 << MathProcessor.FP_SHIFT)) >> MathProcessor.FP_SHIFT == 2);
 		assert(((2 << MathProcessor.FP_SHIFT) * (2 << MathProcessor.FP_SHIFT)) >> (MathProcessor.FP_SHIFT * 2) == 4);
 		assert(((4 << MathProcessor.FP_SHIFT) / 2) >> MathProcessor.FP_SHIFT == 2);

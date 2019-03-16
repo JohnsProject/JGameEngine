@@ -39,7 +39,6 @@ public class Camera extends SceneObject {
 	private int[][] viewMatrix = MatrixProcessor.generate();
 	private int[][] perspectiveMatrix = MatrixProcessor.generate();
 	private int[][] orthographicMatrix = MatrixProcessor.generate();
-	private int[][] screenMatrix = MatrixProcessor.generate();
 
 	public Camera(String name, Transform transform, int[] canvas) {
 		super(name, transform);
@@ -95,12 +94,5 @@ public class Camera extends SceneObject {
 			GraphicsProcessor.viewToOrthographicMatrix(orthographicMatrix, this);
 		}
 		return orthographicMatrix;
-	}
-
-	public int[][] getScreenMatrix() {
-		if (this.hasChanged()) {
-			GraphicsProcessor.projectionToScreenMatrix(screenMatrix, this);
-		}
-		return screenMatrix;
 	}
 }

@@ -17,8 +17,10 @@ public class EngineTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, -100);
-		Engine.getInstance().getScene().getLights().get(0).getTransform().translate(0, 0, 10);
+		Engine.getInstance().getScene().getModels().get(0).getTransform().translate(0, 0, 50);
+		Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, -50);
+		Engine.getInstance().getScene().getCameras().get(0).getTransform().rotate(0, 45, 0);
+		Engine.getInstance().getScene().getLights().get(0).getTransform().translate(-10, 0, 0);
 	}
 
 }

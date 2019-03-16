@@ -34,9 +34,7 @@ public class FlatShader implements Shader{
 	}
 
 	public int fragment(int x, int y, int z) {
-		lightDirection[vx] = x;
-		lightDirection[vy] = y;
-		lightDirection[vz] = z;
+		VectorProcessor.copy(lightDirection, x, y, z);
 		VectorProcessor.subtract(lightLocation, lightDirection, lightDirection);
 		int diffuseFactor = Math.max(VectorProcessor.dotProduct(normal, lightDirection), 0) >> MathProcessor.FP_SHIFT;
 		return ColorProcessor.multiply(color, diffuseFactor);

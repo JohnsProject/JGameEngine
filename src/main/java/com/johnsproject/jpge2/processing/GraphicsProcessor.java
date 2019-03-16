@@ -24,13 +24,11 @@ public class GraphicsProcessor {
 			Camera camera = scene.getCameras().get(i);
 			for (int j = 0; j < scene.getModels().size(); j++) {
 				Model model = scene.getModels().get(j);
-				model.getTransform().rotate(1, 1, 0);
 				for (int k = 0; k < scene.getLights().size(); k++) {
 					Light light = scene.getLights().get(k);
 					int[][] world = model.getModelMatrix();
 					int[][] view = camera.getViewMatrix();
 					int[][] projection = camera.getPerspectiveMatrix();
-					int[][] screen = camera.getScreenMatrix();
 					for (int l = 0; l < model.getVertices().length; l++) {
 						Vertex vertex = model.getVertex(l);
 						vertex.reset();
@@ -41,9 +39,8 @@ public class GraphicsProcessor {
 						vertex.getMaterial().getShader().vertex(vertex);
 						VectorProcessor.multiply(location, view, location);
 						VectorProcessor.multiply(location, projection, location);
-						location[vx] /= location[vz];
-						location[vy] /= location[vz];
-						VectorProcessor.multiply(location, screen, location);
+						location[vx] = (location[vx] / location[vz]) + (camera.getCanvas()[vz] >> 1);
+						location[vy] = (location[vy] / location[vz]) + (camera.getCanvas()[vw] >> 1);
 					}
 					for (int l = 0; l < model.getFaces().length; l++) {
 						Face face = model.getFace(l);
@@ -77,10 +74,10 @@ public class GraphicsProcessor {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		MatrixProcessor.reset(matrix);
+		MatrixProcessor.translate(matrix, -location[vx], -location[vy], -location[vz]);
 		MatrixProcessor.rotateX(matrix, -rotation[vx]);
 		MatrixProcessor.rotateY(matrix, -rotation[vy]);
 		MatrixProcessor.rotateZ(matrix, -rotation[vz]);
-		MatrixProcessor.translate(matrix, -location[vx], -location[vy], -location[vz]);
 		return matrix;
 	}
 
@@ -99,15 +96,6 @@ public class GraphicsProcessor {
 		matrix[0][0] = -frustum[vx] * 4;
 		matrix[1][1] = -frustum[vx] * 4;
 		matrix[2][2] = -1;
-		matrix[3][2] = frustum[vx] << MathProcessor.FP_SHIFT;
-		return matrix;
-	}
-
-	public static int[][] projectionToScreenMatrix(int[][] matrix, Camera camera) {
-		int[] canvas = camera.getCanvas();
-		MatrixProcessor.reset(matrix);
-		matrix[3][0] = (canvas[vz] >> 1) << MathProcessor.FP_SHIFT;
-		matrix[3][1] = (canvas[vw] >> 1) << MathProcessor.FP_SHIFT;
 		return matrix;
 	}
 
@@ -115,7 +103,7 @@ public class GraphicsProcessor {
 	private static final int[] location2 = VectorProcessor.generate();
 	private static final int[] location3 = VectorProcessor.generate();
 	private static final int[] temp = VectorProcessor.generate();
-
+	
 	public static void drawFace(Face face, GraphicsBuffer graphicsBuffer) {
 		Shader shader = face.getMaterial().getShader();
 		VectorProcessor.copy(location1, face.getVertex1().getLocation());

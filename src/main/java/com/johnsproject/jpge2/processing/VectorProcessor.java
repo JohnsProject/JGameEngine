@@ -7,17 +7,18 @@ public class VectorProcessor {
 	public static final byte VECTOR_Z = 2;
 	public static final byte VECTOR_W = 3;
 	
-	public static final int[] VECTOR_UP = generate(0, 1, 0);
-	public static final int[] VECTOR_DOWN = generate(0, -1, 0);
-	public static final int[] VECTOR_RIGHT = generate(1, 0, 0);
-	public static final int[] VECTOR_LEFT = generate(-1, 0, 0);
-	public static final int[] VECTOR_FORWARD = generate(0, 0, 1);
-	public static final int[] VECTOR_BACK = generate(0, 0, -1);
-	public static final int[] VECTOR_ONE = generate(1, 1, 1);
+	public static final int[] VECTOR_UP = generate(0, MathProcessor.FP_VALUE, 0);
+	public static final int[] VECTOR_DOWN = generate(0, -MathProcessor.FP_VALUE, 0);
+	public static final int[] VECTOR_RIGHT = generate(MathProcessor.FP_VALUE, 0, 0);
+	public static final int[] VECTOR_LEFT = generate(-MathProcessor.FP_VALUE, 0, 0);
+	public static final int[] VECTOR_FORWARD = generate(0, 0, MathProcessor.FP_VALUE);
+	public static final int[] VECTOR_BACK = generate(0, 0, -MathProcessor.FP_VALUE);
+	public static final int[] VECTOR_ONE = generate(MathProcessor.FP_VALUE, MathProcessor.FP_VALUE, MathProcessor.FP_VALUE);
 	public static final int[] VECTOR_ZERO = generate(0, 0, 0);
 	
 	
 	private static final int[] vectorCache1 = VectorProcessor.generate();
+	private static final int[] vectorCache2 = VectorProcessor.generate();
 	
 	/**
 	 * Generates a vector using the given values and returns it.
@@ -42,7 +43,7 @@ public class VectorProcessor {
 	 * @return
 	 */
 	public static int[] generate(int x, int y, int z) {
-		return new int[] {x, y, z, 1};
+		return new int[] {x, y, z, MathProcessor.FP_VALUE};
 	}
 
 	/**
@@ -54,7 +55,7 @@ public class VectorProcessor {
 	 * @return
 	 */
 	public static int[] generate(int x, int y) {
-		return new int[] {x, y, 0, 1};
+		return new int[] {x, y, 0, MathProcessor.FP_VALUE};
 	}
 	
 	/**
@@ -225,17 +226,26 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public static void crossProduct(int[] vector1, int[] vector2, int[] out) {
-		out[VECTOR_X] = MathProcessor.multiply(vector1[VECTOR_Y], vector2[VECTOR_Z]) - MathProcessor.multiply(vector1[VECTOR_Z], vector2[VECTOR_Y]);
-		out[VECTOR_Y] = MathProcessor.multiply(vector1[VECTOR_Z], vector2[VECTOR_X]) - MathProcessor.multiply(vector1[VECTOR_X], vector2[VECTOR_Z]);
-		out[VECTOR_Z] = MathProcessor.multiply(vector1[VECTOR_X], vector2[VECTOR_Y]) - MathProcessor.multiply(vector1[VECTOR_Y], vector2[VECTOR_X]);
+		// ensures that will return right values if vector is the same as out
+		copy(vectorCache1, vector1);
+		copy(vectorCache2, vector2);
+		out[VECTOR_X] = MathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_Z]) - MathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_Y]);
+		out[VECTOR_Y] = MathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_X]) - MathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Z]);
+		out[VECTOR_Z] = MathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Y]) - MathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_X]);
 	}
 	
-	public static void normalize(int[] a, int[] out) {
-		int m = magnitude(a);
-		if (m != 0) {
-			out[VECTOR_X] = (a[VECTOR_X] << MathProcessor.FP_SHIFT) / m;
-			out[VECTOR_Y] = (a[VECTOR_Y] << MathProcessor.FP_SHIFT) / m;
-			out[VECTOR_Z] = (a[VECTOR_Z] << MathProcessor.FP_SHIFT) / m;
+	/**
+	 * Sets out equals the normalized vector.
+	 * 
+	 * @param vector
+	 * @param out
+	 */
+	public static void normalize(int[] vector, int[] out) {
+		int magnitude = magnitude(vector);
+		if (magnitude != 0) {
+			out[VECTOR_X] = (vector[VECTOR_X] << MathProcessor.FP_SHIFT) / magnitude;
+			out[VECTOR_Y] = (vector[VECTOR_Y] << MathProcessor.FP_SHIFT) / magnitude;
+			out[VECTOR_Z] = (vector[VECTOR_Z] << MathProcessor.FP_SHIFT) / magnitude;
 		}
 	}
 
@@ -252,6 +262,8 @@ public class VectorProcessor {
 		if (vector1[VECTOR_Y] != vector2[VECTOR_Y])
 			return false;
 		if (vector1[VECTOR_Z] != vector2[VECTOR_Z])
+			return false;
+		if (vector1[VECTOR_W] != vector2[VECTOR_W])
 			return false;
 		return true;
 	}
@@ -276,18 +288,23 @@ public class VectorProcessor {
 		tmp = vector1[VECTOR_Z];
 		vector1[VECTOR_Z] = vector2[VECTOR_Z];
 		vector2[VECTOR_Z] = tmp;
+		// swap w values
+		tmp = vector1[VECTOR_W];
+		vector1[VECTOR_W] = vector2[VECTOR_W];
+		vector2[VECTOR_W] = tmp;
 	}
 
 	/**
 	 * Inverts the sign of all values of the vector.
 	 * 
 	 * @param vector
-	 * @return vector with inverted sign.
+	 * @return
 	 */
 	public static int[] invert(int[] vector) {
 		vector[VECTOR_X] = -vector[VECTOR_X];
 		vector[VECTOR_Y] = -vector[VECTOR_Y];
 		vector[VECTOR_Z] = -vector[VECTOR_Z];
+		vector[VECTOR_W] = -vector[VECTOR_W];
 		return vector;
 	}
 
@@ -296,12 +313,61 @@ public class VectorProcessor {
 	 * 
 	 * @param vector vector with values.
 	 * @param target target vector.
-	 * @return target containing values of vector.
+	 * @return
 	 */
 	public static int[] copy(int[] target, int[] vector) {
 		target[VECTOR_X] = vector[VECTOR_X];
 		target[VECTOR_Y] = vector[VECTOR_Y];
 		target[VECTOR_Z] = vector[VECTOR_Z];
+		target[VECTOR_W] = vector[VECTOR_W];
+		return target;
+	}
+
+	/**
+	 * Copies the value of vector to the target.
+	 * 
+	 * @param target
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static int[] copy(int[] target, int x, int y) {
+		target[VECTOR_X] = x;
+		target[VECTOR_Y] = y;
+		return target;
+	}
+	
+	/**
+	 * Copies the value of vector to the target.
+	 * 
+	 * @param target
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public static int[] copy(int[] target, int x, int y, int z) {
+		target[VECTOR_X] = x;
+		target[VECTOR_Y] = y;
+		target[VECTOR_Z] = z;
+		return target;
+	}
+	
+	/**
+	 * Copies the value of vector to the target.
+	 * 
+	 * @param target
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param w
+	 * @return
+	 */
+	public static int[] copy(int[] target, int x, int y, int z, int w) {
+		target[VECTOR_X] = x;
+		target[VECTOR_Y] = y;
+		target[VECTOR_Z] = z;
+		target[VECTOR_W] = w;
 		return target;
 	}
 
@@ -309,7 +375,7 @@ public class VectorProcessor {
 	 * Returns a string containing the data of the given vector.
 	 * 
 	 * @param vector
-	 * @return string with data.
+	 * @return
 	 */
 	public static String toString(int[] vector) {
 		String result = "(";
