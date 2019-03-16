@@ -32,6 +32,7 @@ public class Face {
 	private Vertex vertex1;
 	private Vertex vertex2;
 	private Vertex vertex3;
+	private int[] normal;
 	private int[] uv1;
 	private int[] uv2;
 	private int[] uv3;
@@ -39,11 +40,12 @@ public class Face {
 	private Material material;
 	private Model model;	
 
-	public Face(int index, int vertex1, int vertex2, int vertex3, int material, int[] uv1, int[] uv2, int[] uv3) {
+	public Face(int index, int vertex1, int vertex2, int vertex3, int material, int[] normal, int[] uv1, int[] uv2, int[] uv3) {
 		this.index = index;
 		this.vertex1Index = vertex1;
 		this.vertex2Index = vertex2;
 		this.vertex3Index = vertex3;
+		this.normal = normal;
 		this.uv1 = uv1;
 		this.uv2 = uv2;
 		this.uv3 = uv3;
@@ -78,6 +80,10 @@ public class Face {
 		return vertex3;
 	}
 
+	public int[] getNormal() {
+		return normal;
+	}
+	
 	public int[] getUV1() {
 		return uv1;
 	}

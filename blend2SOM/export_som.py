@@ -68,7 +68,8 @@ def write(filepath,
 				# empty value as place for material index later
 				meshData.addV_Material(0)
 			for polygon in me.polygons:
-				meshData.addF_Vertex(polygon)
+				meshData.addF_Vertex(polygon.vertices)
+				meshData.addF_Normal(polygon.normal)
 				meshData.addF_Material(polygon)
 				meshData.addF_UVs(polygon, me)
 			meshData.setF_Count(meshData.fCount + len(me.polygons))
@@ -166,6 +167,15 @@ def writeToFile(filepath, meshData, animsData):
 			file.write(("%i" % value))
 	file.write(" > fMaterial" + "\n")
 	i = 0
+	file.write("fNormal < ")
+	for value in meshData.fNormal:
+		i += 1
+		if (i < len(meshData.fNormal)):
+			file.write("%f," % value)
+		else:
+			file.write(("%f" % value))
+	file.write(" > fNormal" + "\n")
+	i = 0
 	file.write("fUV1 < ")
 	for value in meshData.fUV1:
 		i += 1
@@ -261,6 +271,7 @@ class MeshData:
 		self.fVertex1 = []
 		self.fVertex2 = []
 		self.fVertex3 = []
+		self.fNormal = []
 		self.fMaterial = []
 		self.fUV1 = []
 		self.fUV2 = []
@@ -292,9 +303,14 @@ class MeshData:
 		self.fCount = value
 
 	def addF_Vertex(self, value):
-		self.fVertex1.append(self.vCount + value.vertices[0])
-		self.fVertex2.append(self.vCount + value.vertices[1])
-		self.fVertex3.append(self.vCount + value.vertices[2])
+		self.fVertex1.append(self.vCount + value[0])
+		self.fVertex2.append(self.vCount + value[1])
+		self.fVertex3.append(self.vCount + value[2])
+		
+	def addF_Normal(self, value):
+		self.fNormal.append(self.vCount + value[0])
+		self.fNormal.append(self.vCount + value[1])
+		self.fNormal.append(self.vCount + value[2])
 		
 	def addF_Material(self, value):
 		self.fMaterial.append(self.mCount  + value.material_index)

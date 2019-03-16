@@ -68,24 +68,29 @@ public class SOMImporter {
 		String[] fVertex2Data = rawData.split("fVertex2<")[1].split(">fVertex2", 2)[0].split(",");
 		String[] fVertex3Data = rawData.split("fVertex3<")[1].split(">fVertex3", 2)[0].split(",");
 		String[] fMaterialData = rawData.split("fMaterial<")[1].split(">fMaterial", 2)[0].split(",");
+		String[] fNormalData = rawData.split("fNormal<")[1].split(">fNormal", 2)[0].split(",");
 		String[] fUV1Data = rawData.split("fUV1<")[1].split(">fUV1", 2)[0].split(",");
 		String[] fUV2Data = rawData.split("fUV2<")[1].split(">fUV2", 2)[0].split(",");
 		String[] fUV3Data = rawData.split("fUV3<")[1].split(">fUV3", 2)[0].split(",");
-		for (int i = 0; i < faces.length * 2; i += 2) {
-			int vertex1 = getint(fVertex1Data[i / 2]);
-			int vertex2 = getint(fVertex2Data[i / 2]);
-			int vertex3 = getint(fVertex3Data[i / 2]);
-			int material = getint(fMaterialData[i / 2]);
-			int[] uv1 = new int[2];
-			uv1[vx] = (int)(getFloat(fUV1Data[i + vx]) * MathProcessor.FP_VALUE);
-			uv1[vy] = (int)(getFloat(fUV1Data[i + vy]) * MathProcessor.FP_VALUE);
-			int[] uv2 = new int[2];
-			uv2[vx] = (int)(getFloat(fUV2Data[i + vx]) * MathProcessor.FP_VALUE);
-			uv2[vy] = (int)(getFloat(fUV2Data[i + vy]) * MathProcessor.FP_VALUE);
-			int[] uv3 = new int[2];
-			uv3[vx] = (int)(getFloat(fUV3Data[i + vx]) * MathProcessor.FP_VALUE);
-			uv3[vy] = (int)(getFloat(fUV3Data[i + vy]) * MathProcessor.FP_VALUE);
-			faces[i / 2] = new Face(i / 2, vertex1, vertex2, vertex3, material, uv1, uv2, uv3);
+		for (int i = 0; i < faces.length * 6; i += 6) {
+			int vertex1 = getint(fVertex1Data[i / 6]);
+			int vertex2 = getint(fVertex2Data[i / 6]);
+			int vertex3 = getint(fVertex3Data[i / 6]);
+			int material = getint(fMaterialData[i / 6]);
+			int[] normal = VectorProcessor.generate();
+			normal[vx] = (int)(getFloat(fNormalData[(i / 2) + vx]) * MathProcessor.FP_VALUE);
+			normal[vy] = (int)(getFloat(fNormalData[(i / 2) + vy]) * MathProcessor.FP_VALUE);
+			normal[vz] = (int)(getFloat(fNormalData[(i / 2) + vz]) * MathProcessor.FP_VALUE);
+			int[] uv1 = VectorProcessor.generate();
+			uv1[vx] = (int)(getFloat(fUV1Data[(i / 3) + vx]) * MathProcessor.FP_VALUE);
+			uv1[vy] = (int)(getFloat(fUV1Data[(i / 3) + vy]) * MathProcessor.FP_VALUE);
+			int[] uv2 = VectorProcessor.generate();
+			uv2[vx] = (int)(getFloat(fUV2Data[(i / 3) + vx]) * MathProcessor.FP_VALUE);
+			uv2[vy] = (int)(getFloat(fUV2Data[(i / 3) + vy]) * MathProcessor.FP_VALUE);
+			int[] uv3 = VectorProcessor.generate();
+			uv3[vx] = (int)(getFloat(fUV3Data[(i / 3) + vx]) * MathProcessor.FP_VALUE);
+			uv3[vy] = (int)(getFloat(fUV3Data[(i / 3) + vy]) * MathProcessor.FP_VALUE);
+			faces[i / 6] = new Face(i / 6, vertex1, vertex2, vertex3, material, normal, uv1, uv2, uv3);
 		}
 		return faces;
 	}

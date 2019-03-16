@@ -24,11 +24,12 @@ public class GraphicsProcessor {
 			Camera camera = scene.getCameras().get(i);
 			for (int j = 0; j < scene.getModels().size(); j++) {
 				Model model = scene.getModels().get(j);
+				model.getTransform().rotate(1, 1, 0);
 				for (int k = 0; k < scene.getLights().size(); k++) {
 					Light light = scene.getLights().get(k);
 					int[][] world = model.getModelMatrix();
 					int[][] view = camera.getViewMatrix();
-					int[][] projection = camera.getOrthographicMatrix();
+					int[][] projection = camera.getPerspectiveMatrix();
 					int[][] screen = camera.getScreenMatrix();
 					for (int l = 0; l < model.getVertices().length; l++) {
 						Vertex vertex = model.getVertex(l);
@@ -105,22 +106,31 @@ public class GraphicsProcessor {
 		return matrix;
 	}
 
+	private static final int[] location1 = VectorProcessor.generate();
+	private static final int[] location2 = VectorProcessor.generate();
+	private static final int[] location3 = VectorProcessor.generate();
+	private static final int[] temp = VectorProcessor.generate();
+
 	public static void drawFace(Face face, GraphicsBuffer graphicsBuffer) {
-		int[] location1 = face.getVertex1().getLocation();
-		int[] location2 = face.getVertex2().getLocation();
-		int[] location3 = face.getVertex3().getLocation();
+		Shader shader = face.getMaterial().getShader();
+		VectorProcessor.copy(location1, face.getVertex1().getLocation());
+		VectorProcessor.copy(location2, face.getVertex2().getLocation());
+		VectorProcessor.copy(location3, face.getVertex3().getLocation());
 		// y sorting
 		if (location1[vy] > location2[vy]) {
-			location1 = face.getVertex2().getLocation();
-			location2 = face.getVertex1().getLocation();
+			VectorProcessor.copy(temp, location1);
+			VectorProcessor.copy(location1, location2);
+			VectorProcessor.copy(location2, temp);
 		}
 		if (location2[vy] > location3[vy]) {
-			location2 = face.getVertex3().getLocation();
-			location3 = face.getVertex1().getLocation();
+			VectorProcessor.copy(temp, location2);
+			VectorProcessor.copy(location2, location3);
+			VectorProcessor.copy(location3, temp);
 		}
 		if (location1[vy] > location2[vy]) {
-			location1 = face.getVertex3().getLocation();
-			location2 = face.getVertex2().getLocation();
+			VectorProcessor.copy(temp, location1);
+			VectorProcessor.copy(location1, location2);
+			VectorProcessor.copy(location2, temp);
 		}
 		// delta x (how much x changes for each y value)
 		int dx1 = 0;
@@ -157,7 +167,7 @@ public class GraphicsProcessor {
 			dz = ((dz1 - dz2) << MathProcessor.FP_SHIFT) / dxdx;
 		}
 		for (; sy < location2[vy]; sy++) {
-			drawHorizontalLine(sx >> MathProcessor.FP_SHIFT, ex >> MathProcessor.FP_SHIFT, sz, dz3, sy, face.getMaterial().getShader(), graphicsBuffer);
+			drawHorizontalLine(sx >> MathProcessor.FP_SHIFT, ex >> MathProcessor.FP_SHIFT, sz, dz, sy, shader, graphicsBuffer);
 			sx += dx2;
 			ex += dx1;
 			sz += dz2;
@@ -168,7 +178,7 @@ public class GraphicsProcessor {
 			dz = ((dz3 - dz2) << MathProcessor.FP_SHIFT) / dxdx;
 		}
 		for (; sy < location3[vy]; sy++) {
-			drawHorizontalLine(sx >> MathProcessor.FP_SHIFT, ex >> MathProcessor.FP_SHIFT, sz, dz3, sy, face.getMaterial().getShader(), graphicsBuffer);
+			drawHorizontalLine(sx >> MathProcessor.FP_SHIFT, ex >> MathProcessor.FP_SHIFT, sz, dz, sy, shader, graphicsBuffer);
 			sx += dx2;
 			ex += dx3;
 			sz += dz2;
@@ -178,14 +188,16 @@ public class GraphicsProcessor {
 	private static void drawHorizontalLine(int sx, int ex, int sz, int dz, int sy, Shader shader, GraphicsBuffer graphicsBuffer) {
 		if (sx < ex) {
 			for (; sx < ex; sx++) {
-				int color = shader.fragment(sx, sy, sz);
-				graphicsBuffer.setPixel(sx, sy, sz, color);
+				int color = shader.fragment(sx, sy, sz >> MathProcessor.FP_SHIFT);
+				if (color != 0)
+					graphicsBuffer.setPixel(sx, sy, sz >> MathProcessor.FP_SHIFT, color);
 				sz += dz;
 			}
 		} else {
-			for (; sx > ex; sx--) {
-				int color = shader.fragment(sx, sy, sz);
-				graphicsBuffer.setPixel(sx, sy, sz, color);
+			for (; ex < sx; ex++) {
+				int color = shader.fragment(ex, sy, sz >> MathProcessor.FP_SHIFT);
+				if (color != 0)
+					graphicsBuffer.setPixel(ex, sy, sz >> MathProcessor.FP_SHIFT, color);
 				sz -= dz;
 			}
 		}
