@@ -26,9 +26,10 @@ public class GraphicsProcessor {
 				Model model = scene.getModels().get(j);
 				for (int k = 0; k < scene.getLights().size(); k++) {
 					Light light = scene.getLights().get(k);
-					int[][] world = model.getModelMatrix();
-					int[][] view = camera.getViewMatrix();
-					int[][] projection = camera.getPerspectiveMatrix();
+					int[][] worldMatrix = model.getModelMatrix();
+					int[][] normalMatrix = model.getNormalMatrix();
+					int[][] viewMatrix = camera.getViewMatrix();
+					int[][] projectionMatrix = camera.getPerspectiveMatrix();
 					for (int l = 0; l < model.getMaterials().length; l++) {
 						model.getMaterial(l).getShader().setup(camera, light);
 					}
@@ -37,11 +38,11 @@ public class GraphicsProcessor {
 						vertex.reset();
 						int[] location = vertex.getLocation();
 						int[] normal = vertex.getNormal();
-						VectorProcessor.multiply(location, world, location);
-						VectorProcessor.multiply(normal, world, normal);
+						VectorProcessor.multiply(location, worldMatrix, location);
+						VectorProcessor.multiply(normal, normalMatrix, normal);
 						vertex.getMaterial().getShader().vertex(vertex);
-						VectorProcessor.multiply(location, view, location);
-						VectorProcessor.multiply(location, projection, location);
+						VectorProcessor.multiply(location, viewMatrix, location);
+						VectorProcessor.multiply(location, projectionMatrix, location);
 						location[vx] = (location[vx] / location[vz]) + (camera.getCanvas()[vz] >> 1);
 						location[vy] = (location[vy] / location[vz]) + (camera.getCanvas()[vw] >> 1);
 					}
@@ -49,7 +50,7 @@ public class GraphicsProcessor {
 						Face face = model.getFace(l);
 						face.reset();
 						int[] normal = face.getNormal();
-						VectorProcessor.multiply(normal, world, normal);
+						VectorProcessor.multiply(normal, normalMatrix, normal);
 						face.getMaterial().getShader().geometry(face);
 						drawFace(face, graphicsBuffer);
 					}
@@ -58,7 +59,7 @@ public class GraphicsProcessor {
 		}
 	}
 
-	public static int[][] modelToWorldMatrix(int[][] matrix, Model model) {
+	public static int[][] worldMatrix(int[][] matrix, Model model) {
 		Transform transform = model.getTransform();
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
@@ -71,20 +72,32 @@ public class GraphicsProcessor {
 		MatrixProcessor.translate(matrix, location[vx], location[vy], location[vz]);
 		return matrix;
 	}
+	
+	public static int[][] normalMatrix(int[][] matrix, Model model) {
+		Transform transform = model.getTransform();
+		int[] rotation = transform.getRotation();
+		int[] scale = transform.getScale();
+		MatrixProcessor.reset(matrix);
+		MatrixProcessor.rotateX(matrix, rotation[vx]);
+		MatrixProcessor.rotateY(matrix, rotation[vy]);
+		MatrixProcessor.rotateZ(matrix, rotation[vz]);
+		MatrixProcessor.scale(matrix, scale[vx], scale[vy], scale[vz]);
+		return matrix;
+	}
 
-	public static int[][] worldToViewMatrix(int[][] matrix, Camera camera) {
+	public static int[][] viewMatrix(int[][] matrix, Camera camera) {
 		Transform transform = camera.getTransform();
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		MatrixProcessor.reset(matrix);
-		MatrixProcessor.translate(matrix, -location[vx], -location[vy], location[vz]);
+		MatrixProcessor.translate(matrix, -location[vx], -location[vy], -location[vz]);
 		MatrixProcessor.rotateX(matrix, -rotation[vx]);
 		MatrixProcessor.rotateY(matrix, -rotation[vy]);
 		MatrixProcessor.rotateZ(matrix, -rotation[vz]);
 		return matrix;
 	}
 
-	public static int[][] viewToOrthographicMatrix(int[][] matrix, Camera camera) {
+	public static int[][] orthographicMatrix(int[][] matrix, Camera camera) {
 		MatrixProcessor.reset(matrix);
 		matrix[0][0] = -1;
 		matrix[1][1] = -1;
@@ -93,7 +106,7 @@ public class GraphicsProcessor {
 		return matrix;
 	}
 
-	public static int[][] viewToPerspectiveMatrix(int[][] matrix, Camera camera) {
+	public static int[][] perspectiveMatrix(int[][] matrix, Camera camera) {
 		int[] frustum = camera.getViewFrustum();
 		MatrixProcessor.reset(matrix);
 		matrix[0][0] = -frustum[vx] * 4;

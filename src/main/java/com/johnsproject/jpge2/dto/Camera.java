@@ -77,21 +77,21 @@ public class Camera extends SceneObject {
 
 	public int[][] getViewMatrix() {
 		if (this.hasChanged()) {
-			GraphicsProcessor.worldToViewMatrix(viewMatrix, this);
+			GraphicsProcessor.viewMatrix(viewMatrix, this);
 		}
 		return viewMatrix;
 	}
 
 	public int[][] getPerspectiveMatrix() {
 		if (this.hasChanged()) {
-			GraphicsProcessor.viewToPerspectiveMatrix(perspectiveMatrix, this);
+			GraphicsProcessor.perspectiveMatrix(perspectiveMatrix, this);
 		}
 		return perspectiveMatrix;
 	}
 
 	public int[][] getOrthographicMatrix() {
 		if (this.hasChanged()) {
-			GraphicsProcessor.viewToOrthographicMatrix(orthographicMatrix, this);
+			GraphicsProcessor.orthographicMatrix(orthographicMatrix, this);
 		}
 		return orthographicMatrix;
 	}
