@@ -50,7 +50,7 @@ public class ColorProcessor {
 		return convert(r, g, b, a);
 	}
 	
-	public static int multiplyRBGA(int color, int factor) {
+	public static int multiplyRGBA(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
 		factor += 255;
 		r = (r * factor) >> 8;
@@ -60,27 +60,22 @@ public class ColorProcessor {
 		return convert(r, g, b, a);
 	}
 	
-	public static int lerpRBG(int color1, int color2, int factor) {
-		int r = 0, g = 0, b = 0;
+	public static int multiplyColor(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
-//		r = (r1 + ((r2 - r1) * factor)>>8);
-//		g = (g1 + ((g2 - g1) * factor)>>8);
-//		b = (b1 + ((b2 - b1) * factor)>>8);
-		r = (((r2 - r1) * factor)>>8) + r1;
-		g = (((g2 - g1) * factor)>>8) + g1;
-		b = (((b2 - b1) * factor)>>8) + b1;
+		int r = (r1 * r2) >> 8;
+		int g = (g1 * g2) >> 8;
+		int b = (b1 * b2) >> 8;
 		return convert(r, g, b, a1);
 	}
 	
-	public static int lerp(int color1, int color2, int factor) {
-		int r = 0, g = 0, b = 0, a = 0;
+	public static int multiplyColorRGBA(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
-		r = (r1 + ((r2 - r1) * factor)>>8);
-		g = (g1 + ((g2 - g1) * factor)>>8);
-		b = (b1 + ((b2 - b1) * factor)>>8);
-		a = (a1 + ((a2 - a1) * factor)>>8);
+		int r = (r1 * r2) >> 8;
+		int g = (g1 * g2) >> 8;
+		int b = (b1 * b2) >> 8;
+		int a = (a1 * a2) >> 8;
 		return convert(r, g, b, a);
-	}	
+	}
 }

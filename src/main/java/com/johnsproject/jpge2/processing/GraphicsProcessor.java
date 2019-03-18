@@ -29,6 +29,9 @@ public class GraphicsProcessor {
 					int[][] world = model.getModelMatrix();
 					int[][] view = camera.getViewMatrix();
 					int[][] projection = camera.getPerspectiveMatrix();
+					for (int l = 0; l < model.getMaterials().length; l++) {
+						model.getMaterial(l).getShader().setup(camera, light);
+					}
 					for (int l = 0; l < model.getVertices().length; l++) {
 						Vertex vertex = model.getVertex(l);
 						vertex.reset();
@@ -47,7 +50,7 @@ public class GraphicsProcessor {
 						face.reset();
 						int[] normal = face.getNormal();
 						VectorProcessor.multiply(normal, world, normal);
-						face.getMaterial().getShader().geometry(face, light);
+						face.getMaterial().getShader().geometry(face);
 						drawFace(face, graphicsBuffer);
 					}
 				}

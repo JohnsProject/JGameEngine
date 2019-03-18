@@ -36,7 +36,7 @@ public class Light extends SceneObject{
 	public Light(String name, Transform transform) {
 		super(name, transform);
 		this.type = LIGHT_DIRECTIONAL;
-		this.color = ColorProcessor.convert(100, 100, 100);
+		this.color = ColorProcessor.convert(255, 255, 255);
 	}
 
 	public int getType() {

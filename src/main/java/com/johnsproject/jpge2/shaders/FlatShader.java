@@ -2,42 +2,30 @@ package com.johnsproject.jpge2.shaders;
 
 import com.johnsproject.jpge2.Shader;
 import com.johnsproject.jpge2.dto.Face;
-import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processing.ColorProcessor;
 import com.johnsproject.jpge2.processing.MathProcessor;
 import com.johnsproject.jpge2.processing.VectorProcessor;
 
-public class FlatShader implements Shader{
-
-	private static final int vx = VectorProcessor.VECTOR_X;
-	private static final int vy = VectorProcessor.VECTOR_Y;
-	private static final int vz = VectorProcessor.VECTOR_Z;
-	private static final int vw = VectorProcessor.VECTOR_W;
-
-	private static final int AMBIENT_FACTOR = 10;
-
-	private static int[] lightDirection = VectorProcessor.generate();
-	private static int[] lightLocation = VectorProcessor.generate();
+public class FlatShader extends Shader {
+	
 	private static int color;
-	private static int[] normal = VectorProcessor.generate();
 	
 	public void vertex(Vertex vertex) {
 		
 	}
 
-	public void geometry(Face face, Light light) {
-		VectorProcessor.copy(normal, face.getNormal());
-		VectorProcessor.copy(lightLocation, light.getTransform().getLocation());
+	public void geometry(Face face) {
+		int dotProduct = VectorProcessor.dotProduct(face.getNormal(), light.getTransform().getLocation());
+		int diffuseFactor = Math.max(dotProduct, 0) >> MathProcessor.FP_SHIFT;
 		color = face.getMaterial().getColor();
 		color = ColorProcessor.multiply(color, AMBIENT_FACTOR);
+		color = ColorProcessor.multiply(color, diffuseFactor);
+		color = ColorProcessor.multiplyColor(color, light.getColor());
 	}
 
 	public int fragment(int x, int y, int z) {
-		VectorProcessor.copy(lightDirection, x, y, z);
-		VectorProcessor.subtract(lightLocation, lightDirection, lightDirection);
-		int diffuseFactor = Math.max(VectorProcessor.dotProduct(normal, lightDirection), 0) >> MathProcessor.FP_SHIFT;
-		return ColorProcessor.multiply(color, diffuseFactor);
+		return color;
 	}
 
 }
