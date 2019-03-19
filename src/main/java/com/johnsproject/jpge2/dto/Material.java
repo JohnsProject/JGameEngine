@@ -35,11 +35,11 @@ public class Material {
 	private Texture texture;
 	private Shader shader;
 	
-	public Material(int index, int diffuseColor, Texture texture){
+	public Material(int index, int diffuseColor, int diffuseIntensity, int specularIntensity, Texture texture){
 		this.index = index;
-		this.diffuseIntensity = 100;
 		this.diffuseColor = diffuseColor;
-		this.specularIntensity = 0;
+		this.diffuseIntensity = diffuseIntensity;
+		this.specularIntensity = specularIntensity;
 		this.texture = texture;
 		this.shader = new FlatShader();
 	}

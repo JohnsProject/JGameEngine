@@ -76,7 +76,9 @@ def write(filepath,
 			meshData.setV_Count(meshData.vCount + len(me.vertices))
 			meshData.setM_Count(meshData.mCount + len(obj.material_slots))
 			for mat_slot in obj.material_slots:
-				meshData.addM_Color(mat_slot)  	  
+				meshData.addM_DiffuseColor(mat_slot.material)
+				meshData.addM_DiffuseIntensity(mat_slot.material)
+				meshData.addM_SpecularIntensity(mat_slot.material)
 			if is_tmp_mesh:
 				bpy.data.meshes.remove(me)
 	writeToFile(filepath, meshData, animsData)
@@ -90,8 +92,8 @@ def writeToFile(filepath, meshData, animsData):
 			+ "\n" + "project page: https://github.com/JohnsProject/JPGE2" + "\n")
 	file.write(commons)
 	# write the vertex data to the file
-	i = 0
 	file.write("vCount < " + str(meshData.vCount) + " > vCount" + "\n")
+	i = 0
 	file.write("vPosition < ")
 	for value in meshData.vPosition:
 		i += 1
@@ -129,8 +131,8 @@ def writeToFile(filepath, meshData, animsData):
 	file.write(" > vMaterial" + "\n")
 	file.write("\n")
 	# write the face data to the file
-	i = 0
 	file.write("fCount < " + str(meshData.fCount) + " > fCount" + "\n")
+	i = 0
 	file.write("fVertex1 < ")
 	for value in meshData.fVertex1:
 		i += 1
@@ -204,57 +206,38 @@ def writeToFile(filepath, meshData, animsData):
 	file.write(" > fUV3" + "\n")
 	file.write("\n")
 	# write the material data to the file
-	i = 0
 	file.write("mCount < " + str(meshData.mCount) + " > mCount" + "\n")
-	file.write("mColor < ")
-	for value in meshData.mColor:
+	i = 0
+	file.write("mDiffuseColor < ")
+	for value in meshData.mDiffuseColor:
 		i += 1
-		if (i < len(meshData.mColor)):
+		if (i < len(meshData.mDiffuseColor)):
 			file.write("%f," % value)
 		else:
 			file.write(("%f" % value))
 	
-	file.write(" > mColor" + "\n")
+	file.write(" > mDiffuseColor" + "\n")
+	i = 0
+	file.write("mDiffuseIntensity < ")
+	for value in meshData.mDiffuseIntensity:
+		i += 1
+		if (i < len(meshData.mDiffuseIntensity)):
+			file.write("%f," % value)
+		else:
+			file.write(("%f" % value))
+	
+	file.write(" > mDiffuseIntensity" + "\n")
+	i = 0
+	file.write("mSpecularIntensity < ")
+	for value in meshData.mSpecularIntensity:
+		i += 1
+		if (i < len(meshData.mSpecularIntensity)):
+			file.write("%f," % value)
+		else:
+			file.write(("%f" % value))
+	
+	file.write(" > mSpecularIntensity" + "\n")
 	file.write("\n")
-	# write the animations to the file
-	file.write("Animations < " + "\n")
-	global bonesCount
-	file.write((" BonesCount <%f" % bonesCount) + "> BonesCount \n")
-	for animData in animsData:
-		file.write(" Animation < " + "\n")
-		file.write("  Name < " + animData.name + "> Name \n")
-		i = 0
-		file.write("  bPosition < ")
-		for value in animData.bPosition:
-			i += 1
-			if (i < len(animData.bPosition)):
-				file.write("%f," % value)
-			else:
-				file.write(("%f" % value))
-		
-		file.write(" > bPosition" + "\n")
-		i = 0
-		file.write("  bRotation < ")
-		for value in animData.bRotation:
-			i += 1
-			if (i < len(animData.bRotation)):
-				file.write("%f," % value)
-			else:
-				file.write(("%f" % value))
-		
-		file.write(" > bRotation" + "\n")
-		i = 0
-		file.write("  bScale < ")
-		for value in animData.bScale:
-			i += 1
-			if (i < len(animData.bScale)):
-				file.write("%f," % value)
-			else:
-				file.write(("%f" % value))
-		
-		file.write(" > bScale" + "\n")
-		file.write(" > Animation " + "\n")
-	file.write("> Animations" + "\n")
 	
 	# close file
 	file.close()
@@ -278,7 +261,9 @@ class MeshData:
 		self.fUV3 = []
 		# m = material
 		self.mCount = 0
-		self.mColor = []
+		self.mDiffuseColor = []
+		self.mDiffuseIntensity = []
+		self.mSpecularIntensity = []
 	
 	def setV_Count(self, value):
 		self.vCount = value
@@ -338,17 +323,29 @@ class MeshData:
 	def setM_Count(self, value):
 		self.mCount = value
 
-	def addM_Color(self, value):
-		if value.material is not None:
-			self.mColor.append(value.material.diffuse_color[0])
-			self.mColor.append(value.material.diffuse_color[1])
-			self.mColor.append(value.material.diffuse_color[2])
-			self.mColor.append(value.material.alpha)
+	def addM_DiffuseColor(self, value):
+		if value is not None:
+			self.mDiffuseColor.append(value.diffuse_color[0])
+			self.mDiffuseColor.append(value.diffuse_color[1])
+			self.mDiffuseColor.append(value.diffuse_color[2])
+			self.mDiffuseColor.append(value.alpha)
 		else:
-			self.mColor.append(0)
-			self.mColor.append(0)
-			self.mColor.append(0)
-			self.mColor.append(100)
+			self.mDiffuseColor.append(0)
+			self.mDiffuseColor.append(0)
+			self.mDiffuseColor.append(0)
+			self.mDiffuseColor.append(0.1)
+			
+	def addM_DiffuseIntensity(self, value):
+		if value is not None:
+			self.mDiffuseIntensity.append(value.diffuse_intensity)
+		else:
+			self.mDiffuseIntensity.append(1)
+		
+	def addM_SpecularIntensity(self, value):
+		if value is not None:
+			self.mSpecularIntensity.append(value.specular_intensity)
+		else:
+			self.mSpecularIntensity.append(0)
 
 class AnimData:
 	def __init__(self, name):

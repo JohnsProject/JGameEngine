@@ -98,18 +98,18 @@ public class SOMImporter {
 	static Material[] parseMaterials(String rawData){
 		String mCountData = rawData.split("mCount<")[1].split(">mCount", 2)[0];
 		Material[] materials = new Material[getint(mCountData)];
-		String[] mColorData = rawData.split("mColor<")[1].split(">mColor", 2)[0].split(",");
-		if (materials.length > 0) {
-			for (int i = 0; i < materials.length * 4; i+=4) {
-				// *255 to get int rgb values
-				int r = (int)(getFloat(mColorData[i]) * 255);
-				int	g = (int)(getFloat(mColorData[i+1]) * 255);
-				int	b = (int)(getFloat(mColorData[i+2]) * 255);
-				int	a = (int)(getFloat(mColorData[i+3]) * 255);
-				materials[i/4] = new Material(i/4, ColorProcessor.convert(r, g, b, a), new Texture(10, 10));
-			}
-		}else {
-			materials = new Material[] {new Material(0, ColorProcessor.convert(0, 0, 0), new Texture(10, 10))};
+		String[] mDiffuseColorData = rawData.split("mDiffuseColor<")[1].split(">mDiffuseColor", 2)[0].split(",");
+		String[] mDiffuseIntensityData = rawData.split("mDiffuseIntensity<")[1].split(">mDiffuseIntensity", 2)[0].split(",");
+		String[] mSpecularIntensityData = rawData.split("mSpecularIntensity<")[1].split(">mSpecularIntensity", 2)[0].split(",");
+		for (int i = 0; i < materials.length * 4; i+=4) {
+			// *255 to get int rgb values
+			int r = (int)(getFloat(mDiffuseColorData[i]) * 256);
+			int	g = (int)(getFloat(mDiffuseColorData[i+1]) * 256);
+			int	b = (int)(getFloat(mDiffuseColorData[i+2]) * 256);
+			int	a = (int)(getFloat(mDiffuseColorData[i+3]) * 256);
+			int diffuseIntensity = (int)(getFloat(mDiffuseIntensityData[i / 4]) * 100);
+			int specularIntensity = (int)(getFloat(mSpecularIntensityData[i / 4]) * 100);
+			materials[i/4] = new Material(i/4, ColorProcessor.convert(r, g, b, a), diffuseIntensity, specularIntensity, new Texture(10, 10));
 		}
 		return materials;
 	}
