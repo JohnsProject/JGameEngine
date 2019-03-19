@@ -31,12 +31,13 @@ public class Light extends SceneObject{
 	
 	private int type;
 	private int strength;
-	private int color;
+	private int diffuseColor;
 	
 	public Light(String name, Transform transform) {
 		super(name, transform);
 		this.type = LIGHT_DIRECTIONAL;
-		this.color = ColorProcessor.convert(255, 255, 255);
+		this.strength = 10;
+		this.diffuseColor = ColorProcessor.convert(200, 200, 200);
 	}
 
 	public int getType() {
@@ -55,11 +56,11 @@ public class Light extends SceneObject{
 		this.strength = strength;
 	}
 
-	public int getColor() {
-		return color;
+	public int getDiffuseColor() {
+		return diffuseColor;
 	}
 
-	public void setColor(int color) {
-		this.color = color;
+	public void setDiffuseColor(int diffuseColor) {
+		this.diffuseColor = diffuseColor;
 	}
 }

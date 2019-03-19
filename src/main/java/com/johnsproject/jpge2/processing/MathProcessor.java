@@ -182,7 +182,7 @@ public class MathProcessor {
 	public static int pow(int base, int exp) {
 		int result = base;
 		for (int i = 1; i < exp; i++) {
-			result *= base;
+			result = multiply(result, exp);
 		}
 		return result;
 	}

@@ -18,9 +18,22 @@ public class EngineTest {
 			e.printStackTrace();
 		}
 		Engine.getInstance().getScene().getModels().get(0).getTransform().translate(0, 0, 0);
-		Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, 50);
+		Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, 30);
 		Engine.getInstance().getScene().getCameras().get(0).getTransform().rotate(0, 0, 0);
-		Engine.getInstance().getScene().getLights().get(0).getTransform().translate(10, 0, 0);
+		Engine.getInstance().getScene().getLights().get(0).getTransform().translate(0, 0, 0);
+		new Thread(new Runnable() {
+			
+			public void run() {
+				while(true) {
+					Engine.getInstance().getScene().getModels().get(0).getTransform().rotate(1, 1, 0);
+					try {
+						Thread.sleep(16);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}).start();
 	}
 
 }

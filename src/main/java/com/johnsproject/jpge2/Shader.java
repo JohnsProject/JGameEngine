@@ -12,8 +12,6 @@ public abstract class Shader {
 	protected static final int vy = VectorProcessor.VECTOR_Y;
 	protected static final int vz = VectorProcessor.VECTOR_Z;
 	protected static final int vw = VectorProcessor.VECTOR_W;
-
-	protected static final int AMBIENT_FACTOR = 10;
 	
 	protected Light light;
 	protected Camera camera;

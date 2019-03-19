@@ -29,27 +29,23 @@ import com.johnsproject.jpge2.shaders.FlatShader;
 public class Material {
 
 	private int index;
-	private int color;
+	private int diffuseIntensity;
+	private int diffuseColor;
+	private int specularIntensity;
 	private Texture texture;
 	private Shader shader;
 	
-	public Material(int index, int color, Texture texture){
+	public Material(int index, int diffuseColor, Texture texture){
 		this.index = index;
-		this.color = color;
+		this.diffuseIntensity = 100;
+		this.diffuseColor = diffuseColor;
+		this.specularIntensity = 0;
 		this.texture = texture;
 		this.shader = new FlatShader();
 	}
 
 	public int getIndex() {
 		return index;
-	}
-
-	public int getColor() {
-		return color;
-	}
-
-	public void setColor(int color) {
-		this.color = color;
 	}
 	
 	public Texture getTexture() {
@@ -66,5 +62,29 @@ public class Material {
 
 	public void setShader(Shader shader) {
 		this.shader = shader;
+	}
+
+	public int getDiffuseColor() {
+		return diffuseColor;
+	}
+
+	public void setDiffuseColor(int diffuseColor) {
+		this.diffuseColor = diffuseColor;
+	}
+	
+	public int getDiffuseIntensity() {
+		return diffuseIntensity;
+	}
+
+	public void setDiffuseIntensity(int diffuseIntensity) {
+		this.diffuseIntensity = diffuseIntensity;
+	}
+
+	public int getSpecularIntensity() {
+		return specularIntensity;
+	}
+
+	public void setSpecularIntensity(int specularIntensity) {
+		this.specularIntensity = specularIntensity;
 	}
 }

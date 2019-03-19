@@ -102,9 +102,9 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public static void multiply(int[] vector1, int value, int[] out) {
-		out[VECTOR_X] = vector1[VECTOR_X] * value;
-		out[VECTOR_Y] = vector1[VECTOR_Y] * value;
-		out[VECTOR_Z] = vector1[VECTOR_Z] * value;
+		out[VECTOR_X] = MathProcessor.multiply(vector1[VECTOR_X], value);
+		out[VECTOR_Y] = MathProcessor.multiply(vector1[VECTOR_Y], value);
+		out[VECTOR_Z] = MathProcessor.multiply(vector1[VECTOR_Z], value);
 	}
 
 	/**
@@ -201,7 +201,7 @@ public class VectorProcessor {
 		int x = MathProcessor.multiply(vector[VECTOR_X], vector[VECTOR_X]);
 		int y = MathProcessor.multiply(vector[VECTOR_Y], vector[VECTOR_Y]);
 		int z = MathProcessor.multiply(vector[VECTOR_Z], vector[VECTOR_Z]);
-		return MathProcessor.sqrt(x + y + z);
+		return MathProcessor.sqrt((x + y + z) >> MathProcessor.FP_SHIFT);
 	}
 
 	/**
@@ -243,10 +243,24 @@ public class VectorProcessor {
 	public static void normalize(int[] vector, int[] out) {
 		int magnitude = magnitude(vector);
 		if (magnitude != 0) {
-			out[VECTOR_X] = (vector[VECTOR_X] << MathProcessor.FP_SHIFT) / magnitude;
-			out[VECTOR_Y] = (vector[VECTOR_Y] << MathProcessor.FP_SHIFT) / magnitude;
-			out[VECTOR_Z] = (vector[VECTOR_Z] << MathProcessor.FP_SHIFT) / magnitude;
+			out[VECTOR_X] = (vector[VECTOR_X]) / magnitude;
+			out[VECTOR_Y] = (vector[VECTOR_Y]) / magnitude;
+			out[VECTOR_Z] = (vector[VECTOR_Z]) / magnitude;
 		}
+	}
+	
+	/**
+	 * Sets out equals the vector reflected across reflectionVector.
+	 * 
+	 * @param vector
+	 * @param reflectionVector
+	 * @param out
+	 */
+	public static void reflect(int[] vector, int[] reflectionVector, int[] out) {
+		copy(vectorCache1, reflectionVector);
+		int dot = 2 * dotProduct(vector, vectorCache1);
+		multiply(vectorCache1, dot, vectorCache1);
+		subtract(vector, vectorCache1, out);
 	}
 
 	/**
@@ -298,14 +312,12 @@ public class VectorProcessor {
 	 * Inverts the sign of all values of the vector.
 	 * 
 	 * @param vector
-	 * @return
 	 */
-	public static int[] invert(int[] vector) {
+	public static void invert(int[] vector) {
 		vector[VECTOR_X] = -vector[VECTOR_X];
 		vector[VECTOR_Y] = -vector[VECTOR_Y];
 		vector[VECTOR_Z] = -vector[VECTOR_Z];
 		vector[VECTOR_W] = -vector[VECTOR_W];
-		return vector;
 	}
 
 	/**
@@ -313,62 +325,12 @@ public class VectorProcessor {
 	 * 
 	 * @param vector vector with values.
 	 * @param target target vector.
-	 * @return
 	 */
-	public static int[] copy(int[] target, int[] vector) {
+	public static void copy(int[] target, int[] vector) {
 		target[VECTOR_X] = vector[VECTOR_X];
 		target[VECTOR_Y] = vector[VECTOR_Y];
 		target[VECTOR_Z] = vector[VECTOR_Z];
 		target[VECTOR_W] = vector[VECTOR_W];
-		return target;
-	}
-
-	/**
-	 * Copies the value of vector to the target.
-	 * 
-	 * @param target
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	public static int[] copy(int[] target, int x, int y) {
-		target[VECTOR_X] = x;
-		target[VECTOR_Y] = y;
-		return target;
-	}
-	
-	/**
-	 * Copies the value of vector to the target.
-	 * 
-	 * @param target
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @return
-	 */
-	public static int[] copy(int[] target, int x, int y, int z) {
-		target[VECTOR_X] = x;
-		target[VECTOR_Y] = y;
-		target[VECTOR_Z] = z;
-		return target;
-	}
-	
-	/**
-	 * Copies the value of vector to the target.
-	 * 
-	 * @param target
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param w
-	 * @return
-	 */
-	public static int[] copy(int[] target, int x, int y, int z, int w) {
-		target[VECTOR_X] = x;
-		target[VECTOR_Y] = y;
-		target[VECTOR_Z] = z;
-		target[VECTOR_W] = w;
-		return target;
 	}
 
 	/**

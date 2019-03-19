@@ -60,6 +60,25 @@ public class ColorProcessor {
 		return convert(r, g, b, a);
 	}
 	
+	public static int addColor(int color1, int color2) {
+		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
+		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
+		int r = (r1 + r2);
+		int g = (g1 + g2);
+		int b = (b1 + b2);
+		return convert(r, g, b, a1);
+	}
+	
+	public static int addColorRGBA(int color1, int color2) {
+		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
+		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
+		int r = (r1 + r2);
+		int g = (g1 + g2);
+		int b = (b1 + b2);
+		int a = (a1 + a2);
+		return convert(r, g, b, a);
+	}
+	
 	public static int multiplyColor(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
