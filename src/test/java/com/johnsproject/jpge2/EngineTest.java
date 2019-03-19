@@ -18,9 +18,9 @@ public class EngineTest {
 			e.printStackTrace();
 		}
 		Engine.getInstance().getScene().getModels().get(0).getTransform().translate(0, 0, 0);
-		Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, 30);
+		Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, 60);
 		Engine.getInstance().getScene().getCameras().get(0).getTransform().rotate(0, 0, 0);
-		Engine.getInstance().getScene().getLights().get(0).getTransform().translate(0, 0, 0);
+		Engine.getInstance().getScene().getLights().get(0).getTransform().translate(0, 0, 1);
 		new Thread(new Runnable() {
 			
 			public void run() {

@@ -49,10 +49,12 @@ public class GraphicsProcessor {
 					for (int l = 0; l < model.getFaces().length; l++) {
 						Face face = model.getFace(l);
 						face.reset();
-						int[] normal = face.getNormal();
-						VectorProcessor.multiply(normal, normalMatrix, normal);
-						face.getMaterial().getShader().geometry(face);
-						drawFace(face, graphicsBuffer);
+						if (!isBackface(face)) {
+							int[] normal = face.getNormal();
+							VectorProcessor.multiply(normal, normalMatrix, normal);
+							face.getMaterial().getShader().geometry(face);
+							drawFace(face, graphicsBuffer);
+						}
 					}
 				}
 			}
@@ -115,6 +117,18 @@ public class GraphicsProcessor {
 		return matrix;
 	}
 
+	public static boolean isBackface(Face face) {
+		int[] location1 = face.getVertex1().getLocation();
+		int[] location2 = face.getVertex2().getLocation();
+		int[] location3 = face.getVertex3().getLocation();
+		// calculate area of face
+		int area = (location2[vx] - location1[vx]) * (location3[vy] - location1[vy])
+				- (location3[vx] - location1[vx]) * (location2[vy] - location1[vy]);
+		// if its < 0 its a backface
+		if (area > 0) return false;
+		return true;
+	}
+	
 	private static final int[] location1 = VectorProcessor.generate();
 	private static final int[] location2 = VectorProcessor.generate();
 	private static final int[] location3 = VectorProcessor.generate();
