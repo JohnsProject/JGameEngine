@@ -23,7 +23,7 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.Shader;
+import com.johnsproject.jpge2.processing.GraphicsProcessor.Shader;
 import com.johnsproject.jpge2.shaders.FlatShader;
 
 public class Material {

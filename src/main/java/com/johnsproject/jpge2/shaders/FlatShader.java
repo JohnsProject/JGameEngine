@@ -1,10 +1,10 @@
 package com.johnsproject.jpge2.shaders;
 
-import com.johnsproject.jpge2.Shader;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Material;
-import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.processing.ColorProcessor;
+import com.johnsproject.jpge2.processing.GraphicsProcessor.Shader;
 import com.johnsproject.jpge2.processing.MathProcessor;
 import com.johnsproject.jpge2.processing.VectorProcessor;
 
@@ -13,10 +13,6 @@ public class FlatShader extends Shader {
 	private static int[] vectorCache1 = VectorProcessor.generate();
 	private static int[] vectorCache2 = VectorProcessor.generate();
 	private static int color;
-	
-	public void vertex(Vertex vertex) {
-		
-	}
 
 	public void geometry(Face face) {
 		int[] normal = face.getNormal();

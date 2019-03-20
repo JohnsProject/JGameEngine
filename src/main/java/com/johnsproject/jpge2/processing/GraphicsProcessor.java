@@ -1,6 +1,5 @@
 package com.johnsproject.jpge2.processing;
 
-import com.johnsproject.jpge2.Shader;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.GraphicsBuffer;
@@ -40,7 +39,6 @@ public class GraphicsProcessor {
 						int[] normal = vertex.getNormal();
 						VectorProcessor.multiply(location, worldMatrix, location);
 						VectorProcessor.multiply(normal, normalMatrix, normal);
-						vertex.getMaterial().getShader().vertex(vertex);
 						VectorProcessor.multiply(location, viewMatrix, location);
 						VectorProcessor.multiply(location, projectionMatrix, location);
 						location[vx] = (location[vx] / location[vz]) + (camera.getCanvas()[vz] >> 1);
@@ -224,5 +222,26 @@ public class GraphicsProcessor {
 				sz -= dz;
 			}
 		}
+	}
+	
+	public static abstract class Shader {
+
+		protected static final int vx = VectorProcessor.VECTOR_X;
+		protected static final int vy = VectorProcessor.VECTOR_Y;
+		protected static final int vz = VectorProcessor.VECTOR_Z;
+		protected static final int vw = VectorProcessor.VECTOR_W;
+		protected static final int[] VARYING_VALUES = new int[32];
+		
+		protected Light light;
+		protected Camera camera;
+			
+		private void setup(Camera camera, Light light) {
+			this.light = light;
+			this.camera = camera;
+		}
+		
+		public abstract void geometry(Face face);
+		public abstract int fragment(int x, int y, int z);
+		
 	}
 }
