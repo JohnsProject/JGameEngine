@@ -43,12 +43,15 @@ public class FlatShader extends Shader {
 		color = ColorProcessor.multiplyColor(light.getDiffuseColor(), material.getDiffuseColor());
 		color = ColorProcessor.multiply(color, intensity);
 		texture = material.getTexture();
-		uvX[0] = face.getUV1()[vx];
-		uvX[1] = face.getUV2()[vx];
-		uvX[2] = face.getUV3()[vx];
-		uvY[0] = face.getUV1()[vy];
-		uvY[1] = face.getUV2()[vy];
-		uvY[2] = face.getUV3()[vy];
+		// set uv values that will be interpolated
+		// uv is in normalized fixed point space between 0 - MathProcessor.FP_VALUE
+		// multiply uv with texture size to get correct coordinates and divide by MathProcessor.FP_VALUE
+		uvX[0] = (face.getUV1()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
+		uvX[1] = (face.getUV2()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
+		uvX[2] = (face.getUV3()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
+		uvY[0] = (face.getUV1()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
+		uvY[1] = (face.getUV2()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
+		uvY[2] = (face.getUV3()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
 	}
 
 	@Override
