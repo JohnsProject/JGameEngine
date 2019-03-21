@@ -127,31 +127,55 @@ public class GraphicsProcessor {
 		return true;
 	}
 	
-	private static final int[] location1 = VectorProcessor.generate();
-	private static final int[] location2 = VectorProcessor.generate();
-	private static final int[] location3 = VectorProcessor.generate();
-	private static final int[] temp = VectorProcessor.generate();
+	// vertex location values
+	private static final int[] LOCATION_1 = VectorProcessor.generate();
+	private static final int[] LOCATION_2 = VectorProcessor.generate();
+	private static final int[] LOCATION_3 = VectorProcessor.generate();
+	private static final int[] LOCATION_TEMP = VectorProcessor.generate();
+	// empty values for interpolation that can be filled by the shaders
+	private static final int MAX_VARYING = 1;
+	private static final int[] VARYING_TEMP = new int[MAX_VARYING];
+	private static final int[] VARYING_DELTAS = new int[MAX_VARYING];
+	private static final int[] VARYING_DELTAS_1 = new int[MAX_VARYING];
+	private static final int[] VARYING_DELTAS_2 = new int[MAX_VARYING];
+	private static final int[] VARYING_DELTAS_3 = new int[MAX_VARYING];
 	
 	public static void drawFace(Face face, GraphicsBuffer graphicsBuffer) {
 		Shader shader = face.getMaterial().getShader();
-		VectorProcessor.copy(location1, face.getVertex1().getLocation());
-		VectorProcessor.copy(location2, face.getVertex2().getLocation());
-		VectorProcessor.copy(location3, face.getVertex3().getLocation());
+		VectorProcessor.copy(LOCATION_1, face.getVertex1().getLocation());
+		VectorProcessor.copy(LOCATION_2, face.getVertex2().getLocation());
+		VectorProcessor.copy(LOCATION_3, face.getVertex3().getLocation());
 		// y sorting
-		if (location1[vy] > location2[vy]) {
-			VectorProcessor.copy(temp, location1);
-			VectorProcessor.copy(location1, location2);
-			VectorProcessor.copy(location2, temp);
+		if (LOCATION_1[vy] > LOCATION_2[vy]) {
+			VectorProcessor.copy(LOCATION_TEMP, LOCATION_1);
+			VectorProcessor.copy(LOCATION_1, LOCATION_2);
+			VectorProcessor.copy(LOCATION_2, LOCATION_TEMP);
+			copyArray(VARYING_TEMP, Shader.VARYING_VERTEX_1);
+			copyArray(Shader.VARYING_VERTEX_1, Shader.VARYING_VERTEX_2);
+			copyArray(Shader.VARYING_VERTEX_2, VARYING_TEMP);
 		}
-		if (location2[vy] > location3[vy]) {
-			VectorProcessor.copy(temp, location2);
-			VectorProcessor.copy(location2, location3);
-			VectorProcessor.copy(location3, temp);
+		if (LOCATION_2[vy] > LOCATION_3[vy]) {
+			VectorProcessor.copy(LOCATION_TEMP, LOCATION_2);
+			VectorProcessor.copy(LOCATION_2, LOCATION_3);
+			VectorProcessor.copy(LOCATION_3, LOCATION_TEMP);
+			copyArray(VARYING_TEMP, Shader.VARYING_VERTEX_2);
+			copyArray(Shader.VARYING_VERTEX_2, Shader.VARYING_VERTEX_3);
+			copyArray(Shader.VARYING_VERTEX_3, VARYING_TEMP);
 		}
-		if (location1[vy] > location2[vy]) {
-			VectorProcessor.copy(temp, location1);
-			VectorProcessor.copy(location1, location2);
-			VectorProcessor.copy(location2, temp);
+		if (LOCATION_1[vy] > LOCATION_2[vy]) {
+			VectorProcessor.copy(LOCATION_TEMP, LOCATION_1);
+			VectorProcessor.copy(LOCATION_1, LOCATION_2);
+			VectorProcessor.copy(LOCATION_2, LOCATION_TEMP);
+			copyArray(VARYING_TEMP, Shader.VARYING_VERTEX_1);
+			copyArray(Shader.VARYING_VERTEX_1, Shader.VARYING_VERTEX_2);
+			copyArray(Shader.VARYING_VERTEX_2, VARYING_TEMP);
+		}
+		// reset deltas
+		for (int i = 0; i < MAX_VARYING; i++) {
+			VARYING_DELTAS[i] = 0;
+			VARYING_DELTAS_1[i] = 0;
+			VARYING_DELTAS_2[i] = 0;
+			VARYING_DELTAS_3[i] = 0;
 		}
 		// delta x (how much x changes for each y value)
 		int dx1 = 0;
@@ -164,45 +188,69 @@ public class GraphicsProcessor {
 		int dz2 = 0;
 		int dz3 = 0;
 		// y distance
-		int y2y1 = location2[vy] - location1[vy];
-		int y3y1 = location3[vy] - location1[vy];
-		int y3y2 = location3[vy] - location2[vy];
+		int y2y1 = LOCATION_2[vy] - LOCATION_1[vy];
+		int y3y1 = LOCATION_3[vy] - LOCATION_1[vy];
+		int y3y2 = LOCATION_3[vy] - LOCATION_2[vy];
 		if (y2y1 > 0) {
-			dx1 = ((location2[vx] - location1[vx]) << MathProcessor.FP_SHIFT) / y2y1;
-			dz1 = ((location2[vz] - location1[vz]) << MathProcessor.FP_SHIFT) / y2y1;
+			dx1 = ((LOCATION_2[vx] - LOCATION_1[vx]) << MathProcessor.FP_SHIFT) / y2y1;
+			dz1 = ((LOCATION_2[vz] - LOCATION_1[vz]) << MathProcessor.FP_SHIFT) / y2y1;
+			for (int i = 0; i < MAX_VARYING; i++) {
+				VARYING_DELTAS_1[i] = ((Shader.VARYING_VERTEX_2[i] - Shader.VARYING_VERTEX_1[i]) << MathProcessor.FP_SHIFT) / y2y1;
+			}
 		}
 		if (y3y1 > 0) {
-			dx2 = ((location3[vx] - location1[vx]) << MathProcessor.FP_SHIFT) / y3y1;
-			dz2 = ((location3[vz] - location1[vz]) << MathProcessor.FP_SHIFT) / y3y1;
+			dx2 = ((LOCATION_3[vx] - LOCATION_1[vx]) << MathProcessor.FP_SHIFT) / y3y1;
+			dz2 = ((LOCATION_3[vz] - LOCATION_1[vz]) << MathProcessor.FP_SHIFT) / y3y1;
+			for (int i = 0; i < MAX_VARYING; i++) {
+				VARYING_DELTAS_2[i] = ((Shader.VARYING_VERTEX_3[i] - Shader.VARYING_VERTEX_1[i]) << MathProcessor.FP_SHIFT) / y3y1;
+			}
 		}
 		if (y3y2 > 0) {
-			dx3 = ((location3[vx] - location2[vx]) << MathProcessor.FP_SHIFT) / y3y2;
-			dz3 = ((location3[vz] - location2[vz]) << MathProcessor.FP_SHIFT) / y3y2;
+			dx3 = ((LOCATION_3[vx] - LOCATION_2[vx]) << MathProcessor.FP_SHIFT) / y3y2;
+			dz3 = ((LOCATION_3[vz] - LOCATION_2[vz]) << MathProcessor.FP_SHIFT) / y3y2;
+			for (int i = 0; i < MAX_VARYING; i++) {
+				VARYING_DELTAS_3[i] = ((Shader.VARYING_VERTEX_3[i] - Shader.VARYING_VERTEX_2[i]) << MathProcessor.FP_SHIFT) / y3y2;
+			}
 		}
-		int sx = location1[vx] << MathProcessor.FP_SHIFT;
-		int ex = location1[vx] << MathProcessor.FP_SHIFT;
-		int sz = location1[vz] << MathProcessor.FP_SHIFT;
-		int sy = location1[vy];
+		for (int i = 0; i < MAX_VARYING; i++) {
+			VARYING_TEMP[i] = Shader.VARYING_VERTEX_1[i] << MathProcessor.FP_SHIFT;
+		}
+		int sx = LOCATION_1[vx] << MathProcessor.FP_SHIFT;
+		int ex = LOCATION_1[vx] << MathProcessor.FP_SHIFT;
+		int sz = LOCATION_1[vz] << MathProcessor.FP_SHIFT;
+		int sy = LOCATION_1[vy];
 		int dxdx = dx1 - dx2;
 		if (dxdx > 0) {
 			dz = ((dz1 - dz2) << MathProcessor.FP_SHIFT) / dxdx;
+			for (int i = 0; i < MAX_VARYING; i++) {
+				VARYING_DELTAS[i] = ((VARYING_DELTAS_2[i] - VARYING_DELTAS_1[i]) << MathProcessor.FP_SHIFT) / dxdx;
+			}
 		}
-		for (; sy < location2[vy]; sy++) {
+		for (; sy < LOCATION_2[vy]; sy++) {
 			drawHorizontalLine(sx >> MathProcessor.FP_SHIFT, ex >> MathProcessor.FP_SHIFT, sz, dz, sy, shader, graphicsBuffer);
 			sx += dx2;
 			ex += dx1;
 			sz += dz2;
+			for (int i = 0; i < MAX_VARYING; i++) {
+				VARYING_TEMP[i] += VARYING_DELTAS_2[i];
+			}
 		}
-		ex = location2[vx] << MathProcessor.FP_SHIFT;
+		ex = LOCATION_2[vx] << MathProcessor.FP_SHIFT;
 		dxdx = dx3 - dx2;
 		if (dxdx > 0) {
 			dz = ((dz3 - dz2) << MathProcessor.FP_SHIFT) / dxdx;
+			for (int i = 0; i < MAX_VARYING; i++) {
+				VARYING_DELTAS[i] = ((VARYING_DELTAS_3[i] - VARYING_DELTAS_2[i]) << MathProcessor.FP_SHIFT) / dxdx;
+			}
 		}
-		for (; sy < location3[vy]; sy++) {
+		for (; sy < LOCATION_3[vy]; sy++) {
 			drawHorizontalLine(sx >> MathProcessor.FP_SHIFT, ex >> MathProcessor.FP_SHIFT, sz, dz, sy, shader, graphicsBuffer);
 			sx += dx2;
 			ex += dx3;
 			sz += dz2;
+			for (int i = 0; i < MAX_VARYING; i++) {
+				VARYING_TEMP[i] += VARYING_DELTAS_2[i];
+			}
 		}
 	}
 
@@ -213,6 +261,10 @@ public class GraphicsProcessor {
 				if (color != 0)
 					graphicsBuffer.setPixel(sx, sy, sz >> MathProcessor.FP_SHIFT, color);
 				sz += dz;
+				for (int i = 0; i < MAX_VARYING; i++) {
+					VARYING_TEMP[i] += VARYING_DELTAS_2[i];
+					Shader.VARYING_CURRENT[i] = VARYING_TEMP[i] >> MathProcessor.FP_SHIFT;
+				}
 			}
 		} else {
 			for (; ex < sx; ex++) {
@@ -220,7 +272,17 @@ public class GraphicsProcessor {
 				if (color != 0)
 					graphicsBuffer.setPixel(ex, sy, sz >> MathProcessor.FP_SHIFT, color);
 				sz -= dz;
+				for (int i = 0; i < MAX_VARYING; i++) {
+					VARYING_TEMP[i] -= VARYING_DELTAS_2[i];
+					Shader.VARYING_CURRENT[i] = VARYING_TEMP[i] >> MathProcessor.FP_SHIFT;
+				}
 			}
+		}
+	}
+	
+	private static void copyArray(int[] target, int[] source) {
+		for (int i = 0; i < target.length; i++) {
+			target[i] = source[i];
 		}
 	}
 	
@@ -230,7 +292,10 @@ public class GraphicsProcessor {
 		protected static final int vy = VectorProcessor.VECTOR_Y;
 		protected static final int vz = VectorProcessor.VECTOR_Z;
 		protected static final int vw = VectorProcessor.VECTOR_W;
-		protected static final int[] VARYING_VALUES = new int[32];
+		protected static final int[] VARYING_VERTEX_1 = new int[MAX_VARYING];
+		protected static final int[] VARYING_VERTEX_2 = new int[MAX_VARYING];
+		protected static final int[] VARYING_VERTEX_3 = new int[MAX_VARYING];
+		protected static final int[] VARYING_CURRENT = new int[MAX_VARYING];
 		
 		protected Light light;
 		protected Camera camera;

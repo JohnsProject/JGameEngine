@@ -2,6 +2,8 @@ package com.johnsproject.jpge2;
 
 import java.io.IOException;
 
+import com.johnsproject.jpge2.dto.Model;
+import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.importers.SOMImporter;
 
 public class EngineTest {
@@ -13,7 +15,9 @@ public class EngineTest {
 		Engine.getInstance().addGraphicsBufferListener(new EngineWindow(WINDOW_W, WINDOW_H));
 		Engine.getInstance().getGraphicsBuffer().setSize(WINDOW_W, WINDOW_H);
 		try {
-			Engine.getInstance().getScene().addModel(SOMImporter.load("C:/Development/test.som"));
+			Model model = SOMImporter.load("C:/Development/test.som");
+			model.getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
+			Engine.getInstance().getScene().addModel(model);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

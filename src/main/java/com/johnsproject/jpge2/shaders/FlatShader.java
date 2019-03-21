@@ -13,6 +13,7 @@ public class FlatShader extends Shader {
 	private static int[] vectorCache1 = VectorProcessor.generate();
 	private static int[] vectorCache2 = VectorProcessor.generate();
 	private static int color;
+	private static Texture texture;
 
 	public void geometry(Face face) {
 		int[] normal = face.getNormal();
@@ -35,6 +36,10 @@ public class FlatShader extends Shader {
 		// putting it all together...
 		color = ColorProcessor.multiplyColor(light.getDiffuseColor(), material.getDiffuseColor());
 		color = ColorProcessor.multiply(color, light.getStrength() + diffuseFactor + specularFactor);
+		texture = material.getTexture();
+		VARYING_VERTEX_1[0] = 50;
+		VARYING_VERTEX_2[0] = 10;
+		VARYING_VERTEX_3[0] = 0;
 	}
 
 	public int fragment(int x, int y, int z) {
