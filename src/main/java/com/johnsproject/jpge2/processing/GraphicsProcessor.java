@@ -47,7 +47,11 @@ public class GraphicsProcessor {
 					for (int l = 0; l < model.getFaces().length; l++) {
 						Face face = model.getFace(l);
 						face.reset();
-						if (!isBackface(face)) {
+						int[] location1 = face.getVertex1().getLocation();
+						int[] location2 = face.getVertex2().getLocation();
+						int[] location3 = face.getVertex3().getLocation();
+						// barycentric[vw] will be needed later
+						if ((barycentric[vw] = barycentric(location1, location2, location3)) > 0) {
 							int[] normal = face.getNormal();
 							VectorProcessor.multiply(normal, normalMatrix, normal);
 							face.getMaterial().getShader().geometry(face);
@@ -72,7 +76,7 @@ public class GraphicsProcessor {
 		MatrixProcessor.translate(matrix, location[vx], location[vy], location[vz]);
 		return matrix;
 	}
-	
+
 	public static int[][] normalMatrix(int[][] matrix, Model model) {
 		Transform transform = model.getTransform();
 		int[] rotation = transform.getRotation();
@@ -114,46 +118,33 @@ public class GraphicsProcessor {
 		matrix[2][2] = -MathProcessor.FP_VALUE;
 		return matrix;
 	}
-	
-	public static boolean isBackface(Face face) {
-		int[] location1 = face.getVertex1().getLocation();
-		int[] location2 = face.getVertex2().getLocation();
-		int[] location3 = face.getVertex3().getLocation();
-		// calculate area of face
-		int area = (location2[vx] - location1[vx]) * (location3[vy] - location1[vy])
-				- (location3[vx] - location1[vx]) * (location2[vy] - location1[vy]);
-		// if its < 0 its a backface
-		if (area > 0) return false;
-		return true;
-	}
-	
+
 	// rasterization variables
-	private static final int[] pixel = VectorProcessor.generate();	
+	private static final int[] pixel = VectorProcessor.generate();
 	private static final int[] barycentric = VectorProcessor.generate();
-	private static final int[] depth = VectorProcessor.generate();	
+	private static final int[] depth = VectorProcessor.generate();
+
 	public static void drawFace(Face face, GraphicsBuffer graphicsBuffer) {
 		int[] location1 = face.getVertex1().getLocation();
 		int[] location2 = face.getVertex2().getLocation();
 		int[] location3 = face.getVertex3().getLocation();
-		
+
 		depth[0] = location1[vz];
 		depth[1] = location2[vz];
 		depth[2] = location3[vz];
-		
-		barycentric[vw] = barycentric(location1, location2, location3);
-		
+
 		// compute boundig box of faces
 		int minX = Math.min(location1[vx], Math.min(location2[vx], location3[vx]));
 		int minY = Math.min(location1[vy], Math.min(location2[vy], location3[vy]));
 		int maxX = Math.max(location1[vx], Math.max(location2[vx], location3[vx]));
 		int maxY = Math.max(location1[vy], Math.max(location2[vy], location3[vy]));
-		
+
 		// clip against screen limits
 		minX = Math.max(minX, 0);
 		minY = Math.max(minY, 0);
 		maxX = Math.min(maxX, graphicsBuffer.getWidth() - 1);
 		maxY = Math.min(maxY, graphicsBuffer.getHeight() - 1);
-		
+
 		for (pixel[vy] = minY; pixel[vy] < maxY; pixel[vy]++) {
 			for (pixel[vx] = minX; pixel[vx] < maxX; pixel[vx]++) {
 				// calculate barycentric coordinates
@@ -162,39 +153,41 @@ public class GraphicsProcessor {
 				barycentric[vz] = barycentric(location1, location2, pixel);
 				if ((barycentric[vx] >= 0) && (barycentric[vy] >= 0) && (barycentric[vz] >= 0)) {
 					int color = face.getMaterial().getShader().fragment(barycentric);
-					int z = dotProduct(barycentric, depth) / barycentric[vw];
+					int z = interpolate(depth, barycentric);
 					graphicsBuffer.setPixel(pixel[vx], pixel[vy], z, color);
 				}
 			}
 		}
 	}
-	
-	private static int dotProduct(int[] vector1, int[] vector2) {
-		return vector1[vx] * vector2[vx] + vector1[vy] * vector2[vy] + vector1[vz] * vector2[vz];
+
+	public static int interpolate(int[] values, int[] barycentric) {
+		int dotProduct = values[vx] * barycentric[vx] + values[vy] * barycentric[vy] + values[vz] * barycentric[vz];
+		// normalize values
+		return dotProduct / barycentric[vw];
 	}
-	
+
 	private static int barycentric(int[] vector1, int[] vector2, int[] vector3) {
 		return (vector2[vx] - vector1[vx]) * (vector3[vy] - vector1[vy])
 				- (vector3[vx] - vector1[vx]) * (vector2[vy] - vector1[vy]);
 	}
-	
+
 	public static abstract class Shader {
 
 		protected static final int vx = VectorProcessor.VECTOR_X;
 		protected static final int vy = VectorProcessor.VECTOR_Y;
 		protected static final int vz = VectorProcessor.VECTOR_Z;
 		protected static final int vw = VectorProcessor.VECTOR_W;
-		
+
 		protected Light light;
 		protected Camera camera;
-			
+
 		private void setup(Camera camera, Light light) {
 			this.light = light;
 			this.camera = camera;
 		}
-		
+
 		public abstract void geometry(Face face);
+
 		public abstract int fragment(int[] barycentric);
-		
 	}
 }
