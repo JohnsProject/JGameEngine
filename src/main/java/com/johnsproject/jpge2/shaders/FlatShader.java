@@ -15,6 +15,7 @@ public class FlatShader extends Shader {
 	private static int color;
 	private static Texture texture;
 
+	@Override
 	public void geometry(Face face) {
 		int[] normal = face.getNormal();
 		int[] lightPosition = light.getTransform().getLocation();
@@ -37,12 +38,10 @@ public class FlatShader extends Shader {
 		color = ColorProcessor.multiplyColor(light.getDiffuseColor(), material.getDiffuseColor());
 		color = ColorProcessor.multiply(color, light.getStrength() + diffuseFactor + specularFactor);
 		texture = material.getTexture();
-		VARYING_VERTEX_1[0] = 50;
-		VARYING_VERTEX_2[0] = 10;
-		VARYING_VERTEX_3[0] = 0;
 	}
 
-	public int fragment(int x, int y, int z) {
+	@Override
+	public int fragment(int[] barycentric) {
 		return color;
 	}
 

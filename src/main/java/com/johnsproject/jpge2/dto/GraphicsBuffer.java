@@ -27,82 +27,77 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 public class GraphicsBuffer {
-	
+
 	private int width;
 	private int height;
 	private int length;
 	private BufferedImage frameBuffer;
 	private int[] frameBufferData;
 	private int[] depthBuffer;
-	
+
 	public GraphicsBuffer() {
 		setSize(1, 1);
 	}
+
 	public GraphicsBuffer(int width, int height) {
 		setSize(width, height);
 	}
-	
+
 	public BufferedImage getFrameBuffer() {
 		return frameBuffer;
 	}
-	
+
 	public int[] getDepthBuffer() {
 		return depthBuffer;
 	}
-	
+
 	public void clearFrameBuffer() {
 		for (int i = 0; i < frameBufferData.length; i++) {
 			frameBufferData[i] = 0;
 		}
 	}
-	
+
 	public void clearDepthBuffer() {
 		for (int i = 0; i < depthBuffer.length; i++) {
 			depthBuffer[i] = Integer.MAX_VALUE;
 		}
 	}
-	
+
 	public void setSize(int width, int height) {
 		this.width = width;
 		this.height = height;
 		this.length = width * height;
 		this.frameBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
-		this.frameBufferData = ((DataBufferInt)frameBuffer.getRaster().getDataBuffer()).getData();
+		this.frameBufferData = ((DataBufferInt) frameBuffer.getRaster().getDataBuffer()).getData();
 		this.depthBuffer = new int[length];
 	}
-	
+
 	public void setPixel(int x, int y, int z, int color) {
-		// check if pixel is inside RenderBuffer
-		if ((x >= 0 && x <= width) && (y >= 0 && y <= height)) {
-			int pos = x + (y * width);
-			if (pos < length) {
-				// z test
-				if (depthBuffer[pos] > z) {
-					depthBuffer[pos] = z;
-					frameBufferData[pos] = color;
-				}
-			}
+		int pos = x + (y * width);
+		if (depthBuffer[pos] > z) {
+			depthBuffer[pos] = z;
+			frameBufferData[pos] = color;
 		}
 	}
-	
+
 	public int getPixel(int x, int y) {
 		int pos = x + (y * width);
-		if (pos < length) 
+		if (pos < length)
 			return frameBufferData[pos];
 		return -1;
 	}
-	
+
 	public int getPixelDepth(int x, int y) {
 		int pos = x + (y * width);
-		if (pos < length) 
+		if (pos < length)
 			return depthBuffer[pos];
 		return -1;
 	}
-	
+
 	public int getWidth() {
 		return width;
 	}
-	
+
 	public int getHeight() {
 		return height;
 	}

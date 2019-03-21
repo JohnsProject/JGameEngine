@@ -114,7 +114,7 @@ public class GraphicsProcessor {
 		matrix[2][2] = -1;
 		return matrix;
 	}
-
+	
 	public static boolean isBackface(Face face) {
 		int[] location1 = face.getVertex1().getLocation();
 		int[] location2 = face.getVertex2().getLocation();
@@ -127,163 +127,43 @@ public class GraphicsProcessor {
 		return true;
 	}
 	
-	// vertex location values
-	private static final int[] LOCATION_1 = VectorProcessor.generate();
-	private static final int[] LOCATION_2 = VectorProcessor.generate();
-	private static final int[] LOCATION_3 = VectorProcessor.generate();
-	private static final int[] LOCATION_TEMP = VectorProcessor.generate();
-	// empty values for interpolation that can be filled by the shaders
-	private static final int MAX_VARYING = 1;
-	private static final int[] VARYING_TEMP = new int[MAX_VARYING];
-	private static final int[] VARYING_DELTAS = new int[MAX_VARYING];
-	private static final int[] VARYING_DELTAS_1 = new int[MAX_VARYING];
-	private static final int[] VARYING_DELTAS_2 = new int[MAX_VARYING];
-	private static final int[] VARYING_DELTAS_3 = new int[MAX_VARYING];
-	
+	// rasterization variables
+	private static final int[] pixel = VectorProcessor.generate();	
+	private static final int[] barycentric = VectorProcessor.generate();	
 	public static void drawFace(Face face, GraphicsBuffer graphicsBuffer) {
-		Shader shader = face.getMaterial().getShader();
-		VectorProcessor.copy(LOCATION_1, face.getVertex1().getLocation());
-		VectorProcessor.copy(LOCATION_2, face.getVertex2().getLocation());
-		VectorProcessor.copy(LOCATION_3, face.getVertex3().getLocation());
-		// y sorting
-		if (LOCATION_1[vy] > LOCATION_2[vy]) {
-			VectorProcessor.copy(LOCATION_TEMP, LOCATION_1);
-			VectorProcessor.copy(LOCATION_1, LOCATION_2);
-			VectorProcessor.copy(LOCATION_2, LOCATION_TEMP);
-			copyArray(VARYING_TEMP, Shader.VARYING_VERTEX_1);
-			copyArray(Shader.VARYING_VERTEX_1, Shader.VARYING_VERTEX_2);
-			copyArray(Shader.VARYING_VERTEX_2, VARYING_TEMP);
-		}
-		if (LOCATION_2[vy] > LOCATION_3[vy]) {
-			VectorProcessor.copy(LOCATION_TEMP, LOCATION_2);
-			VectorProcessor.copy(LOCATION_2, LOCATION_3);
-			VectorProcessor.copy(LOCATION_3, LOCATION_TEMP);
-			copyArray(VARYING_TEMP, Shader.VARYING_VERTEX_2);
-			copyArray(Shader.VARYING_VERTEX_2, Shader.VARYING_VERTEX_3);
-			copyArray(Shader.VARYING_VERTEX_3, VARYING_TEMP);
-		}
-		if (LOCATION_1[vy] > LOCATION_2[vy]) {
-			VectorProcessor.copy(LOCATION_TEMP, LOCATION_1);
-			VectorProcessor.copy(LOCATION_1, LOCATION_2);
-			VectorProcessor.copy(LOCATION_2, LOCATION_TEMP);
-			copyArray(VARYING_TEMP, Shader.VARYING_VERTEX_1);
-			copyArray(Shader.VARYING_VERTEX_1, Shader.VARYING_VERTEX_2);
-			copyArray(Shader.VARYING_VERTEX_2, VARYING_TEMP);
-		}
-		// reset deltas
-		for (int i = 0; i < MAX_VARYING; i++) {
-			VARYING_DELTAS[i] = 0;
-			VARYING_DELTAS_1[i] = 0;
-			VARYING_DELTAS_2[i] = 0;
-			VARYING_DELTAS_3[i] = 0;
-		}
-		// delta x (how much x changes for each y value)
-		int dx1 = 0;
-		int dx2 = 0;
-		int dx3 = 0;
-		// delta z (how much z changes for each x value)
-		int dz = 0;
-		// delta z (how much z changes for each y value)
-		int dz1 = 0;
-		int dz2 = 0;
-		int dz3 = 0;
-		// y distance
-		int y2y1 = LOCATION_2[vy] - LOCATION_1[vy];
-		int y3y1 = LOCATION_3[vy] - LOCATION_1[vy];
-		int y3y2 = LOCATION_3[vy] - LOCATION_2[vy];
-		if (y2y1 > 0) {
-			dx1 = ((LOCATION_2[vx] - LOCATION_1[vx]) << MathProcessor.FP_SHIFT) / y2y1;
-			dz1 = ((LOCATION_2[vz] - LOCATION_1[vz]) << MathProcessor.FP_SHIFT) / y2y1;
-			for (int i = 0; i < MAX_VARYING; i++) {
-				VARYING_DELTAS_1[i] = ((Shader.VARYING_VERTEX_2[i] - Shader.VARYING_VERTEX_1[i]) << MathProcessor.FP_SHIFT) / y2y1;
-			}
-		}
-		if (y3y1 > 0) {
-			dx2 = ((LOCATION_3[vx] - LOCATION_1[vx]) << MathProcessor.FP_SHIFT) / y3y1;
-			dz2 = ((LOCATION_3[vz] - LOCATION_1[vz]) << MathProcessor.FP_SHIFT) / y3y1;
-			for (int i = 0; i < MAX_VARYING; i++) {
-				VARYING_DELTAS_2[i] = ((Shader.VARYING_VERTEX_3[i] - Shader.VARYING_VERTEX_1[i]) << MathProcessor.FP_SHIFT) / y3y1;
-			}
-		}
-		if (y3y2 > 0) {
-			dx3 = ((LOCATION_3[vx] - LOCATION_2[vx]) << MathProcessor.FP_SHIFT) / y3y2;
-			dz3 = ((LOCATION_3[vz] - LOCATION_2[vz]) << MathProcessor.FP_SHIFT) / y3y2;
-			for (int i = 0; i < MAX_VARYING; i++) {
-				VARYING_DELTAS_3[i] = ((Shader.VARYING_VERTEX_3[i] - Shader.VARYING_VERTEX_2[i]) << MathProcessor.FP_SHIFT) / y3y2;
-			}
-		}
-		for (int i = 0; i < MAX_VARYING; i++) {
-			VARYING_TEMP[i] = Shader.VARYING_VERTEX_1[i] << MathProcessor.FP_SHIFT;
-		}
-		int sx = LOCATION_1[vx] << MathProcessor.FP_SHIFT;
-		int ex = LOCATION_1[vx] << MathProcessor.FP_SHIFT;
-		int sz = LOCATION_1[vz] << MathProcessor.FP_SHIFT;
-		int sy = LOCATION_1[vy];
-		int dxdx = dx1 - dx2;
-		if (dxdx > 0) {
-			dz = ((dz1 - dz2) << MathProcessor.FP_SHIFT) / dxdx;
-			for (int i = 0; i < MAX_VARYING; i++) {
-				VARYING_DELTAS[i] = ((VARYING_DELTAS_2[i] - VARYING_DELTAS_1[i]) << MathProcessor.FP_SHIFT) / dxdx;
-			}
-		}
-		for (; sy < LOCATION_2[vy]; sy++) {
-			drawHorizontalLine(sx >> MathProcessor.FP_SHIFT, ex >> MathProcessor.FP_SHIFT, sz, dz, sy, shader, graphicsBuffer);
-			sx += dx2;
-			ex += dx1;
-			sz += dz2;
-			for (int i = 0; i < MAX_VARYING; i++) {
-				VARYING_TEMP[i] += VARYING_DELTAS_2[i];
-			}
-		}
-		ex = LOCATION_2[vx] << MathProcessor.FP_SHIFT;
-		dxdx = dx3 - dx2;
-		if (dxdx > 0) {
-			dz = ((dz3 - dz2) << MathProcessor.FP_SHIFT) / dxdx;
-			for (int i = 0; i < MAX_VARYING; i++) {
-				VARYING_DELTAS[i] = ((VARYING_DELTAS_3[i] - VARYING_DELTAS_2[i]) << MathProcessor.FP_SHIFT) / dxdx;
-			}
-		}
-		for (; sy < LOCATION_3[vy]; sy++) {
-			drawHorizontalLine(sx >> MathProcessor.FP_SHIFT, ex >> MathProcessor.FP_SHIFT, sz, dz, sy, shader, graphicsBuffer);
-			sx += dx2;
-			ex += dx3;
-			sz += dz2;
-			for (int i = 0; i < MAX_VARYING; i++) {
-				VARYING_TEMP[i] += VARYING_DELTAS_2[i];
-			}
-		}
-	}
-
-	private static void drawHorizontalLine(int sx, int ex, int sz, int dz, int sy, Shader shader, GraphicsBuffer graphicsBuffer) {
-		if (sx < ex) {
-			for (; sx < ex; sx++) {
-				int color = shader.fragment(sx, sy, sz >> MathProcessor.FP_SHIFT);
-				if (color != 0)
-					graphicsBuffer.setPixel(sx, sy, sz >> MathProcessor.FP_SHIFT, color);
-				sz += dz;
-				for (int i = 0; i < MAX_VARYING; i++) {
-					VARYING_TEMP[i] += VARYING_DELTAS_2[i];
-					Shader.VARYING_CURRENT[i] = VARYING_TEMP[i] >> MathProcessor.FP_SHIFT;
-				}
-			}
-		} else {
-			for (; ex < sx; ex++) {
-				int color = shader.fragment(ex, sy, sz >> MathProcessor.FP_SHIFT);
-				if (color != 0)
-					graphicsBuffer.setPixel(ex, sy, sz >> MathProcessor.FP_SHIFT, color);
-				sz -= dz;
-				for (int i = 0; i < MAX_VARYING; i++) {
-					VARYING_TEMP[i] -= VARYING_DELTAS_2[i];
-					Shader.VARYING_CURRENT[i] = VARYING_TEMP[i] >> MathProcessor.FP_SHIFT;
+		int[] location1 = face.getVertex1().getLocation();
+		int[] location2 = face.getVertex2().getLocation();
+		int[] location3 = face.getVertex3().getLocation();
+		
+		// compute boundig box of faces
+		int minX = Math.min(location1[vx], Math.min(location2[vx], location3[vx]));
+		int minY = Math.min(location1[vy], Math.min(location2[vy], location3[vy]));
+		int maxX = Math.max(location1[vx], Math.max(location2[vx], location3[vx]));
+		int maxY = Math.max(location1[vy], Math.max(location2[vy], location3[vy]));
+		
+		// clip against screen limits
+		minX = Math.max(minX, 0);
+		minY = Math.max(minY, 0);
+		maxX = Math.min(maxX, graphicsBuffer.getWidth() - 1);
+		maxY = Math.min(maxY, graphicsBuffer.getHeight() - 1);
+		
+		for (pixel[vy] = minY; pixel[vy] < maxY; pixel[vy]++) {
+			for (pixel[vx] = minX; pixel[vx] < maxX; pixel[vx]++) {
+				// calculate barycentric coordinates
+				barycentric[vx] = barycentric(location2, location3, pixel);
+				barycentric[vy] = barycentric(location3, location1, pixel);
+				barycentric[vz] = barycentric(location1, location2, pixel);
+				if ((barycentric[vx] >= 0) && (barycentric[vy] >= 0) && (barycentric[vz] >= 0)) {
+					int color = face.getMaterial().getShader().fragment(barycentric);
+					graphicsBuffer.setPixel(pixel[vx], pixel[vy], pixel[vz], color);
 				}
 			}
 		}
 	}
 	
-	private static void copyArray(int[] target, int[] source) {
-		for (int i = 0; i < target.length; i++) {
-			target[i] = source[i];
-		}
+	private static int barycentric(int[] vector1, int[] vector2, int[] vector3) {
+		return (vector2[vx] - vector1[vx]) * (vector3[vy] - vector1[vy])
+				- (vector3[vx] - vector1[vx]) * (vector2[vy] - vector1[vy]);
 	}
 	
 	public static abstract class Shader {
@@ -292,10 +172,6 @@ public class GraphicsProcessor {
 		protected static final int vy = VectorProcessor.VECTOR_Y;
 		protected static final int vz = VectorProcessor.VECTOR_Z;
 		protected static final int vw = VectorProcessor.VECTOR_W;
-		protected static final int[] VARYING_VERTEX_1 = new int[MAX_VARYING];
-		protected static final int[] VARYING_VERTEX_2 = new int[MAX_VARYING];
-		protected static final int[] VARYING_VERTEX_3 = new int[MAX_VARYING];
-		protected static final int[] VARYING_CURRENT = new int[MAX_VARYING];
 		
 		protected Light light;
 		protected Camera camera;
@@ -306,7 +182,7 @@ public class GraphicsProcessor {
 		}
 		
 		public abstract void geometry(Face face);
-		public abstract int fragment(int x, int y, int z);
+		public abstract int fragment(int[] barycentric);
 		
 	}
 }
