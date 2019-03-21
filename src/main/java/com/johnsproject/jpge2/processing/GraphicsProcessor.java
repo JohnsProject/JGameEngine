@@ -99,8 +99,8 @@ public class GraphicsProcessor {
 
 	public static int[][] orthographicMatrix(int[][] matrix, Camera camera) {
 		MatrixProcessor.reset(matrix);
-		matrix[0][0] = -1;
-		matrix[1][1] = -1;
+		matrix[0][0] = -MathProcessor.FP_VALUE;
+		matrix[1][1] = -MathProcessor.FP_VALUE;
 		matrix[2][2] = 0;
 		matrix[3][2] = MathProcessor.FP_VALUE;
 		return matrix;
@@ -109,9 +109,9 @@ public class GraphicsProcessor {
 	public static int[][] perspectiveMatrix(int[][] matrix, Camera camera) {
 		int[] frustum = camera.getViewFrustum();
 		MatrixProcessor.reset(matrix);
-		matrix[0][0] = -frustum[vx] * 4;
-		matrix[1][1] = -frustum[vx] * 4;
-		matrix[2][2] = -1;
+		matrix[0][0] = (-frustum[vx] * 4) << MathProcessor.FP_SHIFT;
+		matrix[1][1] = (-frustum[vx] * 4) << MathProcessor.FP_SHIFT;
+		matrix[2][2] = -MathProcessor.FP_VALUE;
 		return matrix;
 	}
 	
@@ -129,11 +129,18 @@ public class GraphicsProcessor {
 	
 	// rasterization variables
 	private static final int[] pixel = VectorProcessor.generate();	
-	private static final int[] barycentric = VectorProcessor.generate();	
+	private static final int[] barycentric = VectorProcessor.generate();
+	private static final int[] depth = VectorProcessor.generate();	
 	public static void drawFace(Face face, GraphicsBuffer graphicsBuffer) {
 		int[] location1 = face.getVertex1().getLocation();
 		int[] location2 = face.getVertex2().getLocation();
 		int[] location3 = face.getVertex3().getLocation();
+		
+		depth[0] = location1[vz];
+		depth[1] = location2[vz];
+		depth[2] = location3[vz];
+		
+		barycentric[vw] = barycentric(location1, location2, location3);
 		
 		// compute boundig box of faces
 		int minX = Math.min(location1[vx], Math.min(location2[vx], location3[vx]));
@@ -155,10 +162,15 @@ public class GraphicsProcessor {
 				barycentric[vz] = barycentric(location1, location2, pixel);
 				if ((barycentric[vx] >= 0) && (barycentric[vy] >= 0) && (barycentric[vz] >= 0)) {
 					int color = face.getMaterial().getShader().fragment(barycentric);
-					graphicsBuffer.setPixel(pixel[vx], pixel[vy], pixel[vz], color);
+					int z = dotProduct(barycentric, depth) / barycentric[vw];
+					graphicsBuffer.setPixel(pixel[vx], pixel[vy], z, color);
 				}
 			}
 		}
+	}
+	
+	private static int dotProduct(int[] vector1, int[] vector2) {
+		return vector1[vx] * vector2[vx] + vector1[vy] * vector2[vy] + vector1[vz] * vector2[vz];
 	}
 	
 	private static int barycentric(int[] vector1, int[] vector2, int[] vector3) {
