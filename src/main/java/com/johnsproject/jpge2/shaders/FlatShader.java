@@ -27,8 +27,7 @@ public class FlatShader extends Shader {
 		Material material = face.getMaterial();
 		// diffuse
 		VectorProcessor.normalize(normal, vectorCache1);
-		VectorProcessor.normalize(lightPosition, vectorCache2);
-		int dotProduct = VectorProcessor.dotProduct(vectorCache1, vectorCache2);
+		int dotProduct = VectorProcessor.dotProduct(vectorCache1, lightPosition);
 		int diffuseFactor = Math.max(dotProduct, 0);
 		diffuseFactor = (diffuseFactor * material.getDiffuseIntensity()) >> MathProcessor.FP_SHIFT;
 		// specular
@@ -46,12 +45,14 @@ public class FlatShader extends Shader {
 		// set uv values that will be interpolated
 		// uv is in normalized fixed point space between 0 - MathProcessor.FP_VALUE
 		// multiply uv with texture size to get correct coordinates and divide by MathProcessor.FP_VALUE
-		uvX[0] = (face.getUV1()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
-		uvX[1] = (face.getUV2()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
-		uvX[2] = (face.getUV3()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
-		uvY[0] = (face.getUV1()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
-		uvY[1] = (face.getUV2()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
-		uvY[2] = (face.getUV3()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
+		if (texture != null) {
+			uvX[0] = (face.getUV1()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
+			uvX[1] = (face.getUV2()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
+			uvX[2] = (face.getUV3()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
+			uvY[0] = (face.getUV1()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
+			uvY[1] = (face.getUV2()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
+			uvY[2] = (face.getUV3()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
+		}
 	}
 
 	@Override

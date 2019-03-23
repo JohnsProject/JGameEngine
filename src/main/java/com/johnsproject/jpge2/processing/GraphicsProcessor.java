@@ -41,8 +41,10 @@ public class GraphicsProcessor {
 						VectorProcessor.multiply(normal, normalMatrix, normal);
 						VectorProcessor.multiply(location, viewMatrix, location);
 						VectorProcessor.multiply(location, projectionMatrix, location);
+						// to ndc space
 						location[vx] = (location[vx] / location[vz]) + (camera.getCanvas()[vz] >> 1);
 						location[vy] = (location[vy] / location[vz]) + (camera.getCanvas()[vw] >> 1);
+						location[vz] = (location[vz] / location[vw]);
 					}
 					for (int l = 0; l < model.getFaces().length; l++) {
 						Face face = model.getFace(l);
@@ -103,8 +105,8 @@ public class GraphicsProcessor {
 
 	public static int[][] orthographicMatrix(int[][] matrix, Camera camera) {
 		MatrixProcessor.reset(matrix);
-		matrix[0][0] = -MathProcessor.FP_VALUE;
-		matrix[1][1] = -MathProcessor.FP_VALUE;
+		matrix[0][0] = -1;
+		matrix[1][1] = -1;
 		matrix[2][2] = 0;
 		matrix[3][2] = MathProcessor.FP_VALUE;
 		return matrix;
@@ -113,9 +115,10 @@ public class GraphicsProcessor {
 	public static int[][] perspectiveMatrix(int[][] matrix, Camera camera) {
 		int[] frustum = camera.getViewFrustum();
 		MatrixProcessor.reset(matrix);
-		matrix[0][0] = (-frustum[vx] * 4) << MathProcessor.FP_SHIFT;
-		matrix[1][1] = (-frustum[vx] * 4) << MathProcessor.FP_SHIFT;
+		matrix[0][0] = (-frustum[vx] * 10) << MathProcessor.FP_SHIFT;
+		matrix[1][1] = (-frustum[vx] * 10) << MathProcessor.FP_SHIFT;
 		matrix[2][2] = -MathProcessor.FP_VALUE;
+		matrix[3][3] = MathProcessor.FP_VALUE * MathProcessor.FP_VALUE;
 		return matrix;
 	}
 
@@ -152,18 +155,20 @@ public class GraphicsProcessor {
 				barycentric[vy] = barycentric(location3, location1, pixel);
 				barycentric[vz] = barycentric(location1, location2, pixel);
 				if ((barycentric[vx] >= 0) && (barycentric[vy] >= 0) && (barycentric[vz] >= 0)) {
+					pixel[vz] = interpolate(depth, barycentric);
 					int color = face.getMaterial().getShader().fragment(barycentric);
-					int z = interpolate(depth, barycentric);
-					graphicsBuffer.setPixel(pixel[vx], pixel[vy], z, color);
+					graphicsBuffer.setPixel(pixel[vx], pixel[vy], pixel[vz], color);
 				}
 			}
 		}
 	}
 
 	public static int interpolate(int[] values, int[] barycentric) {
-		int dotProduct = values[vx] * barycentric[vx] + values[vy] * barycentric[vy] + values[vz] * barycentric[vz];
+		int dotProduct = values[vx] * barycentric[vx]
+						+ values[vy] * barycentric[vy]
+						+ values[vz] * barycentric[vz];
 		// normalize values
-		return dotProduct / barycentric[vw];
+		return (dotProduct) / barycentric[vw];
 	}
 
 	private static int barycentric(int[] vector1, int[] vector2, int[] vector3) {

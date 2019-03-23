@@ -43,7 +43,7 @@ public class Camera extends SceneObject {
 	public Camera(String name, Transform transform, int[] canvas) {
 		super(name, transform);
 		this.canvas = canvas;
-		this.viewFrustum = VectorProcessor.generate(60, 1, 1024);
+		this.viewFrustum = VectorProcessor.generate(60, 10, 1024);
 	}
 
 	public int[] getCanvas() {

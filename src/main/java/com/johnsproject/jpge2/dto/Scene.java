@@ -35,7 +35,7 @@ public class Scene {
 	private final List<Light> lights = new ArrayList<Light>();
 	
 	public Scene() {
-		cameras.add(new Camera("Default Camera", new Transform(), VectorProcessor.generate(0, 0, 720, 480)));
+		cameras.add(new Camera("Default Camera", new Transform(), VectorProcessor.generate(0, 0, 1, 1)));
 		lights.add(new Light("Default Light", new Transform()));
 	}
 	
