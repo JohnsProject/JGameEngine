@@ -41,10 +41,8 @@ public class GraphicsProcessor {
 						VectorProcessor.multiply(normal, normalMatrix, normal);
 						VectorProcessor.multiply(location, viewMatrix, location);
 						VectorProcessor.multiply(location, projectionMatrix, location);
-						// to ndc space
-						location[vx] = (location[vx] / location[vz]) + (camera.getCanvas()[vz] >> 1);
-						location[vy] = (location[vy] / location[vz]) + (camera.getCanvas()[vw] >> 1);
-						location[vz] = (location[vz] / location[vw]);
+						location[vx] = MathProcessor.divide(location[vx], location[vw]) + (camera.getCanvas()[vz] >> 1);
+						location[vy] = MathProcessor.divide(location[vy], location[vw]) + (camera.getCanvas()[vw] >> 1);
 					}
 					for (int l = 0; l < model.getFaces().length; l++) {
 						Face face = model.getFace(l);
@@ -115,10 +113,10 @@ public class GraphicsProcessor {
 	public static int[][] perspectiveMatrix(int[][] matrix, Camera camera) {
 		int[] frustum = camera.getViewFrustum();
 		MatrixProcessor.reset(matrix);
-		matrix[0][0] = (-frustum[vx] * 10) << MathProcessor.FP_SHIFT;
-		matrix[1][1] = (-frustum[vx] * 10) << MathProcessor.FP_SHIFT;
-		matrix[2][2] = -MathProcessor.FP_VALUE;
-		matrix[3][3] = MathProcessor.FP_VALUE * MathProcessor.FP_VALUE;
+		matrix[0][0] = (frustum[vx] * frustum[vy]) << MathProcessor.FP_SHIFT;
+		matrix[1][1] = (frustum[vx] * frustum[vy]) << MathProcessor.FP_SHIFT;
+		matrix[2][2] = 10;
+		matrix[2][3] = MathProcessor.FP_VALUE;
 		return matrix;
 	}
 
@@ -131,7 +129,6 @@ public class GraphicsProcessor {
 		int[] location1 = face.getVertex1().getLocation();
 		int[] location2 = face.getVertex2().getLocation();
 		int[] location3 = face.getVertex3().getLocation();
-
 		depth[0] = location1[vz];
 		depth[1] = location2[vz];
 		depth[2] = location3[vz];
@@ -139,7 +136,7 @@ public class GraphicsProcessor {
 		// compute boundig box of faces
 		int minX = Math.min(location1[vx], Math.min(location2[vx], location3[vx]));
 		int minY = Math.min(location1[vy], Math.min(location2[vy], location3[vy]));
-		int maxX = Math.max(location1[vx], Math.max(location2[vx], location3[vx]));
+		int maxX = Math.max(location1[vx], Math.max(location2[vx], location3[vx])); 
 		int maxY = Math.max(location1[vy], Math.max(location2[vy], location3[vy]));
 
 		// clip against screen limits
@@ -147,7 +144,7 @@ public class GraphicsProcessor {
 		minY = Math.max(minY, 0);
 		maxX = Math.min(maxX, graphicsBuffer.getWidth() - 1);
 		maxY = Math.min(maxY, graphicsBuffer.getHeight() - 1);
-
+		
 		for (pixel[vy] = minY; pixel[vy] < maxY; pixel[vy]++) {
 			for (pixel[vx] = minX; pixel[vx] < maxX; pixel[vx]++) {
 				// calculate barycentric coordinates
@@ -155,7 +152,7 @@ public class GraphicsProcessor {
 				barycentric[vy] = barycentric(location3, location1, pixel);
 				barycentric[vz] = barycentric(location1, location2, pixel);
 				if ((barycentric[vx] >= 0) && (barycentric[vy] >= 0) && (barycentric[vz] >= 0)) {
-					pixel[vz] = interpolate(depth, barycentric);
+					pixel[vz] = interpolatDepth(depth, barycentric);
 					int color = face.getMaterial().getShader().fragment(barycentric);
 					graphicsBuffer.setPixel(pixel[vx], pixel[vy], pixel[vz], color);
 				}
@@ -163,12 +160,19 @@ public class GraphicsProcessor {
 		}
 	}
 
+	private static int interpolatDepth(int[] values, int[] barycentric) {
+		int dotProduct = (barycentric[vx] << MathProcessor.FP_SHIFT) / depth[0]
+						+ (barycentric[vy] << MathProcessor.FP_SHIFT) / depth[1]
+						+ (barycentric[vz] << MathProcessor.FP_SHIFT) / depth[2];
+		return (barycentric[vw] << MathProcessor.FP_SHIFT) / dotProduct;
+	}
+	
 	public static int interpolate(int[] values, int[] barycentric) {
-		int dotProduct = values[vx] * barycentric[vx]
-						+ values[vy] * barycentric[vy]
-						+ values[vz] * barycentric[vz];
+		int dotProduct = ((values[vx] << MathProcessor.FP_SHIFT) / depth[0]) * barycentric[vx]
+						+ ((values[vy] << MathProcessor.FP_SHIFT) / depth[1]) * barycentric[vy]
+						+ ((values[vz] << MathProcessor.FP_SHIFT) / depth[2]) * barycentric[vz];
 		// normalize values
-		return (dotProduct) / barycentric[vw];
+		return (int)((((long)dotProduct * (long)pixel[vz]) / barycentric[vw]) >> MathProcessor.FP_SHIFT);
 	}
 
 	private static int barycentric(int[] vector1, int[] vector2, int[] vector3) {

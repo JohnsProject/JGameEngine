@@ -115,9 +115,9 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public static void divide(int[] vector1, int value, int[] out) {
-		out[VECTOR_X] = vector1[VECTOR_X] / value;
-		out[VECTOR_Y] = vector1[VECTOR_Y] / value;
-		out[VECTOR_Z] = vector1[VECTOR_Z] / value;
+		out[VECTOR_X] = MathProcessor.divide(vector1[VECTOR_X], value);
+		out[VECTOR_Y] = MathProcessor.divide(vector1[VECTOR_Y], value);
+		out[VECTOR_Z] = MathProcessor.divide(vector1[VECTOR_Z], value);
 	}
 
 	/**
@@ -167,9 +167,9 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public static void divide(int[] vector1, int[] vector2, int[] out) {
-		out[VECTOR_X] = vector1[VECTOR_X] / vector2[VECTOR_X];
-		out[VECTOR_Y] = vector1[VECTOR_Y] / vector2[VECTOR_Y];
-		out[VECTOR_Z] = vector1[VECTOR_Z] / vector2[VECTOR_Z];
+		out[VECTOR_X] = MathProcessor.divide(vector1[VECTOR_X], vector2[VECTOR_X]);
+		out[VECTOR_Y] = MathProcessor.divide(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		out[VECTOR_Z] = MathProcessor.divide(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 	}
 
 	/**
@@ -198,10 +198,7 @@ public class VectorProcessor {
 	 * @return
 	 */
 	public static int magnitude(int[] vector) {
-		int x = MathProcessor.multiply(vector[VECTOR_X], vector[VECTOR_X]);
-		int y = MathProcessor.multiply(vector[VECTOR_Y], vector[VECTOR_Y]);
-		int z = MathProcessor.multiply(vector[VECTOR_Z], vector[VECTOR_Z]);
-		return MathProcessor.sqrt((x + y + z) >> MathProcessor.FP_SHIFT);
+		return MathProcessor.sqrt(dotProduct(vector, vector) >> MathProcessor.FP_SHIFT);
 	}
 
 	/**
@@ -243,9 +240,9 @@ public class VectorProcessor {
 	public static void normalize(int[] vector, int[] out) {
 		int magnitude = magnitude(vector);
 		if (magnitude != 0) {
-			out[VECTOR_X] = (vector[VECTOR_X]) / magnitude;
-			out[VECTOR_Y] = (vector[VECTOR_Y]) / magnitude;
-			out[VECTOR_Z] = (vector[VECTOR_Z]) / magnitude;
+			out[VECTOR_X] = MathProcessor.divide(vector[VECTOR_X], magnitude);
+			out[VECTOR_Y] = MathProcessor.divide(vector[VECTOR_Y], magnitude);
+			out[VECTOR_Z] = MathProcessor.divide(vector[VECTOR_Z], magnitude);
 		}
 	}
 	
