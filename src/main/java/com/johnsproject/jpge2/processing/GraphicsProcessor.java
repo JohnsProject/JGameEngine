@@ -146,6 +146,8 @@ public class GraphicsProcessor {
 		maxY = Math.min(maxY, graphicsBuffer.getHeight() - 1);
 		
 		for (pixel[vy] = minY; pixel[vy] < maxY; pixel[vy]++) {
+			boolean found = false;
+			boolean usedLast = false;
 			for (pixel[vx] = minX; pixel[vx] < maxX; pixel[vx]++) {
 				// calculate barycentric coordinates
 				barycentric[vx] = barycentric(location2, location3, pixel);
@@ -155,16 +157,22 @@ public class GraphicsProcessor {
 					pixel[vz] = interpolatDepth(depth, barycentric);
 					int color = face.getMaterial().getShader().fragment(barycentric);
 					graphicsBuffer.setPixel(pixel[vx], pixel[vy], pixel[vz], color);
+					found = true;
+					usedLast = true;
+				}else if(found && usedLast) {
+					break;
 				}
 			}
 		}
 	}
 
 	private static int interpolatDepth(int[] values, int[] barycentric) {
-		long dotProduct = ((long)barycentric[vx] << (MathProcessor.FP_SHIFT * 2)) / depth[0]
-						+ ((long)barycentric[vy] << (MathProcessor.FP_SHIFT * 2)) / depth[1]
-						+ ((long)barycentric[vz] << (MathProcessor.FP_SHIFT * 2)) / depth[2];
-		return (int)(((long)barycentric[vw] << (MathProcessor.FP_SHIFT * 2)) / dotProduct);
+		// 10 bits of precision are not enought
+		final byte shift = MathProcessor.FP_SHIFT * 2;
+		long dotProduct = ((long)barycentric[vx] << shift) / depth[0]
+						+ ((long)barycentric[vy] << shift) / depth[1]
+						+ ((long)barycentric[vz] << shift) / depth[2];
+		return (int)(((long)barycentric[vw] << shift) / dotProduct);
 	}
 	
 	public static int interpolate(int[] values, int[] barycentric) {
@@ -187,8 +195,8 @@ public class GraphicsProcessor {
 		protected static final int vz = VectorProcessor.VECTOR_Z;
 		protected static final int vw = VectorProcessor.VECTOR_W;
 
-		protected Light light;
-		protected Camera camera;
+		protected static Light light;
+		protected static Camera camera;
 
 		private void setup(Camera camera, Light light) {
 			this.light = light;
