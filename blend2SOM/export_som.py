@@ -37,7 +37,7 @@ def write(filepath,
 					action = strip.action
 					obj.animation_data.action = action
 					animData = AnimData(action.name)
-					for i in range(long(action.frame_range[0]), long(action.frame_range[1])):
+					for i in range(int(action.frame_range[0]), int(action.frame_range[1])):
 						bpy.context.scene.frame_set(i)
 						bpy.context.scene.update()
 						for bone in bones:

@@ -15,10 +15,10 @@ public class GraphicsProcessorTest {
 	public void modelToWorldTest() throws Exception {
 		Model model = new Model("", new Transform(), new Vertex[0], new Face[0], new Material[0]);
 		model.getTransform().rotate(0, 0, 30);
-		long[][] matrix = MatrixProcessor.generate();
+		int[][] matrix = MatrixProcessor.generate();
 		GraphicsProcessor.worldMatrix(matrix, model);
-		long[] out = VectorProcessor.generate();
-		long[] vector = VectorProcessor.generate(100, 100, 100);
+		int[] out = VectorProcessor.generate();
+		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);
 //		// test x rotation 
 //		assert(out[0] == 1000);

@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.importers.SOMImporter;
+import com.johnsproject.jpge2.processing.MathProcessor;
 
 public class EngineTest {
 

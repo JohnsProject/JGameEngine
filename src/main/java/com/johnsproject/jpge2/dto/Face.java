@@ -34,16 +34,16 @@ public class Face {
 	private Vertex vertex1;
 	private Vertex vertex2;
 	private Vertex vertex3;
-	private long[] startNormal;
-	private long[] normal;
-	private long[] uv1;
-	private long[] uv2;
-	private long[] uv3;
+	private int[] startNormal;
+	private int[] normal;
+	private int[] uv1;
+	private int[] uv2;
+	private int[] uv3;
 	private int materialIndex;
 	private Material material;
 	private Model model;	
 
-	public Face(int index, int vertex1, int vertex2, int vertex3, int material, long[] normal, long[] uv1, long[] uv2, long[] uv3) {
+	public Face(int index, int vertex1, int vertex2, int vertex3, int material, int[] normal, int[] uv1, int[] uv2, int[] uv3) {
 		this.index = index;
 		this.vertex1Index = vertex1;
 		this.vertex2Index = vertex2;
@@ -84,7 +84,7 @@ public class Face {
 		return vertex3;
 	}
 
-	public long[] getNormal() {
+	public int[] getNormal() {
 		return normal;
 	}
 	
@@ -92,15 +92,15 @@ public class Face {
 		VectorProcessor.copy(normal, startNormal);
 	}
 	
-	public long[] getUV1() {
+	public int[] getUV1() {
 		return uv1;
 	}
 
-	public long[] getUV2() {
+	public int[] getUV2() {
 		return uv2;
 	}
 
-	public long[] getUV3() {
+	public int[] getUV3() {
 		return uv3;
 	}
 

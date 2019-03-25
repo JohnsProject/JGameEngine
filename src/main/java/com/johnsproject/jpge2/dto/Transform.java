@@ -32,11 +32,11 @@ public class Transform {
 	private static final int vy = VectorProcessor.VECTOR_Y;
 	private static final int vz = VectorProcessor.VECTOR_Z;
 
-	private long[] location;
-	private long[] rotation;
-	private long[] scale;
+	private int[] location;
+	private int[] rotation;
+	private int[] scale;
 	
-	public Transform(long[] location, long[] rotation, long[] scale) {
+	public Transform(int[] location, int[] rotation, int[] scale) {
 		this.location = location;
 		this.rotation = rotation;
 		this.scale = scale;
@@ -48,55 +48,55 @@ public class Transform {
 		this.scale = VectorProcessor.generate(10, 10, 10);
 	}
 
-	public void translate(long x, long y, long z) {
+	public void translate(int x, int y, int z) {
 		location[vx] += x << MathProcessor.FP_SHIFT;
 		location[vy] += y << MathProcessor.FP_SHIFT;
 		location[vz] += z << MathProcessor.FP_SHIFT;
 	}
 
-	public void rotate(long x, long y, long z) {
+	public void rotate(int x, int y, int z) {
 		rotation[vx] += x;
 		rotation[vy] += y;
 		rotation[vz] += z;
 	}
 
-	public void translate(long[] vector) {
+	public void translate(int[] vector) {
 		location[vx] += vector[vx] << MathProcessor.FP_SHIFT;
 		location[vy] += vector[vz] << MathProcessor.FP_SHIFT;
 		location[vy] += vector[vz] << MathProcessor.FP_SHIFT;
 	}
 
-	public void rotate(long[] vector) {
+	public void rotate(int[] vector) {
 		rotation[vx] += vector[vx];
 		rotation[vy] += vector[vz];
 		rotation[vy] += vector[vz];
 	}
 
-	public long[] getLocation() {
+	public int[] getLocation() {
 		return location;
 	}
 
-	public void setLocation(long x, long y, long z) {
+	public void setLocation(int x, int y, int z) {
 		location[vx] = x << MathProcessor.FP_SHIFT;
 		location[vy] = y << MathProcessor.FP_SHIFT;
 		location[vz] = z << MathProcessor.FP_SHIFT;
 	}
 
-	public long[] getRotation() {
+	public int[] getRotation() {
 		return rotation;
 	}
 
-	public void setRotation(long x, long y, long z) {
+	public void setRotation(int x, int y, int z) {
 		rotation[vx] = x;
 		rotation[vy] = y;
 		rotation[vz] = z;
 	}
 
-	public long[] getScale() {
+	public int[] getScale() {
 		return scale;
 	}
 
-	public void setScale(long x, long y, long z) {
+	public void setScale(int x, int y, int z) {
 		scale[vx] = x;
 		scale[vy] = y;
 		scale[vz] = z;
