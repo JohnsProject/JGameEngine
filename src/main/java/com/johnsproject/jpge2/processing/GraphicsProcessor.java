@@ -161,16 +161,16 @@ public class GraphicsProcessor {
 	}
 
 	private static int interpolatDepth(int[] values, int[] barycentric) {
-		int dotProduct = (barycentric[vx] << MathProcessor.FP_SHIFT) / depth[0]
-						+ (barycentric[vy] << MathProcessor.FP_SHIFT) / depth[1]
-						+ (barycentric[vz] << MathProcessor.FP_SHIFT) / depth[2];
-		return (barycentric[vw] << MathProcessor.FP_SHIFT) / dotProduct;
+		long dotProduct = ((long)barycentric[vx] << MathProcessor.FP_SHIFT) / depth[0]
+						+ ((long)barycentric[vy] << MathProcessor.FP_SHIFT) / depth[1]
+						+ ((long)barycentric[vz] << MathProcessor.FP_SHIFT) / depth[2];
+		return (int)(((long)barycentric[vw] << MathProcessor.FP_SHIFT) / dotProduct);
 	}
 	
 	public static int interpolate(int[] values, int[] barycentric) {
-		int dotProduct = ((values[vx] << MathProcessor.FP_SHIFT) / depth[0]) * barycentric[vx]
-						+ ((values[vy] << MathProcessor.FP_SHIFT) / depth[1]) * barycentric[vy]
-						+ ((values[vz] << MathProcessor.FP_SHIFT) / depth[2]) * barycentric[vz];
+		long dotProduct = (((long)values[vx] << MathProcessor.FP_SHIFT) / depth[0]) * barycentric[vx]
+						+ (((long)values[vy] << MathProcessor.FP_SHIFT) / depth[1]) * barycentric[vy]
+						+ (((long)values[vz] << MathProcessor.FP_SHIFT) / depth[2]) * barycentric[vz];
 		// normalize values
 		return (int)((((long)dotProduct * (long)pixel[vz]) / barycentric[vw]) >> MathProcessor.FP_SHIFT);
 	}
