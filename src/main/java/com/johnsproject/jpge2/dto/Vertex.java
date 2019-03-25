@@ -32,15 +32,15 @@ public class Vertex {
 	private static final int vz = VectorProcessor.VECTOR_Z;
 	
 	private int index;
-	private int[] startLocation;
-	private int[] location;
-	private int[] startNormal;
-	private int[] normal;
+	private long[] startLocation;
+	private long[] location;
+	private long[] startNormal;
+	private long[] normal;
 	private int materialIndex;
 	private Material material;
 	private Model model;
 	
-	public Vertex(int index, int[] location, int[] normal, int material) {
+	public Vertex(int index, long[] location, long[] normal, int material) {
 		this.index = index;
 		this.startLocation = location.clone();
 		this.location = location;
@@ -49,7 +49,7 @@ public class Vertex {
 		this.materialIndex = material;
 	}
 
-	public int getIndex() {
+	public long getIndex() {
 		return index;
 	}
 
@@ -62,21 +62,21 @@ public class Vertex {
 		this.model = model;
 	}
 
-	public int[] getStartLocation() {
+	public long[] getStartLocation() {
 		return startLocation;
 	}
 
-	public int[] getLocation() {
+	public long[] getLocation() {
 		return location;
 	}
 	
 	
-	public void setLocation(int[] location) {
+	public void setLocation(long[] location) {
 		this.location = location;
 	}
 	
 
-	public void setLocation(int x, int y, int z) {
+	public void setLocation(long x, long y, long z) {
 		this.location[vx] = x;
 		this.location[vy] = y;
 		this.location[vz] = z;
@@ -87,7 +87,7 @@ public class Vertex {
 		VectorProcessor.copy(normal, startNormal);
 	}
 	
-	public int[] getNormal() {
+	public long[] getNormal() {
 		return normal;
 	}
 

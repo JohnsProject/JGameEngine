@@ -11,34 +11,34 @@ import com.johnsproject.jpge2.processing.VectorProcessor;
 
 public class FlatShader extends Shader {
 	
-	private static int[] vectorCache1 = VectorProcessor.generate();
-	private static int[] vectorCache2 = VectorProcessor.generate();
-	private static int[] uvX = VectorProcessor.generate();
-	private static int[] uvY = VectorProcessor.generate();
+	private static long[] vectorCache1 = VectorProcessor.generate();
+	private static long[] vectorCache2 = VectorProcessor.generate();
+	private static long[] uvX = VectorProcessor.generate();
+	private static long[] uvY = VectorProcessor.generate();
 	private static int color;
 	private static int intensity;
 	private static Texture texture;
 
 	@Override
 	public void geometry(Face face) {
-		int[] normal = face.getNormal();
-		int[] lightPosition = light.getTransform().getLocation();
-		int[] cameraPosition = camera.getTransform().getLocation();
+		long[] normal = face.getNormal();
+		long[] lightPosition = light.getTransform().getLocation();
+		long[] cameraPosition = camera.getTransform().getLocation();
 		Material material = face.getMaterial();
 		// diffuse
 		VectorProcessor.normalize(normal, vectorCache1);
-		int dotProduct = VectorProcessor.dotProduct(vectorCache1, lightPosition);
-		int diffuseFactor = Math.max(dotProduct, 0);
+		long dotProduct = VectorProcessor.dotProduct(vectorCache1, lightPosition);
+		long diffuseFactor = Math.max(dotProduct, 0);
 		diffuseFactor = (diffuseFactor * material.getDiffuseIntensity()) >> MathProcessor.FP_SHIFT;
 		// specular
 		VectorProcessor.reflect(vectorCache2, vectorCache1, vectorCache2);
 		VectorProcessor.invert(vectorCache2);
 		VectorProcessor.normalize(cameraPosition, vectorCache1);
 		dotProduct = VectorProcessor.dotProduct(vectorCache1, vectorCache2);
-		int specularFactor = Math.max(dotProduct, 0);
+		long specularFactor = Math.max(dotProduct, 0);
 		specularFactor = (specularFactor * material.getSpecularIntensity()) >> MathProcessor.FP_SHIFT;
 		// putting it all together...
-		intensity = light.getStrength() + diffuseFactor + specularFactor;
+		intensity = (int)(light.getStrength() + diffuseFactor + specularFactor);
 		color = ColorProcessor.multiplyColor(light.getDiffuseColor(), material.getDiffuseColor());
 		color = ColorProcessor.multiply(color, intensity);
 		texture = material.getTexture();
@@ -56,10 +56,10 @@ public class FlatShader extends Shader {
 	}
 
 	@Override
-	public int fragment(int[] barycentric) {
+	public int fragment(long[] barycentric) {
 		if (texture != null) {
-			int u = GraphicsProcessor.interpolate(uvX, barycentric);
-			int v = GraphicsProcessor.interpolate(uvY, barycentric);
+			int u = (int)GraphicsProcessor.interpolate(uvX, barycentric);
+			int v = (int)GraphicsProcessor.interpolate(uvY, barycentric);
 			int texel = texture.getPixel(u, v);
 			return ColorProcessor.multiply(texel, intensity);
 		}

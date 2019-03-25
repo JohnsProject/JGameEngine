@@ -74,11 +74,11 @@ public class Texture {
 	}
 	
 	public void setPixel(int x, int y, int color){
-		image[MathProcessor.clamp((x + (y*width)), 0, image.length-1)] = color;
+		image[(int)MathProcessor.clamp((x + (y*width)), 0, image.length-1)] = color;
 	}
 	
 	public int getPixel(int x, int y){
-		return image[MathProcessor.clamp((x + (y*width)), 0, image.length-1)];
+		return image[(int)MathProcessor.clamp((x + (y*width)), 0, image.length-1)];
 	}
 	
 	public int[] getPixels() {

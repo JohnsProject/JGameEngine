@@ -31,8 +31,8 @@ public class Model extends SceneObject {
 	private Vertex[] vertices;
 	private Face[] faces;
 	private Material[] materials;
-	private int[][] modelMatrix = MatrixProcessor.generate();
-	private int[][] normalMatrix = MatrixProcessor.generate();
+	private long[][] modelMatrix = MatrixProcessor.generate();
+	private long[][] normalMatrix = MatrixProcessor.generate();
 	
 	public Model (String name, Transform transform, Vertex[] vertices, Face[] faces, Material[] materials) {
 		super(name, transform);
@@ -71,14 +71,14 @@ public class Model extends SceneObject {
 		return materials[index];
 	}
 
-	public int[][] getModelMatrix() {
+	public long[][] getModelMatrix() {
 		if (this.hasChanged()) {
 			GraphicsProcessor.worldMatrix(modelMatrix, this);
 		}
 		return modelMatrix;
 	}
 	
-	public int[][] getNormalMatrix() {
+	public long[][] getNormalMatrix() {
 		if (this.hasChanged()) {
 			GraphicsProcessor.normalMatrix(normalMatrix, this);
 		}

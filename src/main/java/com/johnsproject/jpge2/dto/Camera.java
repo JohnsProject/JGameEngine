@@ -34,62 +34,62 @@ public class Camera extends SceneObject {
 	private static final int vz = VectorProcessor.VECTOR_Z;
 	private static final int vw = VectorProcessor.VECTOR_W;
 	
-	private int[] canvas;
-	private int[] viewFrustum;
-	private int[][] viewMatrix = MatrixProcessor.generate();
-	private int[][] perspectiveMatrix = MatrixProcessor.generate();
-	private int[][] orthographicMatrix = MatrixProcessor.generate();
+	private long[] canvas;
+	private long[] viewFrustum;
+	private long[][] viewMatrix = MatrixProcessor.generate();
+	private long[][] perspectiveMatrix = MatrixProcessor.generate();
+	private long[][] orthographicMatrix = MatrixProcessor.generate();
 
-	public Camera(String name, Transform transform, int[] canvas) {
+	public Camera(String name, Transform transform, long[] canvas) {
 		super(name, transform);
 		this.canvas = canvas;
 		this.viewFrustum = VectorProcessor.generate(60, 10, 1024);
 	}
 
-	public int[] getCanvas() {
+	public long[] getCanvas() {
 		return canvas;
 	}
 
-	public void setCanvas(int[] canvas) {
+	public void setCanvas(long[] canvas) {
 		this.canvas = canvas;
 	}
 	
-	public void setCanvas(int x, int y, int width, int height) {
+	public void setCanvas(long x, long y, long width, long height) {
 		this.canvas[vx] = x;
 		this.canvas[vy] = y;
 		this.canvas[vz] = width;
 		this.canvas[vw] = height;
 	}
 
-	public int[] getViewFrustum() {
+	public long[] getViewFrustum() {
 		return viewFrustum;
 	}
 
-	public void setViewFrustum(int[] clippingPlanes) {
+	public void setViewFrustum(long[] clippingPlanes) {
 		this.viewFrustum = clippingPlanes;
 	}
 	
-	public void setViewFrustum(int fov, int near, int far) {
+	public void setViewFrustum(long fov, long near, long far) {
 		this.viewFrustum[vx] = fov;
 		this.viewFrustum[vy] = near;
 		this.viewFrustum[vz] = far;
 	}
 
-	public int[][] getViewMatrix() {
+	public long[][] getViewMatrix() {
 		if (this.hasChanged()) {
 			GraphicsProcessor.viewMatrix(viewMatrix, this);
 		}
 		return viewMatrix;
 	}
 
-	public int[][] getPerspectiveMatrix() {
+	public long[][] getPerspectiveMatrix() {
 		if (this.hasChanged()) {
 			GraphicsProcessor.perspectiveMatrix(perspectiveMatrix, this);
 		}
 		return perspectiveMatrix;
 	}
 
-	public int[][] getOrthographicMatrix() {
+	public long[][] getOrthographicMatrix() {
 		if (this.hasChanged()) {
 			GraphicsProcessor.orthographicMatrix(orthographicMatrix, this);
 		}
