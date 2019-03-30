@@ -25,9 +25,10 @@ package com.johnsproject.jpge2.dto;
 
 import com.johnsproject.jpge2.processing.ColorProcessor;
 
-public class Light extends SceneObject{
+public class Light extends SceneObject {
 	
 	public static final int LIGHT_DIRECTIONAL = 1;
+	public static final int LIGHT_POINT = 2;
 	
 	private int type;
 	private int strength;

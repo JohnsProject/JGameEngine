@@ -54,5 +54,15 @@ public class MathProcessorTest {
 			assert (itan >= tan - precision && itan <= tan + precision);
 		}
 	}
+	
+	@Test
+	public void powTest() throws Exception {
+		assert(MathProcessor.pow(5, 2) == 25);
+	}
+	
+	@Test
+	public void sqrtTest() throws Exception {
+		assert(MathProcessor.sqrt(25) == 5);
+	}
 
 }

@@ -26,7 +26,7 @@ public class EngineTest {
 		Engine.getInstance().getScene().getModels().get(0).getTransform().translate(0, 0, 0);
 		Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, 50);
 		Engine.getInstance().getScene().getCameras().get(0).getTransform().rotate(0, 0, 0);
-		Engine.getInstance().getScene().getLights().get(0).getTransform().translate(2, 0, 0);
+		Engine.getInstance().getScene().getLights().get(0).getTransform().translate(20, 0, 0);
 		new Thread(new Runnable() {
 			
 			public void run() {

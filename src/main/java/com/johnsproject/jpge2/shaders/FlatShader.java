@@ -1,6 +1,7 @@
 package com.johnsproject.jpge2.shaders;
 
 import com.johnsproject.jpge2.dto.Face;
+import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Material;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.processing.ColorProcessor;
@@ -10,9 +11,7 @@ import com.johnsproject.jpge2.processing.MathProcessor;
 import com.johnsproject.jpge2.processing.VectorProcessor;
 
 public class FlatShader extends Shader {
-	
-	private static int[] vectorCache1 = VectorProcessor.generate();
-	private static int[] vectorCache2 = VectorProcessor.generate();
+
 	private static int[] uvX = VectorProcessor.generate();
 	private static int[] uvY = VectorProcessor.generate();
 	private static int color;
@@ -21,30 +20,23 @@ public class FlatShader extends Shader {
 
 	@Override
 	public void geometry(Face face) {
-		int[] normal = face.getNormal();
-		int[] lightPosition = light.getTransform().getLocation();
-		int[] cameraPosition = camera.getTransform().getLocation();
 		Material material = face.getMaterial();
-		// diffuse
-		VectorProcessor.normalize(normal, vectorCache1);
-		int dotProduct = VectorProcessor.dotProduct(vectorCache1, lightPosition);
-		int diffuseFactor = Math.max(dotProduct, 0);
-		diffuseFactor = (diffuseFactor * material.getDiffuseIntensity()) >> MathProcessor.FP_SHIFT;
-		// specular
-		VectorProcessor.reflect(vectorCache2, vectorCache1, vectorCache2);
-		VectorProcessor.invert(vectorCache2);
-		VectorProcessor.normalize(cameraPosition, vectorCache1);
-		dotProduct = VectorProcessor.dotProduct(vectorCache1, vectorCache2);
-		int specularFactor = Math.max(dotProduct, 0);
-		specularFactor = (specularFactor * material.getSpecularIntensity()) >> MathProcessor.FP_SHIFT;
-		// putting it all together...
-		intensity = light.getStrength() + diffuseFactor + specularFactor;
-		color = ColorProcessor.multiplyColor(light.getDiffuseColor(), material.getDiffuseColor());
-		color = ColorProcessor.multiply(color, intensity);
+		int[] normal = face.getNormal();
+		int[] cameraLocation = camera.getTransform().getLocation();
+		color = 0;
+		for (int i = 0; i < lights.size(); i++) {
+			Light light = lights.get(i);
+			intensity = GraphicsProcessor.getPointLightFactor(face.getVertex1().getLocation(), normal, light.getTransform().getLocation(), cameraLocation, material);
+			intensity += light.getStrength();
+			int c = ColorProcessor.multiplyColor(light.getDiffuseColor(), material.getDiffuseColor());
+			color = ColorProcessor.multiplyColor(c, color);
+			color = ColorProcessor.multiply(color, intensity);
+		}
 		texture = material.getTexture();
 		// set uv values that will be interpolated
 		// uv is in normalized fixed point space between 0 - MathProcessor.FP_VALUE
-		// multiply uv with texture size to get correct coordinates and divide by MathProcessor.FP_VALUE
+		// multiply uv with texture size to get correct coordinates and divide by
+		// MathProcessor.FP_VALUE
 		if (texture != null) {
 			uvX[0] = (face.getUV1()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
 			uvX[1] = (face.getUV2()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
@@ -56,7 +48,7 @@ public class FlatShader extends Shader {
 	}
 
 	@Override
-	public int fragment(int[] barycentric) {
+	public int fragment(int[] location, int[] barycentric) {
 		if (texture != null) {
 			int u = GraphicsProcessor.interpolate(uvX, barycentric);
 			int v = GraphicsProcessor.interpolate(uvY, barycentric);

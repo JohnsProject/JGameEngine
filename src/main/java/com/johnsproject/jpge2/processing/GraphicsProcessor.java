@@ -1,9 +1,12 @@
 package com.johnsproject.jpge2.processing;
 
+import java.util.List;
+
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.GraphicsBuffer;
 import com.johnsproject.jpge2.dto.Light;
+import com.johnsproject.jpge2.dto.Material;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Transform;
@@ -23,40 +26,37 @@ public class GraphicsProcessor {
 			Camera camera = scene.getCameras().get(i);
 			for (int j = 0; j < scene.getModels().size(); j++) {
 				Model model = scene.getModels().get(j);
-				for (int k = 0; k < scene.getLights().size(); k++) {
-					Light light = scene.getLights().get(k);
-					int[][] worldMatrix = model.getModelMatrix();
-					int[][] normalMatrix = model.getNormalMatrix();
-					int[][] viewMatrix = camera.getViewMatrix();
-					int[][] projectionMatrix = camera.getPerspectiveMatrix();
-					for (int l = 0; l < model.getMaterials().length; l++) {
-						model.getMaterial(l).getShader().setup(camera, light);
-					}
-					for (int l = 0; l < model.getVertices().length; l++) {
-						Vertex vertex = model.getVertex(l);
-						vertex.reset();
-						int[] location = vertex.getLocation();
-						int[] normal = vertex.getNormal();
-						VectorProcessor.multiply(location, worldMatrix, location);
+				int[][] worldMatrix = model.getModelMatrix();
+				int[][] normalMatrix = model.getNormalMatrix();
+				int[][] viewMatrix = camera.getViewMatrix();
+				int[][] projectionMatrix = camera.getPerspectiveMatrix();
+				for (int l = 0; l < model.getMaterials().length; l++) {
+					model.getMaterial(l).getShader().setup(camera, scene.getLights());
+				}
+				for (int l = 0; l < model.getVertices().length; l++) {
+					Vertex vertex = model.getVertex(l);
+					vertex.reset();
+					int[] location = vertex.getLocation();
+					int[] normal = vertex.getNormal();
+					VectorProcessor.multiply(location, worldMatrix, location);
+					VectorProcessor.multiply(normal, normalMatrix, normal);
+					VectorProcessor.multiply(location, viewMatrix, location);
+					VectorProcessor.multiply(location, projectionMatrix, location);
+					location[vx] = MathProcessor.divide(location[vx], location[vw]) + (camera.getCanvas()[vz] >> 1);
+					location[vy] = MathProcessor.divide(location[vy], location[vw]) + (camera.getCanvas()[vw] >> 1);
+				}
+				for (int l = 0; l < model.getFaces().length; l++) {
+					Face face = model.getFace(l);
+					face.reset();
+					int[] location1 = face.getVertex1().getLocation();
+					int[] location2 = face.getVertex2().getLocation();
+					int[] location3 = face.getVertex3().getLocation();
+					// barycentric[vw] will be needed later
+					if ((barycentric[vw] = barycentric(location1, location2, location3)) > 0) {
+						int[] normal = face.getNormal();
 						VectorProcessor.multiply(normal, normalMatrix, normal);
-						VectorProcessor.multiply(location, viewMatrix, location);
-						VectorProcessor.multiply(location, projectionMatrix, location);
-						location[vx] = MathProcessor.divide(location[vx], location[vw]) + (camera.getCanvas()[vz] >> 1);
-						location[vy] = MathProcessor.divide(location[vy], location[vw]) + (camera.getCanvas()[vw] >> 1);
-					}
-					for (int l = 0; l < model.getFaces().length; l++) {
-						Face face = model.getFace(l);
-						face.reset();
-						int[] location1 = face.getVertex1().getLocation();
-						int[] location2 = face.getVertex2().getLocation();
-						int[] location3 = face.getVertex3().getLocation();
-						// barycentric[vw] will be needed later
-						if ((barycentric[vw] = barycentric(location1, location2, location3)) > 0) {
-							int[] normal = face.getNormal();
-							VectorProcessor.multiply(normal, normalMatrix, normal);
-							face.getMaterial().getShader().geometry(face);
-							drawFace(face, graphicsBuffer);
-						}
+						face.getMaterial().getShader().geometry(face);
+						drawFace(face, graphicsBuffer);
 					}
 				}
 			}
@@ -136,7 +136,7 @@ public class GraphicsProcessor {
 		// compute boundig box of faces
 		int minX = Math.min(location1[vx], Math.min(location2[vx], location3[vx]));
 		int minY = Math.min(location1[vy], Math.min(location2[vy], location3[vy]));
-		int maxX = Math.max(location1[vx], Math.max(location2[vx], location3[vx])); 
+		int maxX = Math.max(location1[vx], Math.max(location2[vx], location3[vx]));
 		int maxY = Math.max(location1[vy], Math.max(location2[vy], location3[vy]));
 
 		// clip against screen limits
@@ -144,7 +144,7 @@ public class GraphicsProcessor {
 		minY = Math.max(minY, 0);
 		maxX = Math.min(maxX, graphicsBuffer.getWidth() - 1);
 		maxY = Math.min(maxY, graphicsBuffer.getHeight() - 1);
-		
+
 		for (pixel[vy] = minY; pixel[vy] < maxY; pixel[vy]++) {
 			boolean found = false;
 			boolean usedLast = false;
@@ -155,11 +155,11 @@ public class GraphicsProcessor {
 				barycentric[vz] = barycentric(location1, location2, pixel);
 				if ((barycentric[vx] >= 0) && (barycentric[vy] >= 0) && (barycentric[vz] >= 0)) {
 					pixel[vz] = interpolatDepth(depth, barycentric);
-					int color = face.getMaterial().getShader().fragment(barycentric);
+					int color = face.getMaterial().getShader().fragment(pixel, barycentric);
 					graphicsBuffer.setPixel(pixel[vx], pixel[vy], pixel[vz], color);
 					found = true;
 					usedLast = true;
-				}else if(found && usedLast) {
+				} else if (found && usedLast) {
 					break;
 				}
 			}
@@ -169,23 +169,65 @@ public class GraphicsProcessor {
 	private static int interpolatDepth(int[] values, int[] barycentric) {
 		// 10 bits of precision are not enought
 		final byte shift = MathProcessor.FP_SHIFT * 2;
-		long dotProduct = ((long)barycentric[vx] << shift) / depth[0]
-						+ ((long)barycentric[vy] << shift) / depth[1]
-						+ ((long)barycentric[vz] << shift) / depth[2];
-		return (int)(((long)barycentric[vw] << shift) / dotProduct);
+		long dotProduct = ((long) barycentric[vx] << shift) / depth[0] + ((long) barycentric[vy] << shift) / depth[1]
+				+ ((long) barycentric[vz] << shift) / depth[2];
+		return (int) (((long) barycentric[vw] << shift) / dotProduct);
 	}
-	
+
 	public static int interpolate(int[] values, int[] barycentric) {
-		long dotProduct = (((long)values[vx] << MathProcessor.FP_SHIFT) / depth[0]) * barycentric[vx]
-						+ (((long)values[vy] << MathProcessor.FP_SHIFT) / depth[1]) * barycentric[vy]
-						+ (((long)values[vz] << MathProcessor.FP_SHIFT) / depth[2]) * barycentric[vz];
+		long dotProduct = (((long) values[vx] << MathProcessor.FP_SHIFT) / depth[0]) * barycentric[vx]
+				+ (((long) values[vy] << MathProcessor.FP_SHIFT) / depth[1]) * barycentric[vy]
+				+ (((long) values[vz] << MathProcessor.FP_SHIFT) / depth[2]) * barycentric[vz];
 		// normalize values
-		return (int)((((long)dotProduct * (long)pixel[vz]) / barycentric[vw]) >> MathProcessor.FP_SHIFT);
+		return (int) ((((long) dotProduct * (long) pixel[vz]) / barycentric[vw]) >> MathProcessor.FP_SHIFT);
 	}
 
 	private static int barycentric(int[] vector1, int[] vector2, int[] vector3) {
 		return (vector2[vx] - vector1[vx]) * (vector3[vy] - vector1[vy])
 				- (vector3[vx] - vector1[vx]) * (vector2[vy] - vector1[vy]);
+	}
+
+	private static final int[] vectorCache1 = VectorProcessor.generate();
+	private static final int[] vectorCache2 = VectorProcessor.generate();
+
+	public static int getDirectionalLightFactor(int[] normal, int[] lightLocation, int[] cameraLocation,
+			Material material) {
+		// diffuse
+		VectorProcessor.normalize(normal, vectorCache1);
+		VectorProcessor.normalize(lightLocation, vectorCache2);
+		int dotProduct = VectorProcessor.dotProduct(vectorCache1, vectorCache2);
+		int diffuseFactor = Math.max(dotProduct, 0);
+		diffuseFactor = MathProcessor.multiply(diffuseFactor, material.getDiffuseIntensity());
+		// specular
+		VectorProcessor.reflect(vectorCache2, vectorCache1, vectorCache2);
+		VectorProcessor.invert(vectorCache2);
+		VectorProcessor.normalize(cameraLocation, vectorCache1);
+		dotProduct = VectorProcessor.dotProduct(vectorCache1, vectorCache2);
+		int specularFactor = Math.max(dotProduct, 0);
+		specularFactor = MathProcessor.multiply(specularFactor, material.getSpecularIntensity());
+		// putting it all together...
+		return ((diffuseFactor + specularFactor) * 100) >> MathProcessor.FP_SHIFT;
+	}
+
+	public static int getPointLightFactor(int[] location, int[] normal, int[] lightLocation, int[] cameraLocation, Material material) {
+		// diffuse
+		VectorProcessor.normalize(normal, vectorCache1);
+		VectorProcessor.normalize(lightLocation, vectorCache2);
+		int dotProduct = VectorProcessor.dotProduct(vectorCache1, vectorCache2);
+		int diffuseFactor = Math.max(dotProduct, 0);
+		diffuseFactor = MathProcessor.multiply(diffuseFactor, material.getDiffuseIntensity());
+		// specular
+		VectorProcessor.reflect(vectorCache2, vectorCache1, vectorCache2);
+		VectorProcessor.invert(vectorCache2);
+		VectorProcessor.normalize(cameraLocation, vectorCache1);
+		dotProduct = VectorProcessor.dotProduct(vectorCache1, vectorCache2);
+		int specularFactor = Math.max(dotProduct, 0);
+		specularFactor = MathProcessor.multiply(specularFactor, material.getSpecularIntensity());
+		// attenuation
+		VectorProcessor.subtract(lightLocation, location, vectorCache2);
+		int distance = VectorProcessor.magnitude(vectorCache2) >> MathProcessor.FP_SHIFT;;
+		int attenuation = (256 + distance * (50 << 8) + MathProcessor.multiply(distance, distance) * (20 << 8)) >> 8;		
+		return ((diffuseFactor + specularFactor) * 100) / attenuation;
 	}
 
 	public static abstract class Shader {
@@ -195,16 +237,16 @@ public class GraphicsProcessor {
 		protected static final int vz = VectorProcessor.VECTOR_Z;
 		protected static final int vw = VectorProcessor.VECTOR_W;
 
-		protected static Light light;
+		protected static List<Light> lights;
 		protected static Camera camera;
 
-		private void setup(Camera camera, Light light) {
-			this.light = light;
+		private void setup(Camera camera, List<Light> lights) {
+			this.lights = lights;
 			this.camera = camera;
 		}
 
 		public abstract void geometry(Face face);
 
-		public abstract int fragment(int[] barycentric);
+		public abstract int fragment(int[] location, int[] barycentric);
 	}
 }
