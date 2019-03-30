@@ -6,7 +6,6 @@ import java.io.InputStream;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Material;
 import com.johnsproject.jpge2.dto.Model;
-import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processing.FileProcessor;

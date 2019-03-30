@@ -188,45 +188,40 @@ public class GraphicsProcessor {
 	}
 
 	private static final int[] vectorCache1 = VectorProcessor.generate();
-	private static final int[] vectorCache2 = VectorProcessor.generate();
 
 	public static int getDirectionalLightFactor(int[] normal, int[] lightLocation, int[] cameraLocation,
 			Material material) {
 		// diffuse
-		VectorProcessor.normalize(normal, vectorCache1);
-		VectorProcessor.normalize(lightLocation, vectorCache2);
-		int dotProduct = VectorProcessor.dotProduct(vectorCache1, vectorCache2);
+		int dotProduct = VectorProcessor.dotProduct(normal, lightLocation);
 		int diffuseFactor = Math.max(dotProduct, 0);
 		diffuseFactor = MathProcessor.multiply(diffuseFactor, material.getDiffuseIntensity());
 		// specular
-		VectorProcessor.reflect(vectorCache2, vectorCache1, vectorCache2);
-		VectorProcessor.invert(vectorCache2);
-		VectorProcessor.normalize(cameraLocation, vectorCache1);
-		dotProduct = VectorProcessor.dotProduct(vectorCache1, vectorCache2);
+		VectorProcessor.reflect(lightLocation, normal, vectorCache1);
+		VectorProcessor.invert(vectorCache1);
+		dotProduct = VectorProcessor.dotProduct(cameraLocation, vectorCache1);
 		int specularFactor = Math.max(dotProduct, 0);
 		specularFactor = MathProcessor.multiply(specularFactor, material.getSpecularIntensity());
 		// putting it all together...
 		return ((diffuseFactor + specularFactor) * 100) >> MathProcessor.FP_SHIFT;
 	}
 
-	public static int getPointLightFactor(int[] location, int[] normal, int[] lightLocation, int[] cameraLocation, Material material) {
+	public static int getPointLightFactor(int[] location, int[] normal, int[] lightLocation, int[] cameraLocation,
+			Material material) {
 		// diffuse
-		VectorProcessor.normalize(normal, vectorCache1);
-		VectorProcessor.normalize(lightLocation, vectorCache2);
-		int dotProduct = VectorProcessor.dotProduct(vectorCache1, vectorCache2);
+		int dotProduct = VectorProcessor.dotProduct(normal, lightLocation);
 		int diffuseFactor = Math.max(dotProduct, 0);
 		diffuseFactor = MathProcessor.multiply(diffuseFactor, material.getDiffuseIntensity());
 		// specular
-		VectorProcessor.reflect(vectorCache2, vectorCache1, vectorCache2);
-		VectorProcessor.invert(vectorCache2);
-		VectorProcessor.normalize(cameraLocation, vectorCache1);
-		dotProduct = VectorProcessor.dotProduct(vectorCache1, vectorCache2);
+		VectorProcessor.reflect(lightLocation, normal, vectorCache1);
+		VectorProcessor.invert(vectorCache1);
+		dotProduct = VectorProcessor.dotProduct(cameraLocation, vectorCache1);
 		int specularFactor = Math.max(dotProduct, 0);
 		specularFactor = MathProcessor.multiply(specularFactor, material.getSpecularIntensity());
 		// attenuation
-		VectorProcessor.subtract(lightLocation, location, vectorCache2);
-		int distance = VectorProcessor.magnitude(vectorCache2) >> MathProcessor.FP_SHIFT;;
-		int attenuation = (256 + distance * (50 << 8) + MathProcessor.multiply(distance, distance) * (20 << 8)) >> 8;		
+		VectorProcessor.subtract(lightLocation, location, vectorCache1);
+		int distance = VectorProcessor.magnitude(vectorCache1) >> MathProcessor.FP_SHIFT;
+		int attenuation = (256 + distance * (50 << 8) + MathProcessor.multiply(distance, distance) * (20 << 8)) >> 8;
+		// putting it all together...
 		return ((diffuseFactor + specularFactor) * 100) / attenuation;
 	}
 

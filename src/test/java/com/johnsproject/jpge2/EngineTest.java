@@ -2,8 +2,10 @@ package com.johnsproject.jpge2;
 
 import java.io.IOException;
 
+import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Texture;
+import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.importers.SOMImporter;
 import com.johnsproject.jpge2.processing.MathProcessor;
 
@@ -24,9 +26,9 @@ public class EngineTest {
 			e.printStackTrace();
 		}
 		Engine.getInstance().getScene().getModels().get(0).getTransform().translate(0, 0, 0);
-		Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, 50);
+		Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, 100);
 		Engine.getInstance().getScene().getCameras().get(0).getTransform().rotate(0, 0, 0);
-		Engine.getInstance().getScene().getLights().get(0).getTransform().translate(20, 0, 0);
+		Engine.getInstance().getScene().getLights().get(0).getTransform().translate(10, 0, 0);
 		new Thread(new Runnable() {
 			
 			public void run() {

@@ -12,21 +12,40 @@ import com.johnsproject.jpge2.processing.VectorProcessor;
 
 public class FlatShader extends Shader {
 
-	private static int[] uvX = VectorProcessor.generate();
-	private static int[] uvY = VectorProcessor.generate();
+	private static final int[] uvX = VectorProcessor.generate();
+	private static final int[] uvY = VectorProcessor.generate();
 	private static int color;
 	private static int intensity;
 	private static Texture texture;
 
+	private static final int[] faceLocation = VectorProcessor.generate();
+	private static final int[] normalizedNormal = VectorProcessor.generate();
+	private static final int[] normalizedLight = VectorProcessor.generate();
+	private static final int[] normalizedCamera = VectorProcessor.generate();
+	
 	@Override
 	public void geometry(Face face) {
 		Material material = face.getMaterial();
 		int[] normal = face.getNormal();
-		int[] cameraLocation = camera.getTransform().getLocation();
-		color = 0;
+		// normalize values
+		VectorProcessor.normalize(normal, normalizedNormal);
+		VectorProcessor.normalize(camera.getTransform().getLocation(), normalizedCamera);
+		// get location of face
+		VectorProcessor.add(face.getVertex1().getLocation(), face.getVertex2().getLocation(), faceLocation);
+		VectorProcessor.add(faceLocation, face.getVertex3().getLocation(), faceLocation);
+		VectorProcessor.divide(faceLocation, 3, faceLocation);
+		color = intensity = 0;
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
-			intensity = GraphicsProcessor.getPointLightFactor(face.getVertex1().getLocation(), normal, light.getTransform().getLocation(), cameraLocation, material);
+			VectorProcessor.normalize(light.getTransform().getLocation(), normalizedLight);
+			switch (light.getType()) {
+			case Light.LIGHT_DIRECTIONAL:
+				intensity += GraphicsProcessor.getDirectionalLightFactor(normalizedNormal, normalizedLight, normalizedCamera, material);
+				break;
+			case Light.LIGHT_POINT:
+				intensity += GraphicsProcessor.getPointLightFactor(faceLocation, normalizedNormal, normalizedLight, normalizedCamera, material);
+				break;
+			}
 			intensity += light.getStrength();
 			int c = ColorProcessor.multiplyColor(light.getDiffuseColor(), material.getDiffuseColor());
 			color = ColorProcessor.multiplyColor(c, color);

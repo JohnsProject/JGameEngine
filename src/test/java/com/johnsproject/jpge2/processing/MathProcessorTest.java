@@ -56,6 +56,11 @@ public class MathProcessorTest {
 	}
 	
 	@Test
+	public void divideTest() throws Exception {
+		assert(MathProcessor.divide(10 << MathProcessor.FP_SHIFT, 2) == 5 << MathProcessor.FP_SHIFT);
+	}
+	
+	@Test
 	public void powTest() throws Exception {
 		assert(MathProcessor.pow(5, 2) == 25);
 	}
