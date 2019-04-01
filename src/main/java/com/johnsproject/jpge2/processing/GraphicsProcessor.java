@@ -40,10 +40,11 @@ public class GraphicsProcessor {
 					int[] normal = vertex.getNormal();
 					VectorProcessor.multiply(location, worldMatrix, location);
 					VectorProcessor.multiply(normal, normalMatrix, normal);
-					VectorProcessor.multiply(location, viewMatrix, location);
+//					VectorProcessor.multiply(location, viewMatrix, location);
 					VectorProcessor.multiply(location, projectionMatrix, location);
 					location[vx] = MathProcessor.divide(location[vx], location[vw]) + (camera.getCanvas()[vz] >> 1);
 					location[vy] = MathProcessor.divide(location[vy], location[vw]) + (camera.getCanvas()[vw] >> 1);
+					System.out.println(VectorProcessor.toString(location));
 				}
 				for (int l = 0; l < model.getFaces().length; l++) {
 					Face face = model.getFace(l);
@@ -236,8 +237,8 @@ public class GraphicsProcessor {
 		protected static Camera camera;
 
 		private void setup(Camera camera, List<Light> lights) {
-			this.lights = lights;
-			this.camera = camera;
+			Shader.lights = lights;
+			Shader.camera = camera;
 		}
 
 		public abstract void geometry(Face face);

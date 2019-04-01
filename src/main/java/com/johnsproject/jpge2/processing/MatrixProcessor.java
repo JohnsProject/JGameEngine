@@ -74,9 +74,9 @@ public class MatrixProcessor {
 	public static void translate(int[][] matrix, int x, int y, int z) {
 		reset(transformMatrix);
 		//not so big translation values needed
-		transformMatrix[3][0] = x << MathProcessor.FP_SHIFT;
-		transformMatrix[3][1] = y << MathProcessor.FP_SHIFT;
-		transformMatrix[3][2] = z << MathProcessor.FP_SHIFT;
+		transformMatrix[3][0] = x;
+		transformMatrix[3][1] = y;
+		transformMatrix[3][2] = z;
 		multiply(transformMatrix, matrix, matrix);
 	}
 
@@ -90,9 +90,9 @@ public class MatrixProcessor {
 	 */
 	public static void scale(int[][] matrix, int x, int y, int z) {
 		reset(transformMatrix);
-		transformMatrix[0][0] = x << MathProcessor.FP_SHIFT;
-		transformMatrix[1][1] = y << MathProcessor.FP_SHIFT;
-		transformMatrix[2][2] = z << MathProcessor.FP_SHIFT;
+		transformMatrix[0][0] *= x;
+		transformMatrix[1][1] *= y;
+		transformMatrix[2][2] *= z;
 		multiply(transformMatrix, matrix, matrix);
 	}
 
