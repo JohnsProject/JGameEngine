@@ -89,6 +89,8 @@ def write(filepath):
 					material.specularIntensity = blenderMaterial.specular_intensity
 				model.materials.append(material)
 				i += 1
+			if len(model.materials) == 0:
+				model.materials.append(Material())
 			scene.models.append(model)
 			bpy.data.meshes.remove(blenderModel)
 	writeToFile(filepath, scene)	
