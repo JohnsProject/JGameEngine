@@ -57,12 +57,12 @@ public class FlatShader extends Shader {
 		// multiply uv with texture size to get correct coordinates and divide by
 		// MathProcessor.FP_VALUE
 		if (texture != null) {
-			uvX[0] = (face.getUV1()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
-			uvX[1] = (face.getUV2()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
-			uvX[2] = (face.getUV3()[vx] * texture.getWidth()) >> MathProcessor.FP_SHIFT;
-			uvY[0] = (face.getUV1()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
-			uvY[1] = (face.getUV2()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
-			uvY[2] = (face.getUV3()[vy] * texture.getHeight()) >> MathProcessor.FP_SHIFT;
+			uvX[0] = MathProcessor.multiply(face.getUV1()[vx], texture.getWidth());
+			uvX[1] = MathProcessor.multiply(face.getUV2()[vx], texture.getWidth());
+			uvX[2] = MathProcessor.multiply(face.getUV3()[vx], texture.getWidth());
+			uvY[0] = MathProcessor.multiply(face.getUV1()[vy], texture.getHeight());
+			uvY[1] = MathProcessor.multiply(face.getUV2()[vy], texture.getHeight());
+			uvY[2] = MathProcessor.multiply(face.getUV3()[vy], texture.getHeight());
 		}
 	}
 

@@ -42,13 +42,13 @@ public class MatrixProcessorTest {
 	public void translateTest() throws Exception {
 		int[] out = VectorProcessor.generate();
 		int[][] matrix = MatrixProcessor.generate();
-		MatrixProcessor.translate(matrix, 2, 3, 4);
-		int[] vector = VectorProcessor.generate();
+		MatrixProcessor.translate(matrix, 2 << MathProcessor.FP_SHIFT, 3 << MathProcessor.FP_SHIFT, 4 << MathProcessor.FP_SHIFT);
+		int[] vector = VectorProcessor.generate(4 << MathProcessor.FP_SHIFT, 3 << MathProcessor.FP_SHIFT, 2 << MathProcessor.FP_SHIFT);
 		VectorProcessor.multiply(vector, matrix, out);
-		assert(out[0] == 2);
-		assert(out[1] == 3);
-		assert(out[2] == 4);
-		assert(out[3] == 1);
+		assert(out[0] == 6 << MathProcessor.FP_SHIFT);
+		assert(out[1] == 6 << MathProcessor.FP_SHIFT);
+		assert(out[2] == 6 << MathProcessor.FP_SHIFT);
+		assert(out[3] == 1024);
 	}
 	
 	@Test
@@ -61,7 +61,7 @@ public class MatrixProcessorTest {
 		assert(out[0] == 2);
 		assert(out[1] == 9);
 		assert(out[2] == 20);
-		assert(out[3] == 1);
+		assert(out[3] == 1024);
 	}
 	
 	@Test
@@ -72,9 +72,9 @@ public class MatrixProcessorTest {
 		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);
 		assert(out[0] == 100);
-		assert(out[1] == 36);
-		assert(out[2] == 136);
-		assert(out[3] == 1);
+		assert(out[1] == 37);
+		assert(out[2] == 137);
+		assert(out[3] == 1024);
 	}
 	
 	@Test
@@ -84,10 +84,10 @@ public class MatrixProcessorTest {
 		MatrixProcessor.rotateY(matrix, 30);
 		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);
-		assert(out[0] == 136);
+		assert(out[0] == 137);
 		assert(out[1] == 100);
-		assert(out[2] == 36);
-		assert(out[3] == 1);
+		assert(out[2] == 37);
+		assert(out[3] == 1024);
 	}
 	
 	@Test
@@ -97,9 +97,9 @@ public class MatrixProcessorTest {
 		MatrixProcessor.rotateZ(matrix, 30);
 		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);
-		assert(out[0] == 36);
-		assert(out[1] == 136);
+		assert(out[0] == 37);
+		assert(out[1] == 137);
 		assert(out[2] == 100);
-		assert(out[3] == 1);
+		assert(out[3] == 1024);
 	}
 }

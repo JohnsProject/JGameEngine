@@ -30,21 +30,13 @@ import com.johnsproject.jpge2.processing.VectorProcessor;
 
 public class Scene {
 	
-	private final List<Model> models;
-	private final List<Camera> cameras;
-	private final List<Light> lights;
+	private final List<Model> models = new ArrayList<Model>();
+	private final List<Camera> cameras = new ArrayList<Camera>();
+	private final List<Light> lights = new ArrayList<Light>();
 	
 	public Scene() {
-		models = new ArrayList<Model>();
-		cameras = new ArrayList<Camera>();
-		lights = new ArrayList<Light>();
 		cameras.add(new Camera("Default Camera", new Transform(), VectorProcessor.generate(0, 0, 1, 1)));
-	}
-	
-	public Scene(List<Model> models, List<Camera> cameras, List<Light> lights) {
-		this.models = models;
-		this.cameras = cameras;
-		this.lights = lights;
+		lights.add(new Light("Default Light", new Transform()));
 	}
 	
 	public void addModel(Model model){

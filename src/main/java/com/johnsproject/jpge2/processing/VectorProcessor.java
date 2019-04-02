@@ -186,7 +186,7 @@ public class VectorProcessor {
 			int result = MathProcessor.multiply(matrix[0][i], vectorCache1[VECTOR_X]);
 			result += MathProcessor.multiply(matrix[1][i], vectorCache1[VECTOR_Y]);
 			result += MathProcessor.multiply(matrix[2][i], vectorCache1[VECTOR_Z]);
-			result += MathProcessor.multiply(matrix[3][i], vectorCache1[VECTOR_W]);
+			result += matrix[3][i];
 			out[i] = result;
 		}
 	}
