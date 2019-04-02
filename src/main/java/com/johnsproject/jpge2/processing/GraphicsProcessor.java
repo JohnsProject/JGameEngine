@@ -168,7 +168,7 @@ public class GraphicsProcessor {
 
 	private static int interpolatDepth(int[] values, int[] barycentric) {
 		// 10 bits of precision are not enought
-		final byte shift = MathProcessor.FP_SHIFT;
+		final byte shift = MathProcessor.FP_SHIFT * 2;
 		long dotProduct = ((long) barycentric[vx] << shift) / depth[0]
 						+ ((long) barycentric[vy] << shift) / depth[1]
 						+ ((long) barycentric[vz] << shift) / depth[2];
