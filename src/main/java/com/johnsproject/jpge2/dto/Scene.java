@@ -26,18 +26,11 @@ package com.johnsproject.jpge2.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.johnsproject.jpge2.processing.VectorProcessor;
-
 public class Scene {
 	
 	private final List<Model> models = new ArrayList<Model>();
 	private final List<Camera> cameras = new ArrayList<Camera>();
 	private final List<Light> lights = new ArrayList<Light>();
-	
-	public Scene() {
-		cameras.add(new Camera("Default Camera", new Transform(), VectorProcessor.generate(0, 0, 1, 1)));
-		lights.add(new Light("Default Light", new Transform()));
-	}
 	
 	public void addModel(Model model){
 		models.add(model);

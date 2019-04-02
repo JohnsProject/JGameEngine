@@ -101,7 +101,7 @@ public class SOMImporter {
 		String[] mDiffuseIntensityData = rawData.split("mDiffuseIntensity<")[1].split(">mDiffuseIntensity", 2)[0].split(",");
 		String[] mSpecularIntensityData = rawData.split("mSpecularIntensity<")[1].split(">mSpecularIntensity", 2)[0].split(",");
 		for (int i = 0; i < materials.length * 4; i+=4) {
-			// *255 to get int rgb values
+			// * 256 to get int rgb values
 			int r = (int)(getFloat(mDiffuseColorData[i]) * 256);
 			int	g = (int)(getFloat(mDiffuseColorData[i+1]) * 256);
 			int	b = (int)(getFloat(mDiffuseColorData[i+2]) * 256);

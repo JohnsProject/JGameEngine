@@ -20,7 +20,7 @@ public class FlatShader extends Shader {
 
 	private static final int[] faceLocation = VectorProcessor.generate();
 	private static final int[] normalizedNormal = VectorProcessor.generate();
-	private static final int[] normalizedLight = VectorProcessor.generate();
+	private static final int[] lightLocation = VectorProcessor.generate();
 	private static final int[] normalizedCamera = VectorProcessor.generate();
 	
 	@Override
@@ -34,20 +34,21 @@ public class FlatShader extends Shader {
 		VectorProcessor.add(face.getVertex1().getLocation(), face.getVertex2().getLocation(), faceLocation);
 		VectorProcessor.add(faceLocation, face.getVertex3().getLocation(), faceLocation);
 		VectorProcessor.divide(faceLocation, 3, faceLocation);
-		color = intensity = 0;
+		color = material.getDiffuseColor();
+		intensity = 0;
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
-			VectorProcessor.normalize(light.getTransform().getLocation(), normalizedLight);
+			VectorProcessor.copy(lightLocation, light.getTransform().getLocation());
 			switch (light.getType()) {
 			case Light.LIGHT_DIRECTIONAL:
-				intensity += GraphicsProcessor.getDirectionalLightFactor(normalizedNormal, normalizedLight, normalizedCamera, material);
+				intensity += GraphicsProcessor.getDirectionalLightFactor(normalizedNormal, lightLocation, normalizedCamera, material);
 				break;
 			case Light.LIGHT_POINT:
-				intensity += GraphicsProcessor.getPointLightFactor(faceLocation, normalizedNormal, normalizedLight, normalizedCamera, material);
+				intensity += GraphicsProcessor.getPointLightFactor(faceLocation, normalizedNormal, lightLocation, normalizedCamera, material);
 				break;
 			}
 			intensity += light.getStrength();
-			int c = ColorProcessor.multiplyColor(light.getDiffuseColor(), material.getDiffuseColor());
+			int c = ColorProcessor.multiplyColor(light.getDiffuseColor(), color);
 			color = ColorProcessor.multiplyColor(c, color);
 			color = ColorProcessor.multiply(color, intensity);
 		}

@@ -7,7 +7,7 @@ public class MathProcessor {
 			282, 299, 316, 333, 350, 367, 384, 400, 416, 433, 449, 465, 481, 496, 512, 527, 543, 558, 573, 587, 602,
 			616, 630, 644, 658, 672, 685, 698, 711, 724, 737, 749, 761, 773, 784, 796, 807, 818, 828, 839, 849, 859,
 			868, 878, 887, 896, 904, 912, 920, 928, 935, 943, 949, 956, 962, 968, 974, 979, 984, 989, 994, 998, 1002,
-			1005, 1008, 1011, 1014, 1016, 1018, 1020, 1022, 1023, 1023, 1024, 1024};
+			1005, 1008, 1011, 1014, 1016, 1018, 1020, 1022, 1023, 1023, 1024, 1024 };
 
 	/**
 	 * FP_SHIFT and FP_VALUE are the values used to do integer to fixed point
@@ -186,7 +186,7 @@ public class MathProcessor {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Returns the product of the multiplication of value1 and value2.
 	 * 
@@ -195,9 +195,9 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int multiply(int value1, int value2) {
-		return (int)((((long)value1 * (long)value2) + FP_ROUND) >> FP_SHIFT);
+		return (int) ((((long) value1 * (long) value2) + FP_ROUND) >> FP_SHIFT);
 	}
-	
+
 	/**
 	 * Returns the quotient of the division.
 	 * 
@@ -206,7 +206,8 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int divide(int dividend, int divisor) {
-		if(divisor == 0) return 0;
-		return (int)(((((long)dividend << FP_SHIFT) / divisor) + FP_ROUND) >> FP_SHIFT);
+		if (divisor == 0)
+			return 0;
+		return (int) (((((long) dividend << FP_SHIFT) / divisor) + FP_ROUND) >> FP_SHIFT);
 	}
 }

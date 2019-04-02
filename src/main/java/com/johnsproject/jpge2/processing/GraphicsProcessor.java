@@ -70,10 +70,10 @@ public class GraphicsProcessor {
 		int[] scale = transform.getScale();
 		MatrixProcessor.reset(matrix);
 		MatrixProcessor.rotateX(matrix, rotation[vx]);
-		MatrixProcessor.rotateY(matrix, rotation[vy]);
-		MatrixProcessor.rotateZ(matrix, rotation[vz]);
+		MatrixProcessor.rotateY(matrix, -rotation[vy]);
+		MatrixProcessor.rotateZ(matrix, -rotation[vz]);
 		MatrixProcessor.scale(matrix, scale[vx], scale[vy], scale[vz]);
-		MatrixProcessor.translate(matrix, location[vx], location[vy], location[vz]);
+		MatrixProcessor.translate(matrix, -location[vx], location[vy], location[vz]);
 		return matrix;
 	}
 
@@ -83,8 +83,8 @@ public class GraphicsProcessor {
 		int[] scale = transform.getScale();
 		MatrixProcessor.reset(matrix);
 		MatrixProcessor.rotateX(matrix, rotation[vx]);
-		MatrixProcessor.rotateY(matrix, rotation[vy]);
-		MatrixProcessor.rotateZ(matrix, rotation[vz]);
+		MatrixProcessor.rotateY(matrix, -rotation[vy]);
+		MatrixProcessor.rotateZ(matrix, -rotation[vz]);
 		MatrixProcessor.scale(matrix, scale[vx], scale[vy], scale[vz]);
 		return matrix;
 	}
@@ -94,10 +94,10 @@ public class GraphicsProcessor {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		MatrixProcessor.reset(matrix);
-		MatrixProcessor.translate(matrix, -location[vx], -location[vy], -location[vz]);
+		MatrixProcessor.translate(matrix, location[vx], -location[vy], -location[vz]);
 		MatrixProcessor.rotateX(matrix, -rotation[vx]);
-		MatrixProcessor.rotateY(matrix, -rotation[vy]);
-		MatrixProcessor.rotateZ(matrix, -rotation[vz]);
+		MatrixProcessor.rotateY(matrix, rotation[vy]);
+		MatrixProcessor.rotateZ(matrix, rotation[vz]);
 		return matrix;
 	}
 
@@ -115,7 +115,7 @@ public class GraphicsProcessor {
 		MatrixProcessor.reset(matrix);
 		matrix[0][0] = (frustum[vx] * frustum[vy]) << MathProcessor.FP_SHIFT;
 		matrix[1][1] = (frustum[vx] * frustum[vy]) << MathProcessor.FP_SHIFT;
-		matrix[2][2] = 10;
+		matrix[2][2] = -10;
 		matrix[2][3] = MathProcessor.FP_VALUE;
 		return matrix;
 	}
@@ -168,9 +168,10 @@ public class GraphicsProcessor {
 
 	private static int interpolatDepth(int[] values, int[] barycentric) {
 		// 10 bits of precision are not enought
-		final byte shift = MathProcessor.FP_SHIFT * 2;
-		long dotProduct = ((long) barycentric[vx] << shift) / depth[0] + ((long) barycentric[vy] << shift) / depth[1]
-				+ ((long) barycentric[vz] << shift) / depth[2];
+		final byte shift = MathProcessor.FP_SHIFT;
+		long dotProduct = ((long) barycentric[vx] << shift) / depth[0]
+						+ ((long) barycentric[vy] << shift) / depth[1]
+						+ ((long) barycentric[vz] << shift) / depth[2];
 		return (int) (((long) barycentric[vw] << shift) / dotProduct);
 	}
 
@@ -191,6 +192,7 @@ public class GraphicsProcessor {
 
 	public static int getDirectionalLightFactor(int[] normal, int[] lightLocation, int[] cameraLocation,
 			Material material) {
+		VectorProcessor.invert(lightLocation);
 		// diffuse
 		int dotProduct = VectorProcessor.dotProduct(normal, lightLocation);
 		int diffuseFactor = Math.max(dotProduct, 0);
@@ -207,6 +209,7 @@ public class GraphicsProcessor {
 
 	public static int getPointLightFactor(int[] location, int[] normal, int[] lightLocation, int[] cameraLocation,
 			Material material) {
+		VectorProcessor.invert(lightLocation);
 		// diffuse
 		int dotProduct = VectorProcessor.dotProduct(normal, lightLocation);
 		int diffuseFactor = Math.max(dotProduct, 0);
@@ -219,8 +222,11 @@ public class GraphicsProcessor {
 		specularFactor = MathProcessor.multiply(specularFactor, material.getSpecularIntensity());
 		// attenuation
 		VectorProcessor.subtract(lightLocation, location, vectorCache1);
-		int distance = VectorProcessor.magnitude(vectorCache1) >> MathProcessor.FP_SHIFT;
-		int attenuation = (256 + distance * (50 << 8) + MathProcessor.multiply(distance, distance) * (20 << 8)) >> 8;
+		int distance = VectorProcessor.magnitude(vectorCache1);
+		int attenuation = MathProcessor.FP_VALUE;
+		attenuation += MathProcessor.multiply(distance, 50 << MathProcessor.FP_SHIFT);
+		attenuation += MathProcessor.multiply(MathProcessor.multiply(distance, distance), 20 << MathProcessor.FP_SHIFT);
+		attenuation = attenuation >> MathProcessor.FP_SHIFT;
 		// putting it all together...
 		return ((diffuseFactor + specularFactor) * 100) / attenuation;
 	}
