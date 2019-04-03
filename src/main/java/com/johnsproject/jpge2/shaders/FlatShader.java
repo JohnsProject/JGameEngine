@@ -21,7 +21,6 @@ public class FlatShader extends Shader {
 	private static final int[] faceLocation = VectorProcessor.generate();
 	private static final int[] normalizedNormal = VectorProcessor.generate();
 	private static final int[] lightLocation = VectorProcessor.generate();
-	private static final int[] normalizedCamera = VectorProcessor.generate();
 	
 	@Override
 	public void geometry(Face face) {
@@ -29,7 +28,6 @@ public class FlatShader extends Shader {
 		int[] normal = face.getNormal();
 		// normalize values
 		VectorProcessor.normalize(normal, normalizedNormal);
-		VectorProcessor.normalize(camera.getTransform().getLocation(), normalizedCamera);
 		// get location of face
 		VectorProcessor.add(face.getVertex1().getLocation(), face.getVertex2().getLocation(), faceLocation);
 		VectorProcessor.add(faceLocation, face.getVertex3().getLocation(), faceLocation);
@@ -41,10 +39,10 @@ public class FlatShader extends Shader {
 			VectorProcessor.copy(lightLocation, light.getTransform().getLocation());
 			switch (light.getType()) {
 			case Light.LIGHT_DIRECTIONAL:
-				intensity += GraphicsProcessor.getDirectionalLightFactor(normalizedNormal, lightLocation, normalizedCamera, material);
+				intensity += GraphicsProcessor.getDirectionalLightFactor(faceLocation, normalizedNormal, lightLocation, material);
 				break;
 			case Light.LIGHT_POINT:
-				intensity += GraphicsProcessor.getPointLightFactor(faceLocation, normalizedNormal, lightLocation, normalizedCamera, material);
+				intensity += GraphicsProcessor.getPointLightFactor(faceLocation, normalizedNormal, lightLocation, material);
 				break;
 			}
 			intensity += light.getStrength();

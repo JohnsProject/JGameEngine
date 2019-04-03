@@ -26,7 +26,7 @@ public class EngineTest {
 			
 			public void run() {
 				while(true) {
-					Engine.getInstance().getScene().getModels().get(0).getTransform().rotate(1, 1, 0);
+//					Engine.getInstance().getScene().getModels().get(0).getTransform().rotate(1, 1, 0);
 					try {
 						Thread.sleep(32);
 					} catch (InterruptedException e) {

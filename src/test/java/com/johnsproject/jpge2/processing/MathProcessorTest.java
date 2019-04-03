@@ -62,7 +62,8 @@ public class MathProcessorTest {
 	
 	@Test
 	public void powTest() throws Exception {
-		assert(MathProcessor.pow(5, 2) == 25);
+		System.out.println(MathProcessor.pow(5 << MathProcessor.FP_SHIFT, 2));
+		assert(MathProcessor.pow(5 << MathProcessor.FP_SHIFT, 2) == 25 << MathProcessor.FP_SHIFT);
 	}
 	
 	@Test

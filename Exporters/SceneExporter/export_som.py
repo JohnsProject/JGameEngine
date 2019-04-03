@@ -192,9 +192,9 @@ class Transform:
 		
 class Color:
 	def __init__(self):
-		self.red = 0
-		self.green = 0
-		self.blue = 0
+		self.red = 0.2
+		self.green = 0.2
+		self.blue = 0.2
 		self.alpha = 1
 		
 	def toString(self):
@@ -235,8 +235,8 @@ class Material:
 	def __init__(self):
 		self.index = 0
 		self.color = Color()
-		self.diffuseIntensity = 0
-		self.specularIntensity = 0
+		self.diffuseIntensity = 1
+		self.specularIntensity = 0.5
 	
 	def toString(self):
 			return str(self.color.toString() + ","+ ("%f," % self.diffuseIntensity) + ("%f" % self.specularIntensity))

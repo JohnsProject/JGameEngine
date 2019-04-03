@@ -31,7 +31,7 @@ public class GraphicsProcessor {
 				int[][] viewMatrix = camera.getViewMatrix();
 				int[][] projectionMatrix = camera.getPerspectiveMatrix();
 				for (int l = 0; l < model.getMaterials().length; l++) {
-					model.getMaterial(l).getShader().setup(camera, scene.getLights());
+					model.getMaterial(l).getShader().setup(scene.getLights());
 				}
 				for (int l = 0; l < model.getVertices().length; l++) {
 					Vertex vertex = model.getVertex(l);
@@ -190,8 +190,7 @@ public class GraphicsProcessor {
 
 	private static final int[] vectorCache1 = VectorProcessor.generate();
 
-	public static int getDirectionalLightFactor(int[] normal, int[] lightLocation, int[] cameraLocation,
-			Material material) {
+	public static int getDirectionalLightFactor(int[] location, int[] normal, int[] lightLocation, Material material) {
 		VectorProcessor.invert(lightLocation);
 		// diffuse
 		int dotProduct = VectorProcessor.dotProduct(normal, lightLocation);
@@ -200,15 +199,15 @@ public class GraphicsProcessor {
 		// specular
 		VectorProcessor.reflect(lightLocation, normal, vectorCache1);
 		VectorProcessor.invert(vectorCache1);
-		dotProduct = VectorProcessor.dotProduct(cameraLocation, vectorCache1);
+		VectorProcessor.invert(location);
+		dotProduct = VectorProcessor.dotProduct(location, vectorCache1);
 		int specularFactor = Math.max(dotProduct, 0);
 		specularFactor = MathProcessor.multiply(specularFactor, material.getSpecularIntensity());
 		// putting it all together...
 		return ((diffuseFactor + specularFactor) * 100) >> MathProcessor.FP_SHIFT;
 	}
 
-	public static int getPointLightFactor(int[] location, int[] normal, int[] lightLocation, int[] cameraLocation,
-			Material material) {
+	public static int getPointLightFactor(int[] location, int[] normal, int[] lightLocation, Material material) {
 		VectorProcessor.invert(lightLocation);
 		// diffuse
 		int dotProduct = VectorProcessor.dotProduct(normal, lightLocation);
@@ -217,7 +216,8 @@ public class GraphicsProcessor {
 		// specular
 		VectorProcessor.reflect(lightLocation, normal, vectorCache1);
 		VectorProcessor.invert(vectorCache1);
-		dotProduct = VectorProcessor.dotProduct(cameraLocation, vectorCache1);
+		VectorProcessor.invert(location);
+		dotProduct = VectorProcessor.dotProduct(location, vectorCache1);
 		int specularFactor = Math.max(dotProduct, 0);
 		specularFactor = MathProcessor.multiply(specularFactor, material.getSpecularIntensity());
 		// attenuation
@@ -239,11 +239,9 @@ public class GraphicsProcessor {
 		protected static final int vw = VectorProcessor.VECTOR_W;
 
 		protected static List<Light> lights;
-		protected static Camera camera;
-
-		private void setup(Camera camera, List<Light> lights) {
+		
+		private void setup(List<Light> lights) {
 			this.lights = lights;
-			this.camera = camera;
 		}
 
 		public abstract void geometry(Face face);
