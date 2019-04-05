@@ -1,4 +1,4 @@
-package com.johnsproject.jpge2.processing;
+package com.johnsproject.jpge2.processors;
 
 import java.util.List;
 
@@ -7,7 +7,6 @@ import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.GraphicsBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Model;
-import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
 
@@ -17,34 +16,6 @@ public class GraphicsProcessor {
 	private static final int vy = VectorProcessor.VECTOR_Y;
 	private static final int vz = VectorProcessor.VECTOR_Z;
 	private static final int vw = VectorProcessor.VECTOR_W;
-
-	public static void process(Scene scene, GraphicsBuffer graphicsBuffer) {
-		graphicsBuffer.clearFrameBuffer();
-		graphicsBuffer.clearDepthBuffer();
-		for (int i = 0; i < scene.getCameras().size(); i++) {
-			Camera camera = scene.getCameras().get(i);
-			for (int j = 0; j < scene.getModels().size(); j++) {
-				Model model = scene.getModels().get(j);
-				for (int l = 0; l < model.getMaterials().length; l++) {
-					Shader.model = model;
-					Shader.camera = camera;
-					Shader.lights = scene.getLights();
-				}
-				for (int l = 0; l < model.getFaces().length; l++) {
-					Face face = model.getFace(l);
-					face.reset();
-					for (int k = 0; k < face.getVertices().length; k++) {
-						Vertex vertex = face.getVertices()[k];
-						vertex.reset();
-						vertex.getMaterial().getShader().vertex(vertex);
-					}
-					if (face.getMaterial().getShader().geometry(face)) {
-						drawFace(face, graphicsBuffer);
-					}
-				}
-			}
-		}
-	}
 
 	public static int[][] modelMatrix(int[][] matrix, Transform transform) {
 		int[] location = transform.getLocation();
@@ -183,9 +154,9 @@ public class GraphicsProcessor {
 		protected static final int vz = VectorProcessor.VECTOR_Z;
 		protected static final int vw = VectorProcessor.VECTOR_W;
 
-		protected static Model model;
-		protected static Camera camera;
-		protected static List<Light> lights;
+		public static Model model;
+		public static Camera camera;
+		public static List<Light> lights;
 
 		public abstract void vertex(Vertex vertex);
 

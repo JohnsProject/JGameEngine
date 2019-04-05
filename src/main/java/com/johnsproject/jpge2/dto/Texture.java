@@ -28,8 +28,8 @@ import java.awt.image.DataBufferInt;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.johnsproject.jpge2.processing.FileProcessor;
-import com.johnsproject.jpge2.processing.MathProcessor;
+import com.johnsproject.jpge2.processors.FileProcessor;
+import com.johnsproject.jpge2.processors.MathProcessor;
 
 public class Texture {
 	

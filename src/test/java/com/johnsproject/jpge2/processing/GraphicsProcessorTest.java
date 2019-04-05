@@ -7,6 +7,9 @@ import com.johnsproject.jpge2.dto.Material;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.processors.GraphicsProcessor;
+import com.johnsproject.jpge2.processors.MatrixProcessor;
+import com.johnsproject.jpge2.processors.VectorProcessor;
 
 public class GraphicsProcessorTest {
 

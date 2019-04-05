@@ -5,11 +5,11 @@ import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Material;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.processing.ColorProcessor;
-import com.johnsproject.jpge2.processing.GraphicsProcessor;
-import com.johnsproject.jpge2.processing.GraphicsProcessor.Shader;
-import com.johnsproject.jpge2.processing.MathProcessor;
-import com.johnsproject.jpge2.processing.VectorProcessor;
+import com.johnsproject.jpge2.processors.ColorProcessor;
+import com.johnsproject.jpge2.processors.GraphicsProcessor;
+import com.johnsproject.jpge2.processors.MathProcessor;
+import com.johnsproject.jpge2.processors.VectorProcessor;
+import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
 public class FlatShader extends Shader {
 

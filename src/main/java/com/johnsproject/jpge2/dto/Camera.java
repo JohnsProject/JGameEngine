@@ -23,9 +23,9 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processing.GraphicsProcessor;
-import com.johnsproject.jpge2.processing.MatrixProcessor;
-import com.johnsproject.jpge2.processing.VectorProcessor;
+import com.johnsproject.jpge2.processors.GraphicsProcessor;
+import com.johnsproject.jpge2.processors.MatrixProcessor;
+import com.johnsproject.jpge2.processors.VectorProcessor;
 
 public class Camera extends SceneObject {
 

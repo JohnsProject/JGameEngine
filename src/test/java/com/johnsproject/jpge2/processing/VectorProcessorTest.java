@@ -2,6 +2,10 @@ package com.johnsproject.jpge2.processing;
 
 import org.junit.Test;
 
+import com.johnsproject.jpge2.processors.MathProcessor;
+import com.johnsproject.jpge2.processors.MatrixProcessor;
+import com.johnsproject.jpge2.processors.VectorProcessor;
+
 public class VectorProcessorTest {
 
 	@Test

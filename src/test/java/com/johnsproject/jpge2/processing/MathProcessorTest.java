@@ -2,6 +2,8 @@ package com.johnsproject.jpge2.processing;
 
 import org.junit.Test;
 
+import com.johnsproject.jpge2.processors.MathProcessor;
+
 public class MathProcessorTest {
 
 	@Test

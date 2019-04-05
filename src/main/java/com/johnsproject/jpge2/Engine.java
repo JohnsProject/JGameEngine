@@ -1,11 +1,12 @@
 package com.johnsproject.jpge2;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.johnsproject.jpge2.dto.GraphicsBuffer;
 import com.johnsproject.jpge2.dto.Scene;
-import com.johnsproject.jpge2.processing.GraphicsProcessor;
 
 public class Engine {
 
@@ -36,6 +37,8 @@ public class Engine {
 			int updateSkipRate = 0;
 			int loops = 0;
 			public void run() {
+				// initialize the controllers
+				new EngineControllersInitalizer();
 				while(true) {
 					loops = 0;
 					updateSkipRate = 1000 / getSettings().getUpdateRate();
@@ -50,7 +53,6 @@ public class Engine {
 					for (int i = 0; i < engineListeners.size(); i++) {
 						engineListeners.get(i).update();
 					}
-					GraphicsProcessor.process(scene, graphicsBuffer);
 					for (int i = 0; i < graphicsBufferListeners.size(); i++) {
 						graphicsBufferListeners.get(i).graphicsBufferUpdate(graphicsBuffer);
 					}
@@ -94,9 +96,23 @@ public class Engine {
 	
 	public void addEngineListener(EngineListener listener) {
 		engineListeners.add(listener);
+		Collections.sort(engineListeners, new Comparator<EngineListener>() {
+			public int compare(EngineListener o1, EngineListener o2) {
+				if (o1.getPriority() < o2.getPriority())
+					return -1;
+				return 1;
+			}
+		});
 	}
 	
 	public void removeEngineListener(EngineListener listener) {
 		engineListeners.remove(listener);
+		Collections.sort(engineListeners, new Comparator<EngineListener>() {
+			public int compare(EngineListener o1, EngineListener o2) {
+				if (o1.getPriority() < o2.getPriority())
+					return -1;
+				return 1;
+			}
+		});
 	}
 }

@@ -1,4 +1,4 @@
-package com.johnsproject.jpge2.processing;
+package com.johnsproject.jpge2.processors;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;

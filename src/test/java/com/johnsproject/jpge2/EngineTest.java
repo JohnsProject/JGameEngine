@@ -9,7 +9,7 @@ import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.importers.SOMImporter;
 import com.johnsproject.jpge2.importers.SceneImporter;
-import com.johnsproject.jpge2.processing.VectorProcessor;
+import com.johnsproject.jpge2.processors.VectorProcessor;
 
 public class EngineTest implements EngineListener{
 
@@ -58,5 +58,9 @@ public class EngineTest implements EngineListener{
 		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
 			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(0, 0, 2);
 		}
+	}
+
+	public int getPriority() {
+		return 0;
 	}
 }
