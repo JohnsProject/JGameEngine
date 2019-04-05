@@ -114,7 +114,8 @@ public class FlatShader extends Shader {
 			int u = GraphicsProcessor.interpolate(uvX, barycentric);
 			int v = GraphicsProcessor.interpolate(uvY, barycentric);
 			int texel = texture.getPixel(u, v);
-			return ColorProcessor.multiplyColor(texel, lightColor);
+			modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, texel, lightFactor);
+			modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
 		}
 		return modelColor;
 	}
