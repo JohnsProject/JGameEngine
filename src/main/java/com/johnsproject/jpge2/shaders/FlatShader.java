@@ -23,6 +23,7 @@ public class FlatShader extends Shader {
 	private static final int[] normalizedNormal = VectorProcessor.generate();
 	private static final int[] lightDirection = VectorProcessor.generate();
 	private static final int[] viewDirection = VectorProcessor.generate();
+	private static final int[] faceLocation = VectorProcessor.generate();
 
 	@Override
 	public void vertex(Vertex vertex) {
@@ -36,11 +37,14 @@ public class FlatShader extends Shader {
 		int[][] viewMatrix = camera.getViewMatrix();
 		int[][] projectionMatrix = camera.getPerspectiveMatrix();
 		int[] normal = face.getNormal();
-		int[] location = face.getVertex1().getLocation();
+		int[] location = faceLocation;
 		int[] location1 = face.getVertex1().getLocation();
 		int[] location2 = face.getVertex2().getLocation();
 		int[] location3 = face.getVertex3().getLocation();
-
+		VectorProcessor.add(location1, location2, faceLocation);
+		VectorProcessor.add(faceLocation, location3, faceLocation);
+		VectorProcessor.divide(faceLocation, 3, faceLocation);
+		
 		lightColor = ColorProcessor.WHITE;
 		lightFactor = 0;
 		

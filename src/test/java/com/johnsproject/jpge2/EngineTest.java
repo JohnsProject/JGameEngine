@@ -11,30 +11,22 @@ import com.johnsproject.jpge2.importers.SOMImporter;
 import com.johnsproject.jpge2.importers.SceneImporter;
 import com.johnsproject.jpge2.processing.VectorProcessor;
 
-public class EngineTest {
+public class EngineTest implements EngineListener{
 
 	private static final int WINDOW_W = 840;
 	private static final int WINDOW_H = 640;
 	
 	public static void main(String[] args) {
+		new EngineTest();
+	}
+	
+	EngineTest() {
 		Engine.getInstance().addGraphicsBufferListener(new EngineWindow(WINDOW_W, WINDOW_H));
 		Engine.getInstance().getGraphicsBuffer().setSize(WINDOW_W, WINDOW_H);
 //		useSOM();
 		useScene();
 		Engine.getInstance().getScene().getCameras().get(0).setCanvas(0, 0, WINDOW_W, WINDOW_H);
-		new Thread(new Runnable() {
-			
-			public void run() {
-				while(true) {
-//					Engine.getInstance().getScene().getModels().get(0).getTransform().rotate(1, 1, 0);
-					try {
-						Thread.sleep(32);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}).start();
+		Engine.getInstance().addEngineListener(this);
 	}
 
 	static void useSOM() {
@@ -55,6 +47,16 @@ public class EngineTest {
 			Engine.getInstance().setScene(scene);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void update() {
+		
+	}
+
+	public void fixedUpdate() {
+		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
+			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(0, 0, 2);
 		}
 	}
 }
