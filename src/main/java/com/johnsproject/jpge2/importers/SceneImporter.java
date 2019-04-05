@@ -89,14 +89,21 @@ public class SceneImporter {
 			String lightData = lightsData[i + 1].split(">light")[0];
 			String name = lightData.split("name<")[1].split(">name")[0];
 			String typeData = lightData.split("type<")[1].split(">type")[0];
+			String strengthData = lightData.split("strength<")[1].split(">strength")[0];
+			String[] colorData = lightData.split("color<")[1].split(">color")[0].split(",");
+			int red = (int)(getFloat(colorData[0]) * 256);
+			int green = (int)(getFloat(colorData[1]) * 256);
+			int blue = (int)(getFloat(colorData[2]) * 256);
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
 			int type = 0;
 			if (typeData.equals("SUN"))
-				type = Light.LIGHT_DIRECTIONAL;
+				type = Light.DIRECTIONAL;
 			if (typeData.equals("POINT"))
-				type = Light.LIGHT_POINT;
+				type = Light.POINT;
 			Light light = new Light(name, transform);
 			light.setType(type);
+			light.setStrength((int)(getFloat(strengthData) * MathProcessor.FP_VALUE));
+			light.setDiffuseColor(ColorProcessor.convert(red, green, blue));
 			lights[i] = light;
 		}
 		return lights;

@@ -2,6 +2,9 @@ package com.johnsproject.jpge2.processing;
 
 public class ColorProcessor {
 
+	public static final int WHITE = convert(255, 255, 255);
+	public static final int BLACK = convert(0, 0, 0);
+	
 	private static final byte GREENSHIFT = 8;
 	private static final byte REDSHIFT = 16;
 	private static final byte ALPHASHIFT = 24;
@@ -60,7 +63,7 @@ public class ColorProcessor {
 		return convert(r, g, b, a);
 	}
 	
-	public static int addColor(int color1, int color2) {
+	public static int add(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
 		int r = (r1 + r2);
@@ -69,7 +72,7 @@ public class ColorProcessor {
 		return convert(r, g, b, a1);
 	}
 	
-	public static int addColorRGBA(int color1, int color2) {
+	public static int addRGBA(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
 		int r = (r1 + r2);
@@ -95,6 +98,25 @@ public class ColorProcessor {
 		int g = (g1 * g2) >> 8;
 		int b = (b1 * b2) >> 8;
 		int a = (a1 * a2) >> 8;
+		return convert(r, g, b, a);
+	}
+	
+	public static int lerp(int color1, int color2, int factor) {
+		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
+		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
+		int r = (r1 + (((r2 - r1) * factor) >> 8));
+		int g = (g1 + (((g2 - g1) * factor) >> 8));
+		int b = (b1 + (((b2 - b1) * factor) >> 8));
+		return convert(r, g, b, a1);
+	}
+	
+	public static int lerpRGBA(int color1, int color2, int factor) {
+		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
+		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
+		int r = (r1 + (((r2 - r1) * factor) >> 8));
+		int g = (g1 + (((g2 - g1) * factor) >> 8));
+		int b = (b1 + (((b2 - b1) * factor) >> 8));
+		int a = (a1 + (((a2 - a1) * factor) >> 8));
 		return convert(r, g, b, a);
 	}
 }

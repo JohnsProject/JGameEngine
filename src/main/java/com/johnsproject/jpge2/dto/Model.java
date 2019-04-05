@@ -73,14 +73,14 @@ public class Model extends SceneObject {
 
 	public int[][] getModelMatrix() {
 		if (this.hasChanged()) {
-			GraphicsProcessor.worldMatrix(modelMatrix, this);
+			GraphicsProcessor.modelMatrix(modelMatrix, getTransform());
 		}
 		return modelMatrix;
 	}
 	
 	public int[][] getNormalMatrix() {
 		if (this.hasChanged()) {
-			GraphicsProcessor.normalMatrix(normalMatrix, this);
+			GraphicsProcessor.normalMatrix(normalMatrix, getTransform());
 		}
 		return normalMatrix;
 	}

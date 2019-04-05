@@ -31,9 +31,7 @@ public class Face {
 	private int vertex1Index;
 	private int vertex2Index;
 	private int vertex3Index;
-	private Vertex vertex1;
-	private Vertex vertex2;
-	private Vertex vertex3;
+	private Vertex[] vertices;
 	private int[] startNormal;
 	private int[] normal;
 	private int[] uv1;
@@ -48,6 +46,7 @@ public class Face {
 		this.vertex1Index = vertex1;
 		this.vertex2Index = vertex2;
 		this.vertex3Index = vertex3;
+		this.vertices = new Vertex[3];
 		this.startNormal = normal.clone();
 		this.normal = normal;
 		this.uv1 = uv1;
@@ -65,23 +64,27 @@ public class Face {
 	}
 
 	public void setModel(Model model) {
-		this.vertex1 = model.getVertex(vertex1Index);
-		this.vertex2 = model.getVertex(vertex2Index);
-		this.vertex3 = model.getVertex(vertex3Index);
+		this.vertices[0] = model.getVertex(vertex1Index);
+		this.vertices[1] = model.getVertex(vertex2Index);
+		this.vertices[2] = model.getVertex(vertex3Index);
 		this.material = model.getMaterial(materialIndex);
 		this.model = model;
 	}
 
 	public Vertex getVertex1() {
-		return vertex1;
+		return vertices[0];
 	}
 
 	public Vertex getVertex2() {
-		return vertex2;
+		return vertices[1];
 	}
 
 	public Vertex getVertex3() {
-		return vertex3;
+		return vertices[2];
+	}
+	
+	public Vertex[] getVertices() {
+		return vertices;
 	}
 
 	public int[] getNormal() {

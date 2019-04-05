@@ -16,7 +16,7 @@ public class GraphicsProcessorTest {
 		Model model = new Model("", new Transform(), new Vertex[0], new Face[0], new Material[0]);
 		model.getTransform().rotate(0, 0, 30);
 		int[][] matrix = MatrixProcessor.generate();
-		GraphicsProcessor.worldMatrix(matrix, model);
+		GraphicsProcessor.modelMatrix(matrix, model.getTransform());
 		int[] out = VectorProcessor.generate();
 		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);

@@ -11,7 +11,7 @@ def write(filepath):
 			camera = Camera()
 			camera.name = blenderCamera.name
 			camera.type = blenderCamera.type
-			setTransform(camera.transform, object)
+			setCameraTransform(camera.transform, object)
 			scene.cameras.append(camera)
 			
 		if object.type == "LAMP":
@@ -20,11 +20,14 @@ def write(filepath):
 			light.name = blenderLight.name
 			light.type = blenderLight.type
 			light.strength = blenderLight.energy
-			setTransform(light.transform, object)
+			light.color.red = blenderLight.color[0]
+			light.color.green = blenderLight.color[1]
+			light.color.blue = blenderLight.color[2]
+			setLightTransform(light.transform, object)
 			scene.lights.append(light)
 			
 		if object.type == "MESH":
-			blenderModel = object.to_mesh(bpy.context.scene, True, "PREVIEW")
+			blenderModel = object.to_mesh(bpy.context.scene, False, "PREVIEW")
 			# triangulate model
 			bm = bmesh.new()
 			bm.from_mesh(blenderModel)
@@ -33,7 +36,7 @@ def write(filepath):
 			bm.free()
 			model = Model()
 			model.name = object.name
-			setTransform(model.transform, object)
+			setModelTransform(model.transform, object)
 			i = 0
 			for blenderVertex in blenderModel.vertices:
 				vertex = Vertex()
@@ -139,8 +142,30 @@ def writeToFile(filepath, scene):
 	file.write(lights)
 	# close file
 	file.close()
-	
-def setTransform(transform, object):
+
+def setLightTransform(transform, object):
+	transform.location.append(-object.location[0])
+	transform.location.append(object.location[1])
+	transform.location.append(object.location[2])
+	transform.rotation.append(math.degrees(object.rotation_euler[0]))
+	transform.rotation.append(math.degrees(object.rotation_euler[1]))
+	transform.rotation.append(math.degrees(object.rotation_euler[2]))
+	transform.scale.append(object.scale[0])
+	transform.scale.append(object.scale[1])
+	transform.scale.append(object.scale[2])
+
+def setCameraTransform(transform, object):
+	transform.location.append(object.location[0])
+	transform.location.append(object.location[1])
+	transform.location.append(object.location[2])
+	transform.rotation.append(math.degrees(object.rotation_euler[0]))
+	transform.rotation.append(math.degrees(object.rotation_euler[2]))
+	transform.rotation.append(math.degrees(object.rotation_euler[1]))
+	transform.scale.append(object.scale[0])
+	transform.scale.append(object.scale[1])
+	transform.scale.append(object.scale[2])
+
+def setModelTransform(transform, object):
 	transform.location.append(object.location[0])
 	transform.location.append(object.location[1])
 	transform.location.append(object.location[2])

@@ -27,8 +27,8 @@ import com.johnsproject.jpge2.processing.ColorProcessor;
 
 public class Light extends SceneObject {
 	
-	public static final int LIGHT_DIRECTIONAL = 1;
-	public static final int LIGHT_POINT = 2;
+	public static final int DIRECTIONAL = 1;
+	public static final int POINT = 2;
 	
 	private int type;
 	private int strength;
@@ -36,7 +36,7 @@ public class Light extends SceneObject {
 	
 	public Light(String name, Transform transform) {
 		super(name, transform);
-		this.type = LIGHT_DIRECTIONAL;
+		this.type = DIRECTIONAL;
 		this.strength = 10;
 		this.diffuseColor = ColorProcessor.convert(200, 200, 200);
 	}

@@ -28,14 +28,14 @@ import com.johnsproject.jpge2.processing.MatrixProcessor;
 import com.johnsproject.jpge2.processing.VectorProcessor;
 
 public class Camera extends SceneObject {
-	
+
 	private static final int vx = VectorProcessor.VECTOR_X;
 	private static final int vy = VectorProcessor.VECTOR_Y;
 	private static final int vz = VectorProcessor.VECTOR_Z;
 	private static final int vw = VectorProcessor.VECTOR_W;
-	
+
 	private int[] canvas;
-	private int[] viewFrustum;
+	private int[] frustum;
 	private int[][] viewMatrix = MatrixProcessor.generate();
 	private int[][] perspectiveMatrix = MatrixProcessor.generate();
 	private int[][] orthographicMatrix = MatrixProcessor.generate();
@@ -43,7 +43,7 @@ public class Camera extends SceneObject {
 	public Camera(String name, Transform transform, int[] canvas) {
 		super(name, transform);
 		this.canvas = canvas;
-		this.viewFrustum = VectorProcessor.generate(60, 10, 1024);
+		this.frustum = VectorProcessor.generate(60, 10, 1024);
 	}
 
 	public int[] getCanvas() {
@@ -53,7 +53,7 @@ public class Camera extends SceneObject {
 	public void setCanvas(int[] canvas) {
 		this.canvas = canvas;
 	}
-	
+
 	public void setCanvas(int x, int y, int width, int height) {
 		this.canvas[vx] = x;
 		this.canvas[vy] = y;
@@ -61,23 +61,23 @@ public class Camera extends SceneObject {
 		this.canvas[vw] = height;
 	}
 
-	public int[] getViewFrustum() {
-		return viewFrustum;
+	public int[] getFrustum() {
+		return frustum;
 	}
 
-	public void setViewFrustum(int[] clippingPlanes) {
-		this.viewFrustum = clippingPlanes;
+	public void setFrustum(int[] frustum) {
+		this.frustum = frustum;
 	}
-	
-	public void setViewFrustum(int fov, int near, int far) {
-		this.viewFrustum[vx] = fov;
-		this.viewFrustum[vy] = near;
-		this.viewFrustum[vz] = far;
+
+	public void setFrustum(int fov, int near, int far) {
+		this.frustum[vx] = fov;
+		this.frustum[vy] = near;
+		this.frustum[vz] = far;
 	}
 
 	public int[][] getViewMatrix() {
 		if (this.hasChanged()) {
-			GraphicsProcessor.viewMatrix(viewMatrix, this);
+			GraphicsProcessor.viewMatrix(viewMatrix, getTransform());
 		}
 		return viewMatrix;
 	}

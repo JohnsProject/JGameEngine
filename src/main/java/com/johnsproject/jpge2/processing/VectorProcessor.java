@@ -7,14 +7,14 @@ public class VectorProcessor {
 	public static final byte VECTOR_Z = 2;
 	public static final byte VECTOR_W = 3;
 	
-	public static final int[] VECTOR_UP = generate(0, MathProcessor.FP_VALUE, 0);
-	public static final int[] VECTOR_DOWN = generate(0, -MathProcessor.FP_VALUE, 0);
-	public static final int[] VECTOR_RIGHT = generate(MathProcessor.FP_VALUE, 0, 0);
-	public static final int[] VECTOR_LEFT = generate(-MathProcessor.FP_VALUE, 0, 0);
-	public static final int[] VECTOR_FORWARD = generate(0, 0, MathProcessor.FP_VALUE);
-	public static final int[] VECTOR_BACK = generate(0, 0, -MathProcessor.FP_VALUE);
-	public static final int[] VECTOR_ONE = generate(MathProcessor.FP_VALUE, MathProcessor.FP_VALUE, MathProcessor.FP_VALUE);
-	public static final int[] VECTOR_ZERO = generate(0, 0, 0);
+	public static final int[] UP = generate(0, MathProcessor.FP_VALUE, 0);
+	public static final int[] DOWN = generate(0, -MathProcessor.FP_VALUE, 0);
+	public static final int[] RIGHT = generate(MathProcessor.FP_VALUE, 0, 0);
+	public static final int[] LEFT = generate(-MathProcessor.FP_VALUE, 0, 0);
+	public static final int[] FORWARD = generate(0, 0, MathProcessor.FP_VALUE);
+	public static final int[] BACK = generate(0, 0, -MathProcessor.FP_VALUE);
+	public static final int[] ONE = generate(MathProcessor.FP_VALUE, MathProcessor.FP_VALUE, MathProcessor.FP_VALUE);
+	public static final int[] ZERO = generate(0, 0, 0);
 	
 	
 	private static final int[] vectorCache1 = VectorProcessor.generate();
@@ -65,7 +65,7 @@ public class VectorProcessor {
 	 * @return
 	 */
 	public static int[] generate() {
-		return new int[] {0, 0, 0, 1};
+		return new int[] {0, 0, 0, MathProcessor.FP_VALUE};
 	}
 
 	/**
@@ -198,7 +198,7 @@ public class VectorProcessor {
 	 * @return
 	 */
 	public static int magnitude(int[] vector) {
-		return MathProcessor.sqrt(dotProduct(vector, vector) >> MathProcessor.FP_SHIFT) << MathProcessor.FP_SHIFT;
+		return MathProcessor.sqrt(dotProduct(vector, vector));
 	}
 
 	/**
@@ -226,9 +226,12 @@ public class VectorProcessor {
 		// ensures that will return right values if vector is the same as out
 		copy(vectorCache1, vector1);
 		copy(vectorCache2, vector2);
-		out[VECTOR_X] = MathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_Z]) - MathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_Y]);
-		out[VECTOR_Y] = MathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_X]) - MathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Z]);
-		out[VECTOR_Z] = MathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Y]) - MathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_X]);
+		out[VECTOR_X] = MathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_Z]);
+		out[VECTOR_Y] = MathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_X]);
+		out[VECTOR_Z] = MathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Y]);
+		out[VECTOR_X] -= MathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_Y]);
+		out[VECTOR_Y] -= MathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Z]);
+		out[VECTOR_Z] -= MathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_X]);
 	}
 	
 	/**

@@ -62,13 +62,12 @@ public class MathProcessorTest {
 	
 	@Test
 	public void powTest() throws Exception {
-		System.out.println(MathProcessor.pow(5 << MathProcessor.FP_SHIFT, 2));
 		assert(MathProcessor.pow(5 << MathProcessor.FP_SHIFT, 2) == 25 << MathProcessor.FP_SHIFT);
 	}
 	
 	@Test
 	public void sqrtTest() throws Exception {
-		assert(MathProcessor.sqrt(25) == 5);
+		assert(MathProcessor.sqrt(25 << MathProcessor.FP_SHIFT) == 5 << MathProcessor.FP_SHIFT);
 	}
 
 }

@@ -158,10 +158,11 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int sqrt(int number) {
+		number >>= FP_SHIFT;
 		int res = 0;
 		int add = 0x8000;
 		int i;
-		for (i = 0; i < 16; i++) {
+		for (i = 0; i < 32; i++) {
 			int temp = res | add;
 			int g2 = temp * temp;
 			if (number >= g2) {
@@ -169,7 +170,7 @@ public class MathProcessor {
 			}
 			add >>= 1;
 		}
-		return res;
+		return res << FP_SHIFT;
 	}
 
 	/**
