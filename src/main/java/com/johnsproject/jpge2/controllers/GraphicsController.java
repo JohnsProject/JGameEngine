@@ -37,7 +37,7 @@ public class GraphicsController implements EngineListener {
 					for (int k = 0; k < face.getVertices().length; k++) {
 						Vertex vertex = face.getVertices()[k];
 						vertex.reset();
-						vertex.getMaterial().getShader().vertex(vertex);
+						vertex.getMaterial().getShader().vertex(k, vertex);
 					}
 					if (face.getMaterial().getShader().geometry(face)) {
 						GraphicsProcessor.drawFace(face, graphicsBuffer);

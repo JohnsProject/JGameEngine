@@ -52,28 +52,27 @@ public class GraphicsProcessor {
 		return matrix;
 	}
 
-	public static int[][] orthographicMatrix(int[][] matrix, Camera camera) {
+	public static int[][] orthographicMatrix(int[][] matrix, int[] frustum) {
 		MatrixProcessor.reset(matrix);
-		matrix[0][0] = -1;
-		matrix[1][1] = -1;
-		matrix[2][2] = 0;
-		matrix[3][2] = MathProcessor.FP_VALUE;
+		matrix[0][0] = (MathProcessor.FP_VALUE) << MathProcessor.FP_SHIFT;
+		matrix[1][1] = (MathProcessor.FP_VALUE) << MathProcessor.FP_SHIFT;
+		matrix[2][2] = -MathProcessor.FP_SHIFT;
+		matrix[3][3] = -(frustum[vz] - frustum[vy]) << MathProcessor.FP_SHIFT;
 		return matrix;
 	}
 
-	public static int[][] perspectiveMatrix(int[][] matrix, Camera camera) {
-		int[] frustum = camera.getFrustum();
+	public static int[][] perspectiveMatrix(int[][] matrix, int[] frustum) {
 		MatrixProcessor.reset(matrix);
-		matrix[0][0] = (frustum[vx] * frustum[vy]) << MathProcessor.FP_SHIFT;
-		matrix[1][1] = (frustum[vx] * frustum[vy]) << MathProcessor.FP_SHIFT;
-		matrix[2][2] = -10;
+		matrix[0][0] = (frustum[vx] * 10) << MathProcessor.FP_SHIFT;
+		matrix[1][1] = (frustum[vx] * 10) << MathProcessor.FP_SHIFT;
+		matrix[2][2] = -MathProcessor.FP_SHIFT;
 		matrix[2][3] = MathProcessor.FP_VALUE;
 		return matrix;
 	}
 	
-	public static void viewport(int[] location, Camera camera) {
-		location[vx] = MathProcessor.divide(location[vx], location[vw]) + (camera.getCanvas()[vz] >> 1);
-		location[vy] = MathProcessor.divide(location[vy], location[vw]) + (camera.getCanvas()[vw] >> 1);
+	public static void viewport(int[] location, int[] canvas, int[] frustum) {
+		location[vx] = MathProcessor.divide(location[vx], location[vw]) + (canvas[vz] >> 1);
+		location[vy] = MathProcessor.divide(location[vy], location[vw]) + (canvas[vw] >> 1);
 	}
 
 	// rasterization variables
@@ -89,7 +88,6 @@ public class GraphicsProcessor {
 		depth[0] = location1[vz];
 		depth[1] = location2[vz];
 		depth[2] = location3[vz];
-
 		barycentric[vw] = barycentric(location1, location2, location3);
 		
 		// compute boundig box of faces
@@ -127,7 +125,7 @@ public class GraphicsProcessor {
 
 	private static int interpolatDepth(int[] values, int[] barycentric) {
 		// 10 bits of precision are not enought
-		final byte shift = MathProcessor.FP_SHIFT * 2;
+		final byte shift = MathProcessor.FP_SHIFT + 4;
 		long dotProduct = ((long) barycentric[vx] << shift) / depth[0]
 						+ ((long) barycentric[vy] << shift) / depth[1]
 						+ ((long) barycentric[vz] << shift) / depth[2];
@@ -158,7 +156,7 @@ public class GraphicsProcessor {
 		public static Camera camera;
 		public static List<Light> lights;
 
-		public abstract void vertex(Vertex vertex);
+		public abstract void vertex(int index, Vertex vertex);
 
 		public abstract boolean geometry(Face face);
 

@@ -34,6 +34,12 @@ public class Camera extends SceneObject {
 	private static final int vz = VectorProcessor.VECTOR_Z;
 	private static final int vw = VectorProcessor.VECTOR_W;
 
+	public enum CameraType {
+		ORTHOGRAPHIC,
+		PERSPECTIVE
+	}
+	
+	private CameraType type;
 	private int[] canvas;
 	private int[] frustum;
 	private int[][] viewMatrix = MatrixProcessor.generate();
@@ -43,7 +49,7 @@ public class Camera extends SceneObject {
 	public Camera(String name, Transform transform, int[] canvas) {
 		super(name, transform);
 		this.canvas = canvas;
-		this.frustum = VectorProcessor.generate(60, 10, 1024);
+		this.frustum = VectorProcessor.generate(60, 10, 1000);
 	}
 
 	public int[] getCanvas() {
@@ -84,15 +90,30 @@ public class Camera extends SceneObject {
 
 	public int[][] getPerspectiveMatrix() {
 		if (this.hasChanged()) {
-			GraphicsProcessor.perspectiveMatrix(perspectiveMatrix, this);
+			GraphicsProcessor.perspectiveMatrix(perspectiveMatrix, frustum);
 		}
 		return perspectiveMatrix;
 	}
 
 	public int[][] getOrthographicMatrix() {
 		if (this.hasChanged()) {
-			GraphicsProcessor.orthographicMatrix(orthographicMatrix, this);
+			GraphicsProcessor.orthographicMatrix(orthographicMatrix, frustum);
 		}
 		return orthographicMatrix;
+	}
+	
+	public int[][] getProjectionMatrix() {
+		if (type == CameraType.ORTHOGRAPHIC) {
+			return getOrthographicMatrix();
+		}
+		return getPerspectiveMatrix();
+	}
+
+	public CameraType getType() {
+		return type;
+	}
+
+	public void setType(CameraType type) {
+		this.type = type;
 	}
 }

@@ -26,7 +26,7 @@ public class FlatShader extends Shader {
 	private static final int[] faceLocation = VectorProcessor.generate();
 
 	@Override
-	public void vertex(Vertex vertex) {
+	public void vertex(int index, Vertex vertex) {
 		int[] location = vertex.getLocation();
 		VectorProcessor.multiply(location, model.getModelMatrix(), location);
 	}
@@ -35,7 +35,7 @@ public class FlatShader extends Shader {
 	public boolean geometry(Face face) {
 		Material material = face.getMaterial();
 		int[][] viewMatrix = camera.getViewMatrix();
-		int[][] projectionMatrix = camera.getPerspectiveMatrix();
+		int[][] projectionMatrix = camera.getProjectionMatrix();
 		int[] normal = face.getNormal();
 		int[] location = faceLocation;
 		int[] location1 = face.getVertex1().getLocation();
@@ -59,11 +59,11 @@ public class FlatShader extends Shader {
 			int currentFactor = 0;
 			VectorProcessor.subtract(lightLocation, location, lightDirection);
 			switch (light.getType()) {
-			case Light.DIRECTIONAL:
+			case DIRECTIONAL:
 				VectorProcessor.normalize(lightDirection, lightDirection);
 				currentFactor = getLightFactor(light, normalizedNormal, lightDirection, viewDirection, material);
 				break;
-			case Light.POINT:
+			case POINT:
 				// attenuation
 				int distance = VectorProcessor.magnitude(lightDirection);
 				int attenuation = MathProcessor.FP_VALUE;
@@ -77,8 +77,7 @@ public class FlatShader extends Shader {
 				currentFactor = (currentFactor * 10000) / attenuation;
 				break;
 			}
-			int color = ColorProcessor.lerp(ColorProcessor.BLACK, light.getDiffuseColor(), currentFactor);
-			lightColor = ColorProcessor.lerp(lightColor, color, currentFactor);
+			lightColor = ColorProcessor.lerp(lightColor, light.getDiffuseColor(), currentFactor);
 			lightFactor += currentFactor;
 		}
 		modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, material.getDiffuseColor(), lightFactor);
@@ -87,7 +86,7 @@ public class FlatShader extends Shader {
 			int[] vertexLocation = face.getVertices()[i].getLocation();
 			VectorProcessor.multiply(vertexLocation, viewMatrix, vertexLocation);
 			VectorProcessor.multiply(vertexLocation, projectionMatrix, vertexLocation);
-			GraphicsProcessor.viewport(vertexLocation, camera);
+			GraphicsProcessor.viewport(vertexLocation, camera.getCanvas(), camera.getFrustum());
 		}
 		if (GraphicsProcessor.barycentric(location1, location2, location3) > 0) {
 			texture = face.getMaterial().getTexture();

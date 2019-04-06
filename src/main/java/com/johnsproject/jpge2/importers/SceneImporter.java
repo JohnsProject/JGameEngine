@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.johnsproject.jpge2.dto.Camera;
+import com.johnsproject.jpge2.dto.Camera.CameraType;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Material;
@@ -14,6 +15,7 @@ import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.dto.Light.LightType;
 import com.johnsproject.jpge2.processors.ColorProcessor;
 import com.johnsproject.jpge2.processors.FileProcessor;
 import com.johnsproject.jpge2.processors.MathProcessor;
@@ -77,7 +79,12 @@ public class SceneImporter {
 			String name = cameraData.split("name<")[1].split(">name")[0];
 			String typeData = cameraData.split("type<")[1].split(">type")[0];
 			Transform transform = parseTransform(cameraData.split("transform<")[1].split(">transform")[0].split(","));
-			cameras[i] = new Camera(name, transform, VectorProcessor.generate(0, 0, 1, 1));
+			Camera camera = new Camera(name, transform, VectorProcessor.generate(0, 0, 1, 1));
+			if (typeData.equals("ORTHO"))
+				camera.setType(CameraType.ORTHOGRAPHIC);
+			if (typeData.equals("PERSP"))
+				camera.setType(CameraType.PERSPECTIVE);
+			cameras[i] = camera;
 		}
 		return cameras;
 	}
@@ -95,13 +102,11 @@ public class SceneImporter {
 			int green = (int)(getFloat(colorData[1]) * 256);
 			int blue = (int)(getFloat(colorData[2]) * 256);
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
-			int type = 0;
-			if (typeData.equals("SUN"))
-				type = Light.DIRECTIONAL;
-			if (typeData.equals("POINT"))
-				type = Light.POINT;
 			Light light = new Light(name, transform);
-			light.setType(type);
+			if (typeData.equals("SUN"))
+				light.setType(LightType.DIRECTIONAL);
+			if (typeData.equals("POINT"))
+				light.setType(LightType.POINT);
 			light.setStrength((int)(getFloat(strengthData) * MathProcessor.FP_VALUE));
 			light.setDiffuseColor(ColorProcessor.convert(red, green, blue));
 			lights[i] = light;

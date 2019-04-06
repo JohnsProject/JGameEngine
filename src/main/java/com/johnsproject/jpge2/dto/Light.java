@@ -27,25 +27,27 @@ import com.johnsproject.jpge2.processors.ColorProcessor;
 
 public class Light extends SceneObject {
 	
-	public static final int DIRECTIONAL = 1;
-	public static final int POINT = 2;
+	public enum LightType {
+		DIRECTIONAL,
+		POINT
+	}
 	
-	private int type;
+	private LightType type;
 	private int strength;
 	private int diffuseColor;
 	
 	public Light(String name, Transform transform) {
 		super(name, transform);
-		this.type = DIRECTIONAL;
+		this.type = LightType.DIRECTIONAL;
 		this.strength = 10;
 		this.diffuseColor = ColorProcessor.convert(200, 200, 200);
 	}
 
-	public int getType() {
+	public LightType getType() {
 		return type;
 	}
 
-	public void setType(int type) {
+	public void setType(LightType type) {
 		this.type = type;
 	}
 
