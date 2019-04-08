@@ -16,6 +16,10 @@ public class GraphicsProcessor {
 	private static final int vy = VectorProcessor.VECTOR_Y;
 	private static final int vz = VectorProcessor.VECTOR_Z;
 	private static final int vw = VectorProcessor.VECTOR_W;
+	
+	private static final int[] vectorCache1 = VectorProcessor.generate();
+	private static final int[] vectorCache2 = VectorProcessor.generate();
+	private static final int[] vectorCache3 = VectorProcessor.generate();
 
 	public static int[][] modelMatrix(int[][] matrix, Transform transform) {
 		int[] location = transform.getLocation();
@@ -40,7 +44,7 @@ public class GraphicsProcessor {
 		MatrixProcessor.scale(matrix, scale[vx], scale[vy], scale[vz]);
 		return matrix;
 	}
-
+	
 	public static int[][] viewMatrix(int[][] matrix, Transform transform) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
@@ -57,10 +61,10 @@ public class GraphicsProcessor {
 		matrix[0][0] = (MathProcessor.FP_VALUE) << MathProcessor.FP_SHIFT;
 		matrix[1][1] = (MathProcessor.FP_VALUE) << MathProcessor.FP_SHIFT;
 		matrix[2][2] = -MathProcessor.FP_SHIFT;
-		matrix[3][3] = -(frustum[vz] - frustum[vy]) << MathProcessor.FP_SHIFT;
+		matrix[3][3] = -(frustum[3] - frustum[2]) << MathProcessor.FP_SHIFT;
 		return matrix;
 	}
-
+	
 	public static int[][] perspectiveMatrix(int[][] matrix, int[] frustum) {
 		MatrixProcessor.reset(matrix);
 		matrix[0][0] = (frustum[vx] * 10) << MathProcessor.FP_SHIFT;
@@ -69,22 +73,21 @@ public class GraphicsProcessor {
 		matrix[2][3] = MathProcessor.FP_VALUE;
 		return matrix;
 	}
-	
+
 	public static void viewport(int[] location, int[] canvas, int[] frustum) {
 		location[vx] = MathProcessor.divide(location[vx], location[vw]) + (canvas[vz] >> 1);
 		location[vy] = MathProcessor.divide(location[vy], location[vw]) + (canvas[vw] >> 1);
 	}
-
-	// rasterization variables
-	private static final int[] pixel = VectorProcessor.generate();
-	private static final int[] barycentric = VectorProcessor.generate();
-	private static final int[] depth = VectorProcessor.generate();
-
+	
 	public static void drawFace(Face face, GraphicsBuffer graphicsBuffer) {
 		int[] location1 = face.getVertex1().getLocation();
 		int[] location2 = face.getVertex2().getLocation();
 		int[] location3 = face.getVertex3().getLocation();
 
+		int[] depth = vectorCache1;
+		int[] barycentric = vectorCache2;
+		int[] pixel = vectorCache3;
+		
 		depth[0] = location1[vz];
 		depth[1] = location2[vz];
 		depth[2] = location3[vz];
@@ -123,7 +126,7 @@ public class GraphicsProcessor {
 		}
 	}
 
-	private static int interpolatDepth(int[] values, int[] barycentric) {
+	private static int interpolatDepth(int[] depth, int[] barycentric) {
 		// 10 bits of precision are not enought
 		final byte shift = MathProcessor.FP_SHIFT + 4;
 		long dotProduct = ((long) barycentric[vx] << shift) / depth[0]
@@ -133,11 +136,13 @@ public class GraphicsProcessor {
 	}
 
 	public static int interpolate(int[] values, int[] barycentric) {
-		long dotProduct = (((long) values[vx] << MathProcessor.FP_SHIFT) / depth[0]) * barycentric[vx]
-				+ (((long) values[vy] << MathProcessor.FP_SHIFT) / depth[1]) * barycentric[vy]
-				+ (((long) values[vz] << MathProcessor.FP_SHIFT) / depth[2]) * barycentric[vz];
+		// depth = vectorCache1;
+		// pixel = vectorCache3;
+		long dotProduct = (((long) values[vx] << MathProcessor.FP_SHIFT) / vectorCache1[0]) * barycentric[vx]
+				+ (((long) values[vy] << MathProcessor.FP_SHIFT) / vectorCache1[1]) * barycentric[vy]
+				+ (((long) values[vz] << MathProcessor.FP_SHIFT) / vectorCache1[2]) * barycentric[vz];
 		// normalize values
-		return (int) ((((long) dotProduct * (long) pixel[vz]) / barycentric[vw]) >> MathProcessor.FP_SHIFT);
+		return (int) ((((long) dotProduct * (long) vectorCache3[vz]) / barycentric[vw]) >> MathProcessor.FP_SHIFT);
 	}
 
 	public static int barycentric(int[] vector1, int[] vector2, int[] vector3) {

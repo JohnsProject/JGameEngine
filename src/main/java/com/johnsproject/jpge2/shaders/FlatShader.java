@@ -37,7 +37,6 @@ public class FlatShader extends Shader {
 		int[][] viewMatrix = camera.getViewMatrix();
 		int[][] projectionMatrix = camera.getProjectionMatrix();
 		int[] normal = face.getNormal();
-		int[] location = faceLocation;
 		int[] location1 = face.getVertex1().getLocation();
 		int[] location2 = face.getVertex2().getLocation();
 		int[] location3 = face.getVertex3().getLocation();
@@ -49,7 +48,7 @@ public class FlatShader extends Shader {
 		lightFactor = 0;
 		
 		VectorProcessor.multiply(normal, model.getNormalMatrix(), normal);
-		VectorProcessor.subtract(camera.getTransform().getLocation(), location, viewDirection);
+		VectorProcessor.subtract(camera.getTransform().getLocation(), faceLocation, viewDirection);
 		// normalize values
 		VectorProcessor.normalize(normal, normalizedNormal);
 		VectorProcessor.normalize(viewDirection, viewDirection);
@@ -57,7 +56,7 @@ public class FlatShader extends Shader {
 			Light light = lights.get(i);
 			int[] lightLocation = light.getTransform().getLocation();
 			int currentFactor = 0;
-			VectorProcessor.subtract(lightLocation, location, lightDirection);
+			VectorProcessor.subtract(lightLocation, faceLocation, lightDirection);
 			switch (light.getType()) {
 			case DIRECTIONAL:
 				VectorProcessor.normalize(lightDirection, lightDirection);
@@ -87,6 +86,8 @@ public class FlatShader extends Shader {
 			VectorProcessor.multiply(vertexLocation, viewMatrix, vertexLocation);
 			VectorProcessor.multiply(vertexLocation, projectionMatrix, vertexLocation);
 			GraphicsProcessor.viewport(vertexLocation, camera.getCanvas(), camera.getFrustum());
+			if ((vertexLocation[vz] < camera.getFrustum()[1]) || (vertexLocation[vz] > camera.getFrustum()[2]))
+				return false;
 		}
 		if (GraphicsProcessor.barycentric(location1, location2, location3) > 0) {
 			texture = face.getMaterial().getTexture();
@@ -125,7 +126,7 @@ public class FlatShader extends Shader {
 		int diffuseFactor = Math.max(dotProduct, 0);
 		diffuseFactor = MathProcessor.multiply(diffuseFactor, material.getDiffuseIntensity());
 		// specular
-		VectorProcessor.invert(lightDirection);
+		VectorProcessor.invert(lightDirection, lightDirection);
 		VectorProcessor.reflect(lightDirection, normal, lightDirection);
 		dotProduct = VectorProcessor.dotProduct(viewDirection, lightDirection);
 		int specularFactor = Math.max(dotProduct, 0);

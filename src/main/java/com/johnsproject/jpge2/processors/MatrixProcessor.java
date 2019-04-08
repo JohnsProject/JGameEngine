@@ -29,7 +29,7 @@ public class MatrixProcessor {
 	 * @param matrix2
 	 * @param out
 	 */
-	public static void add(int[][] matrix1, int[][] matrix2, int[][] out) {
+	public static int[][] add(int[][] matrix1, int[][] matrix2, int[][] out) {
 		// ensures that will return right values if matrix or matrix two is the same as out
 		copy(matrixCache1, matrix1);
 		copy(matrixCache2, matrix2);
@@ -38,6 +38,7 @@ public class MatrixProcessor {
 				out[i][j] = matrixCache1[i][j] + matrixCache2[i][j];
 			}
 		}
+		return out;
 	}
 	
 	/**
@@ -47,7 +48,7 @@ public class MatrixProcessor {
 	 * @param matrix2
 	 * @param out
 	 */
-	public static void multiply(int[][] matrix1, int[][] matrix2, int[][] out) {
+	public static int[][] multiply(int[][] matrix1, int[][] matrix2, int[][] out) {
 		// ensures that will return right values if matrix or matrix two is the same as out
 		copy(matrixCache1, matrix1);
 		copy(matrixCache2, matrix2);
@@ -60,6 +61,7 @@ public class MatrixProcessor {
 				out[i][j] = result;
 			}
 		}
+		return out;
 	}
 	
 	
@@ -71,13 +73,14 @@ public class MatrixProcessor {
 	 * @param y
 	 * @param z
 	 */
-	public static void translate(int[][] matrix, int x, int y, int z) {
+	public static int[][] translate(int[][] matrix, int x, int y, int z) {
 		reset(transformMatrix);
 		//not so big translation values needed
 		transformMatrix[3][0] = x;
 		transformMatrix[3][1] = y;
 		transformMatrix[3][2] = z;
 		multiply(transformMatrix, matrix, matrix);
+		return matrix;
 	}
 
 	/**
@@ -88,12 +91,13 @@ public class MatrixProcessor {
 	 * @param y
 	 * @param z
 	 */
-	public static void scale(int[][] matrix, int x, int y, int z) {
+	public static int[][] scale(int[][] matrix, int x, int y, int z) {
 		reset(transformMatrix);
 		transformMatrix[0][0] *= x;
 		transformMatrix[1][1] *= y;
 		transformMatrix[2][2] *= z;
 		multiply(transformMatrix, matrix, matrix);
+		return matrix;
 	}
 
 	/**
@@ -102,7 +106,7 @@ public class MatrixProcessor {
 	 * @param matrix
 	 * @param angle
 	 */
-	public static void rotateX(int[][] matrix, int angle) {
+	public static int[][] rotateX(int[][] matrix, int angle) {
 		reset(transformMatrix);
 		int cos = MathProcessor.cos(angle);
 		int sin = MathProcessor.sin(angle);
@@ -111,6 +115,7 @@ public class MatrixProcessor {
 		transformMatrix[2][1] = -sin;
 		transformMatrix[2][2] = cos;
 		multiply(transformMatrix, matrix, matrix);
+		return matrix;
 	}
 
 	/**
@@ -119,7 +124,7 @@ public class MatrixProcessor {
 	 * @param matrix
 	 * @param angle
 	 */
-	public static void rotateY(int[][] matrix, int angle) {
+	public static int[][] rotateY(int[][] matrix, int angle) {
 		reset(transformMatrix);
 		int cos = MathProcessor.cos(angle);
 		int sin = MathProcessor.sin(angle);
@@ -128,6 +133,7 @@ public class MatrixProcessor {
 		transformMatrix[2][0] = sin;
 		transformMatrix[2][2] = cos;
 		multiply(transformMatrix, matrix, matrix);
+		return matrix;
 	}
 
 	/**
@@ -136,7 +142,7 @@ public class MatrixProcessor {
 	 * @param matrix
 	 * @param angle
 	 */
-	public static void rotateZ(int[][] matrix, int angle) {
+	public static int[][] rotateZ(int[][] matrix, int angle) {
 		reset(transformMatrix);
 		int cos = MathProcessor.cos(angle);
 		int sin = MathProcessor.sin(angle);
@@ -145,6 +151,7 @@ public class MatrixProcessor {
 		transformMatrix[1][0] = -sin;
 		transformMatrix[1][1] = cos;
 		multiply(transformMatrix, matrix, matrix);
+		return matrix;
 	}
 	
 	/**
@@ -152,7 +159,7 @@ public class MatrixProcessor {
 	 * 
 	 * @param matrix
 	 */
-	public static void reset(int[][] matrix) {
+	public static int[][] reset(int[][] matrix) {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				matrix[i][j] = 0;
@@ -162,6 +169,7 @@ public class MatrixProcessor {
 		matrix[1][1] = MathProcessor.FP_VALUE;
 		matrix[2][2] = MathProcessor.FP_VALUE;
 		matrix[3][3] = MathProcessor.FP_VALUE;
+		return matrix;
 	}
 	
 	/**
@@ -170,12 +178,13 @@ public class MatrixProcessor {
 	 * @param target
 	 * @param matrix
 	 */
-	public static void copy(int[][] target, int[][] matrix) {
+	public static int[][] copy(int[][] target, int[][] matrix) {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				target[i][j] = matrix[i][j];
 			}
 		}
+		return target;
 	}	
 	
 	/**

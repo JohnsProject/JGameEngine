@@ -2,8 +2,6 @@ package com.johnsproject.jpge2.importers;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Camera.CameraType;
@@ -12,7 +10,6 @@ import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Material;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
-import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.dto.Light.LightType;
