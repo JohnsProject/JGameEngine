@@ -23,8 +23,6 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processors.ColorProcessor;
-
 public class Light extends SceneObject {
 	
 	public enum LightType {
@@ -40,7 +38,6 @@ public class Light extends SceneObject {
 		super(name, transform);
 		this.type = LightType.DIRECTIONAL;
 		this.strength = 10;
-		this.diffuseColor = ColorProcessor.convert(200, 200, 200);
 	}
 
 	public LightType getType() {

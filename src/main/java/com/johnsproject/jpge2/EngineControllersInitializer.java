@@ -23,10 +23,12 @@
  */
 package com.johnsproject.jpge2;
 
-import com.johnsproject.jpge2.dto.GraphicsBuffer;
+import com.johnsproject.jpge2.controllers.GraphicsController;
 
-public interface GraphicsBufferListener {
+public class EngineControllersInitializer {
 
-	public void graphicsBufferUpdate(GraphicsBuffer graphicsBuffer);
+	public EngineControllersInitializer() {
+		new GraphicsController();
+	}
 	
 }
