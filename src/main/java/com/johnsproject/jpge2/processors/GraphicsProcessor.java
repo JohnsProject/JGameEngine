@@ -127,25 +127,42 @@ public class GraphicsProcessor {
 		minY = Math.max(minY, 0);
 		maxX = Math.min(maxX, graphicsBuffer.getWidth() - 1);
 		maxY = Math.min(maxY, graphicsBuffer.getHeight() - 1);
+		
+		// triangle setup
+		int a01 = location1[vy] - location2[vy], b01 = location2[vx] - location1[vx];
+	    int a12 = location2[vy] - location3[vy], b12 = location3[vx] - location2[vx];
+	    int a20 = location3[vy] - location1[vy], b20 = location1[vx] - location3[vx];
 
+	    // barycentric coordinates at minX/minY edge
+	    pixel[vx] = minX;
+	    pixel[vy] = minY;
+	    pixel[vz] = 0;
+	    int barycentric0_row = barycentric(location2, location3, pixel);
+	    int barycentric1_row = barycentric(location3, location1, pixel);
+	    int barycentric2_row = barycentric(location1, location2, pixel);
+	    
 		for (pixel[vy] = minY; pixel[vy] < maxY; pixel[vy]++) {
-			boolean found = false;
-			boolean usedLast = false;
+			
+			barycentric[vx] = barycentric0_row;
+			barycentric[vy] = barycentric1_row;
+			barycentric[vz] = barycentric2_row;
+			
 			for (pixel[vx] = minX; pixel[vx] < maxX; pixel[vx]++) {
-				// calculate barycentric coordinates
-				barycentric[vx] = barycentric(location2, location3, pixel);
-				barycentric[vy] = barycentric(location3, location1, pixel);
-				barycentric[vz] = barycentric(location1, location2, pixel);
-				if ((barycentric[vx] >= 0) && (barycentric[vy] >= 0) && (barycentric[vz] >= 0)) {
+				
+				if ((barycentric[vx] | barycentric[vy] | barycentric[vz]) >= 0) {
 					pixel[vz] = interpolatDepth(depth, barycentric);
 					int color = face.getMaterial().getShader().fragment(pixel, barycentric);
 					graphicsBuffer.setPixel(pixel[vx], pixel[vy], pixel[vz], color);
-					found = true;
-					usedLast = true;
-				} else if (found && usedLast) {
-					break;
 				}
+				
+				barycentric[vx] += a12;
+				barycentric[vy] += a20;
+				barycentric[vz] += a01;
 			}
+			
+			barycentric0_row += b12;
+			barycentric1_row += b20;
+			barycentric2_row += b01;
 		}
 	}
 
