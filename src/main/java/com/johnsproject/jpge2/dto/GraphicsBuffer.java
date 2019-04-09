@@ -46,6 +46,10 @@ public class GraphicsBuffer {
 	public BufferedImage getFrameBuffer() {
 		return frameBuffer;
 	}
+	
+	public int[] getFrameBufferData() {
+		return frameBufferData;
+	}
 
 	public int[] getDepthBuffer() {
 		return depthBuffer;
@@ -78,6 +82,11 @@ public class GraphicsBuffer {
 			depthBuffer[pos] = z;
 			frameBufferData[pos] = color;
 		}
+	}
+	
+	public void setPixel(int x, int y, int color) {
+		int pos = x + (y * width);
+		frameBufferData[pos] = color;
 	}
 
 	public int getPixel(int x, int y) {
