@@ -8,7 +8,6 @@ import com.johnsproject.jpge2.dto.GraphicsBuffer;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.processors.GraphicsProcessor;
 import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
 public class GraphicsController implements EngineListener {
@@ -29,6 +28,7 @@ public class GraphicsController implements EngineListener {
 				for (int l = 0; l < model.getMaterials().length; l++) {
 					Shader.model = model;
 					Shader.camera = camera;
+					Shader.graphicsBuffer = graphicsBuffer;
 					Shader.lights = scene.getLights();
 				}
 				for (int l = 0; l < model.getFaces().length; l++) {
@@ -39,9 +39,7 @@ public class GraphicsController implements EngineListener {
 						vertex.reset();
 						vertex.getMaterial().getShader().vertex(k, vertex);
 					}
-					if (face.getMaterial().getShader().geometry(face)) {
-						GraphicsProcessor.drawFace(face, graphicsBuffer);
-					}
+					face.getMaterial().getShader().geometry(face);
 				}
 			}
 		}

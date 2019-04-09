@@ -102,10 +102,7 @@ public class GraphicsProcessor {
 		location[vy] = MathProcessor.divide(location[vy], location[vw]) + (canvas[vw] >> 1);
 	}
 	
-	public static void drawFace(Face face, GraphicsBuffer graphicsBuffer) {
-		int[] location1 = face.getVertex1().getLocation();
-		int[] location2 = face.getVertex2().getLocation();
-		int[] location3 = face.getVertex3().getLocation();
+	public static void drawTriangle(int[] location1, int[] location2, int[] location3, Shader shader, GraphicsBuffer graphicsBuffer) {
 
 		int[] depth = vectorCache1;
 		int[] barycentric = vectorCache2;
@@ -151,7 +148,7 @@ public class GraphicsProcessor {
 				
 				if ((barycentric[vx] | barycentric[vy] | barycentric[vz]) >= 0) {
 					pixel[vz] = interpolatDepth(depth, barycentric);
-					int color = face.getMaterial().getShader().fragment(pixel, barycentric);
+					int color = shader.fragment(pixel, barycentric);
 					graphicsBuffer.setPixel(pixel[vx], pixel[vy], pixel[vz], color);
 				}
 				
@@ -168,7 +165,7 @@ public class GraphicsProcessor {
 
 	private static int interpolatDepth(int[] depth, int[] barycentric) {
 		// 10 bits of precision are not enought
-		final byte shift = MathProcessor.FP_SHIFT + 4;
+		final byte shift = MathProcessor.FP_SHIFT << 1;
 		long dotProduct = ((long) barycentric[vx] << shift) / depth[0]
 						+ ((long) barycentric[vy] << shift) / depth[1]
 						+ ((long) barycentric[vz] << shift) / depth[2];
@@ -199,11 +196,12 @@ public class GraphicsProcessor {
 
 		public static Model model;
 		public static Camera camera;
+		public static GraphicsBuffer graphicsBuffer;
 		public static List<Light> lights;
 
 		public abstract void vertex(int index, Vertex vertex);
 
-		public abstract boolean geometry(Face face);
+		public abstract void geometry(Face face);
 
 		public abstract int fragment(int[] location, int[] barycentric);
 	}

@@ -55,9 +55,9 @@ public class EngineTest implements EngineListener{
 	}
 
 	public void fixedUpdate() {
-		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
-			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(0, 0, 2);
-		}
+//		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
+//			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(0, 0, 2);
+//		}
 	}
 
 	public int getPriority() {

@@ -55,7 +55,7 @@ public class FlatShader extends Shader {
 	}
 
 	@Override
-	public boolean geometry(Face face) {
+	public void geometry(Face face) {
 		Material material = face.getMaterial();
 		int[][] viewMatrix = camera.getViewMatrix();
 		int[][] projectionMatrix = camera.getProjectionMatrix();
@@ -110,7 +110,7 @@ public class FlatShader extends Shader {
 			VectorProcessor.multiply(vertexLocation, projectionMatrix, vertexLocation);
 			GraphicsProcessor.viewport(vertexLocation, camera.getCanvas(), camera.getFrustum());
 			if ((vertexLocation[vz] < camera.getFrustum()[1]) || (vertexLocation[vz] > camera.getFrustum()[2]))
-				return false;
+				return;
 		}
 		if (GraphicsProcessor.barycentric(location1, location2, location3) > 0) {
 			texture = face.getMaterial().getTexture();
@@ -126,9 +126,8 @@ public class FlatShader extends Shader {
 				uvY[1] = MathProcessor.multiply(face.getUV2()[vy], texture.getHeight());
 				uvY[2] = MathProcessor.multiply(face.getUV3()[vy], texture.getHeight());
 			}
-			return true;
+			GraphicsProcessor.drawTriangle(location1, location2, location3, this, graphicsBuffer);
 		}
-		return false;
 	}
 
 	@Override
