@@ -52,6 +52,7 @@ public class EngineWindow extends Frame implements EngineListener {
 		});
 		this.createBufferStrategy(2);
 		this.add(panel);
+		Engine.getInstance().addEngineListener(this);
 	}
 
 	public EnginePanel getPanel() {
@@ -68,13 +69,6 @@ public class EngineWindow extends Frame implements EngineListener {
 		}
 	}
 
-
-	public void fixedUpdate() { }
-	
-	public int getPriority() {
-		return 1001;
-	}
-
 	public class EnginePanel extends Canvas {
 
 		private static final long serialVersionUID = 1L;
@@ -89,5 +83,13 @@ public class EngineWindow extends Frame implements EngineListener {
 			g.drawImage(Engine.getInstance().getFrameBuffer().getImage(), 0, 0, null);
 			s.show();
 		}
+	}
+
+	public void start() {}
+	
+	public void fixedUpdate() {}
+	
+	public int getPriority() {
+		return 1001;
 	}
 }

@@ -21,11 +21,15 @@ public class EngineTest implements EngineListener{
 	}
 	
 	EngineTest() {
+		Engine.getInstance().addEngineListener(this);
+	}
+	
+	public void start() {
+		Engine.getInstance().addEngineListener(new EngineWindow(WINDOW_W, WINDOW_H));
 		Engine.getInstance().getFrameBuffer().setSize(WINDOW_W, WINDOW_H);
 //		useSOM();
 		useScene();
 		Engine.getInstance().getScene().getCameras().get(0).setCanvas(0, 0, WINDOW_W, WINDOW_H);
-		Engine.getInstance().addEngineListener(this);
 	}
 
 	static void useSOM() {
@@ -54,9 +58,9 @@ public class EngineTest implements EngineListener{
 	}
 
 	public void fixedUpdate() {
-//		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
-//			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(0, 0, 2);
-//		}
+		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
+			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(0, 0, 2);
+		}
 	}
 
 	public int getPriority() {

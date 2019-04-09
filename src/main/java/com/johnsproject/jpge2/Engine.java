@@ -34,34 +34,38 @@ import com.johnsproject.jpge2.dto.Scene;
 public class Engine {
 
 	private static Engine engine = new Engine();
-	
+
 	public static Engine getInstance() {
 		return engine;
 	}
-	
+
 	private Thread engineThread;
 	private EngineSettings settings;
 	private FrameBuffer frameBuffer;
 	private List<EngineListener> engineListeners = new ArrayList<EngineListener>();
 	private Scene scene;
-	
+
 	public Engine() {
 		settings = new EngineSettings();
 		frameBuffer = new FrameBuffer();
 		scene = new Scene();
 		startEngineLoop();
 	}
-	
+
 	private void startEngineLoop() {
 		engineThread = new Thread(new Runnable() {
 			long nextUpateTick = System.currentTimeMillis();
 			long current = System.currentTimeMillis();
 			int updateSkipRate = 0;
 			int loops = 0;
+
 			public void run() {
 				// initialize the controllers
 				new EngineControllersInitializer();
-				while(true) {
+				for (int i = 0; i < engineListeners.size(); i++) {
+					engineListeners.get(i).start();
+				}
+				while (true) {
 					loops = 0;
 					updateSkipRate = 1000 / getSettings().getUpdateRate();
 					current = System.currentTimeMillis();
@@ -96,7 +100,7 @@ public class Engine {
 	public FrameBuffer getFrameBuffer() {
 		return frameBuffer;
 	}
-	
+
 	public Scene getScene() {
 		return scene;
 	}
@@ -104,26 +108,27 @@ public class Engine {
 	public void setScene(Scene scene) {
 		this.scene = scene;
 	}
-	
+
 	public void addEngineListener(EngineListener listener) {
 		engineListeners.add(listener);
-		Collections.sort(engineListeners, new Comparator<EngineListener>() {
-			public int compare(EngineListener o1, EngineListener o2) {
-				if (o1.getPriority() < o2.getPriority())
-					return -1;
-				return 1;
-			}
-		});
+		sortListeners();
 	}
-	
+
 	public void removeEngineListener(EngineListener listener) {
 		engineListeners.remove(listener);
-		Collections.sort(engineListeners, new Comparator<EngineListener>() {
-			public int compare(EngineListener o1, EngineListener o2) {
-				if (o1.getPriority() < o2.getPriority())
-					return -1;
-				return 1;
-			}
-		});
+		sortListeners();
+	}
+
+	private void sortListeners() {
+		for (int i = 0; i < engineListeners.size() - 1; i++) {
+			int min_idx = i;
+			for (int j = i + 1; j < engineListeners.size(); j++)
+				if (engineListeners.get(j).getPriority() < engineListeners.get(min_idx).getPriority())
+					min_idx = j;
+
+			EngineListener temp = engineListeners.get(min_idx);
+			engineListeners.set(min_idx, engineListeners.get(i));
+			engineListeners.set(i, temp);
+		}
 	}
 }

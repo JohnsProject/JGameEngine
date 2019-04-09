@@ -16,6 +16,8 @@ public class GraphicsController implements EngineListener {
 		Engine.getInstance().addEngineListener(this);
 	}
 	
+	public void start() { }
+	
 	public void update() {
 		Scene scene = Engine.getInstance().getScene();
 		FrameBuffer frameBuffer = Engine.getInstance().getFrameBuffer();
@@ -44,10 +46,8 @@ public class GraphicsController implements EngineListener {
 			}
 		}
 	}
-
-	public void fixedUpdate() {
-		
-	}
+	
+	public void fixedUpdate() { }
 
 	public int getPriority() {
 		return 1000;
