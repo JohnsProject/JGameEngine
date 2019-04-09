@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.johnsproject.jpge2.dto.GraphicsBuffer;
+import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Scene;
 
 public class Engine {
@@ -41,14 +41,13 @@ public class Engine {
 	
 	private Thread engineThread;
 	private EngineSettings settings;
-	private GraphicsBuffer graphicsBuffer;
-	private List<GraphicsBufferListener> graphicsBufferListeners = new ArrayList<GraphicsBufferListener>();
+	private FrameBuffer frameBuffer;
 	private List<EngineListener> engineListeners = new ArrayList<EngineListener>();
 	private Scene scene;
 	
 	public Engine() {
 		settings = new EngineSettings();
-		graphicsBuffer = new GraphicsBuffer();
+		frameBuffer = new FrameBuffer();
 		scene = new Scene();
 		startEngineLoop();
 	}
@@ -76,9 +75,6 @@ public class Engine {
 					for (int i = 0; i < engineListeners.size(); i++) {
 						engineListeners.get(i).update();
 					}
-					for (int i = 0; i < graphicsBufferListeners.size(); i++) {
-						graphicsBufferListeners.get(i).graphicsBufferUpdate(graphicsBuffer);
-					}
 					long sleepTime = nextUpateTick - current;
 					if (sleepTime >= 0) {
 						try {
@@ -97,8 +93,8 @@ public class Engine {
 		return settings;
 	}
 
-	public GraphicsBuffer getGraphicsBuffer() {
-		return graphicsBuffer;
+	public FrameBuffer getFrameBuffer() {
+		return frameBuffer;
 	}
 	
 	public Scene getScene() {
@@ -107,14 +103,6 @@ public class Engine {
 
 	public void setScene(Scene scene) {
 		this.scene = scene;
-	}
-	
-	public void addGraphicsBufferListener(GraphicsBufferListener listener) {
-		graphicsBufferListeners.add(listener);
-	}
-	
-	public void removeGraphicsBufferListener(GraphicsBufferListener listener) {
-		graphicsBufferListeners.remove(listener);
 	}
 	
 	public void addEngineListener(EngineListener listener) {

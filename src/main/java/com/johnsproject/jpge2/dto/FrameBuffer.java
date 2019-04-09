@@ -26,38 +26,38 @@ package com.johnsproject.jpge2.dto;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-public class GraphicsBuffer {
+public class FrameBuffer {
 
 	private int width;
 	private int height;
 	private int length;
-	private BufferedImage frameBuffer;
-	private int[] frameBufferData;
+	private BufferedImage image;
+	private int[] colorBuffer;
 	private int[] depthBuffer;
 
-	public GraphicsBuffer() {
+	public FrameBuffer() {
 		setSize(1, 1);
 	}
 
-	public GraphicsBuffer(int width, int height) {
+	public FrameBuffer(int width, int height) {
 		setSize(width, height);
 	}
 
-	public BufferedImage getFrameBuffer() {
-		return frameBuffer;
+	public BufferedImage getImage() {
+		return image;
 	}
 	
-	public int[] getFrameBufferData() {
-		return frameBufferData;
+	public int[] getColorBuffer() {
+		return colorBuffer;
 	}
 
 	public int[] getDepthBuffer() {
 		return depthBuffer;
 	}
 
-	public void clearFrameBuffer() {
-		for (int i = 0; i < frameBufferData.length; i++) {
-			frameBufferData[i] = 0;
+	public void clearColorBuffer() {
+		for (int i = 0; i < colorBuffer.length; i++) {
+			colorBuffer[i] = 0;
 		}
 	}
 
@@ -71,8 +71,8 @@ public class GraphicsBuffer {
 		this.width = width;
 		this.height = height;
 		this.length = width * height;
-		this.frameBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
-		this.frameBufferData = ((DataBufferInt) frameBuffer.getRaster().getDataBuffer()).getData();
+		this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
+		this.colorBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		this.depthBuffer = new int[length];
 	}
 
@@ -80,19 +80,19 @@ public class GraphicsBuffer {
 		int pos = x + (y * width);
 		if (depthBuffer[pos] > z) {
 			depthBuffer[pos] = z;
-			frameBufferData[pos] = color;
+			colorBuffer[pos] = color;
 		}
 	}
 	
 	public void setPixel(int x, int y, int color) {
 		int pos = x + (y * width);
-		frameBufferData[pos] = color;
+		colorBuffer[pos] = color;
 	}
 
 	public int getPixel(int x, int y) {
 		int pos = x + (y * width);
 		if (pos < length)
-			return frameBufferData[pos];
+			return colorBuffer[pos];
 		return -1;
 	}
 

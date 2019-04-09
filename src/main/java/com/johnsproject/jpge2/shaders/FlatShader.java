@@ -126,7 +126,7 @@ public class FlatShader extends Shader {
 				uvY[1] = MathProcessor.multiply(face.getUV2()[vy], texture.getHeight());
 				uvY[2] = MathProcessor.multiply(face.getUV3()[vy], texture.getHeight());
 			}
-			GraphicsProcessor.drawTriangle(location1, location2, location3, this, graphicsBuffer);
+			GraphicsProcessor.drawTriangle(location1, location2, location3, this, frameBuffer);
 		}
 	}
 
@@ -136,6 +136,8 @@ public class FlatShader extends Shader {
 			int u = GraphicsProcessor.interpolate(uvX, barycentric);
 			int v = GraphicsProcessor.interpolate(uvY, barycentric);
 			int texel = texture.getPixel(u, v);
+			if (ColorProcessor.getAlpha(texel) == 0) // discard pixel if alpha = 0
+				return 0;
 			modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, texel, lightFactor);
 			modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
 		}

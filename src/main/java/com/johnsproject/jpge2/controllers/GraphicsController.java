@@ -4,7 +4,7 @@ import com.johnsproject.jpge2.Engine;
 import com.johnsproject.jpge2.EngineListener;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
-import com.johnsproject.jpge2.dto.GraphicsBuffer;
+import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Vertex;
@@ -18,9 +18,9 @@ public class GraphicsController implements EngineListener {
 	
 	public void update() {
 		Scene scene = Engine.getInstance().getScene();
-		GraphicsBuffer graphicsBuffer = Engine.getInstance().getGraphicsBuffer();
-		graphicsBuffer.clearFrameBuffer();
-		graphicsBuffer.clearDepthBuffer();
+		FrameBuffer frameBuffer = Engine.getInstance().getFrameBuffer();
+		frameBuffer.clearColorBuffer();
+		frameBuffer.clearDepthBuffer();
 		for (int i = 0; i < scene.getCameras().size(); i++) {
 			Camera camera = scene.getCameras().get(i);
 			for (int j = 0; j < scene.getModels().size(); j++) {
@@ -28,7 +28,7 @@ public class GraphicsController implements EngineListener {
 				for (int l = 0; l < model.getMaterials().length; l++) {
 					Shader.model = model;
 					Shader.camera = camera;
-					Shader.graphicsBuffer = graphicsBuffer;
+					Shader.frameBuffer = frameBuffer;
 					Shader.lights = scene.getLights();
 				}
 				for (int l = 0; l < model.getFaces().length; l++) {

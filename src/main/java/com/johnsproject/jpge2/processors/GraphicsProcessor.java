@@ -27,7 +27,7 @@ import java.util.List;
 
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
-import com.johnsproject.jpge2.dto.GraphicsBuffer;
+import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Transform;
@@ -102,7 +102,7 @@ public class GraphicsProcessor {
 		location[vy] = MathProcessor.divide(location[vy], location[vw]) + (canvas[vw] >> 1);
 	}
 	
-	public static void drawTriangle(int[] location1, int[] location2, int[] location3, Shader shader, GraphicsBuffer graphicsBuffer) {
+	public static void drawTriangle(int[] location1, int[] location2, int[] location3, Shader shader, FrameBuffer frameBuffer) {
 
 		int[] depth = vectorCache1;
 		int[] barycentric = vectorCache2;
@@ -122,8 +122,8 @@ public class GraphicsProcessor {
 		// clip against screen limits
 		minX = Math.max(minX, 0);
 		minY = Math.max(minY, 0);
-		maxX = Math.min(maxX, graphicsBuffer.getWidth() - 1);
-		maxY = Math.min(maxY, graphicsBuffer.getHeight() - 1);
+		maxX = Math.min(maxX, frameBuffer.getWidth() - 1);
+		maxY = Math.min(maxY, frameBuffer.getHeight() - 1);
 		
 		// triangle setup
 		int a01 = location1[vy] - location2[vy], b01 = location2[vx] - location1[vx];
@@ -149,7 +149,8 @@ public class GraphicsProcessor {
 				if ((barycentric[vx] | barycentric[vy] | barycentric[vz]) >= 0) {
 					pixel[vz] = interpolatDepth(depth, barycentric);
 					int color = shader.fragment(pixel, barycentric);
-					graphicsBuffer.setPixel(pixel[vx], pixel[vy], pixel[vz], color);
+					if (color != 0)
+						frameBuffer.setPixel(pixel[vx], pixel[vy], pixel[vz], color);
 				}
 				
 				barycentric[vx] += a12;
@@ -196,7 +197,7 @@ public class GraphicsProcessor {
 
 		public static Model model;
 		public static Camera camera;
-		public static GraphicsBuffer graphicsBuffer;
+		public static FrameBuffer frameBuffer;
 		public static List<Light> lights;
 
 		public abstract void vertex(int index, Vertex vertex);

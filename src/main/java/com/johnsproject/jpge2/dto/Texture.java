@@ -29,14 +29,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.johnsproject.jpge2.processors.FileProcessor;
-import com.johnsproject.jpge2.processors.MathProcessor;
 
 public class Texture {
 	
 	private int[] image;
 	private int width, height;
-	
-	public Texture() {}
 	
 	public Texture (int width, int height){
 		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
@@ -74,11 +71,11 @@ public class Texture {
 	}
 	
 	public void setPixel(int x, int y, int color){
-		image[MathProcessor.clamp((x + (y*width)), 0, image.length-1)] = color;
+		image[x + (y * width)] = color;
 	}
 	
 	public int getPixel(int x, int y){
-		return image[MathProcessor.clamp((x + (y*width)), 0, image.length-1)];
+		return image[x + (y * width)];
 	}
 	
 	public int[] getPixels() {

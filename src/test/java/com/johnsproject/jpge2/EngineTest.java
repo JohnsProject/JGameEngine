@@ -21,8 +21,7 @@ public class EngineTest implements EngineListener{
 	}
 	
 	EngineTest() {
-		Engine.getInstance().addGraphicsBufferListener(new EngineWindow(WINDOW_W, WINDOW_H));
-		Engine.getInstance().getGraphicsBuffer().setSize(WINDOW_W, WINDOW_H);
+		Engine.getInstance().getFrameBuffer().setSize(WINDOW_W, WINDOW_H);
 //		useSOM();
 		useScene();
 		Engine.getInstance().getScene().getCameras().get(0).setCanvas(0, 0, WINDOW_W, WINDOW_H);

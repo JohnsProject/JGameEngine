@@ -30,16 +30,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 
-import com.johnsproject.jpge2.dto.GraphicsBuffer;
-
-public class EngineWindow extends Frame implements GraphicsBufferListener {
+public class EngineWindow extends Frame implements EngineListener {
 
 	private static final long serialVersionUID = 1L;
 
 	private int width = 0;
 	private int height = 0;
 	private EnginePanel panel;
-	private GraphicsBuffer graphicsBuffer;
 
 	public EngineWindow(int width, int height) {
 		setSize(width, height);
@@ -60,15 +57,22 @@ public class EngineWindow extends Frame implements GraphicsBufferListener {
 	public EnginePanel getPanel() {
 		return panel;
 	}
+	
 
-	public void graphicsBufferUpdate(GraphicsBuffer graphicsBuffer) {
-		this.graphicsBuffer = graphicsBuffer;
+	public void update() {
 		panel.drawBuffer();
 		if (this.getWidth() != width || this.getHeight() != height) {
 			width = this.getWidth();
 			height = this.getHeight();
 			panel.setSize(width, height);
 		}
+	}
+
+
+	public void fixedUpdate() { }
+	
+	public int getPriority() {
+		return 1001;
 	}
 
 	public class EnginePanel extends Canvas {
@@ -82,9 +86,8 @@ public class EngineWindow extends Frame implements GraphicsBufferListener {
 			BufferStrategy s = this.getBufferStrategy();
 			Graphics g = s.getDrawGraphics();
 			g.clearRect(0, 0, width, height);
-			g.drawImage(graphicsBuffer.getFrameBuffer(), 0, 0, null);
+			g.drawImage(Engine.getInstance().getFrameBuffer().getImage(), 0, 0, null);
 			s.show();
 		}
 	}
-
 }
