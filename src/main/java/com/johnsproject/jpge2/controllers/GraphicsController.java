@@ -25,16 +25,14 @@ public class GraphicsController implements EngineListener {
 		FrameBuffer frameBuffer = Engine.getInstance().getOptions().getFrameBuffer();
 		List<Shader> shaders = Engine.getInstance().getOptions().getShaders();
 		for (int i = 0; i < shaders.size(); i++) {
-			shaders.get(i).main(scene.getLights(), frameBuffer);
-		}
-		for (int i = 0; i < scene.getCameras().size(); i++) {
-			Camera camera = scene.getCameras().get(i);
-			for (int j = 0; j < scene.getModels().size(); j++) {
-				Model model = scene.getModels().get(j);
-				for (int l = 0; l < model.getFaces().length; l++) {
-					for (int k = 0; k < shaders.size(); k++) {
-						Shader shader = shaders.get(k);
-						shader.setup(model, camera);
+			Shader shader = shaders.get(i);
+			shader.main(scene.getLights(), frameBuffer);
+			for (int j = 0; j < scene.getCameras().size(); j++) {
+				Camera camera = scene.getCameras().get(j);
+				for (int k = 0; k < scene.getModels().size(); k++) {
+					Model model = scene.getModels().get(k);
+					shader.setup(model, camera);
+					for (int l = 0; l < model.getFaces().length; l++) {
 						Face face = model.getFace(l);
 						if ((face.getMaterial().getShaderPass() == shader.getPass()) || (shader.getPass() < 0)) {
 							for (int m = 0; m < face.getVertices().length; m++) {
