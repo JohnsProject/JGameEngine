@@ -155,17 +155,17 @@ public class FlatShader implements Shader {
 		}
 	}
 
-	public int fragment(int[] location, int[] barycentric) {
+	public void fragment(int[] location, int[] barycentric) {
 		if (texture != null) {
 			int u = GraphicsProcessor.interpolate(uvX, barycentric);
 			int v = GraphicsProcessor.interpolate(uvY, barycentric);
 			int texel = texture.getPixel(u, v);
 			if (ColorProcessor.getAlpha(texel) == 0) // discard pixel if alpha = 0
-				return 0;
+				return;
 			modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, texel, lightFactor);
 			modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
 		}
-		return modelColor;
+		frameBuffer.setPixel(location[vx], location[vy], location[vz], (byte) 0, modelColor);
 	}
 
 	private int getLightFactor(Light light, int[] normal, int[] lightDirection, int[] viewDirection, Material material) {

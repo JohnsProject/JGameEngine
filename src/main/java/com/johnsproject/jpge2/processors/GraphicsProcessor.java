@@ -148,9 +148,7 @@ public class GraphicsProcessor {
 				
 				if ((barycentric[vx] | barycentric[vy] | barycentric[vz]) >= 0) {
 					pixel[vz] = interpolatDepth(depth, barycentric);
-					int color = shader.fragment(pixel, barycentric);
-					if (color != 0)
-						frameBuffer.setPixel(pixel[vx], pixel[vy], pixel[vz], color);
+					shader.fragment(pixel, barycentric);
 				}
 				
 				barycentric[vx] += a12;
@@ -188,7 +186,7 @@ public class GraphicsProcessor {
 				- (vector3[vx] - vector1[vx]) * (vector2[vy] - vector1[vy]);
 	}
 
-	public interface Shader {
+	public static interface Shader {
 
 		public void setup(Model model, Camera camera, List<Light> lights, FrameBuffer frameBuffer);
 		
@@ -196,6 +194,6 @@ public class GraphicsProcessor {
 
 		public void geometry(Face face);
 
-		public int fragment(int[] location, int[] barycentric);
+		public void fragment(int[] location, int[] barycentric);
 	}
 }

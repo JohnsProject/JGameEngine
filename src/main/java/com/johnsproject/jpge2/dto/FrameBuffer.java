@@ -34,6 +34,7 @@ public class FrameBuffer {
 	private BufferedImage image;
 	private int[] colorBuffer;
 	private int[] depthBuffer;
+	private byte[] stencilBuffer;
 
 	public FrameBuffer() {
 		setSize(1, 1);
@@ -54,6 +55,10 @@ public class FrameBuffer {
 	public int[] getDepthBuffer() {
 		return depthBuffer;
 	}
+	
+	public byte[] getStencilBuffer() {
+		return stencilBuffer;
+	}
 
 	public void clearColorBuffer() {
 		for (int i = 0; i < colorBuffer.length; i++) {
@@ -66,6 +71,12 @@ public class FrameBuffer {
 			depthBuffer[i] = Integer.MAX_VALUE;
 		}
 	}
+	
+	public void clearStencilBuffer() {
+		for (int i = 0; i < depthBuffer.length; i++) {
+			stencilBuffer[i] = 0;
+		}
+	}
 
 	public void setSize(int width, int height) {
 		this.width = width;
@@ -74,33 +85,46 @@ public class FrameBuffer {
 		this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
 		this.colorBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		this.depthBuffer = new int[length];
+		this.stencilBuffer = new byte[length];
 	}
 
-	public void setPixel(int x, int y, int z, int color) {
+	public void setPixel(int x, int y, int z, byte stencil, int color) {
 		int pos = x + (y * width);
 		if (depthBuffer[pos] > z) {
 			depthBuffer[pos] = z;
+			stencilBuffer[pos] = stencil;
 			colorBuffer[pos] = color;
 		}
 	}
 	
-	public void setPixel(int x, int y, int color) {
+	public void setColor(int x, int y, int color) {
 		int pos = x + (y * width);
 		colorBuffer[pos] = color;
 	}
-
-	public int getPixel(int x, int y) {
+	
+	public void setDepth(int x, int y, int z) {
 		int pos = x + (y * width);
-		if (pos < length)
-			return colorBuffer[pos];
-		return -1;
+		depthBuffer[pos] = z;
+	}
+	
+	public void setStencil(int x, int y, byte stencil) {
+		int pos = x + (y * width);
+		stencilBuffer[pos] = stencil;
 	}
 
-	public int getPixelDepth(int x, int y) {
+	public int getColor(int x, int y) {
 		int pos = x + (y * width);
-		if (pos < length)
-			return depthBuffer[pos];
-		return -1;
+		return colorBuffer[pos];
+	}
+
+	public int getDepth(int x, int y) {
+		int pos = x + (y * width);
+		return depthBuffer[pos];
+	}
+	
+	public byte getStencil(int x, int y) {
+		int pos = x + (y * width);
+		return stencilBuffer[pos];
 	}
 
 	public int getWidth() {
