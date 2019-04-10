@@ -102,14 +102,14 @@ public class Engine {
 
 	private void sortListeners() {
 		for (int i = 0; i < engineListeners.size() - 1; i++) {
-			int min_idx = i;
+			int min_i = i;
 			for (int j = i + 1; j < engineListeners.size(); j++) {
-				if (engineListeners.get(j).getPriority() < engineListeners.get(min_idx).getPriority()) {
-					min_idx = j;
+				if (engineListeners.get(j).getPriority() < engineListeners.get(min_i).getPriority()) {
+					min_i = j;
 				}
 			}
-			EngineListener temp = engineListeners.get(min_idx);
-			engineListeners.set(min_idx, engineListeners.get(i));
+			EngineListener temp = engineListeners.get(min_i);
+			engineListeners.set(min_i, engineListeners.get(i));
 			engineListeners.set(i, temp);
 		}
 	}

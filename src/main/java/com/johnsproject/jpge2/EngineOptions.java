@@ -23,8 +23,13 @@
  */
 package com.johnsproject.jpge2;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Scene;
+import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
+import com.johnsproject.jpge2.shaders.FlatShader;
 
 public class EngineOptions {
 	
@@ -32,12 +37,15 @@ public class EngineOptions {
 	private int maxUpdateSkip;
 	private FrameBuffer frameBuffer;
 	private Scene scene;
+	private List<Shader> shaders;
 	
 	public EngineOptions() {
 		updateRate = 25;
 		maxUpdateSkip = 10;
 		frameBuffer = new FrameBuffer();
 		scene = new Scene();
+		shaders = new ArrayList<Shader>();
+		shaders.add(new FlatShader());
 	}
 	
 	public int getUpdateRate() {
@@ -66,5 +74,33 @@ public class EngineOptions {
 
 	public void setScene(Scene scene) {
 		this.scene = scene;
+	}
+	
+	public void addShader(Shader shader) {
+		shaders.add(shader);
+		sortShaders();
+	}
+	
+	public void removeShader(Shader shader) {
+		shaders.remove(shader);
+		sortShaders();
+	}
+	
+	public List<Shader> getShaders() {
+		return shaders;
+	}
+	
+	private void sortShaders() {
+		for (int i = 0; i < shaders.size() - 1; i++) {
+			int min_i = i;
+			for (int j = i + 1; j < shaders.size(); j++) {
+				if (shaders.get(j).getPass() < shaders.get(min_i).getPass()) {
+					min_i = j;
+				}
+			}
+			Shader temp = shaders.get(min_i);
+			shaders.set(min_i, shaders.get(i));
+			shaders.set(i, temp);
+		}
 	}
 }

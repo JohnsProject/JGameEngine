@@ -188,12 +188,16 @@ public class GraphicsProcessor {
 
 	public static interface Shader {
 
-		public void setup(Model model, Camera camera, List<Light> lights, FrameBuffer frameBuffer);
+		public void main(List<Light> lights, FrameBuffer frameBuffer);
+		
+		public void setup(Model model, Camera camera);
 		
 		public void vertex(int index, Vertex vertex);
 
 		public void geometry(Face face);
 
 		public void fragment(int[] location, int[] barycentric);
+		
+		public int getPass();
 	}
 }

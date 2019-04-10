@@ -67,22 +67,29 @@ public class FlatShader implements Shader {
 	private static List<Light> lights;
 	private static FrameBuffer frameBuffer;
 
-	public void setup(Model model, Camera camera, List<Light> lights, FrameBuffer frameBuffer) {
+	public void main(List<Light> lights, FrameBuffer frameBuffer) {
+		FlatShader.lights = lights;
+		FlatShader.frameBuffer = frameBuffer;
+		frameBuffer.clearColorBuffer();
+		frameBuffer.clearDepthBuffer();
+	}
+
+	public void setup(Model model, Camera camera) {
 		FlatShader.modelMatrix = model.getModelMatrix();
 		FlatShader.normalMatrix = model.getNormalMatrix();
 		FlatShader.viewMatrix = camera.getViewMatrix();
 		FlatShader.projectionMatrix = camera.getProjectionMatrix();
 		FlatShader.camera = camera;
-		FlatShader.lights = lights;
-		FlatShader.frameBuffer = frameBuffer;
 	}
 	
 	public void vertex(int index, Vertex vertex) {
+		vertex.reset();
 		int[] location = vertex.getLocation();
 		VectorProcessor.multiply(location, modelMatrix, location);
 	}
 
 	public void geometry(Face face) {
+		face.reset();
 		Material material = face.getMaterial();
 		int[] normal = face.getNormal();
 		int[] location1 = face.getVertex1().getLocation();
@@ -181,5 +188,9 @@ public class FlatShader implements Shader {
 		specularFactor = MathProcessor.multiply(specularFactor, material.getSpecularIntensity());
 		// putting it all together...
 		return ((diffuseFactor + specularFactor + light.getStrength()) * 100) >> MathProcessor.FP_SHIFT;
+	}
+
+	public int getPass() {
+		return 0;
 	}
 }

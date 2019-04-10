@@ -23,9 +23,6 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
-import com.johnsproject.jpge2.shaders.FlatShader;
-
 public class Material {
 
 	private int index;
@@ -33,7 +30,7 @@ public class Material {
 	private int diffuseColor;
 	private int specularIntensity;
 	private Texture texture;
-	private Shader shader;
+	private int shaderPass;
 	
 	public Material(int index, int diffuseColor, int diffuseIntensity, int specularIntensity, Texture texture){
 		this.index = index;
@@ -41,7 +38,7 @@ public class Material {
 		this.diffuseIntensity = diffuseIntensity;
 		this.specularIntensity = specularIntensity;
 		this.texture = texture;
-		this.shader = new FlatShader();
+		this.shaderPass = 0;
 	}
 
 	public int getIndex() {
@@ -56,12 +53,12 @@ public class Material {
 		this.texture = texture;
 	}
 	
-	public Shader getShader() {
-		return shader;
+	public int getShaderPass() {
+		return shaderPass;
 	}
 
-	public void setShader(Shader shader) {
-		this.shader = shader;
+	public void setShaderPass(int shaderPass) {
+		this.shaderPass = shaderPass;
 	}
 
 	public int getColor() {
