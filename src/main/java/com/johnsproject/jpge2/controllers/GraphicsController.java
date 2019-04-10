@@ -33,14 +33,17 @@ public class GraphicsController implements EngineListener {
 				Model model = scene.getModels().get(j);
 				for (int l = 0; l < model.getFaces().length; l++) {
 					for (int k = 0; k < shaders.size(); k++) {
-						shaders.get(k).setup(model, camera);
+						Shader shader = shaders.get(k);
+						shader.setup(model, camera);
+						Face face = model.getFace(l);
+						if ((face.getMaterial().getShaderPass() == shader.getPass()) || (shader.getPass() < 0)) {
+							for (int m = 0; m < face.getVertices().length; m++) {
+								Vertex vertex = face.getVertices()[m];
+								shader.vertex(m, vertex);
+							}
+							shader.geometry(face);
+						}
 					}
-					Face face = model.getFace(l);
-					for (int k = 0; k < face.getVertices().length; k++) {
-						Vertex vertex = face.getVertices()[k];
-						shaders.get(vertex.getMaterial().getShaderPass()).vertex(k, vertex);
-					}
-					shaders.get(face.getMaterial().getShaderPass()).geometry(face);
 				}
 			}
 		}
