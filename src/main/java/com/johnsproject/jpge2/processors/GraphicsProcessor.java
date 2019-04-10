@@ -81,10 +81,10 @@ public class GraphicsProcessor {
 
 	public static int[][] orthographicMatrix(int[][] matrix, int[] frustum) {
 		MatrixProcessor.reset(matrix);
-		matrix[0][0] = (MathProcessor.FP_VALUE) << MathProcessor.FP_SHIFT;
-		matrix[1][1] = (MathProcessor.FP_VALUE) << MathProcessor.FP_SHIFT;
+		matrix[0][0] = (MathProcessor.FP_VALUE * 10) << MathProcessor.FP_SHIFT;
+		matrix[1][1] = (MathProcessor.FP_VALUE * 10) << MathProcessor.FP_SHIFT;
 		matrix[2][2] = -MathProcessor.FP_SHIFT;
-		matrix[3][3] = -(frustum[3] - frustum[2]) << MathProcessor.FP_SHIFT;
+		matrix[3][3] = (frustum[3] - frustum[2]) << MathProcessor.FP_SHIFT;
 		return matrix;
 	}
 	
@@ -188,22 +188,14 @@ public class GraphicsProcessor {
 				- (vector3[vx] - vector1[vx]) * (vector2[vy] - vector1[vy]);
 	}
 
-	public static abstract class Shader {
+	public interface Shader {
 
-		protected static final int vx = VectorProcessor.VECTOR_X;
-		protected static final int vy = VectorProcessor.VECTOR_Y;
-		protected static final int vz = VectorProcessor.VECTOR_Z;
-		protected static final int vw = VectorProcessor.VECTOR_W;
+		public void setup(Model model, Camera camera, List<Light> lights, FrameBuffer frameBuffer);
+		
+		public void vertex(int index, Vertex vertex);
 
-		public static Model model;
-		public static Camera camera;
-		public static FrameBuffer frameBuffer;
-		public static List<Light> lights;
+		public void geometry(Face face);
 
-		public abstract void vertex(int index, Vertex vertex);
-
-		public abstract void geometry(Face face);
-
-		public abstract int fragment(int[] location, int[] barycentric);
+		public int fragment(int[] location, int[] barycentric);
 	}
 }

@@ -24,8 +24,6 @@
 package com.johnsproject.jpge2;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import com.johnsproject.jpge2.dto.FrameBuffer;
@@ -54,6 +52,7 @@ public class Engine {
 
 	private void startEngineLoop() {
 		engineThread = new Thread(new Runnable() {
+			
 			long nextUpateTick = System.currentTimeMillis();
 			long current = System.currentTimeMillis();
 			int updateSkipRate = 0;
@@ -122,10 +121,11 @@ public class Engine {
 	private void sortListeners() {
 		for (int i = 0; i < engineListeners.size() - 1; i++) {
 			int min_idx = i;
-			for (int j = i + 1; j < engineListeners.size(); j++)
-				if (engineListeners.get(j).getPriority() < engineListeners.get(min_idx).getPriority())
+			for (int j = i + 1; j < engineListeners.size(); j++) {
+				if (engineListeners.get(j).getPriority() < engineListeners.get(min_idx).getPriority()) {
 					min_idx = j;
-
+				}
+			}
 			EngineListener temp = engineListeners.get(min_idx);
 			engineListeners.set(min_idx, engineListeners.get(i));
 			engineListeners.set(i, temp);

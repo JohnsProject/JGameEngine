@@ -64,11 +64,11 @@ public class Material {
 		this.shader = shader;
 	}
 
-	public int getDiffuseColor() {
+	public int getColor() {
 		return diffuseColor;
 	}
 
-	public void setDiffuseColor(int diffuseColor) {
+	public void setColor(int diffuseColor) {
 		this.diffuseColor = diffuseColor;
 	}
 	

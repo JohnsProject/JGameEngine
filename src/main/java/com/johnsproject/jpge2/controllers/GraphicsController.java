@@ -5,10 +5,10 @@ import com.johnsproject.jpge2.EngineListener;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
+import com.johnsproject.jpge2.dto.Material;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
 public class GraphicsController implements EngineListener {
 	
@@ -28,10 +28,8 @@ public class GraphicsController implements EngineListener {
 			for (int j = 0; j < scene.getModels().size(); j++) {
 				Model model = scene.getModels().get(j);
 				for (int l = 0; l < model.getMaterials().length; l++) {
-					Shader.model = model;
-					Shader.camera = camera;
-					Shader.frameBuffer = frameBuffer;
-					Shader.lights = scene.getLights();
+					Material material = model.getMaterials()[i];
+					material.getShader().setup(model, camera, scene.getLights(), frameBuffer);
 				}
 				for (int l = 0; l < model.getFaces().length; l++) {
 					Face face = model.getFace(l);

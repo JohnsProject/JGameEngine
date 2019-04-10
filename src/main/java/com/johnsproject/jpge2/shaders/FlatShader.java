@@ -23,9 +23,14 @@
  */
 package com.johnsproject.jpge2.shaders;
 
+import java.util.List;
+
+import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
+import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Material;
+import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processors.ColorProcessor;
@@ -34,31 +39,51 @@ import com.johnsproject.jpge2.processors.MathProcessor;
 import com.johnsproject.jpge2.processors.VectorProcessor;
 import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
-public class FlatShader extends Shader {
+public class FlatShader implements Shader {
 
+	private static final int vx = VectorProcessor.VECTOR_X;
+	private static final int vy = VectorProcessor.VECTOR_Y;
+	private static final int vz = VectorProcessor.VECTOR_Z;
+	
 	private static final int[] uvX = VectorProcessor.generate();
 	private static final int[] uvY = VectorProcessor.generate();
-	private static int lightColor;
-	private static int lightFactor;
-	private static int modelColor;
-	private static Texture texture;
 
 	private static final int[] normalizedNormal = VectorProcessor.generate();
 	private static final int[] lightDirection = VectorProcessor.generate();
 	private static final int[] viewDirection = VectorProcessor.generate();
 	private static final int[] faceLocation = VectorProcessor.generate();
+	
+	private static int lightColor;
+	private static int lightFactor;
+	private static int modelColor;
+	private static Texture texture;
 
-	@Override
+	private static int[][] modelMatrix;
+	private static int[][] normalMatrix;
+	private static int[][] viewMatrix;
+	private static int[][] projectionMatrix;
+	
+	private static Camera camera;
+	private static List<Light> lights;
+	private static FrameBuffer frameBuffer;
+
+	public void setup(Model model, Camera camera, List<Light> lights, FrameBuffer frameBuffer) {
+		FlatShader.modelMatrix = model.getModelMatrix();
+		FlatShader.normalMatrix = model.getNormalMatrix();
+		FlatShader.viewMatrix = camera.getViewMatrix();
+		FlatShader.projectionMatrix = camera.getProjectionMatrix();
+		FlatShader.camera = camera;
+		FlatShader.lights = lights;
+		FlatShader.frameBuffer = frameBuffer;
+	}
+	
 	public void vertex(int index, Vertex vertex) {
 		int[] location = vertex.getLocation();
-		VectorProcessor.multiply(location, model.getModelMatrix(), location);
+		VectorProcessor.multiply(location, modelMatrix, location);
 	}
 
-	@Override
 	public void geometry(Face face) {
 		Material material = face.getMaterial();
-		int[][] viewMatrix = camera.getViewMatrix();
-		int[][] projectionMatrix = camera.getProjectionMatrix();
 		int[] normal = face.getNormal();
 		int[] location1 = face.getVertex1().getLocation();
 		int[] location2 = face.getVertex2().getLocation();
@@ -70,7 +95,7 @@ public class FlatShader extends Shader {
 		lightColor = ColorProcessor.WHITE;
 		lightFactor = 0;
 		
-		VectorProcessor.multiply(normal, model.getNormalMatrix(), normal);
+		VectorProcessor.multiply(normal, normalMatrix, normal);
 		VectorProcessor.subtract(camera.getTransform().getLocation(), faceLocation, viewDirection);
 		// normalize values
 		VectorProcessor.normalize(normal, normalizedNormal);
@@ -102,7 +127,7 @@ public class FlatShader extends Shader {
 			lightColor = ColorProcessor.lerp(lightColor, light.getDiffuseColor(), currentFactor);
 			lightFactor += currentFactor;
 		}
-		modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, material.getDiffuseColor(), lightFactor);
+		modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, material.getColor(), lightFactor);
 		modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
 		for (int i = 0; i < face.getVertices().length; i++) {
 			int[] vertexLocation = face.getVertices()[i].getLocation();
@@ -130,7 +155,6 @@ public class FlatShader extends Shader {
 		}
 	}
 
-	@Override
 	public int fragment(int[] location, int[] barycentric) {
 		if (texture != null) {
 			int u = GraphicsProcessor.interpolate(uvX, barycentric);
@@ -144,7 +168,7 @@ public class FlatShader extends Shader {
 		return modelColor;
 	}
 
-	private static int getLightFactor(Light light, int[] normal, int[] lightDirection, int[] viewDirection, Material material) {
+	private int getLightFactor(Light light, int[] normal, int[] lightDirection, int[] viewDirection, Material material) {
 		// diffuse
 		int dotProduct = VectorProcessor.dotProduct(normal, lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);
