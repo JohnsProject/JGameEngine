@@ -23,10 +23,22 @@
  */
 package com.johnsproject.jpge2;
 
-public class EngineSettings {
+import com.johnsproject.jpge2.dto.FrameBuffer;
+import com.johnsproject.jpge2.dto.Scene;
+
+public class EngineOptions {
 	
-	private int updateRate = 25;
-	private int maxUpdateSkip = 10;
+	private int updateRate;
+	private int maxUpdateSkip;
+	private FrameBuffer frameBuffer;
+	private Scene scene;
+	
+	public EngineOptions() {
+		updateRate = 25;
+		maxUpdateSkip = 10;
+		frameBuffer = new FrameBuffer();
+		scene = new Scene();
+	}
 	
 	public int getUpdateRate() {
 		return updateRate;
@@ -43,4 +55,16 @@ public class EngineSettings {
 	public void setMaxUpdateSkip(int maxUpdateSkip) {
 		this.maxUpdateSkip = maxUpdateSkip;
 	}	
+	
+	public FrameBuffer getFrameBuffer() {
+		return frameBuffer;
+	}
+
+	public Scene getScene() {
+		return scene;
+	}
+
+	public void setScene(Scene scene) {
+		this.scene = scene;
+	}
 }

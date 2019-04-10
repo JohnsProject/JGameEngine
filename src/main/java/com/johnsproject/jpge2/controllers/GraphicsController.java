@@ -19,8 +19,8 @@ public class GraphicsController implements EngineListener {
 	public void start() { }
 	
 	public void update() {
-		Scene scene = Engine.getInstance().getScene();
-		FrameBuffer frameBuffer = Engine.getInstance().getFrameBuffer();
+		Scene scene = Engine.getInstance().getOptions().getScene();
+		FrameBuffer frameBuffer = Engine.getInstance().getOptions().getFrameBuffer();
 		frameBuffer.clearColorBuffer();
 		frameBuffer.clearDepthBuffer();
 		for (int i = 0; i < scene.getCameras().size(); i++) {

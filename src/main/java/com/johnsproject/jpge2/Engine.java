@@ -26,9 +26,6 @@ package com.johnsproject.jpge2;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.johnsproject.jpge2.dto.FrameBuffer;
-import com.johnsproject.jpge2.dto.Scene;
-
 public class Engine {
 
 	private static Engine engine = new Engine();
@@ -38,15 +35,12 @@ public class Engine {
 	}
 
 	private Thread engineThread;
-	private EngineSettings settings;
-	private FrameBuffer frameBuffer;
-	private List<EngineListener> engineListeners = new ArrayList<EngineListener>();
-	private Scene scene;
+	private EngineOptions options;
+	private List<EngineListener> engineListeners;
 
 	public Engine() {
-		settings = new EngineSettings();
-		frameBuffer = new FrameBuffer();
-		scene = new Scene();
+		options = new EngineOptions();
+		engineListeners = new ArrayList<EngineListener>();
 		startEngineLoop();
 	}
 
@@ -66,9 +60,9 @@ public class Engine {
 				}
 				while (true) {
 					loops = 0;
-					updateSkipRate = 1000 / getSettings().getUpdateRate();
+					updateSkipRate = 1000 / getOptions().getUpdateRate();
 					current = System.currentTimeMillis();
-					while (current > nextUpateTick && loops < getSettings().getMaxUpdateSkip()) {
+					while (current > nextUpateTick && loops < getOptions().getMaxUpdateSkip()) {
 						for (int i = 0; i < engineListeners.size(); i++) {
 							engineListeners.get(i).fixedUpdate();
 						}
@@ -92,20 +86,8 @@ public class Engine {
 		engineThread.start();
 	}
 
-	public EngineSettings getSettings() {
-		return settings;
-	}
-
-	public FrameBuffer getFrameBuffer() {
-		return frameBuffer;
-	}
-
-	public Scene getScene() {
-		return scene;
-	}
-
-	public void setScene(Scene scene) {
-		this.scene = scene;
+	public EngineOptions getOptions() {
+		return options;
 	}
 
 	public void addEngineListener(EngineListener listener) {

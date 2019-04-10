@@ -80,7 +80,7 @@ public class EngineWindow extends Frame implements EngineListener {
 			BufferStrategy s = this.getBufferStrategy();
 			Graphics g = s.getDrawGraphics();
 			g.clearRect(0, 0, width, height);
-			g.drawImage(Engine.getInstance().getFrameBuffer().getImage(), 0, 0, null);
+			g.drawImage(Engine.getInstance().getOptions().getFrameBuffer().getImage(), 0, 0, null);
 			s.show();
 		}
 	}
