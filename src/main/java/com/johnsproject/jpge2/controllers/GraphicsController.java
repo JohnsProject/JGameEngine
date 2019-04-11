@@ -50,7 +50,7 @@ public class GraphicsController implements EngineListener {
 	public void fixedUpdate() { }
 
 	public int getPriority() {
-		return 1000;
+		return 10000;
 	}
 
 }

@@ -25,6 +25,7 @@ public class EngineTest implements EngineListener{
 	}
 	
 	public void start() {
+		new EngineProfiler();
 		Engine.getInstance().addEngineListener(new EngineWindow(WINDOW_W, WINDOW_H));
 		Engine.getInstance().getOptions().getFrameBuffer().setSize(WINDOW_W, WINDOW_H);
 //		useSOM();

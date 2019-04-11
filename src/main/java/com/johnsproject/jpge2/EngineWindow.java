@@ -90,6 +90,6 @@ public class EngineWindow extends Frame implements EngineListener {
 	public void fixedUpdate() {}
 	
 	public int getPriority() {
-		return 1001;
+		return 10001;
 	}
 }
