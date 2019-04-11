@@ -188,7 +188,7 @@ public class GraphicsProcessor {
 
 	public static interface Shader {
 
-		public void main(List<Light> lights, FrameBuffer frameBuffer);
+		public void update(List<Light> lights, FrameBuffer frameBuffer);
 		
 		public void setup(Model model, Camera camera);
 		

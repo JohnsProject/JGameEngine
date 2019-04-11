@@ -26,7 +26,7 @@ public class GraphicsController implements EngineListener {
 		List<Shader> shaders = Engine.getInstance().getOptions().getShaders();
 		for (int i = 0; i < shaders.size(); i++) {
 			Shader shader = shaders.get(i);
-			shader.main(scene.getLights(), frameBuffer);
+			shader.update(scene.getLights(), frameBuffer);
 			for (int j = 0; j < scene.getCameras().size(); j++) {
 				Camera camera = scene.getCameras().get(j);
 				for (int k = 0; k < scene.getModels().size(); k++) {

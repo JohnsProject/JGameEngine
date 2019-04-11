@@ -67,7 +67,7 @@ public class FlatShader implements Shader {
 	private static List<Light> lights;
 	private static FrameBuffer frameBuffer;
 
-	public void main(List<Light> lights, FrameBuffer frameBuffer) {
+	public void update(List<Light> lights, FrameBuffer frameBuffer) {
 		FlatShader.lights = lights;
 		FlatShader.frameBuffer = frameBuffer;
 		frameBuffer.clearColorBuffer();
