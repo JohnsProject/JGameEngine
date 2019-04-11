@@ -121,14 +121,13 @@ public class FlatShader implements Shader {
 				// attenuation
 				int distance = VectorProcessor.magnitude(lightDirection);
 				int attenuation = MathProcessor.FP_VALUE;
-				attenuation += MathProcessor.multiply(distance, 140000);
-				attenuation += MathProcessor.multiply(MathProcessor.multiply(distance, distance), 7000);
+				attenuation += MathProcessor.multiply(distance, 3000);
+				attenuation += MathProcessor.multiply(MathProcessor.multiply(distance, distance), 20);
 				attenuation = attenuation >> MathProcessor.FP_SHIFT;
 				// other light values
 				VectorProcessor.normalize(lightDirection, lightDirection);
 				currentFactor = getLightFactor(light, normalizedNormal, lightDirection, viewDirection, material);
-				// * 10000 here because attenuation also has * 100
-				currentFactor = (currentFactor * 10000) / attenuation;
+				currentFactor = (currentFactor * 100) / attenuation;
 				break;
 			}
 			lightColor = ColorProcessor.lerp(lightColor, light.getDiffuseColor(), currentFactor);
