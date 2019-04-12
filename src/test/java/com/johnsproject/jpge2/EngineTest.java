@@ -25,12 +25,12 @@ public class EngineTest implements EngineListener{
 	}
 	
 	public void start() {
-		new EngineProfiler();
+		new EngineStatistics();
 		Engine.getInstance().addEngineListener(new EngineWindow(WINDOW_W, WINDOW_H));
 		Engine.getInstance().getOptions().getFrameBuffer().setSize(WINDOW_W, WINDOW_H);
 //		useSOM();
 		useScene();
-		Engine.getInstance().getOptions().getScene().getCameras().get(0).setCanvas(0, 0, WINDOW_W, WINDOW_H);
+		Engine.getInstance().getOptions().getScene().getCameras().get(0).setCanvas(420, 0, WINDOW_W, WINDOW_H);
 	}
 
 	static void useSOM() {

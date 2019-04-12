@@ -90,16 +90,16 @@ public class GraphicsProcessor {
 	
 	public static int[][] perspectiveMatrix(int[][] matrix, int[] frustum) {
 		MatrixProcessor.reset(matrix);
-		matrix[0][0] = (frustum[vx] * 10) << MathProcessor.FP_SHIFT;
-		matrix[1][1] = (frustum[vx] * 10) << MathProcessor.FP_SHIFT;
+		matrix[0][0] = (frustum[0] * 10) << MathProcessor.FP_SHIFT;
+		matrix[1][1] = (frustum[0] * 10) << MathProcessor.FP_SHIFT;
 		matrix[2][2] = -MathProcessor.FP_SHIFT;
 		matrix[2][3] = MathProcessor.FP_VALUE;
 		return matrix;
 	}
 
 	public static void viewport(int[] location, int[] canvas, int[] frustum) {
-		location[vx] = MathProcessor.divide(location[vx], location[vw]) + (canvas[vz] >> 1);
-		location[vy] = MathProcessor.divide(location[vy], location[vw]) + (canvas[vw] >> 1);
+		location[vx] = MathProcessor.divide(location[vx], location[vw]) + (canvas[vx] + (canvas[2] >> 1));
+		location[vy] = MathProcessor.divide(location[vy], location[vw]) + (canvas[vy] + (canvas[3] >> 1));
 	}
 	
 	public static void drawTriangle(int[] location1, int[] location2, int[] location3, Shader shader, FrameBuffer frameBuffer) {
