@@ -29,14 +29,16 @@ public class Material {
 	private int diffuseIntensity;
 	private int diffuseColor;
 	private int specularIntensity;
+	private int shininess;
 	private Texture texture;
 	private int shaderPass;
 	
-	public Material(int index, int diffuseColor, int diffuseIntensity, int specularIntensity, Texture texture){
+	public Material(int index, int diffuseColor, int diffuseIntensity, int specularIntensity, int shininess, Texture texture){
 		this.index = index;
 		this.diffuseColor = diffuseColor;
 		this.diffuseIntensity = diffuseIntensity;
 		this.specularIntensity = specularIntensity;
+		this.shininess = shininess;
 		this.texture = texture;
 		this.shaderPass = 0;
 	}
@@ -83,5 +85,13 @@ public class Material {
 
 	public void setSpecularIntensity(int specularIntensity) {
 		this.specularIntensity = specularIntensity;
+	}
+	
+	public int getShininess() {
+		return shininess;
+	}
+
+	public void setShininess(int shininess) {
+		this.shininess = shininess;
 	}
 }

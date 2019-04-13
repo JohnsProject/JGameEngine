@@ -204,7 +204,8 @@ public class SceneImporter {
 			int alpha = (int)(getFloat(vertexData[3]) * 256);
 			int diffuse = (int)(getFloat(vertexData[4]) * MathProcessor.FP_VALUE);
 			int specular = (int)(getFloat(vertexData[5]) * MathProcessor.FP_VALUE);
-			materials[i] = new Material(i, ColorProcessor.convert(red, green, blue, alpha), diffuse, specular, null);
+			int shininess = (int)(getFloat(vertexData[6]) / 10);
+			materials[i] = new Material(i, ColorProcessor.convert(red, green, blue, alpha), diffuse, specular, shininess, null);
 		}
 		return materials;
 	}

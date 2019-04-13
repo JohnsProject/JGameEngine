@@ -131,7 +131,7 @@ public class SOMImporter {
 			int	a = (int)(getFloat(mDiffuseColorData[i+3]) * 256);
 			int diffuseIntensity = (int)(getFloat(mDiffuseIntensityData[i / 4]) * MathProcessor.FP_VALUE);
 			int specularIntensity = (int)(getFloat(mSpecularIntensityData[i / 4]) * MathProcessor.FP_VALUE);
-			materials[i/4] = new Material(i/4, ColorProcessor.convert(r, g, b, a), diffuseIntensity, specularIntensity, null);
+			materials[i/4] = new Material(i/4, ColorProcessor.convert(r, g, b, a), diffuseIntensity, specularIntensity, 0, null);
 		}
 		return materials;
 	}

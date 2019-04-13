@@ -90,6 +90,7 @@ def write(filepath):
 					material.color.alpha = blenderMaterial.alpha
 					material.diffuseIntensity = blenderMaterial.diffuse_intensity
 					material.specularIntensity = blenderMaterial.specular_intensity
+					material.shininess = blenderMaterial.specular_hardness
 				model.materials.append(material)
 				i += 1
 			if len(model.materials) == 0:
@@ -262,9 +263,10 @@ class Material:
 		self.color = Color()
 		self.diffuseIntensity = 1
 		self.specularIntensity = 0.5
+		self.shininess = 10
 	
 	def toString(self):
-			return str(self.color.toString() + ","+ ("%f," % self.diffuseIntensity) + ("%f" % self.specularIntensity))
+			return str(self.color.toString() + ","+ ("%f," % self.diffuseIntensity) + ("%f," % self.specularIntensity) + ("%f" % self.shininess))
 
 
 

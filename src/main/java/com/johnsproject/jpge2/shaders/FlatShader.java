@@ -196,6 +196,7 @@ public class FlatShader implements Shader {
 		VectorProcessor.reflect(lightDirection, normal, lightDirection);
 		dotProduct = VectorProcessor.dotProduct(viewDirection, lightDirection);
 		int specularFactor = Math.max(dotProduct, 0);
+		specularFactor = MathProcessor.pow(specularFactor, material.getShininess());
 		specularFactor = MathProcessor.multiply(specularFactor, material.getSpecularIntensity());
 		// putting it all together...
 		return ((diffuseFactor + specularFactor + light.getStrength()) * 100) >> MathProcessor.FP_SHIFT;
