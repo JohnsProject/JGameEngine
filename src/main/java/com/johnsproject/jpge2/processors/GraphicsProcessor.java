@@ -79,30 +79,32 @@ public class GraphicsProcessor {
 		return matrix;
 	}
 
-	public static int[][] orthographicMatrix(int[][] matrix, int[] frustum) {
+	public static int[][] orthographicMatrix(int[][] matrix, int[] canvas, int[] frustum) {
+		int scaleFactor = (canvas[3] >> 6) + 1;
 		MatrixProcessor.reset(matrix);
-		matrix[0][0] = (MathProcessor.FP_VALUE * 10) << MathProcessor.FP_SHIFT;
-		matrix[1][1] = (MathProcessor.FP_VALUE * 10) << MathProcessor.FP_SHIFT;
+		matrix[0][0] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
+		matrix[1][1] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
 		matrix[2][2] = -MathProcessor.FP_SHIFT;
 		matrix[3][3] = (frustum[3] - frustum[2]) << MathProcessor.FP_SHIFT;
 		return matrix;
 	}
 	
-	public static int[][] perspectiveMatrix(int[][] matrix, int[] frustum) {
+	public static int[][] perspectiveMatrix(int[][] matrix, int[] canvas, int[] frustum) {
+		int scaleFactor = (canvas[3] >> 6) + 1;
 		MatrixProcessor.reset(matrix);
-		matrix[0][0] = (frustum[0] * 10) << MathProcessor.FP_SHIFT;
-		matrix[1][1] = (frustum[0] * 10) << MathProcessor.FP_SHIFT;
+		matrix[0][0] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
+		matrix[1][1] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
 		matrix[2][2] = -MathProcessor.FP_SHIFT;
 		matrix[2][3] = MathProcessor.FP_VALUE;
 		return matrix;
 	}
 
-	public static void viewport(int[] location, int[] canvas, int[] frustum) {
+	public static void viewport(int[] location, int[] canvas) {
 		location[vx] = MathProcessor.divide(location[vx], location[vw]) + (canvas[vx] + (canvas[2] >> 1));
 		location[vy] = MathProcessor.divide(location[vy], location[vw]) + (canvas[vy] + (canvas[3] >> 1));
 	}
 	
-	public static void drawTriangle(int[] location1, int[] location2, int[] location3, Shader shader, FrameBuffer frameBuffer) {
+	public static void drawTriangle(int[] location1, int[] location2, int[] location3, int[] canvas, Shader shader) {
 
 		int[] depth = vectorCache1;
 		int[] barycentric = vectorCache2;
@@ -120,10 +122,10 @@ public class GraphicsProcessor {
 		int maxY = Math.max(location1[vy], Math.max(location2[vy], location3[vy]));
 
 		// clip against screen limits
-		minX = Math.max(minX, 0);
-		minY = Math.max(minY, 0);
-		maxX = Math.min(maxX, frameBuffer.getWidth() - 1);
-		maxY = Math.min(maxY, frameBuffer.getHeight() - 1);
+		minX = Math.max(minX, canvas[vx]);
+		minY = Math.max(minY, canvas[vy]);
+		maxX = Math.min(maxX, canvas[2] - 1);
+		maxY = Math.min(maxY, canvas[3] - 1);
 		
 		// triangle setup
 		int a01 = location1[vy] - location2[vy], b01 = location2[vx] - location1[vx];

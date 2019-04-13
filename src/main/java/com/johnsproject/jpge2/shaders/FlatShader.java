@@ -83,15 +83,13 @@ public class FlatShader implements Shader {
 	}
 	
 	public void vertex(int index, Vertex vertex) {
-		vertex.reset();
-		int[] location = vertex.getLocation();
+		int[] location = VectorProcessor.copy(vertex.getLocation(), vertex.getStartLocation());
 		VectorProcessor.multiply(location, modelMatrix, location);
 	}
 
 	public void geometry(Face face) {
-		face.reset();
 		Material material = face.getMaterial();
-		int[] normal = face.getNormal();
+		int[] normal = VectorProcessor.copy(face.getNormal(), face.getStartNormal());
 		int[] location1 = face.getVertex1().getLocation();
 		int[] location2 = face.getVertex2().getLocation();
 		int[] location3 = face.getVertex3().getLocation();
@@ -139,7 +137,7 @@ public class FlatShader implements Shader {
 			int[] vertexLocation = face.getVertices()[i].getLocation();
 			VectorProcessor.multiply(vertexLocation, viewMatrix, vertexLocation);
 			VectorProcessor.multiply(vertexLocation, projectionMatrix, vertexLocation);
-			GraphicsProcessor.viewport(vertexLocation, camera.getCanvas(), camera.getFrustum());
+			GraphicsProcessor.viewport(vertexLocation, camera.getCanvas());
 			if ((vertexLocation[vz] < camera.getFrustum()[1]) || (vertexLocation[vz] > camera.getFrustum()[2]))
 				return;
 		}
@@ -157,7 +155,7 @@ public class FlatShader implements Shader {
 				uvY[1] = MathProcessor.multiply(face.getUV2()[vy], texture.getHeight());
 				uvY[2] = MathProcessor.multiply(face.getUV3()[vy], texture.getHeight());
 			}
-			GraphicsProcessor.drawTriangle(location1, location2, location3, this, frameBuffer);
+			GraphicsProcessor.drawTriangle(location1, location2, location3, camera.getCanvas(), this);
 		}
 	}
 

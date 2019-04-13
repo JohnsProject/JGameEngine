@@ -90,14 +90,14 @@ public class Camera extends SceneObject {
 
 	public int[][] getPerspectiveMatrix() {
 		if (this.hasChanged()) {
-			GraphicsProcessor.perspectiveMatrix(perspectiveMatrix, frustum);
+			GraphicsProcessor.perspectiveMatrix(perspectiveMatrix, canvas, frustum);
 		}
 		return perspectiveMatrix;
 	}
 
 	public int[][] getOrthographicMatrix() {
 		if (this.hasChanged()) {
-			GraphicsProcessor.orthographicMatrix(orthographicMatrix, frustum);
+			GraphicsProcessor.orthographicMatrix(orthographicMatrix, canvas, frustum);
 		}
 		return orthographicMatrix;
 	}

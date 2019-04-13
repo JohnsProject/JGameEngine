@@ -13,8 +13,8 @@ import com.johnsproject.jpge2.processors.VectorProcessor;
 
 public class EngineTest implements EngineListener{
 
-	private static final int WINDOW_W = 840;
-	private static final int WINDOW_H = 640;
+	private static final int WINDOW_W = 640;
+	private static final int WINDOW_H = 480;
 	
 	public static void main(String[] args) {
 		new EngineTest();
@@ -30,7 +30,7 @@ public class EngineTest implements EngineListener{
 		Engine.getInstance().getOptions().getFrameBuffer().setSize(WINDOW_W, WINDOW_H);
 //		useSOM();
 		useScene();
-		Engine.getInstance().getOptions().getScene().getCameras().get(0).setCanvas(420, 0, WINDOW_W, WINDOW_H);
+		Engine.getInstance().getOptions().getScene().getCameras().get(0).setCanvas(0, 0, WINDOW_W, WINDOW_H);
 	}
 
 	static void useSOM() {

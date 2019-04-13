@@ -23,13 +23,7 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processors.VectorProcessor;
-
 public class Vertex {
-	
-	private static final int vx = VectorProcessor.VECTOR_X;
-	private static final int vy = VectorProcessor.VECTOR_Y;
-	private static final int vz = VectorProcessor.VECTOR_Z;
 	
 	private int index;
 	private int[] startLocation;
@@ -42,10 +36,10 @@ public class Vertex {
 	
 	public Vertex(int index, int[] location, int[] normal, int material) {
 		this.index = index;
-		this.startLocation = location.clone();
-		this.location = location;
-		this.startNormal = normal.clone();
-		this.normal = normal;
+		this.startLocation = location;
+		this.location = location.clone();
+		this.startNormal = normal;
+		this.normal = normal.clone();
 		this.materialIndex = material;
 	}
 
@@ -62,35 +56,22 @@ public class Vertex {
 		this.model = model;
 	}
 
-	public int[] getStartLocation() {
-		return startLocation;
-	}
-
 	public int[] getLocation() {
 		return location;
 	}
 	
-	
-	public void setLocation(int[] location) {
-		this.location = location;
-	}
-	
-
-	public void setLocation(int x, int y, int z) {
-		this.location[vx] = x;
-		this.location[vy] = y;
-		this.location[vz] = z;
-	}
-
-	public void reset() {
-		VectorProcessor.copy(location, startLocation);
-		VectorProcessor.copy(normal, startNormal);
+	public int[] getStartLocation() {
+		return startLocation;
 	}
 	
 	public int[] getNormal() {
 		return normal;
 	}
 
+	public int[] getStartNormal() {
+		return startNormal;
+	}
+	
 	public Material getMaterial() {
 		return material;
 	}

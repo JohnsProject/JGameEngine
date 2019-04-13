@@ -23,8 +23,6 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processors.VectorProcessor;
-
 public class Face {
 		
 	private int index;
@@ -47,8 +45,8 @@ public class Face {
 		this.vertex2Index = vertex2;
 		this.vertex3Index = vertex3;
 		this.vertices = new Vertex[3];
-		this.startNormal = normal.clone();
-		this.normal = normal;
+		this.startNormal = normal;
+		this.normal = normal.clone();
 		this.uv1 = uv1;
 		this.uv2 = uv2;
 		this.uv3 = uv3;
@@ -91,8 +89,8 @@ public class Face {
 		return normal;
 	}
 	
-	public void reset() {
-		VectorProcessor.copy(normal, startNormal);
+	public int[] getStartNormal() {
+		return startNormal;
 	}
 	
 	public int[] getUV1() {
