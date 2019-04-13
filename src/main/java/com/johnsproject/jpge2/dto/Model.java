@@ -23,28 +23,17 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processors.GraphicsProcessor;
-import com.johnsproject.jpge2.processors.MatrixProcessor;
-
 public class Model extends SceneObject {
 	
 	private Vertex[] vertices;
 	private Face[] faces;
 	private Material[] materials;
-	private int[][] modelMatrix = MatrixProcessor.generate();
-	private int[][] normalMatrix = MatrixProcessor.generate();
 	
 	public Model (String name, Transform transform, Vertex[] vertices, Face[] faces, Material[] materials) {
 		super(name, transform);
 		this.materials = materials;
 		this.vertices = vertices;
-		for (int i = 0; i < vertices.length; i++) {
-			vertices[i].setModel(this);
-		}
 		this.faces = faces;
-		for (int i = 0; i < faces.length; i++) {
-			faces[i].setModel(this);
-		}
 	}
 	
 	public Vertex[] getVertices(){
@@ -69,19 +58,5 @@ public class Model extends SceneObject {
 	
 	public Material getMaterial(int index) {
 		return materials[index];
-	}
-
-	public int[][] getModelMatrix() {
-		if (this.hasChanged()) {
-			GraphicsProcessor.modelMatrix(modelMatrix, getTransform());
-		}
-		return modelMatrix;
-	}
-	
-	public int[][] getNormalMatrix() {
-		if (this.hasChanged()) {
-			GraphicsProcessor.normalMatrix(normalMatrix, getTransform());
-		}
-		return normalMatrix;
 	}
 }

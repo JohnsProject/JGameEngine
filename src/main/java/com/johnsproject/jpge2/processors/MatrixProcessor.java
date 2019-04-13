@@ -23,13 +23,20 @@
  */
 package com.johnsproject.jpge2.processors;
 
+/**
+ * @author schnu
+ *
+ */
+/**
+ * @author schnu
+ *
+ */
 public class MatrixProcessor {
 
 	public static final int[][] IDENTITY = MatrixProcessor.generate();
 	
 	private static final int[][] matrixCache1 = MatrixProcessor.generate();
 	private static final int[][] matrixCache2 = MatrixProcessor.generate();
-	private static final int[][] transformMatrix = MatrixProcessor.generate();
 	
 	/**
 	 * Returns an identity matrix.
@@ -88,111 +95,99 @@ public class MatrixProcessor {
 	}
 	
 	
+	
+	
 	/**
-	 * Translates the matrix to the given position.
-	 * 
+	 * Sets out equals the translated matrix. 
+	 *
 	 * @param matrix
 	 * @param x
 	 * @param y
 	 * @param z
+	 * @param out
 	 */
-	public static int[][] translate(int[][] matrix, int x, int y, int z) {
-		reset(transformMatrix);
-		//not so big translation values needed
-		transformMatrix[3][0] = x;
-		transformMatrix[3][1] = y;
-		transformMatrix[3][2] = z;
-		multiply(transformMatrix, matrix, matrix);
-		return matrix;
+	public static int[][] translate(int[][] matrix, int x, int y, int z, int[][] out) {
+		copy(matrixCache1, IDENTITY);
+		matrixCache1[3][0] = x;
+		matrixCache1[3][1] = y;
+		matrixCache1[3][2] = z;
+		multiply(matrixCache1, matrix, out);
+		return out;
 	}
 
 	/**
-	 * Scales the matrix by the given scale.
-	 * 
+	 * Sets out equals the scaled matrix. 
+	 *
 	 * @param matrix
 	 * @param x
 	 * @param y
 	 * @param z
+	 * @param out
 	 */
-	public static int[][] scale(int[][] matrix, int x, int y, int z) {
-		reset(transformMatrix);
-		transformMatrix[0][0] *= x;
-		transformMatrix[1][1] *= y;
-		transformMatrix[2][2] *= z;
-		multiply(transformMatrix, matrix, matrix);
-		return matrix;
+	public static int[][] scale(int[][] matrix, int x, int y, int z, int[][] out) {
+		copy(matrixCache1, IDENTITY);
+		matrixCache1[0][0] = x << MathProcessor.FP_SHIFT;
+		matrixCache1[1][1] = y << MathProcessor.FP_SHIFT;
+		matrixCache1[2][2] = z << MathProcessor.FP_SHIFT;
+		multiply(matrixCache1, matrix, out);
+		return out;
 	}
 
 	/**
-	 * Rotates the matrix around the x axis by the given angle.
-	 * 
+	 * Sets out equals the x axis rotated matrix. 
+	 *
 	 * @param matrix
 	 * @param angle
+	 * @param out
 	 */
-	public static int[][] rotateX(int[][] matrix, int angle) {
-		reset(transformMatrix);
+	public static int[][] rotateX(int[][] matrix, int angle, int[][] out) {
+		copy(matrixCache1, IDENTITY);
 		int cos = MathProcessor.cos(angle);
 		int sin = MathProcessor.sin(angle);
-		transformMatrix[1][1] = cos;
-		transformMatrix[1][2] = sin;
-		transformMatrix[2][1] = -sin;
-		transformMatrix[2][2] = cos;
-		multiply(transformMatrix, matrix, matrix);
-		return matrix;
-	}
-
-	/**
-	 * Rotates the matrix around the y axis by the given angle.
-	 * 
-	 * @param matrix
-	 * @param angle
-	 */
-	public static int[][] rotateY(int[][] matrix, int angle) {
-		reset(transformMatrix);
-		int cos = MathProcessor.cos(angle);
-		int sin = MathProcessor.sin(angle);
-		transformMatrix[0][0] = cos;
-		transformMatrix[0][2] = -sin;
-		transformMatrix[2][0] = sin;
-		transformMatrix[2][2] = cos;
-		multiply(transformMatrix, matrix, matrix);
-		return matrix;
-	}
-
-	/**
-	 * Rotates the matrix around the z axis by the given angle.
-	 * 
-	 * @param matrix
-	 * @param angle
-	 */
-	public static int[][] rotateZ(int[][] matrix, int angle) {
-		reset(transformMatrix);
-		int cos = MathProcessor.cos(angle);
-		int sin = MathProcessor.sin(angle);
-		transformMatrix[0][0] = cos;
-		transformMatrix[0][1] = sin;
-		transformMatrix[1][0] = -sin;
-		transformMatrix[1][1] = cos;
-		multiply(transformMatrix, matrix, matrix);
-		return matrix;
+		matrixCache1[1][1] = cos;
+		matrixCache1[1][2] = sin;
+		matrixCache1[2][1] = -sin;
+		matrixCache1[2][2] = cos;
+		multiply(matrixCache1, matrix, out);
+		return out;
 	}
 	
 	/**
-	 * Resets the given matrix to its identity.
-	 * 
+	 * Sets out equals the y axis rotated matrix. 
+	 *
 	 * @param matrix
+	 * @param angle
+	 * @param out
 	 */
-	public static int[][] reset(int[][] matrix) {
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				matrix[i][j] = 0;
-			}
-		}
-		matrix[0][0] = MathProcessor.FP_VALUE;
-		matrix[1][1] = MathProcessor.FP_VALUE;
-		matrix[2][2] = MathProcessor.FP_VALUE;
-		matrix[3][3] = MathProcessor.FP_VALUE;
-		return matrix;
+	public static int[][] rotateY(int[][] matrix, int angle, int[][] out) {
+		copy(matrixCache1, IDENTITY);
+		int cos = MathProcessor.cos(angle);
+		int sin = MathProcessor.sin(angle);
+		matrixCache1[0][0] = cos;
+		matrixCache1[0][2] = -sin;
+		matrixCache1[2][0] = sin;
+		matrixCache1[2][2] = cos;
+		multiply(matrixCache1, matrix, out);
+		return out;
+	}
+
+	/**
+	 * Sets out equals the z axis rotated matrix. 
+	 *
+	 * @param matrix
+	 * @param angle
+	 * @param out
+	 */
+	public static int[][] rotateZ(int[][] matrix, int angle, int[][] out) {
+		copy(matrixCache1, IDENTITY);
+		int cos = MathProcessor.cos(angle);
+		int sin = MathProcessor.sin(angle);
+		matrixCache1[0][0] = cos;
+		matrixCache1[0][1] = sin;
+		matrixCache1[1][0] = -sin;
+		matrixCache1[1][1] = cos;
+		multiply(matrixCache1, matrix, out);
+		return out;
 	}
 	
 	/**

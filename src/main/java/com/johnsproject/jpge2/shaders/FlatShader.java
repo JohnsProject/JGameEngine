@@ -36,52 +36,68 @@ import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processors.ColorProcessor;
 import com.johnsproject.jpge2.processors.GraphicsProcessor;
 import com.johnsproject.jpge2.processors.MathProcessor;
+import com.johnsproject.jpge2.processors.MatrixProcessor;
 import com.johnsproject.jpge2.processors.VectorProcessor;
 import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
 public class FlatShader implements Shader {
 
-	private static final int vx = VectorProcessor.VECTOR_X;
-	private static final int vy = VectorProcessor.VECTOR_Y;
-	private static final int vz = VectorProcessor.VECTOR_Z;
-	
-	private static final int[] uvX = VectorProcessor.generate();
-	private static final int[] uvY = VectorProcessor.generate();
+	private final int vx = VectorProcessor.VECTOR_X;
+	private final int vy = VectorProcessor.VECTOR_Y;
+	private final int vz = VectorProcessor.VECTOR_Z;
 
-	private static final int[] normalizedNormal = VectorProcessor.generate();
-	private static final int[] lightDirection = VectorProcessor.generate();
-	private static final int[] viewDirection = VectorProcessor.generate();
-	private static final int[] faceLocation = VectorProcessor.generate();
-	
-	private static int lightColor;
-	private static int lightFactor;
-	private static int modelColor;
-	private static Texture texture;
+	private final int[] uvX = VectorProcessor.generate();
+	private final int[] uvY = VectorProcessor.generate();
 
-	private static int[][] modelMatrix;
-	private static int[][] normalMatrix;
-	private static int[][] viewMatrix;
-	private static int[][] projectionMatrix;
-	
-	private static Camera camera;
-	private static List<Light> lights;
-	private static FrameBuffer frameBuffer;
+	private final int[] normalizedNormal = VectorProcessor.generate();
+	private final int[] lightDirection = VectorProcessor.generate();
+	private final int[] viewDirection = VectorProcessor.generate();
+	private final int[] faceLocation = VectorProcessor.generate();
+
+	private final int[][] modelMatrix = MatrixProcessor.generate();
+	private final int[][] normalMatrix = MatrixProcessor.generate();
+	private final int[][] viewMatrix = MatrixProcessor.generate();
+	private final int[][] projectionMatrix = MatrixProcessor.generate();
+
+	private int lightColor;
+	private int lightFactor;
+	private int modelColor;
+	private Texture texture;
+
+	private Camera camera;
+	private List<Light> lights;
+	private FrameBuffer frameBuffer;
 
 	public void update(List<Light> lights, FrameBuffer frameBuffer) {
-		FlatShader.lights = lights;
-		FlatShader.frameBuffer = frameBuffer;
+		this.lights = lights;
+		this.frameBuffer = frameBuffer;
 		frameBuffer.clearColorBuffer();
 		frameBuffer.clearDepthBuffer();
 	}
 
 	public void setup(Model model, Camera camera) {
-		FlatShader.modelMatrix = model.getModelMatrix();
-		FlatShader.normalMatrix = model.getNormalMatrix();
-		FlatShader.viewMatrix = camera.getViewMatrix();
-		FlatShader.projectionMatrix = camera.getProjectionMatrix();
-		FlatShader.camera = camera;
+		this.camera = camera;
+
+		MatrixProcessor.copy(modelMatrix, MatrixProcessor.IDENTITY);
+		MatrixProcessor.copy(normalMatrix, MatrixProcessor.IDENTITY);
+		MatrixProcessor.copy(viewMatrix, MatrixProcessor.IDENTITY);
+		MatrixProcessor.copy(projectionMatrix, MatrixProcessor.IDENTITY);
+
+		GraphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
+		GraphicsProcessor.getNormalMatrix(model.getTransform(), normalMatrix);
+		GraphicsProcessor.getViewMatrix(camera.getTransform(), viewMatrix);
+
+		switch (camera.getType()) {
+		case ORTHOGRAPHIC:
+			GraphicsProcessor.getOrthographicMatrix(camera.getCanvas(), camera.getFrustum(), projectionMatrix);
+			break;
+
+		case PERSPECTIVE:
+			GraphicsProcessor.getPerspectiveMatrix(camera.getCanvas(), camera.getFrustum(), projectionMatrix);
+			break;
+		}
 	}
-	
+
 	public void vertex(int index, Vertex vertex) {
 		int[] location = VectorProcessor.copy(vertex.getLocation(), vertex.getStartLocation());
 		VectorProcessor.multiply(location, modelMatrix, location);
@@ -96,10 +112,10 @@ public class FlatShader implements Shader {
 		VectorProcessor.add(location1, location2, faceLocation);
 		VectorProcessor.add(faceLocation, location3, faceLocation);
 		VectorProcessor.divide(faceLocation, 3, faceLocation);
-		
+
 		lightColor = ColorProcessor.WHITE;
 		lightFactor = 0;
-		
+
 		VectorProcessor.multiply(normal, normalMatrix, normal);
 		VectorProcessor.subtract(camera.getTransform().getLocation(), faceLocation, viewDirection);
 		// normalize values
@@ -137,16 +153,13 @@ public class FlatShader implements Shader {
 			int[] vertexLocation = face.getVertices()[i].getLocation();
 			VectorProcessor.multiply(vertexLocation, viewMatrix, vertexLocation);
 			VectorProcessor.multiply(vertexLocation, projectionMatrix, vertexLocation);
-			GraphicsProcessor.viewport(vertexLocation, camera.getCanvas());
+			GraphicsProcessor.viewport(vertexLocation, camera.getCanvas(), vertexLocation);
 			if ((vertexLocation[vz] < camera.getFrustum()[1]) || (vertexLocation[vz] > camera.getFrustum()[2]))
 				return;
 		}
 		if (GraphicsProcessor.barycentric(location1, location2, location3) > 0) {
 			texture = face.getMaterial().getTexture();
-			// set uv values that will be interpolated
-			// uv is in normalized fixed point space between 0 - MathProcessor.FP_VALUE
-			// multiply uv with texture size to get correct coordinates and divide by
-			// MathProcessor.FP_VALUE
+			// set uv values that will be interpolated and fit uv into texture resolution
 			if (texture != null) {
 				uvX[0] = MathProcessor.multiply(face.getUV1()[vx], texture.getWidth());
 				uvX[1] = MathProcessor.multiply(face.getUV2()[vx], texture.getWidth());
@@ -172,7 +185,8 @@ public class FlatShader implements Shader {
 		frameBuffer.setPixel(location[vx], location[vy], location[vz], (byte) 0, modelColor);
 	}
 
-	private int getLightFactor(Light light, int[] normal, int[] lightDirection, int[] viewDirection, Material material) {
+	private int getLightFactor(Light light, int[] normal, int[] lightDirection, int[] viewDirection,
+			Material material) {
 		// diffuse
 		int dotProduct = VectorProcessor.dotProduct(normal, lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);

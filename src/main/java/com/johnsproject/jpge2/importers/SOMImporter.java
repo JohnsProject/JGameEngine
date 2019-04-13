@@ -54,15 +54,15 @@ public class SOMImporter {
 
 	public static Model loadFromRaw(String data) throws IOException {
 		String rawData = data.replace(" ", "").replace("\n", "");
-		Vertex[] vertexes = parseVertices(rawData);
-		Face[] faces = parseFaces(rawData);
 		Material[] materials = parseMaterials(rawData);
-		Model result = new Model("Model", new Transform(), vertexes, faces, materials);
+		Vertex[] vertices = parseVertices(rawData, materials);
+		Face[] faces = parseFaces(rawData, vertices, materials);
+		Model result = new Model("Model", new Transform(), vertices, faces, materials);
 		System.gc();
 		return result;
 	}
 	
-	static Vertex[] parseVertices(String rawData) throws IOException {
+	static Vertex[] parseVertices(String rawData, Material[] materials) throws IOException {
 		String vCountData = rawData.split("vCount<")[1].split(">vCount", 2)[0];
 		Vertex[] vertices = new Vertex[getint(vCountData)];
 		String[] vLocationData = rawData.split("vPosition<")[1].split(">vPosition", 2)[0].split(",");
@@ -78,12 +78,12 @@ public class SOMImporter {
 			normal[vy] = (int)(getFloat(vNormalData[i + vy]) * MathProcessor.FP_VALUE);
 			normal[vz] = (int)(getFloat(vNormalData[i + vz]) * MathProcessor.FP_VALUE);
 			int material = getint(vMaterialData[i / 3]);
-			vertices[i / 3] = new Vertex(i / 3, location, normal, material);
+			vertices[i / 3] = new Vertex(i / 3, location, normal, materials[material]);
 		}
 		return vertices;
 	}
 	
-	static Face[] parseFaces(String rawData) throws IOException {
+	static Face[] parseFaces(String rawData, Vertex[] vertices, Material[] materials) throws IOException {
 		String fCountData = rawData.split("fCount<")[1].split(">fCount", 2)[0];
 		Face[] faces = new Face[getint(fCountData)];
 		String[] fVertex1Data = rawData.split("fVertex1<")[1].split(">fVertex1", 2)[0].split(",");
@@ -112,7 +112,7 @@ public class SOMImporter {
 			int[] uv3 = VectorProcessor.generate();
 			uv3[vx] = (int)(getFloat(fUV3Data[(i / 3) + vx]) * MathProcessor.FP_VALUE);
 			uv3[vy] = (int)(getFloat(fUV3Data[(i / 3) + vy]) * MathProcessor.FP_VALUE);
-			faces[i / 6] = new Face(i / 6, vertex1, vertex2, vertex3, material, normal, uv1, uv2, uv3);
+			faces[i / 6] = new Face(i / 6, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], normal, uv1, uv2, uv3);
 		}
 		return faces;
 	}

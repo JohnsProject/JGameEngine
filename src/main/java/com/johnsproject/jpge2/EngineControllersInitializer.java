@@ -27,8 +27,8 @@ import com.johnsproject.jpge2.controllers.GraphicsController;
 
 public class EngineControllersInitializer {
 
-	public EngineControllersInitializer() {
-		new GraphicsController();
+	public EngineControllersInitializer(Engine engine) {
+		new GraphicsController(engine);
 	}
 	
 }

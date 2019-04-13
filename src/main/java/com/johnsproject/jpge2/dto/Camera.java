@@ -23,16 +23,12 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processors.GraphicsProcessor;
-import com.johnsproject.jpge2.processors.MatrixProcessor;
 import com.johnsproject.jpge2.processors.VectorProcessor;
 
 public class Camera extends SceneObject {
 
 	private static final int vx = VectorProcessor.VECTOR_X;
 	private static final int vy = VectorProcessor.VECTOR_Y;
-	private static final int vz = VectorProcessor.VECTOR_Z;
-	private static final int vw = VectorProcessor.VECTOR_W;
 
 	public enum CameraType {
 		ORTHOGRAPHIC,
@@ -42,9 +38,6 @@ public class Camera extends SceneObject {
 	private CameraType type;
 	private int[] canvas;
 	private int[] frustum;
-	private int[][] viewMatrix = MatrixProcessor.generate();
-	private int[][] perspectiveMatrix = MatrixProcessor.generate();
-	private int[][] orthographicMatrix = MatrixProcessor.generate();
 
 	public Camera(String name, Transform transform, int[] canvas) {
 		super(name, transform);
@@ -63,8 +56,8 @@ public class Camera extends SceneObject {
 	public void setCanvas(int x, int y, int width, int height) {
 		this.canvas[vx] = x;
 		this.canvas[vy] = y;
-		this.canvas[vz] = width;
-		this.canvas[vw] = height;
+		this.canvas[2] = width;
+		this.canvas[3] = height;
 	}
 
 	public int[] getFrustum() {
@@ -76,37 +69,9 @@ public class Camera extends SceneObject {
 	}
 
 	public void setFrustum(int fov, int near, int far) {
-		this.frustum[vx] = fov;
-		this.frustum[vy] = near;
-		this.frustum[vz] = far;
-	}
-
-	public int[][] getViewMatrix() {
-		if (this.hasChanged()) {
-			GraphicsProcessor.viewMatrix(viewMatrix, getTransform());
-		}
-		return viewMatrix;
-	}
-
-	public int[][] getPerspectiveMatrix() {
-		if (this.hasChanged()) {
-			GraphicsProcessor.perspectiveMatrix(perspectiveMatrix, canvas, frustum);
-		}
-		return perspectiveMatrix;
-	}
-
-	public int[][] getOrthographicMatrix() {
-		if (this.hasChanged()) {
-			GraphicsProcessor.orthographicMatrix(orthographicMatrix, canvas, frustum);
-		}
-		return orthographicMatrix;
-	}
-	
-	public int[][] getProjectionMatrix() {
-		if (type == CameraType.ORTHOGRAPHIC) {
-			return getOrthographicMatrix();
-		}
-		return getPerspectiveMatrix();
+		this.frustum[0] = fov;
+		this.frustum[1] = near;
+		this.frustum[2] = far;
 	}
 
 	public CameraType getType() {

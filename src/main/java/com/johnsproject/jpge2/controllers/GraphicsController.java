@@ -14,8 +14,8 @@ import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
 public class GraphicsController implements EngineListener {
 	
-	public GraphicsController() {
-		Engine.getInstance().addEngineListener(this);
+	public GraphicsController(Engine engine) {
+		engine.addEngineListener(this);
 	}
 	
 	public void start() { }

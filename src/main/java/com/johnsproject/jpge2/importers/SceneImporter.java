@@ -83,9 +83,9 @@ public class SceneImporter {
 			String modelData = modelsData[i + 1].split(">model")[0];
 			String name = modelData.split("name<")[1].split(">name")[0];
 			Transform transform = parseTransform(modelData.split("transform<")[1].split(">transform")[0].split(","));
-			Vertex[] vertices = parseVertices(modelData.split("vertex<"));
-			Face[] faces = parseFaces(modelData.split("face<"));
 			Material[] materials = parseMaterials(modelData.split("material<"));
+			Vertex[] vertices = parseVertices(modelData.split("vertex<"), materials);
+			Face[] faces = parseFaces(modelData.split("face<"), vertices, materials);
 			models[i] = new Model(name, transform, vertices, faces, materials);
 		}
 		return models;
@@ -150,7 +150,7 @@ public class SceneImporter {
 		return new Transform(location, rotation, scale);
 	}
 
-	private static Vertex[] parseVertices(String[] verticesData) {
+	private static Vertex[] parseVertices(String[] verticesData, Material[] materials) {
 		Vertex[] vertices = new Vertex[verticesData.length - 1];
 		for (int i = 0; i < verticesData.length - 1; i++) {
 			String[] vertexData = verticesData[i + 1].split(">vertex")[0].split(",");
@@ -163,12 +163,12 @@ public class SceneImporter {
 			z = (int)(getFloat(vertexData[3 + vz]) * MathProcessor.FP_VALUE);
 			int[] normal = VectorProcessor.generate(x, y, z);
 			int material = getInt(vertexData[6]);
-			vertices[i] = new Vertex(i, location, normal, material);
+			vertices[i] = new Vertex(i, location, normal, materials[material]);
 		}
 		return vertices;
 	}
 
-	private static Face[] parseFaces(String[] facesData) {
+	private static Face[] parseFaces(String[] facesData, Vertex[] vertices, Material[] materials) {
 		Face[] faces = new Face[facesData.length - 1];
 		for (int i = 0; i < facesData.length - 1; i++) {
 			String[] faceData = facesData[i + 1].split(">face")[0].split(",");
@@ -189,7 +189,7 @@ public class SceneImporter {
 			y = (int)(getFloat(faceData[10 + vy]) * MathProcessor.FP_VALUE);
 			int[] uv3 = VectorProcessor.generate(x, y);
 			int material = getInt(faceData[12]);
-			faces[i] = new Face(i, vertex1, vertex2, vertex3, material, normal, uv1, uv2, uv3);
+			faces[i] = new Face(i, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], normal, uv1, uv2, uv3);
 		}
 		return faces;
 	}

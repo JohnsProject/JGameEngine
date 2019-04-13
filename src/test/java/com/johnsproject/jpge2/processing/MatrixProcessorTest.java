@@ -46,7 +46,7 @@ public class MatrixProcessorTest {
 	public void translateTest() throws Exception {
 		int[] out = VectorProcessor.generate();
 		int[][] matrix = MatrixProcessor.generate();
-		MatrixProcessor.translate(matrix, 2 << MathProcessor.FP_SHIFT, 3 << MathProcessor.FP_SHIFT, 4 << MathProcessor.FP_SHIFT);
+		MatrixProcessor.translate(matrix, 2 << MathProcessor.FP_SHIFT, 3 << MathProcessor.FP_SHIFT, 4 << MathProcessor.FP_SHIFT, matrix);
 		int[] vector = VectorProcessor.generate(4 << MathProcessor.FP_SHIFT, 3 << MathProcessor.FP_SHIFT, 2 << MathProcessor.FP_SHIFT);
 		VectorProcessor.multiply(vector, matrix, out);
 		assert(out[0] == 6 << MathProcessor.FP_SHIFT);
@@ -59,7 +59,7 @@ public class MatrixProcessorTest {
 	public void scaleTest() throws Exception {
 		int[] out = VectorProcessor.generate();
 		int[][] matrix = MatrixProcessor.generate();
-		MatrixProcessor.scale(matrix, 2, 3, 4);
+		MatrixProcessor.scale(matrix, 2, 3, 4, matrix);
 		int[] vector = VectorProcessor.generate(1, 3, 5);
 		VectorProcessor.multiply(vector, matrix, out);
 		assert(out[0] == 2);
@@ -72,7 +72,7 @@ public class MatrixProcessorTest {
 	public void rotateXTest() throws Exception {
 		int[] out = VectorProcessor.generate();
 		int[][] matrix = MatrixProcessor.generate();
-		MatrixProcessor.rotateX(matrix, 30);
+		MatrixProcessor.rotateX(matrix, 30, matrix);
 		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);
 		assert(out[0] == 100);
@@ -85,7 +85,7 @@ public class MatrixProcessorTest {
 	public void rotateYTest() throws Exception {
 		int[] out = VectorProcessor.generate();
 		int[][] matrix = MatrixProcessor.generate();
-		MatrixProcessor.rotateY(matrix, 30);
+		MatrixProcessor.rotateY(matrix, 30, matrix);
 		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);
 		assert(out[0] == 137);
@@ -98,7 +98,7 @@ public class MatrixProcessorTest {
 	public void rotateZTest() throws Exception {
 		int[] out = VectorProcessor.generate();
 		int[][] matrix = MatrixProcessor.generate();
-		MatrixProcessor.rotateZ(matrix, 30);
+		MatrixProcessor.rotateZ(matrix, 30, matrix);
 		int[] vector = VectorProcessor.generate(100, 100, 100);
 		VectorProcessor.multiply(vector, matrix, out);
 		assert(out[0] == 37);

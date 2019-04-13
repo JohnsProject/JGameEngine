@@ -54,7 +54,7 @@ public class Engine {
 
 			public void run() {
 				// initialize the controllers
-				new EngineControllersInitializer();
+				new EngineControllersInitializer(getInstance());
 				for (int i = 0; i < engineListeners.size(); i++) {
 					engineListeners.get(i).start();
 				}

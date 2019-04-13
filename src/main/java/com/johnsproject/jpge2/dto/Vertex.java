@@ -30,30 +30,19 @@ public class Vertex {
 	private int[] location;
 	private int[] startNormal;
 	private int[] normal;
-	private int materialIndex;
 	private Material material;
-	private Model model;
 	
-	public Vertex(int index, int[] location, int[] normal, int material) {
+	public Vertex(int index, int[] location, int[] normal, Material material) {
 		this.index = index;
 		this.startLocation = location;
 		this.location = location.clone();
 		this.startNormal = normal;
 		this.normal = normal.clone();
-		this.materialIndex = material;
+		this.material = material;
 	}
 
 	public int getIndex() {
 		return index;
-	}
-
-	public Model getModel() {
-		return model;
-	}
-
-	public void setModel(Model model) {
-		this.material =  model.getMaterial(materialIndex);
-		this.model = model;
 	}
 
 	public int[] getLocation() {

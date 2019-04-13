@@ -44,64 +44,63 @@ public class GraphicsProcessor {
 	private static final int[] vectorCache2 = VectorProcessor.generate();
 	private static final int[] vectorCache3 = VectorProcessor.generate();
 
-	public static int[][] modelMatrix(int[][] matrix, Transform transform) {
+	public static int[][] getModelMatrix(Transform transform, int[][] out) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-		MatrixProcessor.reset(matrix);
-		MatrixProcessor.rotateX(matrix, rotation[vx]);
-		MatrixProcessor.rotateY(matrix, -rotation[vy]);
-		MatrixProcessor.rotateZ(matrix, -rotation[vz]);
-		MatrixProcessor.scale(matrix, scale[vx], scale[vy], scale[vz]);
-		MatrixProcessor.translate(matrix, -location[vx], location[vy], location[vz]);
-		return matrix;
+		
+		MatrixProcessor.rotateX(out, rotation[vx], out);
+		MatrixProcessor.rotateY(out, -rotation[vy], out);
+		MatrixProcessor.rotateZ(out, -rotation[vz], out);
+		MatrixProcessor.scale(out, scale[vx], scale[vy], scale[vz], out);
+		MatrixProcessor.translate(out, -location[vx], location[vy], location[vz], out);
+		return out;
 	}
 
-	public static int[][] normalMatrix(int[][] matrix, Transform transform) {
+	public static int[][] getNormalMatrix(Transform transform, int[][] out) {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-		MatrixProcessor.reset(matrix);
-		MatrixProcessor.rotateX(matrix, rotation[vx]);
-		MatrixProcessor.rotateY(matrix, -rotation[vy]);
-		MatrixProcessor.rotateZ(matrix, -rotation[vz]);
-		MatrixProcessor.scale(matrix, scale[vx], scale[vy], scale[vz]);
-		return matrix;
+		
+		MatrixProcessor.rotateX(out, rotation[vx], out);
+		MatrixProcessor.rotateY(out, -rotation[vy], out);
+		MatrixProcessor.rotateZ(out, -rotation[vz], out);
+		MatrixProcessor.scale(out, scale[vx], scale[vy], scale[vz], out);
+		return out;
 	}
 	
-	public static int[][] viewMatrix(int[][] matrix, Transform transform) {
+	public static int[][] getViewMatrix(Transform transform, int[][] out) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
-		MatrixProcessor.reset(matrix);
-		MatrixProcessor.translate(matrix, location[vx], -location[vy], -location[vz]);
-		MatrixProcessor.rotateX(matrix, -rotation[vx]);
-		MatrixProcessor.rotateY(matrix, rotation[vy]);
-		MatrixProcessor.rotateZ(matrix, rotation[vz]);
-		return matrix;
+	
+		MatrixProcessor.translate(out, location[vx], -location[vy], -location[vz], out);
+		MatrixProcessor.rotateX(out, -rotation[vx], out);
+		MatrixProcessor.rotateY(out, rotation[vy], out);
+		MatrixProcessor.rotateZ(out, rotation[vz], out);
+		return out;
 	}
 
-	public static int[][] orthographicMatrix(int[][] matrix, int[] canvas, int[] frustum) {
+	public static int[][] getOrthographicMatrix(int[] canvas, int[] frustum, int[][] out) {
 		int scaleFactor = (canvas[3] >> 6) + 1;
-		MatrixProcessor.reset(matrix);
-		matrix[0][0] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
-		matrix[1][1] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
-		matrix[2][2] = -MathProcessor.FP_SHIFT;
-		matrix[3][3] = (frustum[3] - frustum[2]) << MathProcessor.FP_SHIFT;
-		return matrix;
+		out[0][0] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
+		out[1][1] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
+		out[2][2] = -MathProcessor.FP_SHIFT;
+		out[3][3] = (frustum[3] - frustum[2]) << MathProcessor.FP_SHIFT;
+		return out;
 	}
 	
-	public static int[][] perspectiveMatrix(int[][] matrix, int[] canvas, int[] frustum) {
+	public static int[][] getPerspectiveMatrix(int[] canvas, int[] frustum, int[][] out) {
 		int scaleFactor = (canvas[3] >> 6) + 1;
-		MatrixProcessor.reset(matrix);
-		matrix[0][0] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
-		matrix[1][1] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
-		matrix[2][2] = -MathProcessor.FP_SHIFT;
-		matrix[2][3] = MathProcessor.FP_VALUE;
-		return matrix;
+		out[0][0] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
+		out[1][1] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
+		out[2][2] = -MathProcessor.FP_SHIFT;
+		out[2][3] = MathProcessor.FP_VALUE;
+		return out;
 	}
 
-	public static void viewport(int[] location, int[] canvas) {
-		location[vx] = MathProcessor.divide(location[vx], location[vw]) + (canvas[vx] + (canvas[2] >> 1));
-		location[vy] = MathProcessor.divide(location[vy], location[vw]) + (canvas[vy] + (canvas[3] >> 1));
+	public static int[] viewport(int[] location, int[] canvas, int[] out) {
+		out[vx] = MathProcessor.divide(location[vx], location[vw]) + (canvas[vx] + (canvas[2] >> 1));
+		out[vy] = MathProcessor.divide(location[vy], location[vw]) + (canvas[vy] + (canvas[3] >> 1));
+		return out;
 	}
 	
 	public static void drawTriangle(int[] location1, int[] location2, int[] location3, int[] canvas, Shader shader) {

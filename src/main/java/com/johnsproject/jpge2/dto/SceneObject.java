@@ -27,32 +27,20 @@ public class SceneObject {
 		
 	private String name;
 	private Transform transform;
-	private boolean changed;
 	private boolean active;
 	
 	public SceneObject(String name, Transform transform) {
 		this.name = name;
 		this.transform = transform;
-		this.changed = true;
 		this.active = true;
 	}
 
 	public Transform getTransform() {
-		changed = true;
 		return this.transform;
 	}
 
 	public String getName() {
-		changed = true;
 		return name;
-	}
-
-	public boolean hasChanged() {
-		return changed;
-	}
-
-	public void setChanged(boolean changed) {
-		this.changed = changed;
 	}
 
 	public boolean isActive() {
