@@ -35,10 +35,10 @@ import com.johnsproject.jpge2.dto.Vertex;
 
 public class GraphicsProcessor {
 
-	private static final int vx = VectorProcessor.VECTOR_X;
-	private static final int vy = VectorProcessor.VECTOR_Y;
-	private static final int vz = VectorProcessor.VECTOR_Z;
-	private static final int vw = VectorProcessor.VECTOR_W;
+	private static final byte vx = VectorProcessor.VECTOR_X;
+	private static final byte vy = VectorProcessor.VECTOR_Y;
+	private static final byte vz = VectorProcessor.VECTOR_Z;
+	private static final byte vw = VectorProcessor.VECTOR_W;
 
 	public static int[][] getModelMatrix(Transform transform, int[][] out) {
 		int[] location = transform.getLocation();
@@ -80,7 +80,7 @@ public class GraphicsProcessor {
 		out[0][0] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
 		out[1][1] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
 		out[2][2] = -MathProcessor.FP_SHIFT;
-		out[3][3] = (frustum[3] - frustum[2]) << MathProcessor.FP_SHIFT;
+		out[3][3] = (frustum[3] - frustum[2]) << (MathProcessor.FP_SHIFT * 2);
 		return out;
 	}
 	
@@ -89,7 +89,7 @@ public class GraphicsProcessor {
 		out[0][0] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
 		out[1][1] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
 		out[2][2] = -MathProcessor.FP_SHIFT;
-		out[2][3] = MathProcessor.FP_VALUE;
+		out[2][3] = MathProcessor.FP_VALUE * MathProcessor.FP_VALUE;
 		return out;
 	}
 

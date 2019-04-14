@@ -29,6 +29,8 @@ import java.util.List;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
+import com.johnsproject.jpge2.shaders.FlatSpecularShader;
+import com.johnsproject.jpge2.shaders.GouraudSpecularShader;
 import com.johnsproject.jpge2.shaders.PhongSpecularShader;
 
 public class EngineOptions {
@@ -45,7 +47,7 @@ public class EngineOptions {
 		frameBuffer = new FrameBuffer();
 		scene = new Scene();
 		shaders = new ArrayList<Shader>();
-		shaders.add(new PhongSpecularShader());
+		shaders.add(new FlatSpecularShader());
 	}
 	
 	public int getUpdateRate() {

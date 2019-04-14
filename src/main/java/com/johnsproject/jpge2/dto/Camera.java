@@ -27,8 +27,8 @@ import com.johnsproject.jpge2.processors.VectorProcessor;
 
 public class Camera extends SceneObject {
 
-	private static final int vx = VectorProcessor.VECTOR_X;
-	private static final int vy = VectorProcessor.VECTOR_Y;
+	private static final byte vx = VectorProcessor.VECTOR_X;
+	private static final byte vy = VectorProcessor.VECTOR_Y;
 
 	public enum CameraType {
 		ORTHOGRAPHIC,

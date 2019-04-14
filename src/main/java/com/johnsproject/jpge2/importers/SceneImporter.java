@@ -43,9 +43,9 @@ import com.johnsproject.jpge2.processors.VectorProcessor;
 
 public class SceneImporter {
 
-	private static final int vx = VectorProcessor.VECTOR_X;
-	private static final int vy = VectorProcessor.VECTOR_Y;
-	private static final int vz = VectorProcessor.VECTOR_Z;
+	private static final byte vx = VectorProcessor.VECTOR_X;
+	private static final byte vy = VectorProcessor.VECTOR_Y;
+	private static final byte vz = VectorProcessor.VECTOR_Z;
 
 	public static Scene load(String path) throws IOException {
 		String content = FileProcessor.readFile(path);

@@ -42,9 +42,9 @@ import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
 public class FlatSpecularShader implements Shader {
 
-	private final int vx = VectorProcessor.VECTOR_X;
-	private final int vy = VectorProcessor.VECTOR_Y;
-	private final int vz = VectorProcessor.VECTOR_Z;
+	private final byte vx = VectorProcessor.VECTOR_X;
+	private final byte vy = VectorProcessor.VECTOR_Y;
+	private final byte vz = VectorProcessor.VECTOR_Z;
 
 	private final int[] uvX = VectorProcessor.generate();
 	private final int[] uvY = VectorProcessor.generate();
@@ -111,7 +111,7 @@ public class FlatSpecularShader implements Shader {
 		int[] location3 = face.getVertex3().getLocation();
 		VectorProcessor.add(location1, location2, faceLocation);
 		VectorProcessor.add(faceLocation, location3, faceLocation);
-		VectorProcessor.divide(faceLocation, 3, faceLocation);
+		VectorProcessor.divide(faceLocation, 3 << MathProcessor.FP_SHIFT, faceLocation);
 		lightColor = ColorProcessor.WHITE;
 		lightFactor = 0;
 
@@ -132,7 +132,7 @@ public class FlatSpecularShader implements Shader {
 				break;
 			case POINT:
 				// attenuation
-				int distance = VectorProcessor.magnitude(lightDirection);
+				long distance = VectorProcessor.magnitude(lightDirection);
 				int attenuation = MathProcessor.FP_VALUE;
 				attenuation += MathProcessor.multiply(distance, 3000);
 				attenuation += MathProcessor.multiply(MathProcessor.multiply(distance, distance), 20);

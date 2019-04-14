@@ -131,6 +131,19 @@ public class MathProcessor {
 		int range = max - min;
 		return (min + ((((value - min) % range) + range) % range));
 	}
+	
+	/**
+	 * Returns the given value in the range min-max.
+	 * 
+	 * @param value value to wrap.
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static long wrap(long value, long min, long max) {
+		long range = max - min;
+		return (min + ((((value - min) % range) + range) % range));
+	}
 
 	/**
 	 * Returns the given value from min to max. if value < min return min. if value
@@ -142,6 +155,19 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int clamp(int value, int min, int max) {
+		return Math.min(max, Math.max(value, min));
+	}
+	
+	/**
+	 * Returns the given value from min to max. if value < min return min. if value
+	 * > max return max.
+	 * 
+	 * @param value value to clamp.
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static long clamp(long value, long min, long max) {
 		return Math.min(max, Math.max(value, min));
 	}
 
@@ -177,20 +203,42 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int sqrt(int number) {
-		number >>= FP_SHIFT;
 		// Base cases 
-        if (number <= 0 || number == 1) 
+        if (number <= 0 || number == FP_VALUE) 
             return number; 
   
         // Staring from 1, try all numbers until 
         // i*i is greater than or equal to x. 
-        int i = 1, result = 1; 
+        long i = FP_VALUE, result = FP_VALUE; 
           
         while (result <= number) { 
-            i++; 
-            result = i * i; 
+            i += FP_VALUE; 
+            result = multiply(i, i); 
         } 
-        return (i - 1) << FP_SHIFT; 
+        return (int)(i - FP_VALUE); 
+	}
+	
+	/**
+	 * Returns the square root of the given number. If number < 0 the method returns
+	 * 0.
+	 * 
+	 * @param number
+	 * @return
+	 */
+	public static long sqrt(long number) {
+		// Base cases 
+        if (number <= 0 || number == FP_VALUE) 
+            return number; 
+  
+        // Staring from 1, try all numbers until 
+        // i*i is greater than or equal to x. 
+        long i = FP_VALUE, result = FP_VALUE; 
+          
+        while (result <= number) { 
+            i += FP_VALUE; 
+            result = multiply(i, i); 
+        } 
+        return i - FP_VALUE; 
 	}
 
 	/**
@@ -201,17 +249,37 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int pow(int base, int exp) {
-		int result = FP_VALUE;
+		long lBase = base;
+		long result = FP_VALUE;
 	    while (exp != 0) {
 	        if ((exp & 1) == 1) {
-	            result = multiply(result, base);
+	            result = multiply(result, lBase); 
 	        }
 	        exp >>= 1;
-			base = multiply(base, base);
+	        lBase = multiply(lBase, lBase); 
 	    }
-	    return result;
+	    return (int) result;
 	}
 
+	/**
+	 * Returns the power of the given number.
+	 * 
+	 * @param base
+	 * @param exp
+	 * @return
+	 */
+	public static long pow(long base, long exp) {
+		long result = FP_VALUE;
+	    while (exp != 0) {
+	        if ((exp & 1) == 1) {
+	            result = multiply(result, base); 
+	        }
+	        exp >>= 1;
+			base = multiply(base, base); 
+	    }
+	    return (int) result;
+	}
+	
 	/**
 	 * Returns the product of the multiplication of value1 and value2.
 	 * 
@@ -221,6 +289,17 @@ public class MathProcessor {
 	 */
 	public static int multiply(int value1, int value2) {
 		return (int) ((((long) value1 * (long) value2) + FP_ROUND) >> FP_SHIFT);
+	}
+	
+	/**
+	 * Returns the product of the multiplication of value1 and value2.
+	 * 
+	 * @param value1
+	 * @param value2
+	 * @return
+	 */
+	public static long multiply(long value1, long value2) {
+		return (((value1 * value2) + FP_ROUND) >> FP_SHIFT);
 	}
 
 	/**
@@ -233,6 +312,19 @@ public class MathProcessor {
 	public static int divide(int dividend, int divisor) {
 		if (divisor == 0)
 			return 0;
-		return (int) (((((long) dividend << FP_SHIFT) / divisor) + FP_ROUND) >> FP_SHIFT);
+		return (int) ((((long) dividend << FP_SHIFT) + FP_ROUND) / divisor);
+	}
+	
+	/**
+	 * Returns the quotient of the division.
+	 * 
+	 * @param dividend
+	 * @param divisor
+	 * @return
+	 */
+	public static long divide(long dividend, long divisor) {
+		if (divisor == 0)
+			return 0;
+		return ((dividend << FP_SHIFT) + FP_ROUND) / divisor;
 	}
 }

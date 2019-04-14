@@ -214,11 +214,10 @@ public class VectorProcessor {
 		// ensures that will return right values if vector is the same as out
 		copy(vectorCache1, vector);
 		for (int i = 0; i < 4; i++) {
-			int result = MathProcessor.multiply(matrix[0][i], vectorCache1[VECTOR_X]);
-			result += MathProcessor.multiply(matrix[1][i], vectorCache1[VECTOR_Y]);
-			result += MathProcessor.multiply(matrix[2][i], vectorCache1[VECTOR_Z]);
-			result += matrix[3][i];
-			out[i] = result;
+			long result = (long)matrix[0][i] * vectorCache1[VECTOR_X];
+			result += (long)matrix[1][i] * vectorCache1[VECTOR_Y];
+			result += (long)matrix[2][i] * vectorCache1[VECTOR_Z];
+			out[i] = (int)(MathProcessor.multiply(result, 1) + matrix[3][i]);
 		}
 		return out;
 	}
@@ -241,10 +240,10 @@ public class VectorProcessor {
 	 * @return
 	 */
 	public static int dotProduct(int[] vector1, int[] vector2) {
-		int x = MathProcessor.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
-		int y = MathProcessor.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		int z = MathProcessor.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
-		return x + y + z;
+		long x = (long)vector1[VECTOR_X] * vector2[VECTOR_X];
+		long y = (long)vector1[VECTOR_Y] * vector2[VECTOR_Y];
+		long z = (long)vector1[VECTOR_Z] * vector2[VECTOR_Z];
+		return (int)MathProcessor.multiply(x + y + z, 1);
 	}
 
 	/**
@@ -274,11 +273,11 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public static int[] normalize(int[] vector, int[] out) {
-		int magnitude = MathProcessor.sqrt(dotProduct(vector, vector)) >> MathProcessor.FP_SHIFT;
+		int magnitude = magnitude(vector) >> MathProcessor.FP_SHIFT;
 		if (magnitude != 0) {
-			out[VECTOR_X] = (vector[VECTOR_X] << MathProcessor.FP_VALUE) / magnitude;
-			out[VECTOR_Y] = (vector[VECTOR_Y] << MathProcessor.FP_VALUE) / magnitude;
-			out[VECTOR_Z] = (vector[VECTOR_Z] << MathProcessor.FP_VALUE) / magnitude;
+			out[VECTOR_X] = vector[VECTOR_X] / magnitude;
+			out[VECTOR_Y] = vector[VECTOR_Y] / magnitude;
+			out[VECTOR_Z] = vector[VECTOR_Z] / magnitude;
 		}
 		return out;
 	}

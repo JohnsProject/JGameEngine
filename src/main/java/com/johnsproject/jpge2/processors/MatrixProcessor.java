@@ -84,11 +84,11 @@ public class MatrixProcessor {
 		copy(matrixCache2, matrix2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				int result = MathProcessor.multiply(matrixCache1[0][j], matrixCache2[i][0]);
-				result += MathProcessor.multiply(matrixCache1[1][j], matrixCache2[i][1]);
-				result += MathProcessor.multiply(matrixCache1[2][j], matrixCache2[i][2]);
-				result += MathProcessor.multiply(matrixCache1[3][j], matrixCache2[i][3]);
-				out[i][j] = result;
+				long result = (long)matrixCache1[0][j] * matrixCache2[i][0];
+				result += (long)matrixCache1[1][j] * matrixCache2[i][1];
+				result += (long)matrixCache1[2][j] * matrixCache2[i][2];
+				result += (long)matrixCache1[3][j] * matrixCache2[i][3];
+				out[i][j] = (int)MathProcessor.multiply(result, 1);
 			}
 		}
 		return out;
