@@ -194,7 +194,5 @@ public class GraphicsProcessor {
 		public void geometry(Face face);
 
 		public void fragment(int[] location, int[] barycentric);
-		
-		public int getPass();
 	}
 }

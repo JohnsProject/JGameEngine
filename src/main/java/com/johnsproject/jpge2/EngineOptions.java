@@ -40,6 +40,9 @@ public class EngineOptions {
 	private FrameBuffer frameBuffer;
 	private Scene scene;
 	private List<Shader> shaders;
+	private int preprocessingShadersCount;
+	private int shadersCount;
+	private int postprocessingShadersCount;
 	
 	public EngineOptions() {
 		updateRate = 25;
@@ -47,7 +50,10 @@ public class EngineOptions {
 		frameBuffer = new FrameBuffer();
 		scene = new Scene();
 		shaders = new ArrayList<Shader>();
-		shaders.add(new FlatSpecularShader());
+		addShader(new FlatSpecularShader());
+		preprocessingShadersCount = 0;
+		shadersCount = 0;
+		postprocessingShadersCount = 0;
 	}
 	
 	public int getUpdateRate() {
@@ -78,14 +84,40 @@ public class EngineOptions {
 		this.scene = scene;
 	}
 	
-	public void addShader(Shader shader) {
+	public void addPreprocessingShader(Shader shader) {
+		preprocessingShadersCount++;
 		shaders.add(shader);
-		sortShaders();
+		sortShaders(0);
+	}
+	
+	public void addShader(Shader shader) {
+		shadersCount++;
+		shaders.add(shader);
+		sortShaders(1);
+	}
+	
+	public void addPostprocessingShader(Shader shader) {
+		postprocessingShadersCount++;
+		shaders.add(shader);
+		sortShaders(2);
+	}
+	
+	public void removePreprocessingShader(Shader shader) {
+		preprocessingShadersCount--;
+		shaders.remove(shader);
+		sortShaders(0);
 	}
 	
 	public void removeShader(Shader shader) {
+		shadersCount--;
 		shaders.remove(shader);
-		sortShaders();
+		sortShaders(1);
+	}
+	
+	public void removePostprocessingShader(Shader shader) {
+		postprocessingShadersCount--;
+		shaders.remove(shader);
+		sortShaders(2);
 	}
 	
 	public List<Shader> getShaders() {
@@ -96,11 +128,26 @@ public class EngineOptions {
 		return shaders.get(index);
 	}
 	
-	private void sortShaders() {
+	public int getPreprocessingShadersCount() {
+		return preprocessingShadersCount;
+	}
+
+	public int getShadersCount() {
+		return shadersCount;
+	}
+	
+	public int getPostprocessingShadersCount() {
+		return postprocessingShadersCount;
+	}
+
+	private void sortShaders(int pass) {
 		for (int i = 0; i < shaders.size() - 1; i++) {
 			int min_i = i;
 			for (int j = i + 1; j < shaders.size(); j++) {
-				if (shaders.get(j).getPass() < shaders.get(min_i).getPass()) {
+				int currentPass = 0;
+				if(min_i > preprocessingShadersCount) currentPass = 1;
+				if(min_i > shadersCount) currentPass = 2;
+				if (pass < currentPass) {
 					min_i = j;
 				}
 			}

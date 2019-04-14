@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.johnsproject.jpge2.Engine;
 import com.johnsproject.jpge2.EngineListener;
+import com.johnsproject.jpge2.EngineOptions;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
@@ -22,8 +23,11 @@ public class GraphicsController implements EngineListener {
 	
 	public void update() {
 		Scene scene = Engine.getInstance().getOptions().getScene();
-		FrameBuffer frameBuffer = Engine.getInstance().getOptions().getFrameBuffer();
-		List<Shader> shaders = Engine.getInstance().getOptions().getShaders();
+		EngineOptions options = Engine.getInstance().getOptions();
+		FrameBuffer frameBuffer = options.getFrameBuffer();
+		List<Shader> shaders = options.getShaders();
+		int preShadersCount = options.getPreprocessingShadersCount();
+		int postShadersCount = options.getPostprocessingShadersCount();
 		for (int i = 0; i < shaders.size(); i++) {
 			Shader shader = shaders.get(i);
 			shader.update(scene.getLights(), frameBuffer);
@@ -34,7 +38,7 @@ public class GraphicsController implements EngineListener {
 					shader.setup(model, camera);
 					for (int l = 0; l < model.getFaces().length; l++) {
 						Face face = model.getFace(l);
-						if ((face.getMaterial().getShaderPass() == shader.getPass()) || (shader.getPass() < 0)) {
+						if ((face.getMaterial().getShaderPass() == i - preShadersCount) || (i < preShadersCount) || (i > postShadersCount)) {
 							for (int m = 0; m < face.getVertices().length; m++) {
 								Vertex vertex = face.getVertices()[m];
 								shader.vertex(m, vertex);

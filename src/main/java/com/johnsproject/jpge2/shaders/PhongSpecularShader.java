@@ -202,8 +202,4 @@ public class PhongSpecularShader implements Shader {
 		// putting it all together...
 		return ((diffuseFactor + specularFactor + light.getStrength()) * 100) >> MathProcessor.FP_SHIFT;
 	}
-
-	public int getPass() {
-		return 0;
-	}
 }

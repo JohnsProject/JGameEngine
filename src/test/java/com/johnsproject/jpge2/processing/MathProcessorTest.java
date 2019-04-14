@@ -22,7 +22,6 @@ public class MathProcessorTest {
 		assert(((2 << MathProcessor.FP_SHIFT) * (2 << MathProcessor.FP_SHIFT)) >> (MathProcessor.FP_SHIFT * 2) == 4);
 		assert(((2 << MathProcessor.FP_SHIFT) * 2) >> MathProcessor.FP_SHIFT == 4);
 		assert(((4 << MathProcessor.FP_SHIFT) / 2) >> MathProcessor.FP_SHIFT == 2);
-//		assert((MathProcessor.multiply(10 << MathProcessor.FP_SHIFT, (MathProcessor.FP_VALUE * MathProcessor.FP_VALUE) / 5)+1) >> (MathProcessor.FP_SHIFT * 2) == 2);
 	}
 
 	@Test
@@ -60,7 +59,7 @@ public class MathProcessorTest {
 	
 	@Test
 	public void divideTest() throws Exception {
-		assert(MathProcessor.divide(10 << MathProcessor.FP_SHIFT, 2) == 5 << MathProcessor.FP_SHIFT);
+		assert(MathProcessor.divide(10 << MathProcessor.FP_SHIFT, 2 << MathProcessor.FP_SHIFT) == 5 << MathProcessor.FP_SHIFT);
 	}
 	
 	@Test
@@ -70,7 +69,7 @@ public class MathProcessorTest {
 	
 	@Test
 	public void sqrtTest() throws Exception {
-		assert(MathProcessor.sqrt(25 << MathProcessor.FP_SHIFT) == 5);
+		assert(MathProcessor.sqrt(25 << MathProcessor.FP_SHIFT) == 5 << MathProcessor.FP_SHIFT);
 	}
 
 }
