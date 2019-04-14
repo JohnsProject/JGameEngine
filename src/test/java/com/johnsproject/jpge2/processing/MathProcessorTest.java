@@ -70,7 +70,7 @@ public class MathProcessorTest {
 	
 	@Test
 	public void sqrtTest() throws Exception {
-		assert(MathProcessor.sqrt(25 << MathProcessor.FP_SHIFT) == 5 << MathProcessor.FP_SHIFT);
+		assert(MathProcessor.sqrt(25 << MathProcessor.FP_SHIFT) == 5);
 	}
 
 }

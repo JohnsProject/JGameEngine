@@ -29,7 +29,7 @@ public class VectorProcessorTest {
 	@Test
 	public void normalizeTest() throws Exception {
 		int[] out = VectorProcessor.generate();
-		int[] vector = VectorProcessor.generate(6 << MathProcessor.FP_SHIFT, 3 << MathProcessor.FP_SHIFT, 2 << MathProcessor.FP_SHIFT);
+		int[] vector = VectorProcessor.generate(60 << MathProcessor.FP_SHIFT, 30 << MathProcessor.FP_SHIFT, 20 << MathProcessor.FP_SHIFT);
 		VectorProcessor.normalize(vector, out);
 		assert(out[0] == 877);
 		assert(out[1] == 438);

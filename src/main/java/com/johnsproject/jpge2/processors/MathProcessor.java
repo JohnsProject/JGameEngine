@@ -142,11 +142,7 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int clamp(int value, int min, int max) {
-		if (value < min)
-			return min;
-		if (value > max)
-			return max;
-		return value;
+		return Math.min(max, Math.max(value, min));
 	}
 
 	private static int r = 545;
@@ -172,7 +168,7 @@ public class MathProcessor {
 		r += r + (r & r);
 		return min + (r & (max - min));
 	}
-
+	
 	/**
 	 * Returns the square root of the given number. If number < 0 the method returns
 	 * 0.
@@ -182,18 +178,19 @@ public class MathProcessor {
 	 */
 	public static int sqrt(int number) {
 		number >>= FP_SHIFT;
-		int res = 0;
-		int add = 0x8000;
-		int i;
-		for (i = 0; i < 32; i++) {
-			int temp = res | add;
-			int g2 = temp * temp;
-			if (number >= g2) {
-				res = temp;
-			}
-			add >>= 1;
-		}
-		return res << FP_SHIFT;
+		// Base cases 
+        if (number <= 0 || number == 1) 
+            return number; 
+  
+        // Staring from 1, try all numbers until 
+        // i*i is greater than or equal to x. 
+        int i = 1, result = 1; 
+          
+        while (result <= number) { 
+            i++; 
+            result = i * i; 
+        } 
+        return (i - 1) << FP_SHIFT; 
 	}
 
 	/**
@@ -204,11 +201,15 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int pow(int base, int exp) {
-		int result = base;
-		for (int i = 1; i < exp; i++) {
-			result = multiply(result, result);
-		}
-		return result;
+		int result = FP_VALUE;
+	    while (exp != 0) {
+	        if ((exp & 1) == 1) {
+	            result = multiply(result, base);
+	        }
+	        exp >>= 1;
+			base = multiply(base, base);
+	    }
+	    return result;
 	}
 
 	/**

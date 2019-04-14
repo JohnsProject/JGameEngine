@@ -274,11 +274,11 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public static int[] normalize(int[] vector, int[] out) {
-		int magnitude = magnitude(vector) >> MathProcessor.FP_SHIFT;
+		int magnitude = MathProcessor.sqrt(dotProduct(vector, vector)) >> MathProcessor.FP_SHIFT;
 		if (magnitude != 0) {
-			out[VECTOR_X] = vector[VECTOR_X] / magnitude;
-			out[VECTOR_Y] = vector[VECTOR_Y] / magnitude;
-			out[VECTOR_Z] = vector[VECTOR_Z] / magnitude;
+			out[VECTOR_X] = (vector[VECTOR_X] << MathProcessor.FP_VALUE) / magnitude;
+			out[VECTOR_Y] = (vector[VECTOR_Y] << MathProcessor.FP_VALUE) / magnitude;
+			out[VECTOR_Z] = (vector[VECTOR_Z] << MathProcessor.FP_VALUE) / magnitude;
 		}
 		return out;
 	}
