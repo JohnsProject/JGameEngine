@@ -1,26 +1,3 @@
-/**
- * MIT License
- *
- * Copyright (c) 2018 John Salomon - John´s Project
- *  
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.johnsproject.jpge2.shaders;
 
 import java.util.List;
@@ -40,7 +17,7 @@ import com.johnsproject.jpge2.processors.MatrixProcessor;
 import com.johnsproject.jpge2.processors.VectorProcessor;
 import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
-public class FlatShader implements Shader {
+public class PhongSpecularShader implements Shader {
 
 	private final int vx = VectorProcessor.VECTOR_X;
 	private final int vy = VectorProcessor.VECTOR_Y;
@@ -49,18 +26,24 @@ public class FlatShader implements Shader {
 	private final int[] uvX = VectorProcessor.generate();
 	private final int[] uvY = VectorProcessor.generate();
 
-	private final int[] normalizedNormal = VectorProcessor.generate();
-	private final int[] lightDirection = VectorProcessor.generate();
-	private final int[] viewDirection = VectorProcessor.generate();
-	private final int[] faceLocation = VectorProcessor.generate();
-
 	private final int[][] modelMatrix = MatrixProcessor.generate();
 	private final int[][] normalMatrix = MatrixProcessor.generate();
 	private final int[][] viewMatrix = MatrixProcessor.generate();
 	private final int[][] projectionMatrix = MatrixProcessor.generate();
-
-	private int lightColor;
-	private int lightFactor;
+	
+	private final int[] fragmentLocation = VectorProcessor.generate();
+	private final int[] normalizedNormal = VectorProcessor.generate();
+	private final int[] lightDirection = VectorProcessor.generate();
+	private final int[] viewDirection = VectorProcessor.generate();
+	
+	private final int[] locationX = VectorProcessor.generate();
+	private final int[] locationY = VectorProcessor.generate();
+	private final int[] locationZ = VectorProcessor.generate();	
+	private final int[] normalX = VectorProcessor.generate();
+	private final int[] normalY = VectorProcessor.generate();
+	private final int[] normalZ = VectorProcessor.generate();
+	
+	private Material material;
 	private int modelColor;
 	private Texture texture;
 
@@ -68,6 +51,8 @@ public class FlatShader implements Shader {
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
 
+	private boolean verticesInside = true;
+	
 	public void update(List<Light> lights, FrameBuffer frameBuffer) {
 		this.lights = lights;
 		this.frameBuffer = frameBuffer;
@@ -100,32 +85,70 @@ public class FlatShader implements Shader {
 
 	public void vertex(int index, Vertex vertex) {
 		int[] location = VectorProcessor.copy(vertex.getLocation(), vertex.getStartLocation());
+		int[] normal = VectorProcessor.copy(vertex.getNormal(), vertex.getStartNormal());
 		VectorProcessor.multiply(location, modelMatrix, location);
+		locationX[index] = location[vx];
+		locationY[index] = location[vy];
+		locationZ[index] = location[vz];
+		VectorProcessor.multiply(location, viewMatrix, location);
+		VectorProcessor.multiply(location, projectionMatrix, location);
+		GraphicsProcessor.viewport(location, camera.getCanvas(), location);
+		if ((location[vz] < camera.getFrustum()[1]) || (location[vz] > camera.getFrustum()[2]))
+			verticesInside = false;
+		
+		VectorProcessor.multiply(normal, normalMatrix, normal);
+		VectorProcessor.normalize(normal, normalizedNormal);
+		normalX[index] = normalizedNormal[vx];
+		normalY[index] = normalizedNormal[vy];
+		normalZ[index] = normalizedNormal[vz];
 	}
 
 	public void geometry(Face face) {
-		Material material = face.getMaterial();
-		int[] normal = VectorProcessor.copy(face.getNormal(), face.getStartNormal());
 		int[] location1 = face.getVertex1().getLocation();
 		int[] location2 = face.getVertex2().getLocation();
 		int[] location3 = face.getVertex3().getLocation();
-		VectorProcessor.add(location1, location2, faceLocation);
-		VectorProcessor.add(faceLocation, location3, faceLocation);
-		VectorProcessor.divide(faceLocation, 3, faceLocation);
+		
+		material = face.getMaterial();
+		
+		if ((GraphicsProcessor.barycentric(location1, location2, location3) > 0) && verticesInside) {
+			texture = face.getMaterial().getTexture();
+			// set uv values that will be interpolated and fit uv into texture resolution
+			if (texture != null) {
+				int width = texture.getWidth() - 1;
+				int height = texture.getHeight() - 1;
+				uvX[0] = MathProcessor.multiply(face.getUV1()[vx], width);
+				uvX[1] = MathProcessor.multiply(face.getUV2()[vx], width);
+				uvX[2] = MathProcessor.multiply(face.getUV3()[vx], width);
+				uvY[0] = MathProcessor.multiply(face.getUV1()[vy], height);
+				uvY[1] = MathProcessor.multiply(face.getUV2()[vy], height);
+				uvY[2] = MathProcessor.multiply(face.getUV3()[vy], height);
+			}
+			GraphicsProcessor.drawTriangle(location1, location2, location3, camera.getCanvas(), this);
+		}
+		verticesInside = true;
+	}
 
-		lightColor = ColorProcessor.WHITE;
-		lightFactor = 0;
+	public void fragment(int[] location, int[] barycentric) {
+		
+		fragmentLocation[vx] = GraphicsProcessor.interpolate(locationX, barycentric);
+		fragmentLocation[vy] = GraphicsProcessor.interpolate(locationY, barycentric);
+		fragmentLocation[vz] = GraphicsProcessor.interpolate(locationZ, barycentric);
+		
+		normalizedNormal[vx] = GraphicsProcessor.interpolate(normalX, barycentric);
+		normalizedNormal[vy] = GraphicsProcessor.interpolate(normalY, barycentric);
+		normalizedNormal[vz] = GraphicsProcessor.interpolate(normalZ, barycentric);
 
-		VectorProcessor.multiply(normal, normalMatrix, normal);
-		VectorProcessor.subtract(camera.getTransform().getLocation(), faceLocation, viewDirection);
+		int lightColor = ColorProcessor.WHITE;
+		int lightFactor = 0;
+
+		VectorProcessor.subtract(camera.getTransform().getLocation(), fragmentLocation, viewDirection);
 		// normalize values
-		VectorProcessor.normalize(normal, normalizedNormal);
 		VectorProcessor.normalize(viewDirection, viewDirection);
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
 			int[] lightLocation = light.getTransform().getLocation();
 			int currentFactor = 0;
-			VectorProcessor.subtract(lightLocation, faceLocation, lightDirection);
+			VectorProcessor.subtract(lightLocation, fragmentLocation, lightDirection);
 			switch (light.getType()) {
 			case DIRECTIONAL:
 				VectorProcessor.normalize(lightDirection, lightDirection);
@@ -147,32 +170,7 @@ public class FlatShader implements Shader {
 			lightColor = ColorProcessor.lerp(lightColor, light.getDiffuseColor(), currentFactor);
 			lightFactor += currentFactor;
 		}
-		modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, material.getColor(), lightFactor);
-		modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
-		for (int i = 0; i < face.getVertices().length; i++) {
-			int[] vertexLocation = face.getVertices()[i].getLocation();
-			VectorProcessor.multiply(vertexLocation, viewMatrix, vertexLocation);
-			VectorProcessor.multiply(vertexLocation, projectionMatrix, vertexLocation);
-			GraphicsProcessor.viewport(vertexLocation, camera.getCanvas(), vertexLocation);
-			if ((vertexLocation[vz] < camera.getFrustum()[1]) || (vertexLocation[vz] > camera.getFrustum()[2]))
-				return;
-		}
-		if (GraphicsProcessor.barycentric(location1, location2, location3) > 0) {
-			texture = face.getMaterial().getTexture();
-			// set uv values that will be interpolated and fit uv into texture resolution
-			if (texture != null) {
-				uvX[0] = MathProcessor.multiply(face.getUV1()[vx], texture.getWidth());
-				uvX[1] = MathProcessor.multiply(face.getUV2()[vx], texture.getWidth());
-				uvX[2] = MathProcessor.multiply(face.getUV3()[vx], texture.getWidth());
-				uvY[0] = MathProcessor.multiply(face.getUV1()[vy], texture.getHeight());
-				uvY[1] = MathProcessor.multiply(face.getUV2()[vy], texture.getHeight());
-				uvY[2] = MathProcessor.multiply(face.getUV3()[vy], texture.getHeight());
-			}
-			GraphicsProcessor.drawTriangle(location1, location2, location3, camera.getCanvas(), this);
-		}
-	}
-
-	public void fragment(int[] location, int[] barycentric) {
+		
 		if (texture != null) {
 			int u = GraphicsProcessor.interpolate(uvX, barycentric);
 			int v = GraphicsProcessor.interpolate(uvY, barycentric);
@@ -180,6 +178,9 @@ public class FlatShader implements Shader {
 			if (ColorProcessor.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;
 			modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, texel, lightFactor);
+			modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
+		}else {
+			modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, material.getColor(), lightFactor);
 			modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
 		}
 		frameBuffer.setPixel(location[vx], location[vy], location[vz], (byte) 0, modelColor);

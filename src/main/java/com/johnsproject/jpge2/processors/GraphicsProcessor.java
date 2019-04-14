@@ -39,10 +39,6 @@ public class GraphicsProcessor {
 	private static final int vy = VectorProcessor.VECTOR_Y;
 	private static final int vz = VectorProcessor.VECTOR_Z;
 	private static final int vw = VectorProcessor.VECTOR_W;
-	
-	private static final int[] vectorCache1 = VectorProcessor.generate();
-	private static final int[] vectorCache2 = VectorProcessor.generate();
-	private static final int[] vectorCache3 = VectorProcessor.generate();
 
 	public static int[][] getModelMatrix(Transform transform, int[][] out) {
 		int[] location = transform.getLocation();
@@ -103,15 +99,17 @@ public class GraphicsProcessor {
 		return out;
 	}
 	
+	private static final int INTERPOLATE_SHIFT = MathProcessor.FP_SHIFT * 2;
+	private static final long[] depth = new long[3];
+	private static final int[] barycentric = VectorProcessor.generate();
+	private static final int[] pixel = VectorProcessor.generate();
+	
 	public static void drawTriangle(int[] location1, int[] location2, int[] location3, int[] canvas, Shader shader) {
-
-		int[] depth = vectorCache1;
-		int[] barycentric = vectorCache2;
-		int[] pixel = vectorCache3;
 		
-		depth[0] = location1[vz];
-		depth[1] = location2[vz];
-		depth[2] = location3[vz];
+		int one = 1 << INTERPOLATE_SHIFT;
+		depth[0] = one / location1[vz];
+		depth[1] = one / location2[vz];
+		depth[2] = one / location3[vz];
 		barycentric[vw] = barycentric(location1, location2, location3);
 		
 		// compute boundig box of faces
@@ -162,24 +160,22 @@ public class GraphicsProcessor {
 			barycentric2_row += b01;
 		}
 	}
-
-	private static int interpolatDepth(int[] depth, int[] barycentric) {
-		// 10 bits of precision are not enought
-		final byte shift = MathProcessor.FP_SHIFT << 1;
-		long dotProduct = ((long) barycentric[vx] << shift) / depth[0]
-						+ ((long) barycentric[vy] << shift) / depth[1]
-						+ ((long) barycentric[vz] << shift) / depth[2];
-		return (int) (((long) barycentric[vw] << shift) / dotProduct);
+	
+	private static int interpolatDepth(long[] depth, int[] barycentric) {
+		long dotProduct = barycentric[vx] * depth[0]
+						+ barycentric[vy] * depth[1]
+						+ barycentric[vz] * depth[2];
+		return (int) (((long)barycentric[vw] << INTERPOLATE_SHIFT) / dotProduct);
 	}
-
+	
 	public static int interpolate(int[] values, int[] barycentric) {
 		// depth = vectorCache1;
 		// pixel = vectorCache3;
-		long dotProduct = (((long) values[vx] << MathProcessor.FP_SHIFT) / vectorCache1[0]) * barycentric[vx]
-				+ (((long) values[vy] << MathProcessor.FP_SHIFT) / vectorCache1[1]) * barycentric[vy]
-				+ (((long) values[vz] << MathProcessor.FP_SHIFT) / vectorCache1[2]) * barycentric[vz];
+		long dotProduct = values[vx] * depth[0] * barycentric[vx]
+						+ values[vy] * depth[1] * barycentric[vy]
+						+ values[vz] * depth[2] * barycentric[vz];
 		// normalize values
-		return (int) ((((long) dotProduct * (long) vectorCache3[vz]) / barycentric[vw]) >> MathProcessor.FP_SHIFT);
+		return (int) ((((dotProduct * pixel[vz])) / barycentric[vw]) >> INTERPOLATE_SHIFT);
 	}
 
 	public static int barycentric(int[] vector1, int[] vector2, int[] vector3) {

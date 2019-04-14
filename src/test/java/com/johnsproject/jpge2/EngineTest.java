@@ -48,6 +48,7 @@ public class EngineTest implements EngineListener{
 	static void useScene() {
 		try {
 			Scene scene = SceneImporter.load("C:/Development/test.scene");
+//			scene.getModels().get(0).getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
 			Engine.getInstance().getOptions().setScene(scene);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -60,7 +61,7 @@ public class EngineTest implements EngineListener{
 
 	public void fixedUpdate() {
 		for (int i = 0; i < Engine.getInstance().getOptions().getScene().getModels().size(); i++) {
-			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().rotate(0, 0, 1);
+//			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().rotate(0, 0, 1);
 		}
 	}
 
