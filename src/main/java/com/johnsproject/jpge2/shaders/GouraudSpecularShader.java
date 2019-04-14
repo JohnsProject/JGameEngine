@@ -34,12 +34,12 @@ public class GouraudSpecularShader implements Shader {
 	private final int[][] normalMatrix = MatrixProcessor.generate();
 	private final int[][] viewMatrix = MatrixProcessor.generate();
 	private final int[][] projectionMatrix = MatrixProcessor.generate();
-	
+
 	private final int[] lightFactors = VectorProcessor.generate();
 	private final int[] lightColorR = VectorProcessor.generate();
 	private final int[] lightColorG = VectorProcessor.generate();
 	private final int[] lightColorB = VectorProcessor.generate();
-	
+
 	private int color;
 	private int modelColor;
 	private Texture texture;
@@ -49,7 +49,7 @@ public class GouraudSpecularShader implements Shader {
 	private FrameBuffer frameBuffer;
 
 	private boolean verticesInside = true;
-	
+
 	public void update(List<Light> lights, FrameBuffer frameBuffer) {
 		this.lights = lights;
 		this.frameBuffer = frameBuffer;
@@ -86,7 +86,7 @@ public class GouraudSpecularShader implements Shader {
 		int[] normal = VectorProcessor.copy(vertex.getNormal(), vertex.getStartNormal());
 		VectorProcessor.multiply(location, modelMatrix, location);
 		VectorProcessor.multiply(normal, normalMatrix, normal);
-		
+
 		int lightColor = ColorProcessor.WHITE;
 		int lightFactor = 0;
 
@@ -132,12 +132,12 @@ public class GouraudSpecularShader implements Shader {
 	}
 
 	public void geometry(Face face) {
-		int[] location1 = face.getVertex1().getLocation();
-		int[] location2 = face.getVertex2().getLocation();
-		int[] location3 = face.getVertex3().getLocation();
-		
+		int[] location1 = face.getVertex(0).getLocation();
+		int[] location2 = face.getVertex(1).getLocation();
+		int[] location3 = face.getVertex(2).getLocation();
+
 		color = face.getMaterial().getColor();
-		
+
 		if ((GraphicsProcessor.barycentric(location1, location2, location3) > 0) && verticesInside) {
 			texture = face.getMaterial().getTexture();
 			// set uv values that will be interpolated and fit uv into texture resolution
@@ -170,7 +170,7 @@ public class GouraudSpecularShader implements Shader {
 				return;
 			modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, texel, lightFactor);
 			modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
-		}else {
+		} else {
 			modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, color, lightFactor);
 			modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
 		}

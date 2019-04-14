@@ -106,9 +106,9 @@ public class FlatSpecularShader implements Shader {
 	public void geometry(Face face) {
 		Material material = face.getMaterial();
 		int[] normal = VectorProcessor.copy(face.getNormal(), face.getStartNormal());
-		int[] location1 = face.getVertex1().getLocation();
-		int[] location2 = face.getVertex2().getLocation();
-		int[] location3 = face.getVertex3().getLocation();
+		int[] location1 = face.getVertex(0).getLocation();
+		int[] location2 = face.getVertex(1).getLocation();
+		int[] location3 = face.getVertex(2).getLocation();
 		VectorProcessor.add(location1, location2, faceLocation);
 		VectorProcessor.add(faceLocation, location3, faceLocation);
 		VectorProcessor.divide(faceLocation, 3 << MathProcessor.FP_SHIFT, faceLocation);

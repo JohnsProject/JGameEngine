@@ -30,19 +30,19 @@ public class PhongSpecularShader implements Shader {
 	private final int[][] normalMatrix = MatrixProcessor.generate();
 	private final int[][] viewMatrix = MatrixProcessor.generate();
 	private final int[][] projectionMatrix = MatrixProcessor.generate();
-	
+
 	private final int[] fragmentLocation = VectorProcessor.generate();
 	private final int[] normalizedNormal = VectorProcessor.generate();
 	private final int[] lightDirection = VectorProcessor.generate();
 	private final int[] viewDirection = VectorProcessor.generate();
-	
+
 	private final int[] locationX = VectorProcessor.generate();
 	private final int[] locationY = VectorProcessor.generate();
-	private final int[] locationZ = VectorProcessor.generate();	
+	private final int[] locationZ = VectorProcessor.generate();
 	private final int[] normalX = VectorProcessor.generate();
 	private final int[] normalY = VectorProcessor.generate();
 	private final int[] normalZ = VectorProcessor.generate();
-	
+
 	private Material material;
 	private int modelColor;
 	private Texture texture;
@@ -52,7 +52,7 @@ public class PhongSpecularShader implements Shader {
 	private FrameBuffer frameBuffer;
 
 	private boolean verticesInside = true;
-	
+
 	public void update(List<Light> lights, FrameBuffer frameBuffer) {
 		this.lights = lights;
 		this.frameBuffer = frameBuffer;
@@ -95,7 +95,7 @@ public class PhongSpecularShader implements Shader {
 		GraphicsProcessor.viewport(location, camera.getCanvas(), location);
 		if ((location[vz] < camera.getFrustum()[1]) || (location[vz] > camera.getFrustum()[2]))
 			verticesInside = false;
-		
+
 		VectorProcessor.multiply(normal, normalMatrix, normal);
 		VectorProcessor.normalize(normal, normalizedNormal);
 		normalX[index] = normalizedNormal[vx];
@@ -104,12 +104,12 @@ public class PhongSpecularShader implements Shader {
 	}
 
 	public void geometry(Face face) {
-		int[] location1 = face.getVertex1().getLocation();
-		int[] location2 = face.getVertex2().getLocation();
-		int[] location3 = face.getVertex3().getLocation();
-		
+		int[] location1 = face.getVertex(0).getLocation();
+		int[] location2 = face.getVertex(1).getLocation();
+		int[] location3 = face.getVertex(2).getLocation();
+
 		material = face.getMaterial();
-		
+
 		if ((GraphicsProcessor.barycentric(location1, location2, location3) > 0) && verticesInside) {
 			texture = face.getMaterial().getTexture();
 			// set uv values that will be interpolated and fit uv into texture resolution
@@ -129,11 +129,11 @@ public class PhongSpecularShader implements Shader {
 	}
 
 	public void fragment(int[] location, int[] barycentric) {
-		
+
 		fragmentLocation[vx] = GraphicsProcessor.interpolate(locationX, barycentric);
 		fragmentLocation[vy] = GraphicsProcessor.interpolate(locationY, barycentric);
 		fragmentLocation[vz] = GraphicsProcessor.interpolate(locationZ, barycentric);
-		
+
 		normalizedNormal[vx] = GraphicsProcessor.interpolate(normalX, barycentric);
 		normalizedNormal[vy] = GraphicsProcessor.interpolate(normalY, barycentric);
 		normalizedNormal[vz] = GraphicsProcessor.interpolate(normalZ, barycentric);
@@ -170,7 +170,7 @@ public class PhongSpecularShader implements Shader {
 			lightColor = ColorProcessor.lerp(lightColor, light.getDiffuseColor(), currentFactor);
 			lightFactor += currentFactor;
 		}
-		
+
 		if (texture != null) {
 			int u = GraphicsProcessor.interpolate(uvX, barycentric);
 			int v = GraphicsProcessor.interpolate(uvY, barycentric);
@@ -179,7 +179,7 @@ public class PhongSpecularShader implements Shader {
 				return;
 			modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, texel, lightFactor);
 			modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
-		}else {
+		} else {
 			modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, material.getColor(), lightFactor);
 			modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
 		}

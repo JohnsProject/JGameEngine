@@ -52,16 +52,8 @@ public class Face {
 		return index;
 	}
 
-	public Vertex getVertex1() {
-		return vertices[0];
-	}
-
-	public Vertex getVertex2() {
-		return vertices[1];
-	}
-
-	public Vertex getVertex3() {
-		return vertices[2];
+	public Vertex getVertex(int index) {
+		return vertices[index];
 	}
 	
 	public Vertex[] getVertices() {

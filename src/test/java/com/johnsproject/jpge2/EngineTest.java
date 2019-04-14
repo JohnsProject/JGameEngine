@@ -48,6 +48,7 @@ public class EngineTest implements EngineListener{
 	static void useScene() {
 		try {
 			Scene scene = SceneImporter.load("C:/Development/test.scene");
+			scene.getModel("Ground").getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
 //			scene.getModels().get(0).getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
 			Engine.getInstance().getOptions().setScene(scene);
 		} catch (IOException e) {

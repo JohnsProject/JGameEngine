@@ -92,6 +92,10 @@ public class EngineOptions {
 		return shaders;
 	}
 	
+	public Shader getShader(int index) {
+		return shaders.get(index);
+	}
+	
 	private void sortShaders() {
 		for (int i = 0; i < shaders.size() - 1; i++) {
 			int min_i = i;
