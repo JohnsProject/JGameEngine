@@ -84,6 +84,7 @@ def write(filepath):
 				material = Material()
 				material.index = i
 				if blenderMaterial is not None:
+					material.name = blenderMaterial.name
 					material.color.red = blenderMaterial.diffuse_color[0]
 					material.color.green = blenderMaterial.diffuse_color[1]
 					material.color.blue = blenderMaterial.diffuse_color[2]
@@ -260,13 +261,14 @@ class Face:
 class Material:
 	def __init__(self):
 		self.index = 0
+		self.name = ""
 		self.color = Color()
 		self.diffuseIntensity = 1
 		self.specularIntensity = 0.5
 		self.shininess = 10
 	
 	def toString(self):
-			return str(self.color.toString() + ","+ ("%f," % self.diffuseIntensity) + ("%f," % self.specularIntensity) + ("%f" % self.shininess))
+			return str(self.name + "," + self.color.toString() + ","+ ("%f," % self.diffuseIntensity) + ("%f," % self.specularIntensity) + ("%f" % self.shininess))
 
 
 

@@ -59,4 +59,14 @@ public class Model extends SceneObject {
 	public Material getMaterial(int index) {
 		return materials[index];
 	}
+	
+	public Material getMaterial(String name) {
+		for (int i = 0; i < materials.length; i++) {
+			Material material = materials[i];
+			if (material.getName().equals(name)) {
+				return material;
+			}
+		}
+		return materials[0];
+	}
 }

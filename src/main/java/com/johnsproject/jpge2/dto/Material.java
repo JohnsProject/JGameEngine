@@ -26,6 +26,7 @@ package com.johnsproject.jpge2.dto;
 public class Material {
 
 	private int index;
+	private String name;
 	private int diffuseIntensity;
 	private int diffuseColor;
 	private int specularIntensity;
@@ -33,8 +34,9 @@ public class Material {
 	private Texture texture;
 	private int shaderPass;
 	
-	public Material(int index, int diffuseColor, int diffuseIntensity, int specularIntensity, int shininess, Texture texture){
+	public Material(int index, String name, int diffuseColor, int diffuseIntensity, int specularIntensity, int shininess, Texture texture){
 		this.index = index;
+		this.name = "";
 		this.diffuseColor = diffuseColor;
 		this.diffuseIntensity = diffuseIntensity;
 		this.specularIntensity = specularIntensity;
@@ -45,6 +47,10 @@ public class Material {
 
 	public int getIndex() {
 		return index;
+	}
+	
+	public String getName() {
+		return name;
 	}
 	
 	public Texture getTexture() {

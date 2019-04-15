@@ -197,15 +197,16 @@ public class SceneImporter {
 	private static Material[] parseMaterials(String[] materialsData) {
 		Material[] materials = new Material[materialsData.length - 1];
 		for (int i = 0; i < materialsData.length - 1; i++) {
-			String[] vertexData = materialsData[i + 1].split(">material")[0].split(",");
-			int red = (int)(getFloat(vertexData[0]) * 256);
-			int green = (int)(getFloat(vertexData[1]) * 256);
-			int blue = (int)(getFloat(vertexData[2]) * 256);
-			int alpha = (int)(getFloat(vertexData[3]) * 256);
-			int diffuse = (int)(getFloat(vertexData[4]) * MathProcessor.FP_VALUE);
-			int specular = (int)(getFloat(vertexData[5]) * MathProcessor.FP_VALUE);
-			int shininess = (int)(getFloat(vertexData[6]) / 10);
-			materials[i] = new Material(i, ColorProcessor.convert(red, green, blue, alpha), diffuse, specular, shininess, null);
+			String[] materialData = materialsData[i + 1].split(">material")[0].split(",");
+			String name = materialData[0];
+			int red = (int)(getFloat(materialData[1]) * 256);
+			int green = (int)(getFloat(materialData[2]) * 256);
+			int blue = (int)(getFloat(materialData[3]) * 256);
+			int alpha = (int)(getFloat(materialData[4]) * 256);
+			int diffuse = (int)(getFloat(materialData[5]) * MathProcessor.FP_VALUE);
+			int specular = (int)(getFloat(materialData[6]) * MathProcessor.FP_VALUE);
+			int shininess = (int)(getFloat(materialData[7]) / 10);
+			materials[i] = new Material(i, name, ColorProcessor.convert(red, green, blue, alpha), diffuse, specular, shininess, null);
 		}
 		return materials;
 	}
