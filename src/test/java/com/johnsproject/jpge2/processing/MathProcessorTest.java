@@ -69,6 +69,7 @@ public class MathProcessorTest {
 	
 	@Test
 	public void sqrtTest() throws Exception {
+		System.out.println(MathProcessor.sqrt(25 << MathProcessor.FP_SHIFT));
 		assert(MathProcessor.sqrt(25 << MathProcessor.FP_SHIFT) == 5 << MathProcessor.FP_SHIFT);
 	}
 

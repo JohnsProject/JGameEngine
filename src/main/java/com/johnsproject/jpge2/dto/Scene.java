@@ -28,9 +28,15 @@ import java.util.List;
 
 public class Scene {
 	
-	private final List<Model> models = new ArrayList<Model>();
-	private final List<Camera> cameras = new ArrayList<Camera>();
-	private final List<Light> lights = new ArrayList<Light>();
+	private final List<Model> models;
+	private final List<Camera> cameras;
+	private final List<Light> lights;
+	
+	public Scene() {
+		models = new ArrayList<Model>();
+		cameras = new ArrayList<Camera>();
+		lights = new ArrayList<Light>();
+	}
 	
 	public void addModel(Model model){
 		models.add(model);

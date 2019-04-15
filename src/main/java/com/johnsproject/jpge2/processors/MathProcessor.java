@@ -131,7 +131,7 @@ public class MathProcessor {
 		int range = max - min;
 		return (min + ((((value - min) % range) + range) % range));
 	}
-	
+
 	/**
 	 * Returns the given value in the range min-max.
 	 * 
@@ -157,7 +157,7 @@ public class MathProcessor {
 	public static int clamp(int value, int min, int max) {
 		return Math.min(max, Math.max(value, min));
 	}
-	
+
 	/**
 	 * Returns the given value from min to max. if value < min return min. if value
 	 * > max return max.
@@ -194,7 +194,7 @@ public class MathProcessor {
 		r += r + (r & r);
 		return min + (r & (max - min));
 	}
-	
+
 	/**
 	 * Returns the square root of the given number. If number < 0 the method returns
 	 * 0.
@@ -203,21 +203,31 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int sqrt(int number) {
-		// Base cases 
-        if (number <= 0 || number == FP_VALUE) 
-            return number; 
-  
-        // Staring from 1, try all numbers until 
-        // i*i is greater than or equal to x. 
-        long i = FP_VALUE, result = FP_VALUE; 
-          
-        while (result <= number) { 
-            i += FP_VALUE; 
-            result = multiply(i, i); 
-        } 
-        return (int)(i - FP_VALUE); 
+		number >>= FP_SHIFT;
+		int c = 0x8000;
+		int g = 0x8000;
+
+		if (g * g > number) {
+			g ^= c;
+		}
+		c >>= 1;
+		if (c == 0) {
+			return g << FP_SHIFT;
+		}
+		g |= c;
+		for (int i = 0; i < 15; i++) {
+			if (g * g > number) {
+				g ^= c;
+			}
+			c >>= 1;
+			if (c == 0) {
+				return g << FP_SHIFT;
+			}
+			g |= c;
+		}
+		return g << FP_SHIFT;
 	}
-	
+
 	/**
 	 * Returns the square root of the given number. If number < 0 the method returns
 	 * 0.
@@ -226,19 +236,29 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static long sqrt(long number) {
-		// Base cases 
-        if (number <= 0 || number == FP_VALUE) 
-            return number; 
-  
-        // Staring from 1, try all numbers until 
-        // i*i is greater than or equal to x. 
-        long i = FP_VALUE, result = FP_VALUE; 
-          
-        while (result <= number) { 
-            i += FP_VALUE; 
-            result = multiply(i, i); 
-        } 
-        return i - FP_VALUE; 
+		number >>= FP_SHIFT;
+		long c = 0x8000;
+		long g = 0x8000;
+
+		if (g * g > number) {
+			g ^= c;
+		}
+		c >>= 1;
+		if (c == 0) {
+			return g << FP_SHIFT;
+		}
+		g |= c;
+		for (int i = 0; i < 15; i++) {
+			if (g * g > number) {
+				g ^= c;
+			}
+			c >>= 1;
+			if (c == 0) {
+				return g << FP_SHIFT;
+			}
+			g |= c;
+		}
+		return g << FP_SHIFT;
 	}
 
 	/**
@@ -251,14 +271,14 @@ public class MathProcessor {
 	public static int pow(int base, int exp) {
 		long lBase = base;
 		long result = FP_VALUE;
-	    while (exp != 0) {
-	        if ((exp & 1) == 1) {
-	            result = multiply(result, lBase); 
-	        }
-	        exp >>= 1;
-	        lBase = multiply(lBase, lBase); 
-	    }
-	    return (int) result;
+		while (exp != 0) {
+			if ((exp & 1) == 1) {
+				result = multiply(result, lBase);
+			}
+			exp >>= 1;
+			lBase = multiply(lBase, lBase);
+		}
+		return (int) result;
 	}
 
 	/**
@@ -270,16 +290,16 @@ public class MathProcessor {
 	 */
 	public static long pow(long base, long exp) {
 		long result = FP_VALUE;
-	    while (exp != 0) {
-	        if ((exp & 1) == 1) {
-	            result = multiply(result, base); 
-	        }
-	        exp >>= 1;
-			base = multiply(base, base); 
-	    }
-	    return (int) result;
+		while (exp != 0) {
+			if ((exp & 1) == 1) {
+				result = multiply(result, base);
+			}
+			exp >>= 1;
+			base = multiply(base, base);
+		}
+		return (int) result;
 	}
-	
+
 	/**
 	 * Returns the product of the multiplication of value1 and value2.
 	 * 
@@ -290,7 +310,7 @@ public class MathProcessor {
 	public static int multiply(int value1, int value2) {
 		return (int) ((((long) value1 * (long) value2) + FP_ROUND) >> FP_SHIFT);
 	}
-	
+
 	/**
 	 * Returns the product of the multiplication of value1 and value2.
 	 * 
@@ -314,7 +334,7 @@ public class MathProcessor {
 			return 0;
 		return (int) ((((long) dividend << FP_SHIFT) + FP_ROUND) / divisor);
 	}
-	
+
 	/**
 	 * Returns the quotient of the division.
 	 * 

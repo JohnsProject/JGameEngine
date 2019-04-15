@@ -36,6 +36,9 @@ public class PhongSpecularShader implements Shader {
 	private final int[] lightDirection = VectorProcessor.generate();
 	private final int[] viewDirection = VectorProcessor.generate();
 
+	private final int[] viewDirectionX = VectorProcessor.generate();
+	private final int[] viewDirectionY = VectorProcessor.generate();
+	private final int[] viewDirectionZ = VectorProcessor.generate();
 	private final int[] locationX = VectorProcessor.generate();
 	private final int[] locationY = VectorProcessor.generate();
 	private final int[] locationZ = VectorProcessor.generate();
@@ -86,13 +89,22 @@ public class PhongSpecularShader implements Shader {
 	public void vertex(int index, Vertex vertex) {
 		int[] location = VectorProcessor.copy(vertex.getLocation(), vertex.getStartLocation());
 		int[] normal = VectorProcessor.copy(vertex.getNormal(), vertex.getStartNormal());
+		
 		VectorProcessor.multiply(location, modelMatrix, location);
 		locationX[index] = location[vx];
 		locationY[index] = location[vy];
 		locationZ[index] = location[vz];
+		
+		VectorProcessor.subtract(camera.getTransform().getLocation(), location, viewDirection);
+		VectorProcessor.normalize(viewDirection, viewDirection);
+		viewDirectionX[index] = viewDirection[vx];
+		viewDirectionY[index] = viewDirection[vy];
+		viewDirectionZ[index] = viewDirection[vz];
+		
 		VectorProcessor.multiply(location, viewMatrix, location);
 		VectorProcessor.multiply(location, projectionMatrix, location);
 		GraphicsProcessor.viewport(location, camera.getCanvas(), location);
+		
 		if ((location[vz] < camera.getFrustum()[1]) || (location[vz] > camera.getFrustum()[2]))
 			verticesInside = false;
 
@@ -130,6 +142,10 @@ public class PhongSpecularShader implements Shader {
 
 	public void fragment(int[] location, int[] barycentric) {
 
+		viewDirection[vx] = GraphicsProcessor.interpolate(viewDirectionX, barycentric);
+		viewDirection[vy] = GraphicsProcessor.interpolate(viewDirectionY, barycentric);
+		viewDirection[vz] = GraphicsProcessor.interpolate(viewDirectionZ, barycentric);
+		
 		fragmentLocation[vx] = GraphicsProcessor.interpolate(locationX, barycentric);
 		fragmentLocation[vy] = GraphicsProcessor.interpolate(locationY, barycentric);
 		fragmentLocation[vz] = GraphicsProcessor.interpolate(locationZ, barycentric);
@@ -141,9 +157,6 @@ public class PhongSpecularShader implements Shader {
 		int lightColor = ColorProcessor.WHITE;
 		int lightFactor = 0;
 
-		VectorProcessor.subtract(camera.getTransform().getLocation(), fragmentLocation, viewDirection);
-		// normalize values
-		VectorProcessor.normalize(viewDirection, viewDirection);
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
 			int[] lightLocation = light.getTransform().getLocation();
