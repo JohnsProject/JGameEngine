@@ -45,10 +45,10 @@ public class MatrixProcessor {
 	 */
 	public static int[][] generate() {
 		return new int[][] {
-			{MathProcessor.FP_VALUE, 0, 0, 0},
-			{0, MathProcessor.FP_VALUE, 0, 0},
-			{0, 0, MathProcessor.FP_VALUE, 0},
-			{0, 0, 0, MathProcessor.FP_VALUE}
+			{MathProcessor.FP_ONE, 0, 0, 0},
+			{0, MathProcessor.FP_ONE, 0, 0},
+			{0, 0, MathProcessor.FP_ONE, 0},
+			{0, 0, 0, MathProcessor.FP_ONE}
 		};
 	}
 	

@@ -127,17 +127,17 @@ public class SceneImporter {
 				light.setType(LightType.DIRECTIONAL);
 			if (typeData.equals("POINT"))
 				light.setType(LightType.POINT);
-			light.setStrength((int)(getFloat(strengthData) * MathProcessor.FP_VALUE));
-			light.setDiffuseColor(ColorProcessor.convert(red, green, blue));
+			light.setStrength((int)(getFloat(strengthData) * MathProcessor.FP_ONE));
+			light.setDiffuseColor(ColorProcessor.generate(red, green, blue));
 			lights[i] = light;
 		}
 		return lights;
 	}
 
 	private static Transform parseTransform(String[] transformData) {
-		int x = (int)((getFloat(transformData[vx]) * 10) * MathProcessor.FP_VALUE);
-		int y = (int)((getFloat(transformData[vy]) * 10) * MathProcessor.FP_VALUE);
-		int z = (int)((getFloat(transformData[vz]) * 10) * MathProcessor.FP_VALUE);
+		int x = (int)((getFloat(transformData[vx]) * 10) * MathProcessor.FP_ONE);
+		int y = (int)((getFloat(transformData[vy]) * 10) * MathProcessor.FP_ONE);
+		int z = (int)((getFloat(transformData[vz]) * 10) * MathProcessor.FP_ONE);
 		int[] location = VectorProcessor.generate(x, y, z);
 		x = (int)(getFloat(transformData[3 + vx]));
 		y = (int)(getFloat(transformData[3 + vy]));
@@ -154,13 +154,13 @@ public class SceneImporter {
 		Vertex[] vertices = new Vertex[verticesData.length - 1];
 		for (int i = 0; i < verticesData.length - 1; i++) {
 			String[] vertexData = verticesData[i + 1].split(">vertex")[0].split(",");
-			int x = (int)(getFloat(vertexData[vx]) * MathProcessor.FP_VALUE);
-			int y = (int)(getFloat(vertexData[vy]) * MathProcessor.FP_VALUE);
-			int z = (int)(getFloat(vertexData[vz]) * MathProcessor.FP_VALUE);
+			int x = (int)(getFloat(vertexData[vx]) * MathProcessor.FP_ONE);
+			int y = (int)(getFloat(vertexData[vy]) * MathProcessor.FP_ONE);
+			int z = (int)(getFloat(vertexData[vz]) * MathProcessor.FP_ONE);
 			int[] location = VectorProcessor.generate(x, y, z);
-			x = (int)(getFloat(vertexData[3 + vx]) * MathProcessor.FP_VALUE);
-			y = (int)(getFloat(vertexData[3 + vy]) * MathProcessor.FP_VALUE);
-			z = (int)(getFloat(vertexData[3 + vz]) * MathProcessor.FP_VALUE);
+			x = (int)(getFloat(vertexData[3 + vx]) * MathProcessor.FP_ONE);
+			y = (int)(getFloat(vertexData[3 + vy]) * MathProcessor.FP_ONE);
+			z = (int)(getFloat(vertexData[3 + vz]) * MathProcessor.FP_ONE);
 			int[] normal = VectorProcessor.generate(x, y, z);
 			int material = getInt(vertexData[6]);
 			vertices[i] = new Vertex(i, location, normal, materials[material]);
@@ -175,18 +175,18 @@ public class SceneImporter {
 			int vertex1 = getInt(faceData[0]);
 			int vertex2 = getInt(faceData[1]);
 			int vertex3 = getInt(faceData[2]);
-			int x = (int)(getFloat(faceData[3 + vx]) * MathProcessor.FP_VALUE);
-			int y = (int)(getFloat(faceData[3 + vy]) * MathProcessor.FP_VALUE);
-			int z = (int)(getFloat(faceData[3 + vz]) * MathProcessor.FP_VALUE);
+			int x = (int)(getFloat(faceData[3 + vx]) * MathProcessor.FP_ONE);
+			int y = (int)(getFloat(faceData[3 + vy]) * MathProcessor.FP_ONE);
+			int z = (int)(getFloat(faceData[3 + vz]) * MathProcessor.FP_ONE);
 			int[] normal = VectorProcessor.generate(x, y, z);
-			x = (int)(getFloat(faceData[6 + vx]) * MathProcessor.FP_VALUE);
-			y = (int)(getFloat(faceData[6 + vy]) * MathProcessor.FP_VALUE);
+			x = (int)(getFloat(faceData[6 + vx]) * MathProcessor.FP_ONE);
+			y = (int)(getFloat(faceData[6 + vy]) * MathProcessor.FP_ONE);
 			int[] uv1 = VectorProcessor.generate(x, y);
-			x = (int)(getFloat(faceData[8 + vx]) * MathProcessor.FP_VALUE);
-			y = (int)(getFloat(faceData[8 + vy]) * MathProcessor.FP_VALUE);
+			x = (int)(getFloat(faceData[8 + vx]) * MathProcessor.FP_ONE);
+			y = (int)(getFloat(faceData[8 + vy]) * MathProcessor.FP_ONE);
 			int[] uv2 = VectorProcessor.generate(x, y);
-			x = (int)(getFloat(faceData[10 + vx]) * MathProcessor.FP_VALUE);
-			y = (int)(getFloat(faceData[10 + vy]) * MathProcessor.FP_VALUE);
+			x = (int)(getFloat(faceData[10 + vx]) * MathProcessor.FP_ONE);
+			y = (int)(getFloat(faceData[10 + vy]) * MathProcessor.FP_ONE);
 			int[] uv3 = VectorProcessor.generate(x, y);
 			int material = getInt(faceData[12]);
 			faces[i] = new Face(i, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], normal, uv1, uv2, uv3);
@@ -203,10 +203,10 @@ public class SceneImporter {
 			int green = (int)(getFloat(materialData[2]) * 256);
 			int blue = (int)(getFloat(materialData[3]) * 256);
 			int alpha = (int)(getFloat(materialData[4]) * 256);
-			int diffuse = (int)(getFloat(materialData[5]) * MathProcessor.FP_VALUE);
-			int specular = (int)(getFloat(materialData[6]) * MathProcessor.FP_VALUE);
+			int diffuse = (int)(getFloat(materialData[5]) * MathProcessor.FP_ONE);
+			int specular = (int)(getFloat(materialData[6]) * MathProcessor.FP_ONE);
 			int shininess = (int)(getFloat(materialData[7]) / 10);
-			materials[i] = new Material(i, name, ColorProcessor.convert(red, green, blue, alpha), diffuse, specular, shininess, null);
+			materials[i] = new Material(i, name, ColorProcessor.generate(red, green, blue, alpha), diffuse, specular, shininess, null);
 		}
 		return materials;
 	}

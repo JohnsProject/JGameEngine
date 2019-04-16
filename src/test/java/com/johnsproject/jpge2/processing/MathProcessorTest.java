@@ -9,7 +9,7 @@ public class MathProcessorTest {
 	@Test
 	public void genLookupTableTest() throws Exception {
 		for (int angle = 0; angle < 91; angle++) {
-			System.out.print((int)Math.round(Math.sin(Math.toRadians(angle)) * MathProcessor.FP_VALUE) + ", ");
+			System.out.print((int)Math.round(Math.sin(Math.toRadians(angle)) * MathProcessor.FP_ONE) + ", ");
 		}
 	}
 	
@@ -30,7 +30,7 @@ public class MathProcessorTest {
 			int angle = i;
 			int precision = 1;
 			int isin = MathProcessor.sin(angle);
-			int sin = (int) Math.round(Math.sin(Math.toRadians(angle)) * MathProcessor.FP_VALUE);
+			int sin = (int) Math.round(Math.sin(Math.toRadians(angle)) * MathProcessor.FP_ONE);
 			assert (isin >= sin - precision && isin <= sin + precision);
 		}
 	}
@@ -41,7 +41,7 @@ public class MathProcessorTest {
 			int angle = i;
 			int precision = 1;
 			int icos = MathProcessor.cos(angle);
-			int cos = (int) Math.round(Math.cos(Math.toRadians(angle)) * MathProcessor.FP_VALUE);
+			int cos = (int) Math.round(Math.cos(Math.toRadians(angle)) * MathProcessor.FP_ONE);
 			assert (icos >= cos - precision && icos <= cos + precision);
 		}
 	}
@@ -52,7 +52,7 @@ public class MathProcessorTest {
 			int angle = i;
 			int precision = 20;
 			int itan = MathProcessor.tan(angle);
-			int tan = (int) Math.round(Math.tan(Math.toRadians(angle)) * MathProcessor.FP_VALUE);
+			int tan = (int) Math.round(Math.tan(Math.toRadians(angle)) * MathProcessor.FP_ONE);
 			assert (itan >= tan - precision && itan <= tan + precision);
 		}
 	}

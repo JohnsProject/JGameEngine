@@ -172,7 +172,7 @@ public class PhongSpecularShader implements Shader {
 			case POINT:
 				// attenuation
 				long distance = VectorProcessor.magnitude(lightDirection);
-				int attenuation = MathProcessor.FP_VALUE;
+				int attenuation = MathProcessor.FP_ONE;
 				attenuation += MathProcessor.multiply(distance, 3000);
 				attenuation += MathProcessor.multiply(MathProcessor.multiply(distance, distance), 20);
 				attenuation = attenuation >> MathProcessor.FP_SHIFT;

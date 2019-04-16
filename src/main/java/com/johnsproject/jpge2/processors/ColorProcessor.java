@@ -25,15 +25,15 @@ package com.johnsproject.jpge2.processors;
 
 public class ColorProcessor {
 
-	public static final int WHITE = convert(255, 255, 255);
-	public static final int BLACK = convert(0, 0, 0);
+	public static final int WHITE = generate(255, 255, 255);
+	public static final int BLACK = generate(0, 0, 0);
 	
 	private static final byte GREENSHIFT = 8;
 	private static final byte REDSHIFT = 16;
 	private static final byte ALPHASHIFT = 24;
 	private static final int HEX = 0xFF;
 
-	public static int convert(int r, int g, int b, int a) {
+	public static int generate(int r, int g, int b, int a) {
 		int color = 0;
 		color |= MathProcessor.clamp(a, 0, 255) << ALPHASHIFT;
 		color |= MathProcessor.clamp(r, 0, 255) << REDSHIFT;
@@ -42,7 +42,7 @@ public class ColorProcessor {
 		return color;
 	}
 
-	public static int convert(int r, int g, int b) {
+	public static int generate(int r, int g, int b) {
 		int color = 0;
 		color |= (255) << ALPHASHIFT;
 		color |= MathProcessor.clamp(r, 0, 255) << REDSHIFT;
@@ -73,7 +73,7 @@ public class ColorProcessor {
 		r = (r * factor) >> 8;
 		g = (g * factor) >> 8;
 		b = (b * factor) >> 8;
-		return convert(r, g, b, a);
+		return generate(r, g, b, a);
 	}
 	
 	public static int multiplyRGBA(int color, int factor) {
@@ -83,7 +83,7 @@ public class ColorProcessor {
 		g = (g * factor) >> 8;
 		b = (b * factor) >> 8;
 		a = (a * factor) >> 8;
-		return convert(r, g, b, a);
+		return generate(r, g, b, a);
 	}
 	
 	public static int add(int color1, int color2) {
@@ -92,7 +92,7 @@ public class ColorProcessor {
 		int r = (r1 + r2);
 		int g = (g1 + g2);
 		int b = (b1 + b2);
-		return convert(r, g, b, a1);
+		return generate(r, g, b, a1);
 	}
 	
 	public static int addRGBA(int color1, int color2) {
@@ -102,7 +102,7 @@ public class ColorProcessor {
 		int g = (g1 + g2);
 		int b = (b1 + b2);
 		int a = (a1 + a2);
-		return convert(r, g, b, a);
+		return generate(r, g, b, a);
 	}
 	
 	public static int multiplyColor(int color1, int color2) {
@@ -111,7 +111,7 @@ public class ColorProcessor {
 		int r = (r1 * r2) >> 8;
 		int g = (g1 * g2) >> 8;
 		int b = (b1 * b2) >> 8;
-		return convert(r, g, b, a1);
+		return generate(r, g, b, a1);
 	}
 	
 	public static int multiplyColorRGBA(int color1, int color2) {
@@ -121,7 +121,7 @@ public class ColorProcessor {
 		int g = (g1 * g2) >> 8;
 		int b = (b1 * b2) >> 8;
 		int a = (a1 * a2) >> 8;
-		return convert(r, g, b, a);
+		return generate(r, g, b, a);
 	}
 	
 	public static int lerp(int color1, int color2, int factor) {
@@ -130,7 +130,7 @@ public class ColorProcessor {
 		int r = (r1 + (((r2 - r1) * factor) >> 8));
 		int g = (g1 + (((g2 - g1) * factor) >> 8));
 		int b = (b1 + (((b2 - b1) * factor) >> 8));
-		return convert(r, g, b, a1);
+		return generate(r, g, b, a1);
 	}
 	
 	public static int lerpRGBA(int color1, int color2, int factor) {
@@ -140,6 +140,6 @@ public class ColorProcessor {
 		int g = (g1 + (((g2 - g1) * factor) >> 8));
 		int b = (b1 + (((b2 - b1) * factor) >> 8));
 		int a = (a1 + (((a2 - a1) * factor) >> 8));
-		return convert(r, g, b, a);
+		return generate(r, g, b, a);
 	}
 }

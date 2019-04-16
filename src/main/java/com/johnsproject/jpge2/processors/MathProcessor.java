@@ -30,15 +30,15 @@ public class MathProcessor {
 			282, 299, 316, 333, 350, 367, 384, 400, 416, 433, 449, 465, 481, 496, 512, 527, 543, 558, 573, 587, 602,
 			616, 630, 644, 658, 672, 685, 698, 711, 724, 737, 749, 761, 773, 784, 796, 807, 818, 828, 839, 849, 859,
 			868, 878, 887, 896, 904, 912, 920, 928, 935, 943, 949, 956, 962, 968, 974, 979, 984, 989, 994, 998, 1002,
-			1005, 1008, 1011, 1014, 1016, 1018, 1020, 1022, 1023, 1023, 1024, 1024 };
+			1005, 1008, 1011, 1014, 1016, 1018, 1020, 1022, 1023, 1023, 1024, 1024};
 
 	/**
 	 * FP_SHIFT and FP_VALUE are the values used to do integer to fixed point
 	 * conversion by bit shifting. Bit shift left to convert to fixed point and
 	 * right to get integer values.
 	 */
-	public static final int FP_SHIFT = 10, FP_VALUE = 1 << FP_SHIFT, FP_ROUND = 1 << (FP_SHIFT - 1);
-
+	public static final int FP_SHIFT = 10, FP_ONE = 1 << FP_SHIFT, FP_HALF = 1 << (FP_SHIFT - 1);
+	
 	/**
 	 * Returns the fixed point sine of the given angle.
 	 * 
@@ -46,34 +46,35 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int sin(int angle) {
-		int a = Math.abs(angle);
-		int i = 0;
-		int quadrant = 0;
-		while (a >= i) {
-			i += 90;
-			quadrant++;
-			if (quadrant > 4) {
-				quadrant = 1;
+		angle = ((angle % 360) + 360) % 360;
+		int quadrant = (angle / 90) + 1;
+		angle %= 90;
+		if (angle >= 0) {
+			if (quadrant == 1) {
+				return SIN_LUT[angle];
 			}
-		}
-		a = (a - i) + 90;
-		switch (quadrant) {
-		case 1:
-			if (angle > 0)
-				return SIN_LUT[a];
-			return -(SIN_LUT[a]);
-		case 2:
-			if (angle > 0)
-				return SIN_LUT[90 - a];
-			return -(SIN_LUT[90 - a]);
-		case 3:
-			if (angle > 0)
-				return -(SIN_LUT[a]);
-			return (SIN_LUT[a]);
-		case 4:
-			if (angle > 0)
-				return -(SIN_LUT[90 - a]);
-			return (SIN_LUT[90 - a]);
+			if (quadrant == 2) {
+				return SIN_LUT[90 - angle];
+			}
+			if (quadrant == 3) {
+				return -SIN_LUT[angle];
+			}
+			if (quadrant == 4) {
+				return -SIN_LUT[90 - angle];
+			}
+		} else {
+			if (quadrant == 1) {
+				return -SIN_LUT[angle];
+			}
+			if (quadrant == 2) {
+				return -SIN_LUT[90 - angle];
+			}
+			if (quadrant == 3) {
+				return SIN_LUT[angle];
+			}
+			if (quadrant == 4) {
+				return SIN_LUT[90 - angle];
+			}
 		}
 		return 0;
 	}
@@ -85,26 +86,20 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int cos(int angle) {
-		int a = Math.abs(angle);
-		int i = 0;
-		int quadrant = 0;
-		while (a >= i) {
-			i += 90;
-			quadrant++;
-			if (quadrant > 4) {
-				quadrant = 1;
-			}
+		angle = ((angle % 360) + 360) % 360;
+		int quadrant = (angle / 90) + 1;
+		angle %= 90;
+		if (quadrant == 1) {
+			return SIN_LUT[90 - angle];
 		}
-		a = (a - i) + 90;
-		switch (quadrant) {
-		case 1:
-			return SIN_LUT[90 - a];
-		case 2:
-			return -(SIN_LUT[a]);
-		case 3:
-			return -(SIN_LUT[90 - a]);
-		case 4:
-			return (SIN_LUT[a]);
+		if (quadrant == 2) {
+			return -SIN_LUT[angle];
+		}
+		if (quadrant == 3) {
+			return -SIN_LUT[90 - angle];
+		}
+		if (quadrant == 4) {
+			return SIN_LUT[angle];
 		}
 		return 0;
 	}
@@ -202,7 +197,7 @@ public class MathProcessor {
 	 * @param number
 	 * @return
 	 */
-	public static int sqrt(int number) {		
+	public static int sqrt(int number) {
 		number >>= FP_SHIFT;
 		int c = 0x8000;
 		int g = 0x8000;
@@ -270,7 +265,7 @@ public class MathProcessor {
 	 */
 	public static int pow(int base, int exp) {
 		long lBase = base;
-		long result = FP_VALUE;
+		long result = FP_ONE;
 		while (exp != 0) {
 			if ((exp & 1) == 1) {
 				result = multiply(result, lBase);
@@ -289,7 +284,7 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static long pow(long base, long exp) {
-		long result = FP_VALUE;
+		long result = FP_ONE;
 		while (exp != 0) {
 			if ((exp & 1) == 1) {
 				result = multiply(result, base);
@@ -308,7 +303,7 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int multiply(int value1, int value2) {
-		return (int) ((((long) value1 * (long) value2) + FP_ROUND) >> FP_SHIFT);
+		return (int) ((((long) value1 * (long) value2) + FP_HALF) >> FP_SHIFT);
 	}
 
 	/**
@@ -319,7 +314,7 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static long multiply(long value1, long value2) {
-		return (((value1 * value2) + FP_ROUND) >> FP_SHIFT);
+		return (((value1 * value2) + FP_HALF) >> FP_SHIFT);
 	}
 
 	/**
@@ -332,7 +327,7 @@ public class MathProcessor {
 	public static int divide(int dividend, int divisor) {
 		if (divisor == 0)
 			return 0;
-		return (int) ((((long) dividend << FP_SHIFT) + FP_ROUND) / divisor);
+		return (int) ((((long) dividend << FP_SHIFT) + FP_HALF) / divisor);
 	}
 
 	/**
@@ -345,6 +340,6 @@ public class MathProcessor {
 	public static long divide(long dividend, long divisor) {
 		if (divisor == 0)
 			return 0;
-		return ((dividend << FP_SHIFT) + FP_ROUND) / divisor;
+		return ((dividend << FP_SHIFT) + FP_HALF) / divisor;
 	}
 }

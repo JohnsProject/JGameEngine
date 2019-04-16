@@ -109,7 +109,7 @@ public class GouraudSpecularShader implements Shader {
 			case POINT:
 				// attenuation
 				long distance = VectorProcessor.magnitude(lightDirection);
-				int attenuation = MathProcessor.FP_VALUE;
+				int attenuation = MathProcessor.FP_ONE;
 				attenuation += MathProcessor.multiply(distance, 3000);
 				attenuation += MathProcessor.multiply(MathProcessor.multiply(distance, distance), 20);
 				attenuation = attenuation >> MathProcessor.FP_SHIFT;
@@ -163,7 +163,7 @@ public class GouraudSpecularShader implements Shader {
 		int r = GraphicsProcessor.interpolate(lightColorR, barycentric);
 		int g = GraphicsProcessor.interpolate(lightColorG, barycentric);
 		int b = GraphicsProcessor.interpolate(lightColorB, barycentric);
-		int lightColor = ColorProcessor.convert(r, g, b);
+		int lightColor = ColorProcessor.generate(r, g, b);
 		if (texture != null) {
 			int u = GraphicsProcessor.interpolate(uvX, barycentric);
 			int v = GraphicsProcessor.interpolate(uvY, barycentric);

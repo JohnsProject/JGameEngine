@@ -41,6 +41,7 @@ public class GraphicsProcessor {
 	private static final byte vw = VectorProcessor.VECTOR_W;
 	
 	private static final int INTERPOLATE_SHIFT = MathProcessor.FP_SHIFT * 2;
+	
 	private static final long[] depth = new long[3];
 	private static final int[] barycentric = VectorProcessor.generate();
 	private static final int[] pixel = VectorProcessor.generate();
@@ -92,8 +93,8 @@ public class GraphicsProcessor {
 
 	public static int[][] getOrthographicMatrix(int[] frustum, int[][] out) {
 		int scaleFactor = (frameBufferSize[1] >> 6) + 1;
-		out[0][0] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
-		out[1][1] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
+		out[0][0] = (MathProcessor.FP_ONE * scaleFactor) << MathProcessor.FP_SHIFT;
+		out[1][1] = (MathProcessor.FP_ONE * scaleFactor) << MathProcessor.FP_SHIFT;
 		out[2][2] = -MathProcessor.FP_SHIFT;
 		out[3][3] = (frustum[3] - frustum[2]) << (MathProcessor.FP_SHIFT * 2);
 		return out;
@@ -104,7 +105,7 @@ public class GraphicsProcessor {
 		out[0][0] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
 		out[1][1] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
 		out[2][2] = -MathProcessor.FP_SHIFT;
-		out[2][3] = MathProcessor.FP_VALUE * MathProcessor.FP_VALUE;
+		out[2][3] = MathProcessor.FP_ONE * MathProcessor.FP_ONE;
 		return out;
 	}
 

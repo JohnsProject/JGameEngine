@@ -30,13 +30,13 @@ public class VectorProcessor {
 	public static final byte VECTOR_Z = 2;
 	public static final byte VECTOR_W = 3;
 	
-	public static final int[] UP = generate(0, MathProcessor.FP_VALUE, 0);
-	public static final int[] DOWN = generate(0, -MathProcessor.FP_VALUE, 0);
-	public static final int[] RIGHT = generate(MathProcessor.FP_VALUE, 0, 0);
-	public static final int[] LEFT = generate(-MathProcessor.FP_VALUE, 0, 0);
-	public static final int[] FORWARD = generate(0, 0, MathProcessor.FP_VALUE);
-	public static final int[] BACK = generate(0, 0, -MathProcessor.FP_VALUE);
-	public static final int[] ONE = generate(MathProcessor.FP_VALUE, MathProcessor.FP_VALUE, MathProcessor.FP_VALUE);
+	public static final int[] UP = generate(0, MathProcessor.FP_ONE, 0);
+	public static final int[] DOWN = generate(0, -MathProcessor.FP_ONE, 0);
+	public static final int[] RIGHT = generate(MathProcessor.FP_ONE, 0, 0);
+	public static final int[] LEFT = generate(-MathProcessor.FP_ONE, 0, 0);
+	public static final int[] FORWARD = generate(0, 0, MathProcessor.FP_ONE);
+	public static final int[] BACK = generate(0, 0, -MathProcessor.FP_ONE);
+	public static final int[] ONE = generate(MathProcessor.FP_ONE, MathProcessor.FP_ONE, MathProcessor.FP_ONE);
 	public static final int[] ZERO = generate(0, 0, 0);
 	
 	

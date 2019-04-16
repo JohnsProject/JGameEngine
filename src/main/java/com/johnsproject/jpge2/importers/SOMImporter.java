@@ -70,13 +70,13 @@ public class SOMImporter {
 		String[] vMaterialData = rawData.split("vMaterial<")[1].split(">vMaterial", 2)[0].split(",");
 		for (int i = 0; i < vertices.length * 3; i += 3) {
 			int[] location = VectorProcessor.generate();
-			location[vx] = (int)(getFloat(vLocationData[i + vx]) * MathProcessor.FP_VALUE);
-			location[vy] = (int)(getFloat(vLocationData[i + vy]) * MathProcessor.FP_VALUE);
-			location[vz] = (int)(getFloat(vLocationData[i + vz]) * MathProcessor.FP_VALUE);
+			location[vx] = (int)(getFloat(vLocationData[i + vx]) * MathProcessor.FP_ONE);
+			location[vy] = (int)(getFloat(vLocationData[i + vy]) * MathProcessor.FP_ONE);
+			location[vz] = (int)(getFloat(vLocationData[i + vz]) * MathProcessor.FP_ONE);
 			int[] normal = VectorProcessor.generate();
-			normal[vx] = (int)(getFloat(vNormalData[i + vx]) * MathProcessor.FP_VALUE);
-			normal[vy] = (int)(getFloat(vNormalData[i + vy]) * MathProcessor.FP_VALUE);
-			normal[vz] = (int)(getFloat(vNormalData[i + vz]) * MathProcessor.FP_VALUE);
+			normal[vx] = (int)(getFloat(vNormalData[i + vx]) * MathProcessor.FP_ONE);
+			normal[vy] = (int)(getFloat(vNormalData[i + vy]) * MathProcessor.FP_ONE);
+			normal[vz] = (int)(getFloat(vNormalData[i + vz]) * MathProcessor.FP_ONE);
 			int material = getint(vMaterialData[i / 3]);
 			vertices[i / 3] = new Vertex(i / 3, location, normal, materials[material]);
 		}
@@ -100,18 +100,18 @@ public class SOMImporter {
 			int vertex3 = getint(fVertex3Data[i / 6]);
 			int material = getint(fMaterialData[i / 6]);
 			int[] normal = VectorProcessor.generate();
-			normal[vx] = (int)(getFloat(fNormalData[(i / 2) + vx]) * MathProcessor.FP_VALUE);
-			normal[vy] = (int)(getFloat(fNormalData[(i / 2) + vy]) * MathProcessor.FP_VALUE);
-			normal[vz] = (int)(getFloat(fNormalData[(i / 2) + vz]) * MathProcessor.FP_VALUE);
+			normal[vx] = (int)(getFloat(fNormalData[(i / 2) + vx]) * MathProcessor.FP_ONE);
+			normal[vy] = (int)(getFloat(fNormalData[(i / 2) + vy]) * MathProcessor.FP_ONE);
+			normal[vz] = (int)(getFloat(fNormalData[(i / 2) + vz]) * MathProcessor.FP_ONE);
 			int[] uv1 = VectorProcessor.generate();
-			uv1[vx] = (int)(getFloat(fUV1Data[(i / 3) + vx]) * MathProcessor.FP_VALUE);
-			uv1[vy] = (int)(getFloat(fUV1Data[(i / 3) + vy]) * MathProcessor.FP_VALUE);
+			uv1[vx] = (int)(getFloat(fUV1Data[(i / 3) + vx]) * MathProcessor.FP_ONE);
+			uv1[vy] = (int)(getFloat(fUV1Data[(i / 3) + vy]) * MathProcessor.FP_ONE);
 			int[] uv2 = VectorProcessor.generate();
-			uv2[vx] = (int)(getFloat(fUV2Data[(i / 3) + vx]) * MathProcessor.FP_VALUE);
-			uv2[vy] = (int)(getFloat(fUV2Data[(i / 3) + vy]) * MathProcessor.FP_VALUE);
+			uv2[vx] = (int)(getFloat(fUV2Data[(i / 3) + vx]) * MathProcessor.FP_ONE);
+			uv2[vy] = (int)(getFloat(fUV2Data[(i / 3) + vy]) * MathProcessor.FP_ONE);
 			int[] uv3 = VectorProcessor.generate();
-			uv3[vx] = (int)(getFloat(fUV3Data[(i / 3) + vx]) * MathProcessor.FP_VALUE);
-			uv3[vy] = (int)(getFloat(fUV3Data[(i / 3) + vy]) * MathProcessor.FP_VALUE);
+			uv3[vx] = (int)(getFloat(fUV3Data[(i / 3) + vx]) * MathProcessor.FP_ONE);
+			uv3[vy] = (int)(getFloat(fUV3Data[(i / 3) + vy]) * MathProcessor.FP_ONE);
 			faces[i / 6] = new Face(i / 6, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], normal, uv1, uv2, uv3);
 		}
 		return faces;
@@ -129,9 +129,9 @@ public class SOMImporter {
 			int	g = (int)(getFloat(mDiffuseColorData[i+1]) * 256);
 			int	b = (int)(getFloat(mDiffuseColorData[i+2]) * 256);
 			int	a = (int)(getFloat(mDiffuseColorData[i+3]) * 256);
-			int diffuseIntensity = (int)(getFloat(mDiffuseIntensityData[i / 4]) * MathProcessor.FP_VALUE);
-			int specularIntensity = (int)(getFloat(mSpecularIntensityData[i / 4]) * MathProcessor.FP_VALUE);
-			materials[i/4] = new Material(i/4, "", ColorProcessor.convert(r, g, b, a), diffuseIntensity, specularIntensity, 0, null);
+			int diffuseIntensity = (int)(getFloat(mDiffuseIntensityData[i / 4]) * MathProcessor.FP_ONE);
+			int specularIntensity = (int)(getFloat(mSpecularIntensityData[i / 4]) * MathProcessor.FP_ONE);
+			materials[i/4] = new Material(i/4, "", ColorProcessor.generate(r, g, b, a), diffuseIntensity, specularIntensity, 0, null);
 		}
 		return materials;
 	}
