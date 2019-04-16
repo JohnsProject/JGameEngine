@@ -111,7 +111,7 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int tan(int angle) {
-		return angle != 89 ? ((sin(angle) << FP_SHIFT) / cos(angle)) : 15000;
+		return (sin(angle) << FP_SHIFT) / cos(angle);
 	}
 
 	/**

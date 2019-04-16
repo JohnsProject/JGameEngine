@@ -48,9 +48,9 @@ public class MathProcessorTest {
 
 	@Test
 	public void tanTest() throws Exception {
-		for (int i = 0; i < 80; i++) {
+		for (int i = 0; i < 90; i++) {
 			int angle = i;
-			int precision = 20;
+			int precision = 411;
 			int itan = MathProcessor.tan(angle);
 			int tan = (int) Math.round(Math.tan(Math.toRadians(angle)) * MathProcessor.FP_ONE);
 			assert (itan >= tan - precision && itan <= tan + precision);
