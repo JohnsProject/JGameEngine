@@ -47,7 +47,7 @@ public class EngineOptions {
 	public EngineOptions() {
 		updateRate = 25;
 		maxUpdateSkip = 10;
-		frameBuffer = new FrameBuffer();
+		frameBuffer = new FrameBuffer(1, 1);
 		scene = new Scene();
 		shaders = new ArrayList<Shader>();
 		addShader(new FlatSpecularShader());

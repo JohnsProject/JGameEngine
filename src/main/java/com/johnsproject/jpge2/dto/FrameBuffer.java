@@ -26,21 +26,22 @@ package com.johnsproject.jpge2.dto;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
+import com.johnsproject.jpge2.processors.VectorProcessor;
+
 public class FrameBuffer {
 
-	private int width;
-	private int height;
-	private int length;
+	private int[] size;
 	private BufferedImage image;
 	private int[] colorBuffer;
 	private int[] depthBuffer;
 	private byte[] stencilBuffer;
 
-	public FrameBuffer() {
-		setSize(1, 1);
+	public FrameBuffer(int[] size) {
+		setSize(size);
 	}
 
 	public FrameBuffer(int width, int height) {
+		this.size = VectorProcessor.generate();
 		setSize(width, height);
 	}
 
@@ -77,19 +78,27 @@ public class FrameBuffer {
 			stencilBuffer[i] = 0;
 		}
 	}
+	
+	public void setSize(int[] size) {
+		this.size = size;
+		this.image = new BufferedImage(size[0], size[1], BufferedImage.TYPE_INT_ARGB_PRE);
+		this.colorBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+		this.depthBuffer = new int[size[2]];
+		this.stencilBuffer = new byte[size[2]];
+	}
 
 	public void setSize(int width, int height) {
-		this.width = width;
-		this.height = height;
-		this.length = width * height;
-		this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
+		this.size[0] = width;
+		this.size[1] = height;
+		this.size[2] = width * height;
+		this.image = new BufferedImage(size[0], size[1], BufferedImage.TYPE_INT_ARGB_PRE);
 		this.colorBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-		this.depthBuffer = new int[length];
-		this.stencilBuffer = new byte[length];
+		this.depthBuffer = new int[size[2]];
+		this.stencilBuffer = new byte[size[2]];
 	}
 
 	public void setPixel(int x, int y, int z, byte stencil, int color) {
-		int pos = x + (y * width);
+		int pos = x + (y * size[0]);
 		if (depthBuffer[pos] > z) {
 			depthBuffer[pos] = z;
 			stencilBuffer[pos] = stencil;
@@ -98,40 +107,36 @@ public class FrameBuffer {
 	}
 	
 	public void setColor(int x, int y, int color) {
-		int pos = x + (y * width);
+		int pos = x + (y * size[0]);
 		colorBuffer[pos] = color;
 	}
 	
 	public void setDepth(int x, int y, int z) {
-		int pos = x + (y * width);
+		int pos = x + (y * size[0]);
 		depthBuffer[pos] = z;
 	}
 	
 	public void setStencil(int x, int y, byte stencil) {
-		int pos = x + (y * width);
+		int pos = x + (y * size[0]);
 		stencilBuffer[pos] = stencil;
 	}
 
 	public int getColor(int x, int y) {
-		int pos = x + (y * width);
+		int pos = x + (y * size[0]);
 		return colorBuffer[pos];
 	}
 
 	public int getDepth(int x, int y) {
-		int pos = x + (y * width);
+		int pos = x + (y * size[0]);
 		return depthBuffer[pos];
 	}
 	
 	public byte getStencil(int x, int y) {
-		int pos = x + (y * width);
+		int pos = x + (y * size[0]);
 		return stencilBuffer[pos];
 	}
 
-	public int getWidth() {
-		return width;
-	}
-
-	public int getHeight() {
-		return height;
+	public int[] getSize() {
+		return size;
 	}
 }

@@ -39,6 +39,21 @@ public class GraphicsProcessor {
 	private static final byte vy = VectorProcessor.VECTOR_Y;
 	private static final byte vz = VectorProcessor.VECTOR_Z;
 	private static final byte vw = VectorProcessor.VECTOR_W;
+	
+	private static final int INTERPOLATE_SHIFT = MathProcessor.FP_SHIFT * 2;
+	private static final long[] depth = new long[3];
+	private static final int[] barycentric = VectorProcessor.generate();
+	private static final int[] pixel = VectorProcessor.generate();
+	
+	private static int[] frameBufferSize;
+	private static int[] cameraCanvas;
+	private static Shader shader;
+	
+	public static void setup(int[] frameBufferSize, int[] cameraCanvas, Shader shader) {
+		GraphicsProcessor.frameBufferSize = frameBufferSize;
+		GraphicsProcessor.cameraCanvas = cameraCanvas;
+		GraphicsProcessor.shader = shader;
+	}
 
 	public static int[][] getModelMatrix(Transform transform, int[][] out) {
 		int[] location = transform.getLocation();
@@ -75,8 +90,8 @@ public class GraphicsProcessor {
 		return out;
 	}
 
-	public static int[][] getOrthographicMatrix(int[] canvas, int[] frustum, int[][] out) {
-		int scaleFactor = (canvas[3] >> 6) + 1;
+	public static int[][] getOrthographicMatrix(int[] frustum, int[][] out) {
+		int scaleFactor = (frameBufferSize[1] >> 6) + 1;
 		out[0][0] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
 		out[1][1] = (MathProcessor.FP_VALUE * scaleFactor) << MathProcessor.FP_SHIFT;
 		out[2][2] = -MathProcessor.FP_SHIFT;
@@ -84,8 +99,8 @@ public class GraphicsProcessor {
 		return out;
 	}
 	
-	public static int[][] getPerspectiveMatrix(int[] canvas, int[] frustum, int[][] out) {
-		int scaleFactor = (canvas[3] >> 6) + 1;
+	public static int[][] getPerspectiveMatrix(int[] frustum, int[][] out) {
+		int scaleFactor = (frameBufferSize[1] >> 6) + 1;
 		out[0][0] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
 		out[1][1] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
 		out[2][2] = -MathProcessor.FP_SHIFT;
@@ -93,18 +108,15 @@ public class GraphicsProcessor {
 		return out;
 	}
 
-	public static int[] viewport(int[] location, int[] canvas, int[] out) {
-		out[vx] = MathProcessor.divide(location[vx], location[vw]) + (canvas[vx] + (canvas[2] >> 1));
-		out[vy] = MathProcessor.divide(location[vy], location[vw]) + (canvas[vy] + (canvas[3] >> 1));
+	public static int[] viewport(int[] location, int[] out) {
+		int portX = MathProcessor.multiply(cameraCanvas[vx] + ((cameraCanvas[2] - cameraCanvas[vx]) >> 1), frameBufferSize[0] - 1);
+		int portY = MathProcessor.multiply(cameraCanvas[vy] + ((cameraCanvas[3] - cameraCanvas[vy]) >> 1), frameBufferSize[1] - 1);
+		out[vx] = MathProcessor.divide(location[vx], location[vw]) + portX;
+		out[vy] = MathProcessor.divide(location[vy], location[vw]) + portY;
 		return out;
 	}
 	
-	private static final int INTERPOLATE_SHIFT = MathProcessor.FP_SHIFT * 2;
-	private static final long[] depth = new long[3];
-	private static final int[] barycentric = VectorProcessor.generate();
-	private static final int[] pixel = VectorProcessor.generate();
-	
-	public static void drawTriangle(int[] location1, int[] location2, int[] location3, int[] canvas, Shader shader) {
+	public static void drawTriangle(int[] location1, int[] location2, int[] location3) {
 		
 		int one = 1 << INTERPOLATE_SHIFT;
 		depth[0] = one / location1[vz];
@@ -119,10 +131,10 @@ public class GraphicsProcessor {
 		int maxY = Math.max(location1[vy], Math.max(location2[vy], location3[vy]));
 
 		// clip against screen limits
-		minX = Math.max(minX, canvas[vx]);
-		minY = Math.max(minY, canvas[vy]);
-		maxX = Math.min(maxX, canvas[2] - 1);
-		maxY = Math.min(maxY, canvas[3] - 1);
+		minX = Math.max(minX, MathProcessor.multiply(cameraCanvas[vx], frameBufferSize[0] - 1));
+		minY = Math.max(minY, MathProcessor.multiply(cameraCanvas[vy], frameBufferSize[1] - 1));
+		maxX = Math.min(maxX, MathProcessor.multiply(cameraCanvas[2], frameBufferSize[0] - 1));
+		maxY = Math.min(maxY, MathProcessor.multiply(cameraCanvas[3], frameBufferSize[1] - 1));
 		
 		// triangle setup
 		int a01 = location1[vy] - location2[vy], b01 = location2[vx] - location1[vx];

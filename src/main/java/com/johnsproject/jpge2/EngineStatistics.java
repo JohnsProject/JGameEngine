@@ -29,8 +29,7 @@ public class EngineStatistics implements EngineListener{
 		long fps = 1000 / elapsed;
 		long ramUsage = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) >> 20;
 		EngineOptions options = Engine.getInstance().getOptions();
-		int frameBufferWidth = options.getFrameBuffer().getWidth();
-		int frameBufferHeight = options.getFrameBuffer().getHeight();
+		int[] frameBufferSize = options.getFrameBuffer().getSize();
 		int maxFPS = options.getUpdateRate();
 		int shadersCount = options.getShaders().size();
 		
@@ -51,7 +50,7 @@ public class EngineStatistics implements EngineListener{
 		g.drawString(fps + " / " + maxFPS, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
 		currentLine++;
 		g.drawString("Framebuffer", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		g.drawString(frameBufferWidth + "x" + frameBufferHeight, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
+		g.drawString(frameBufferSize[0] + "x" + frameBufferSize[1], STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
 		currentLine++;
 		g.drawString("Shaders", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
 		g.drawString("" + shadersCount, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);

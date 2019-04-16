@@ -77,7 +77,9 @@ public class FlatSpecularShader implements Shader {
 
 	public void setup(Model model, Camera camera) {
 		this.camera = camera;
-
+		
+		GraphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
+		
 		MatrixProcessor.copy(modelMatrix, MatrixProcessor.IDENTITY);
 		MatrixProcessor.copy(normalMatrix, MatrixProcessor.IDENTITY);
 		MatrixProcessor.copy(viewMatrix, MatrixProcessor.IDENTITY);
@@ -89,11 +91,11 @@ public class FlatSpecularShader implements Shader {
 
 		switch (camera.getType()) {
 		case ORTHOGRAPHIC:
-			GraphicsProcessor.getOrthographicMatrix(camera.getCanvas(), camera.getFrustum(), projectionMatrix);
+			GraphicsProcessor.getOrthographicMatrix(camera.getFrustum(), projectionMatrix);
 			break;
 
 		case PERSPECTIVE:
-			GraphicsProcessor.getPerspectiveMatrix(camera.getCanvas(), camera.getFrustum(), projectionMatrix);
+			GraphicsProcessor.getPerspectiveMatrix(camera.getFrustum(), projectionMatrix);
 			break;
 		}
 	}
@@ -152,7 +154,7 @@ public class FlatSpecularShader implements Shader {
 			int[] vertexLocation = face.getVertices()[i].getLocation();
 			VectorProcessor.multiply(vertexLocation, viewMatrix, vertexLocation);
 			VectorProcessor.multiply(vertexLocation, projectionMatrix, vertexLocation);
-			GraphicsProcessor.viewport(vertexLocation, camera.getCanvas(), vertexLocation);
+			GraphicsProcessor.viewport(vertexLocation, vertexLocation);
 			if ((vertexLocation[vz] < camera.getFrustum()[1]) || (vertexLocation[vz] > camera.getFrustum()[2]))
 				return;
 		}
@@ -169,7 +171,7 @@ public class FlatSpecularShader implements Shader {
 				uvY[1] = MathProcessor.multiply(face.getUV2()[vy], height);
 				uvY[2] = MathProcessor.multiply(face.getUV3()[vy], height);
 			}
-			GraphicsProcessor.drawTriangle(location1, location2, location3, camera.getCanvas(), this);
+			GraphicsProcessor.drawTriangle(location1, location2, location3);
 		}
 	}
 

@@ -60,6 +60,8 @@ public class GouraudSpecularShader implements Shader {
 	public void setup(Model model, Camera camera) {
 		this.camera = camera;
 
+		GraphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
+		
 		MatrixProcessor.copy(modelMatrix, MatrixProcessor.IDENTITY);
 		MatrixProcessor.copy(normalMatrix, MatrixProcessor.IDENTITY);
 		MatrixProcessor.copy(viewMatrix, MatrixProcessor.IDENTITY);
@@ -71,11 +73,11 @@ public class GouraudSpecularShader implements Shader {
 
 		switch (camera.getType()) {
 		case ORTHOGRAPHIC:
-			GraphicsProcessor.getOrthographicMatrix(camera.getCanvas(), camera.getFrustum(), projectionMatrix);
+			GraphicsProcessor.getOrthographicMatrix(camera.getFrustum(), projectionMatrix);
 			break;
 
 		case PERSPECTIVE:
-			GraphicsProcessor.getPerspectiveMatrix(camera.getCanvas(), camera.getFrustum(), projectionMatrix);
+			GraphicsProcessor.getPerspectiveMatrix(camera.getFrustum(), projectionMatrix);
 			break;
 		}
 	}
@@ -126,7 +128,7 @@ public class GouraudSpecularShader implements Shader {
 		lightColorB[index] = ColorProcessor.getBlue(lightColor);
 		VectorProcessor.multiply(location, viewMatrix, location);
 		VectorProcessor.multiply(location, projectionMatrix, location);
-		GraphicsProcessor.viewport(location, camera.getCanvas(), location);
+		GraphicsProcessor.viewport(location, location);
 		if ((location[vz] < camera.getFrustum()[1]) || (location[vz] > camera.getFrustum()[2]))
 			verticesInside = false;
 	}
@@ -151,7 +153,7 @@ public class GouraudSpecularShader implements Shader {
 				uvY[1] = MathProcessor.multiply(face.getUV2()[vy], height);
 				uvY[2] = MathProcessor.multiply(face.getUV3()[vy], height);
 			}
-			GraphicsProcessor.drawTriangle(location1, location2, location3, camera.getCanvas(), this);
+			GraphicsProcessor.drawTriangle(location1, location2, location3);
 		}
 		verticesInside = true;
 	}

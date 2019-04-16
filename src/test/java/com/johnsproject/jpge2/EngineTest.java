@@ -9,7 +9,6 @@ import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.importers.SOMImporter;
 import com.johnsproject.jpge2.importers.SceneImporter;
-import com.johnsproject.jpge2.processors.VectorProcessor;
 
 public class EngineTest implements EngineListener{
 
@@ -30,14 +29,13 @@ public class EngineTest implements EngineListener{
 		Engine.getInstance().getOptions().getFrameBuffer().setSize(WINDOW_W, WINDOW_H);
 //		useSOM();
 		useScene();
-		Engine.getInstance().getOptions().getScene().getCameras().get(0).setCanvas(0, 0, WINDOW_W, WINDOW_H);
 	}
 
 	static void useSOM() {
 		try {
 			Model model = SOMImporter.load("C:/Development/test.som");
 			model.getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
-			Engine.getInstance().getOptions().getScene().addCamera(new Camera("Default Camera", new Transform(), VectorProcessor.generate(0, 0, 1, 1)));
+			Engine.getInstance().getOptions().getScene().addCamera(new Camera("Default Camera", new Transform()));
 			Engine.getInstance().getOptions().getScene().getCameras().get(0).getTransform().translate(0, 0, 100);
 			Engine.getInstance().getOptions().getScene().addModel(model);
 		} catch (IOException e) {

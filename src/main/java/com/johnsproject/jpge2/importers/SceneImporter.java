@@ -99,7 +99,7 @@ public class SceneImporter {
 			String name = cameraData.split("name<")[1].split(">name")[0];
 			String typeData = cameraData.split("type<")[1].split(">type")[0];
 			Transform transform = parseTransform(cameraData.split("transform<")[1].split(">transform")[0].split(","));
-			Camera camera = new Camera(name, transform, VectorProcessor.generate(0, 0, 1, 1));
+			Camera camera = new Camera(name, transform);
 			if (typeData.equals("ORTHO"))
 				camera.setType(CameraType.ORTHOGRAPHIC);
 			if (typeData.equals("PERSP"))

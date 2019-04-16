@@ -202,7 +202,7 @@ public class MathProcessor {
 	 * @param number
 	 * @return
 	 */
-	public static int sqrt(int number) {
+	public static int sqrt(int number) {		
 		number >>= FP_SHIFT;
 		int c = 0x8000;
 		int g = 0x8000;
