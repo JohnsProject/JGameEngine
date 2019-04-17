@@ -63,14 +63,14 @@ public class FileProcessor {
 	/**
 	 * Writes the object to the file at the given path using serialization.
 	 * 
-	 * @param fileName file path.
+	 * @param path file path.
 	 * @param obj object to write. Needs to be serializable.
 	 * @throws IOException
 	 */
-	public static void writeObjectToFile(String fileName, Object obj) throws IOException {
+	public static void writeObjectToFile(String path, Object obj) throws IOException {
 		FileOutputStream fileOutputStream = null;
 		try {
-			fileOutputStream = new FileOutputStream(fileName);
+			fileOutputStream = new FileOutputStream(path);
 			ObjectOutputStream out = new ObjectOutputStream(fileOutputStream);
 			out.writeObject(obj);
 			out.close();
@@ -83,14 +83,14 @@ public class FileProcessor {
 	/**
 	 * Reads the object from the file at the given path using serialization.
 	 * 
-	 * @param fileName file path.
+	 * @param path file path.
 	 * @throws IOException
 	 */
-	public static Object readObjectFromFile(String fileName) throws IOException {
+	public static Object readObjectFromFile(String path) throws IOException {
 		Object result = null;
 		FileInputStream fileInputStream = null;
 		try {
-			fileInputStream = new FileInputStream(fileName);
+			fileInputStream = new FileInputStream(path);
 			ObjectInputStream in = new ObjectInputStream(fileInputStream);
 			result = in.readObject();
 			in.close();

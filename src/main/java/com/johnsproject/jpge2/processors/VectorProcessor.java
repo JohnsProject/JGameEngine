@@ -273,7 +273,7 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public static int[] normalize(int[] vector, int[] out) {
-		int magnitude = magnitude(vector) >> MathProcessor.FP_SHIFT;
+		int magnitude = magnitude(vector) >> MathProcessor.FP_BITS;
 		if (magnitude != 0) {
 			out[VECTOR_X] = vector[VECTOR_X] / magnitude;
 			out[VECTOR_Y] = vector[VECTOR_Y] / magnitude;

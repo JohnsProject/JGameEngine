@@ -206,7 +206,7 @@ public class SceneImporter {
 			int diffuse = (int)(getFloat(materialData[5]) * MathProcessor.FP_ONE);
 			int specular = (int)(getFloat(materialData[6]) * MathProcessor.FP_ONE);
 			int shininess = (int)(getFloat(materialData[7]) / 10);
-			materials[i] = new Material(i, name, ColorProcessor.generate(red, green, blue, alpha), diffuse, specular, shininess, null);
+			materials[i] = new Material(i, name, ColorProcessor.generate(alpha, red, green, blue), diffuse, specular, shininess, null);
 		}
 		return materials;
 	}

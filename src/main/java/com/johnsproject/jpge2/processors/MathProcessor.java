@@ -23,8 +23,15 @@
  */
 package com.johnsproject.jpge2.processors;
 
+/**
+ * The MathProcessor class contains methods for performing fixed point math operations 
+ * such as power, square root, multiply, divide, and some trigonometric functions.
+ * 
+ * @author John Ferraz Salomon
+ *
+ */
 public class MathProcessor {
-
+	
 	// sine lookup table containing sine values from 0-90 degrees
 	private static final short[] SIN_LUT = { 0, 18, 36, 54, 71, 89, 107, 125, 143, 160, 178, 195, 213, 230, 248, 265,
 			282, 299, 316, 333, 350, 367, 384, 400, 416, 433, 449, 465, 481, 496, 512, 527, 543, 558, 573, 587, 602,
@@ -32,17 +39,29 @@ public class MathProcessor {
 			868, 878, 887, 896, 904, 912, 920, 928, 935, 943, 949, 956, 962, 968, 974, 979, 984, 989, 994, 998, 1002,
 			1005, 1008, 1011, 1014, 1016, 1018, 1020, 1022, 1023, 1023, 1024, 1024};
 
+	private static int random = 545;
+	
 	/**
-	 * FP_SHIFT and FP_VALUE are the values used to do integer to fixed point
-	 * conversion by bit shifting. Bit shift left to convert to fixed point and
-	 * right to get integer values.
+	 * This is the bit representation of the default fixed point precision value. 
+	 * That means that the 'point' is at the {@value #FP_BITS}th bit of the integer.
 	 */
-	public static final int FP_SHIFT = 10, FP_ONE = 1 << FP_SHIFT, FP_HALF = 1 << (FP_SHIFT - 1);
+	public static final int FP_BITS = 10;
+	
+	/**
+	 * This is the integer representation of the default fixed point precision value. 
+	 * It is the same as the fixed point '1'.
+	 */
+	public static final int FP_ONE = 1 << FP_BITS;
+	
+	/**
+	 * It is the same as the fixed point '0.5'.
+	 */
+	public static final int FP_HALF = 1 << (FP_BITS - 1);
 	
 	/**
 	 * Returns the fixed point sine of the given angle.
 	 * 
-	 * @param angle
+	 * @param angle in degrees, not fixed point.
 	 * @return
 	 */
 	public static int sin(int angle) {
@@ -82,7 +101,7 @@ public class MathProcessor {
 	/**
 	 * Returns the fixed point cosine of the given angle.
 	 * 
-	 * @param angle
+	 * @param angle in degrees, not fixed point.
 	 * @return
 	 */
 	public static int cos(int angle) {
@@ -107,11 +126,11 @@ public class MathProcessor {
 	/**
 	 * Returns the fixed point tangent of the given angle.
 	 * 
-	 * @param angle
+	 * @param angle in degrees, not fixed point.
 	 * @return
 	 */
 	public static int tan(int angle) {
-		return (sin(angle) << FP_SHIFT) / cos(angle);
+		return (sin(angle) << FP_BITS) / cos(angle);
 	}
 
 	/**
@@ -122,7 +141,7 @@ public class MathProcessor {
 	 * @param max
 	 * @return
 	 */
-	public static int wrap(int value, int min, int max) {
+	public static int normalize(int value, int min, int max) {
 		int range = max - min;
 		return (min + ((((value - min) % range) + range) % range));
 	}
@@ -130,12 +149,12 @@ public class MathProcessor {
 	/**
 	 * Returns the given value in the range min-max.
 	 * 
-	 * @param value value to wrap.
+	 * @param value
 	 * @param min
 	 * @param max
 	 * @return
 	 */
-	public static long wrap(long value, long min, long max) {
+	public static long normalize(long value, long min, long max) {
 		long range = max - min;
 		return (min + ((((value - min) % range) + range) % range));
 	}
@@ -144,7 +163,7 @@ public class MathProcessor {
 	 * Returns the given value from min to max. if value < min return min. if value
 	 * > max return max.
 	 * 
-	 * @param value value to clamp.
+	 * @param value
 	 * @param min
 	 * @param max
 	 * @return
@@ -157,7 +176,7 @@ public class MathProcessor {
 	 * Returns the given value from min to max. if value < min return min. if value
 	 * > max return max.
 	 * 
-	 * @param value value to clamp.
+	 * @param value
 	 * @param min
 	 * @param max
 	 * @return
@@ -166,16 +185,14 @@ public class MathProcessor {
 		return Math.min(max, Math.max(value, min));
 	}
 
-	private static int r = 545;
-
 	/**
 	 * Returns a pseudo generated random value.
 	 * 
 	 * @return
 	 */
 	public static int random() {
-		r += r + (r & r);
-		return r;
+		random += random + (random & random);
+		return random;
 	}
 
 	/**
@@ -186,19 +203,19 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int random(int min, int max) {
-		r += r + (r & r);
-		return min + (r & (max - min));
+		random += random + (random & random);
+		return normalize(random, min, max);
 	}
 
 	/**
 	 * Returns the square root of the given number. If number < 0 the method returns
 	 * 0.
 	 * 
-	 * @param number
-	 * @return
+	 * @param number fixed point number.
+	 * @return fixed point result.
 	 */
 	public static int sqrt(int number) {
-		number >>= FP_SHIFT;
+		number >>= FP_BITS;
 		int c = 0x8000;
 		int g = 0x8000;
 
@@ -207,7 +224,7 @@ public class MathProcessor {
 		}
 		c >>= 1;
 		if (c == 0) {
-			return g << FP_SHIFT;
+			return g << FP_BITS;
 		}
 		g |= c;
 		for (int i = 0; i < 15; i++) {
@@ -216,22 +233,22 @@ public class MathProcessor {
 			}
 			c >>= 1;
 			if (c == 0) {
-				return g << FP_SHIFT;
+				return g << FP_BITS;
 			}
 			g |= c;
 		}
-		return g << FP_SHIFT;
+		return g << FP_BITS;
 	}
 
 	/**
 	 * Returns the square root of the given number. If number < 0 the method returns
 	 * 0.
 	 * 
-	 * @param number
-	 * @return
+	 * @param number fixed point number.
+	 * @return fixed point result.
 	 */
 	public static long sqrt(long number) {
-		number >>= FP_SHIFT;
+		number >>= FP_BITS;
 		long c = 0x8000;
 		long g = 0x8000;
 
@@ -240,7 +257,7 @@ public class MathProcessor {
 		}
 		c >>= 1;
 		if (c == 0) {
-			return g << FP_SHIFT;
+			return g << FP_BITS;
 		}
 		g |= c;
 		for (int i = 0; i < 15; i++) {
@@ -249,19 +266,19 @@ public class MathProcessor {
 			}
 			c >>= 1;
 			if (c == 0) {
-				return g << FP_SHIFT;
+				return g << FP_BITS;
 			}
 			g |= c;
 		}
-		return g << FP_SHIFT;
+		return g << FP_BITS;
 	}
 
 	/**
 	 * Returns the power of the given number.
 	 * 
-	 * @param base
-	 * @param exp
-	 * @return
+	 * @param base fixed point number.
+	 * @param exp not fixed point number.
+	 * @return fixed point result.
 	 */
 	public static int pow(int base, int exp) {
 		long lBase = base;
@@ -279,9 +296,9 @@ public class MathProcessor {
 	/**
 	 * Returns the power of the given number.
 	 * 
-	 * @param base
-	 * @param exp
-	 * @return
+	 * @param base fixed point number.
+	 * @param exp not fixed point number.
+	 * @return fixed point result.
 	 */
 	public static long pow(long base, long exp) {
 		long result = FP_ONE;
@@ -298,48 +315,48 @@ public class MathProcessor {
 	/**
 	 * Returns the product of the multiplication of value1 and value2.
 	 * 
-	 * @param value1
-	 * @param value2
-	 * @return
+	 * @param value1 fixed point number.
+	 * @param value2 fixed point number.
+	 * @return fixed point result.
 	 */
 	public static int multiply(int value1, int value2) {
-		return (int) ((((long) value1 * (long) value2) + FP_HALF) >> FP_SHIFT);
+		return (int) ((((long) value1 * (long) value2) + FP_HALF) >> FP_BITS);
 	}
 
 	/**
 	 * Returns the product of the multiplication of value1 and value2.
 	 * 
-	 * @param value1
-	 * @param value2
-	 * @return
+	 * @param value1 fixed point number.
+	 * @param value2 fixed point number.
+	 * @return fixed point result.
 	 */
 	public static long multiply(long value1, long value2) {
-		return (((value1 * value2) + FP_HALF) >> FP_SHIFT);
+		return (((value1 * value2) + FP_HALF) >> FP_BITS);
 	}
 
 	/**
 	 * Returns the quotient of the division.
 	 * 
-	 * @param dividend
-	 * @param divisor
-	 * @return
+	 * @param dividend fixed point number.
+	 * @param divisor not fixed point number.
+	 * @return fixed point result.
 	 */
 	public static int divide(int dividend, int divisor) {
 		if (divisor == 0)
 			return 0;
-		return (int) ((((long) dividend << FP_SHIFT) + FP_HALF) / divisor);
+		return (int) ((((long) dividend << FP_BITS) + FP_HALF) / divisor);
 	}
 
 	/**
 	 * Returns the quotient of the division.
 	 * 
-	 * @param dividend
-	 * @param divisor
-	 * @return
+	 * @param dividend fixed point number.
+	 * @param divisor not fixed point number.
+	 * @return fixed point result.
 	 */
 	public static long divide(long dividend, long divisor) {
 		if (divisor == 0)
 			return 0;
-		return ((dividend << FP_SHIFT) + FP_HALF) / divisor;
+		return ((dividend << FP_BITS) + FP_HALF) / divisor;
 	}
 }

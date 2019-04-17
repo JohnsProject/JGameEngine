@@ -46,12 +46,12 @@ public class MatrixProcessorTest {
 	public void translateTest() throws Exception {
 		int[] out = VectorProcessor.generate();
 		int[][] matrix = MatrixProcessor.generate();
-		MatrixProcessor.translate(matrix, 2 << MathProcessor.FP_SHIFT, 3 << MathProcessor.FP_SHIFT, 4 << MathProcessor.FP_SHIFT, matrix);
-		int[] vector = VectorProcessor.generate(4 << MathProcessor.FP_SHIFT, 3 << MathProcessor.FP_SHIFT, 2 << MathProcessor.FP_SHIFT);
+		MatrixProcessor.translate(matrix, 2 << MathProcessor.FP_BITS, 3 << MathProcessor.FP_BITS, 4 << MathProcessor.FP_BITS, matrix);
+		int[] vector = VectorProcessor.generate(4 << MathProcessor.FP_BITS, 3 << MathProcessor.FP_BITS, 2 << MathProcessor.FP_BITS);
 		VectorProcessor.multiply(vector, matrix, out);
-		assert(out[0] == 6 << MathProcessor.FP_SHIFT);
-		assert(out[1] == 6 << MathProcessor.FP_SHIFT);
-		assert(out[2] == 6 << MathProcessor.FP_SHIFT);
+		assert(out[0] == 6 << MathProcessor.FP_BITS);
+		assert(out[1] == 6 << MathProcessor.FP_BITS);
+		assert(out[2] == 6 << MathProcessor.FP_BITS);
 		assert(out[3] == 1024);
 	}
 	

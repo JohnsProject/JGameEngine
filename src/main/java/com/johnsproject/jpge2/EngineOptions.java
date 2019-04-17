@@ -28,10 +28,11 @@ import java.util.List;
 
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Scene;
-import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
+import com.johnsproject.jpge2.processors.MathProcessor;
 import com.johnsproject.jpge2.shaders.FlatSpecularShader;
 import com.johnsproject.jpge2.shaders.GouraudSpecularShader;
 import com.johnsproject.jpge2.shaders.PhongSpecularShader;
+import com.johnsproject.jpge2.shaders.Shader;
 
 public class EngineOptions {
 	

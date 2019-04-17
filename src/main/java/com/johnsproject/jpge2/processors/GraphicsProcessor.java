@@ -23,15 +23,8 @@
  */
 package com.johnsproject.jpge2.processors;
 
-import java.util.List;
-
-import com.johnsproject.jpge2.dto.Camera;
-import com.johnsproject.jpge2.dto.Face;
-import com.johnsproject.jpge2.dto.FrameBuffer;
-import com.johnsproject.jpge2.dto.Light;
-import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Transform;
-import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.shaders.Shader;
 
 public class GraphicsProcessor {
 
@@ -40,7 +33,7 @@ public class GraphicsProcessor {
 	private static final byte vz = VectorProcessor.VECTOR_Z;
 	private static final byte vw = VectorProcessor.VECTOR_W;
 	
-	private static final int INTERPOLATE_SHIFT = MathProcessor.FP_SHIFT * 2;
+	private static final int INTERPOLATE_SHIFT = MathProcessor.FP_BITS * 2;
 	
 	private static final long[] depth = new long[3];
 	private static final int[] barycentric = VectorProcessor.generate();
@@ -93,18 +86,18 @@ public class GraphicsProcessor {
 
 	public static int[][] getOrthographicMatrix(int[] frustum, int[][] out) {
 		int scaleFactor = (frameBufferSize[1] >> 6) + 1;
-		out[0][0] = (MathProcessor.FP_ONE * scaleFactor) << MathProcessor.FP_SHIFT;
-		out[1][1] = (MathProcessor.FP_ONE * scaleFactor) << MathProcessor.FP_SHIFT;
-		out[2][2] = -MathProcessor.FP_SHIFT;
-		out[3][3] = (frustum[3] - frustum[2]) << (MathProcessor.FP_SHIFT * 2);
+		out[0][0] = (MathProcessor.FP_ONE * scaleFactor) << MathProcessor.FP_BITS;
+		out[1][1] = (MathProcessor.FP_ONE * scaleFactor) << MathProcessor.FP_BITS;
+		out[2][2] = -MathProcessor.FP_BITS;
+		out[3][3] = (frustum[3] - frustum[2]) << (MathProcessor.FP_BITS * 2);
 		return out;
 	}
 	
 	public static int[][] getPerspectiveMatrix(int[] frustum, int[][] out) {
 		int scaleFactor = (frameBufferSize[1] >> 6) + 1;
-		out[0][0] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
-		out[1][1] = (frustum[0] * scaleFactor) << MathProcessor.FP_SHIFT;
-		out[2][2] = -MathProcessor.FP_SHIFT;
+		out[0][0] = (frustum[0] * scaleFactor) << MathProcessor.FP_BITS;
+		out[1][1] = (frustum[0] * scaleFactor) << MathProcessor.FP_BITS;
+		out[2][2] = -MathProcessor.FP_BITS;
 		out[2][3] = MathProcessor.FP_ONE * MathProcessor.FP_ONE;
 		return out;
 	}
@@ -195,17 +188,6 @@ public class GraphicsProcessor {
 		return (vector2[vx] - vector1[vx]) * (vector3[vy] - vector1[vy])
 				- (vector3[vx] - vector1[vx]) * (vector2[vy] - vector1[vy]);
 	}
-
-	public static interface Shader {
-
-		public void update(List<Light> lights, FrameBuffer frameBuffer);
-		
-		public void setup(Model model, Camera camera);
-		
-		public void vertex(int index, Vertex vertex);
-
-		public void geometry(Face face);
-
-		public void fragment(int[] location, int[] barycentric);
-	}
+	
+	
 }

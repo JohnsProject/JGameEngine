@@ -49,9 +49,9 @@ public class Transform {
 	}
 
 	public void translate(int x, int y, int z) {
-		location[vx] += x << MathProcessor.FP_SHIFT;
-		location[vy] += y << MathProcessor.FP_SHIFT;
-		location[vz] += z << MathProcessor.FP_SHIFT;
+		location[vx] += x << MathProcessor.FP_BITS;
+		location[vy] += y << MathProcessor.FP_BITS;
+		location[vz] += z << MathProcessor.FP_BITS;
 	}
 
 	public void rotate(int x, int y, int z) {
@@ -61,9 +61,9 @@ public class Transform {
 	}
 
 	public void translate(int[] vector) {
-		location[vx] += vector[vx] << MathProcessor.FP_SHIFT;
-		location[vy] += vector[vz] << MathProcessor.FP_SHIFT;
-		location[vy] += vector[vz] << MathProcessor.FP_SHIFT;
+		location[vx] += vector[vx] << MathProcessor.FP_BITS;
+		location[vy] += vector[vz] << MathProcessor.FP_BITS;
+		location[vy] += vector[vz] << MathProcessor.FP_BITS;
 	}
 
 	public void rotate(int[] vector) {
@@ -77,9 +77,9 @@ public class Transform {
 	}
 
 	public void setLocation(int x, int y, int z) {
-		location[vx] = x << MathProcessor.FP_SHIFT;
-		location[vy] = y << MathProcessor.FP_SHIFT;
-		location[vz] = z << MathProcessor.FP_SHIFT;
+		location[vx] = x << MathProcessor.FP_BITS;
+		location[vy] = y << MathProcessor.FP_BITS;
+		location[vz] = z << MathProcessor.FP_BITS;
 	}
 
 	public int[] getRotation() {

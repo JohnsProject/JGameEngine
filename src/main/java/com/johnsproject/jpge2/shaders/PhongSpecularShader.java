@@ -15,7 +15,6 @@ import com.johnsproject.jpge2.processors.GraphicsProcessor;
 import com.johnsproject.jpge2.processors.MathProcessor;
 import com.johnsproject.jpge2.processors.MatrixProcessor;
 import com.johnsproject.jpge2.processors.VectorProcessor;
-import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
 public class PhongSpecularShader implements Shader {
 
@@ -175,7 +174,7 @@ public class PhongSpecularShader implements Shader {
 				int attenuation = MathProcessor.FP_ONE;
 				attenuation += MathProcessor.multiply(distance, 3000);
 				attenuation += MathProcessor.multiply(MathProcessor.multiply(distance, distance), 20);
-				attenuation = attenuation >> MathProcessor.FP_SHIFT;
+				attenuation = attenuation >> MathProcessor.FP_BITS;
 				// other light values
 				VectorProcessor.normalize(lightDirection, lightDirection);
 				currentFactor = getLightFactor(light, normalizedNormal, lightDirection, viewDirection, material);
@@ -215,6 +214,6 @@ public class PhongSpecularShader implements Shader {
 		specularFactor = MathProcessor.pow(specularFactor, material.getShininess());
 		specularFactor = MathProcessor.multiply(specularFactor, material.getSpecularIntensity());
 		// putting it all together...
-		return ((diffuseFactor + specularFactor + light.getStrength()) * 100) >> MathProcessor.FP_SHIFT;
+		return ((diffuseFactor + specularFactor + light.getStrength()) * 100) >> MathProcessor.FP_BITS;
 	}
 }

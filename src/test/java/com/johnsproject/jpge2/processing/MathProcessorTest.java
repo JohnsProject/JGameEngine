@@ -16,12 +16,12 @@ public class MathProcessorTest {
 	@Test
 	public void test() throws Exception {
 		// just tests with fixed point math
-		assert(((2 << MathProcessor.FP_SHIFT) + (2 << MathProcessor.FP_SHIFT)) >> MathProcessor.FP_SHIFT == 4);
-		assert(((2 << MathProcessor.FP_SHIFT) + (2 << MathProcessor.FP_SHIFT) + (2 << MathProcessor.FP_SHIFT)) >> MathProcessor.FP_SHIFT == 6);
-		assert(((4 << MathProcessor.FP_SHIFT) - (2 << MathProcessor.FP_SHIFT)) >> MathProcessor.FP_SHIFT == 2);
-		assert(((2 << MathProcessor.FP_SHIFT) * (2 << MathProcessor.FP_SHIFT)) >> (MathProcessor.FP_SHIFT * 2) == 4);
-		assert(((2 << MathProcessor.FP_SHIFT) * 2) >> MathProcessor.FP_SHIFT == 4);
-		assert(((4 << MathProcessor.FP_SHIFT) / 2) >> MathProcessor.FP_SHIFT == 2);
+		assert(((2 << MathProcessor.FP_BITS) + (2 << MathProcessor.FP_BITS)) >> MathProcessor.FP_BITS == 4);
+		assert(((2 << MathProcessor.FP_BITS) + (2 << MathProcessor.FP_BITS) + (2 << MathProcessor.FP_BITS)) >> MathProcessor.FP_BITS == 6);
+		assert(((4 << MathProcessor.FP_BITS) - (2 << MathProcessor.FP_BITS)) >> MathProcessor.FP_BITS == 2);
+		assert(((2 << MathProcessor.FP_BITS) * (2 << MathProcessor.FP_BITS)) >> (MathProcessor.FP_BITS * 2) == 4);
+		assert(((2 << MathProcessor.FP_BITS) * 2) >> MathProcessor.FP_BITS == 4);
+		assert(((4 << MathProcessor.FP_BITS) / 2) >> MathProcessor.FP_BITS == 2);
 	}
 
 	@Test
@@ -59,18 +59,18 @@ public class MathProcessorTest {
 	
 	@Test
 	public void divideTest() throws Exception {
-		assert(MathProcessor.divide(10 << MathProcessor.FP_SHIFT, 2 << MathProcessor.FP_SHIFT) == 5 << MathProcessor.FP_SHIFT);
+		assert(MathProcessor.divide(10 << MathProcessor.FP_BITS, 2 << MathProcessor.FP_BITS) == 5 << MathProcessor.FP_BITS);
 	}
 	
 	@Test
 	public void powTest() throws Exception {
-		assert(MathProcessor.pow(5 << MathProcessor.FP_SHIFT, 2) == 25 << MathProcessor.FP_SHIFT);
+		assert(MathProcessor.pow(5 << MathProcessor.FP_BITS, 2) == 25 << MathProcessor.FP_BITS);
 	}
 	
 	@Test
 	public void sqrtTest() throws Exception {
-		System.out.println(MathProcessor.sqrt(25 << MathProcessor.FP_SHIFT));
-		assert(MathProcessor.sqrt(25 << MathProcessor.FP_SHIFT) == 5 << MathProcessor.FP_SHIFT);
+		System.out.println(MathProcessor.sqrt(25 << MathProcessor.FP_BITS));
+		assert(MathProcessor.sqrt(25 << MathProcessor.FP_BITS) == 5 << MathProcessor.FP_BITS);
 	}
 
 }

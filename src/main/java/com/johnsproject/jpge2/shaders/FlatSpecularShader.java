@@ -38,7 +38,6 @@ import com.johnsproject.jpge2.processors.GraphicsProcessor;
 import com.johnsproject.jpge2.processors.MathProcessor;
 import com.johnsproject.jpge2.processors.MatrixProcessor;
 import com.johnsproject.jpge2.processors.VectorProcessor;
-import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
 public class FlatSpecularShader implements Shader {
 
@@ -113,7 +112,7 @@ public class FlatSpecularShader implements Shader {
 		int[] location3 = face.getVertex(2).getLocation();
 		VectorProcessor.add(location1, location2, faceLocation);
 		VectorProcessor.add(faceLocation, location3, faceLocation);
-		VectorProcessor.divide(faceLocation, 3 << MathProcessor.FP_SHIFT, faceLocation);
+		VectorProcessor.divide(faceLocation, 3 << MathProcessor.FP_BITS, faceLocation);
 		lightColor = ColorProcessor.WHITE;
 		lightFactor = 0;
 
@@ -138,7 +137,7 @@ public class FlatSpecularShader implements Shader {
 				int attenuation = MathProcessor.FP_ONE;
 				attenuation += MathProcessor.multiply(distance, 3000);
 				attenuation += MathProcessor.multiply(MathProcessor.multiply(distance, distance), 20);
-				attenuation = attenuation >> MathProcessor.FP_SHIFT;
+				attenuation = attenuation >> MathProcessor.FP_BITS;
 				// other light values
 				VectorProcessor.normalize(lightDirection, lightDirection);
 				currentFactor = getLightFactor(light, normalizedNormal, lightDirection, viewDirection, material);
@@ -202,6 +201,6 @@ public class FlatSpecularShader implements Shader {
 		specularFactor = MathProcessor.pow(specularFactor, material.getShininess());
 		specularFactor = MathProcessor.multiply(specularFactor, material.getSpecularIntensity());
 		// putting it all together...
-		return ((diffuseFactor + specularFactor + light.getStrength()) * 100) >> MathProcessor.FP_SHIFT;
+		return ((diffuseFactor + specularFactor + light.getStrength()) * 100) >> MathProcessor.FP_BITS;
 	}
 }

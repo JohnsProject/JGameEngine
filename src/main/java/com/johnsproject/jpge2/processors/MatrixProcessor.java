@@ -126,9 +126,9 @@ public class MatrixProcessor {
 	 */
 	public static int[][] scale(int[][] matrix, int x, int y, int z, int[][] out) {
 		copy(matrixCache1, IDENTITY);
-		matrixCache1[0][0] = x << MathProcessor.FP_SHIFT;
-		matrixCache1[1][1] = y << MathProcessor.FP_SHIFT;
-		matrixCache1[2][2] = z << MathProcessor.FP_SHIFT;
+		matrixCache1[0][0] = x << MathProcessor.FP_BITS;
+		matrixCache1[1][1] = y << MathProcessor.FP_BITS;
+		matrixCache1[2][2] = z << MathProcessor.FP_BITS;
 		multiply(matrixCache1, matrix, out);
 		return out;
 	}
