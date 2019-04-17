@@ -38,9 +38,14 @@ import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.dto.Light.LightType;
 import com.johnsproject.jpge2.processors.ColorProcessor;
 import com.johnsproject.jpge2.processors.FileProcessor;
-import com.johnsproject.jpge2.processors.GraphicsProcessor;
+import com.johnsproject.jpge2.processors.MathProcessor;
+import com.johnsproject.jpge2.processors.VectorProcessor;
 
-public class SceneImporter extends GraphicsProcessor {
+public class SceneImporter {
+	
+	private static final byte VECTOR_X = VectorProcessor.VECTOR_X;
+	private static final byte VECTOR_Y = VectorProcessor.VECTOR_Y;
+	private static final byte VECTOR_Z = VectorProcessor.VECTOR_Z;
 
 	public static Scene load(String path) throws IOException {
 		String content = FileProcessor.readFile(path);
@@ -113,16 +118,16 @@ public class SceneImporter extends GraphicsProcessor {
 			String typeData = lightData.split("type<")[1].split(">type")[0];
 			String strengthData = lightData.split("strength<")[1].split(">strength")[0];
 			String[] colorData = lightData.split("color<")[1].split(">color")[0].split(",");
-			int red = generate(getFloat(colorData[0]) * 256);
-			int green = generate(getFloat(colorData[1]) * 256);
-			int blue = generate(getFloat(colorData[2]) * 256);
+			int red = MathProcessor.generate(getFloat(colorData[0]) * 256);
+			int green = MathProcessor.generate(getFloat(colorData[1]) * 256);
+			int blue = MathProcessor.generate(getFloat(colorData[2]) * 256);
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
 			Light light = new Light(name, transform);
 			if (typeData.equals("SUN"))
 				light.setType(LightType.DIRECTIONAL);
 			if (typeData.equals("POINT"))
 				light.setType(LightType.POINT);
-			light.setStrength(generate(getFloat(strengthData)));
+			light.setStrength(MathProcessor.generate(getFloat(strengthData)));
 			light.setDiffuseColor(ColorProcessor.generate(red, green, blue));
 			lights[i] = light;
 		}
@@ -130,18 +135,18 @@ public class SceneImporter extends GraphicsProcessor {
 	}
 
 	private static Transform parseTransform(String[] transformData) {
-		int x = generate((getFloat(transformData[VECTOR_X]) * 10));
-		int y = generate((getFloat(transformData[VECTOR_Y]) * 10));
-		int z = generate((getFloat(transformData[VECTOR_Z]) * 10));
-		int[] location = generate(x, y, z);
-		x = generate(getFloat(transformData[3 + VECTOR_X]));
-		y = generate(getFloat(transformData[3 + VECTOR_Y]));
-		z = generate(getFloat(transformData[3 + VECTOR_Z]));
-		int[] rotation = generate(x, y, z);
-		x = generate(getFloat(transformData[6 + VECTOR_X]) * 10);
-		y = generate(getFloat(transformData[6 + VECTOR_Y]) * 10);
-		z = generate(getFloat(transformData[6 + VECTOR_Z]) * 10);
-		int[] scale = generate(x, y, z);
+		int x = MathProcessor.generate((getFloat(transformData[VECTOR_X]) * 10));
+		int y = MathProcessor.generate((getFloat(transformData[VECTOR_Y]) * 10));
+		int z = MathProcessor.generate((getFloat(transformData[VECTOR_Z]) * 10));
+		int[] location = VectorProcessor.generate(x, y, z);
+		x = MathProcessor.generate(getFloat(transformData[3 + VECTOR_X]));
+		y = MathProcessor.generate(getFloat(transformData[3 + VECTOR_Y]));
+		z = MathProcessor.generate(getFloat(transformData[3 + VECTOR_Z]));
+		int[] rotation = VectorProcessor.generate(x, y, z);
+		x = MathProcessor.generate(getFloat(transformData[6 + VECTOR_X]) * 10);
+		y = MathProcessor.generate(getFloat(transformData[6 + VECTOR_Y]) * 10);
+		z = MathProcessor.generate(getFloat(transformData[6 + VECTOR_Z]) * 10);
+		int[] scale = VectorProcessor.generate(x, y, z);
 		return new Transform(location, rotation, scale);
 	}
 
@@ -149,14 +154,14 @@ public class SceneImporter extends GraphicsProcessor {
 		Vertex[] vertices = new Vertex[verticesData.length - 1];
 		for (int i = 0; i < verticesData.length - 1; i++) {
 			String[] vertexData = verticesData[i + 1].split(">vertex")[0].split(",");
-			int x = generate(getFloat(vertexData[VECTOR_X]));
-			int y = generate(getFloat(vertexData[VECTOR_Y]));
-			int z = generate(getFloat(vertexData[VECTOR_Z]));
-			int[] location = generate(x, y, z);
-			x = generate(getFloat(vertexData[3 + VECTOR_X]));
-			y = generate(getFloat(vertexData[3 + VECTOR_Y]));
-			z = generate(getFloat(vertexData[3 + VECTOR_Z]));
-			int[] normal = generate(x, y, z);
+			int x = MathProcessor.generate(getFloat(vertexData[VECTOR_X]));
+			int y = MathProcessor.generate(getFloat(vertexData[VECTOR_Y]));
+			int z = MathProcessor.generate(getFloat(vertexData[VECTOR_Z]));
+			int[] location = VectorProcessor.generate(x, y, z);
+			x = MathProcessor.generate(getFloat(vertexData[3 + VECTOR_X]));
+			y = MathProcessor.generate(getFloat(vertexData[3 + VECTOR_Y]));
+			z = MathProcessor.generate(getFloat(vertexData[3 + VECTOR_Z]));
+			int[] normal = VectorProcessor.generate(x, y, z);
 			int material = getInt(vertexData[6]);
 			vertices[i] = new Vertex(i, location, normal, materials[material]);
 		}
@@ -170,19 +175,19 @@ public class SceneImporter extends GraphicsProcessor {
 			int vertex1 = getInt(faceData[0]);
 			int vertex2 = getInt(faceData[1]);
 			int vertex3 = getInt(faceData[2]);
-			int x = generate(getFloat(faceData[3 + VECTOR_X]));
-			int y = generate(getFloat(faceData[3 + VECTOR_Y]));
-			int z = generate(getFloat(faceData[3 + VECTOR_Z]));
-			int[] normal = generate(x, y, z);
-			x = generate(getFloat(faceData[6 + VECTOR_X]));
-			y = generate(getFloat(faceData[6 + VECTOR_Y]));
-			int[] uv1 = generate(x, y);
-			x = generate(getFloat(faceData[8 + VECTOR_X]));
-			y = generate(getFloat(faceData[8 + VECTOR_Y]));
-			int[] uv2 = generate(x, y);
-			x = generate(getFloat(faceData[10 + VECTOR_X]));
-			y = generate(getFloat(faceData[10 + VECTOR_Y]));
-			int[] uv3 = generate(x, y);
+			int x = MathProcessor.generate(getFloat(faceData[3 + VECTOR_X]));
+			int y = MathProcessor.generate(getFloat(faceData[3 + VECTOR_Y]));
+			int z = MathProcessor.generate(getFloat(faceData[3 + VECTOR_Z]));
+			int[] normal = VectorProcessor.generate(x, y, z);
+			x = MathProcessor.generate(getFloat(faceData[6 + VECTOR_X]));
+			y = MathProcessor.generate(getFloat(faceData[6 + VECTOR_Y]));
+			int[] uv1 = VectorProcessor.generate(x, y);
+			x = MathProcessor.generate(getFloat(faceData[8 + VECTOR_X]));
+			y = MathProcessor.generate(getFloat(faceData[8 + VECTOR_Y]));
+			int[] uv2 = VectorProcessor.generate(x, y);
+			x = MathProcessor.generate(getFloat(faceData[10 + VECTOR_X]));
+			y = MathProcessor.generate(getFloat(faceData[10 + VECTOR_Y]));
+			int[] uv3 = VectorProcessor.generate(x, y);
 			int material = getInt(faceData[12]);
 			faces[i] = new Face(i, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], normal, uv1, uv2, uv3);
 		}
@@ -198,8 +203,8 @@ public class SceneImporter extends GraphicsProcessor {
 			int green = (int)(getFloat(materialData[2]) * 256);
 			int blue = (int)(getFloat(materialData[3]) * 256);
 			int alpha = (int)(getFloat(materialData[4]) * 256);
-			int diffuse = generate(getFloat(materialData[5]));
-			int specular = generate(getFloat(materialData[6]));
+			int diffuse = MathProcessor.generate(getFloat(materialData[5]));
+			int specular = MathProcessor.generate(getFloat(materialData[6]));
 			int shininess = (int)(getFloat(materialData[7]) / 10);
 			materials[i] = new Material(i, name, ColorProcessor.generate(alpha, red, green, blue), diffuse, specular, shininess, null);
 		}

@@ -23,8 +23,10 @@
  */
 package com.johnsproject.jpge2.processors;
 
-public class VectorProcessor extends MatrixProcessor {
+public class VectorProcessor {
 
+	private static final int FP_ONE = MathProcessor.FP_ONE;
+	
 	public static final byte VECTOR_X = 0;
 	public static final byte VECTOR_Y = 1;
 	public static final byte VECTOR_Z = 2;
@@ -127,9 +129,9 @@ public class VectorProcessor extends MatrixProcessor {
 	 * @param out
 	 */
 	public static int[] multiply(int[] vector1, int value, int[] out) {
-		out[VECTOR_X] = multiply(vector1[VECTOR_X], value);
-		out[VECTOR_Y] = multiply(vector1[VECTOR_Y], value);
-		out[VECTOR_Z] = multiply(vector1[VECTOR_Z], value);
+		out[VECTOR_X] = MathProcessor.multiply(vector1[VECTOR_X], value);
+		out[VECTOR_Y] = MathProcessor.multiply(vector1[VECTOR_Y], value);
+		out[VECTOR_Z] = MathProcessor.multiply(vector1[VECTOR_Z], value);
 		return out;
 	}
 
@@ -141,9 +143,9 @@ public class VectorProcessor extends MatrixProcessor {
 	 * @param out
 	 */
 	public static int[] divide(int[] vector1, int value, int[] out) {
-		out[VECTOR_X] = divide(vector1[VECTOR_X], value);
-		out[VECTOR_Y] = divide(vector1[VECTOR_Y], value);
-		out[VECTOR_Z] = divide(vector1[VECTOR_Z], value);
+		out[VECTOR_X] = MathProcessor.divide(vector1[VECTOR_X], value);
+		out[VECTOR_Y] = MathProcessor.divide(vector1[VECTOR_Y], value);
+		out[VECTOR_Z] = MathProcessor.divide(vector1[VECTOR_Z], value);
 		return out;
 	}
 
@@ -183,9 +185,9 @@ public class VectorProcessor extends MatrixProcessor {
 	 * @param out
 	 */
 	public static int[] multiply(int[] vector1, int[] vector2, int[] out) {
-		out[VECTOR_X] = multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
-		out[VECTOR_Y] = multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		out[VECTOR_Z] = multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+		out[VECTOR_X] = MathProcessor.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
+		out[VECTOR_Y] = MathProcessor.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		out[VECTOR_Z] = MathProcessor.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return out;
 	}
 
@@ -197,9 +199,9 @@ public class VectorProcessor extends MatrixProcessor {
 	 * @param out
 	 */
 	public static int[] divide(int[] vector1, int[] vector2, int[] out) {
-		out[VECTOR_X] = divide(vector1[VECTOR_X], vector2[VECTOR_X]);
-		out[VECTOR_Y] = divide(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		out[VECTOR_Z] = divide(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+		out[VECTOR_X] = MathProcessor.divide(vector1[VECTOR_X], vector2[VECTOR_X]);
+		out[VECTOR_Y] = MathProcessor.divide(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		out[VECTOR_Z] = MathProcessor.divide(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return out;
 	}
 
@@ -217,7 +219,7 @@ public class VectorProcessor extends MatrixProcessor {
 			long result = (long)matrix[0][i] * vectorCache1[VECTOR_X];
 			result += (long)matrix[1][i] * vectorCache1[VECTOR_Y];
 			result += (long)matrix[2][i] * vectorCache1[VECTOR_Z];
-			out[i] = (int)(multiply(result, 1) + matrix[3][i]);
+			out[i] = (int)(MathProcessor.multiply(result, 1) + matrix[3][i]);
 		}
 		return out;
 	}
@@ -229,7 +231,7 @@ public class VectorProcessor extends MatrixProcessor {
 	 * @return
 	 */
 	public static int magnitude(int[] vector) {
-		return sqrt(dotProduct(vector, vector));
+		return MathProcessor.sqrt(dotProduct(vector, vector));
 	}
 
 	/**
@@ -243,7 +245,7 @@ public class VectorProcessor extends MatrixProcessor {
 		long x = (long)vector1[VECTOR_X] * vector2[VECTOR_X];
 		long y = (long)vector1[VECTOR_Y] * vector2[VECTOR_Y];
 		long z = (long)vector1[VECTOR_Z] * vector2[VECTOR_Z];
-		return (int)multiply(x + y + z, 1);
+		return (int)MathProcessor.multiply(x + y + z, 1);
 	}
 
 	/**
@@ -257,12 +259,12 @@ public class VectorProcessor extends MatrixProcessor {
 		// ensures that will return right values if vector is the same as out
 		copy(vectorCache1, vector1);
 		copy(vectorCache2, vector2);
-		out[VECTOR_X] = multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_Z]);
-		out[VECTOR_Y] = multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_X]);
-		out[VECTOR_Z] = multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Y]);
-		out[VECTOR_X] -= multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_Y]);
-		out[VECTOR_Y] -= multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Z]);
-		out[VECTOR_Z] -= multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_X]);
+		out[VECTOR_X] = MathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_Z]);
+		out[VECTOR_Y] = MathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_X]);
+		out[VECTOR_Z] = MathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Y]);
+		out[VECTOR_X] -= MathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_Y]);
+		out[VECTOR_Y] -= MathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Z]);
+		out[VECTOR_Z] -= MathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_X]);
 		return out;
 	}
 	
@@ -273,7 +275,7 @@ public class VectorProcessor extends MatrixProcessor {
 	 * @param out
 	 */
 	public static int[] normalize(int[] vector, int[] out) {
-		int magnitude = magnitude(vector) >> FP_BITS;
+		int magnitude = magnitude(vector) >> MathProcessor.FP_BITS;
 		if (magnitude != 0) {
 			out[VECTOR_X] = vector[VECTOR_X] / magnitude;
 			out[VECTOR_Y] = vector[VECTOR_Y] / magnitude;

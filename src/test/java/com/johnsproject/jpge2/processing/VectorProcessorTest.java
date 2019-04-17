@@ -11,7 +11,7 @@ public class VectorProcessorTest {
 	@Test
 	public void multiplyMatrixTest() throws Exception {
 		int[] out = VectorProcessor.generate();
-		int[][] matrix = MatrixProcessor.generateMatrix();
+		int[][] matrix = MatrixProcessor.generate();
 		int[] vector = VectorProcessor.generate(6, 3, 2);
 		VectorProcessor.multiply(vector, matrix, out);
 		assert(out[0] == 6);

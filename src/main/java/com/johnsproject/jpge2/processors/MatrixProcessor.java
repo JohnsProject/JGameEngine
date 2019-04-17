@@ -23,19 +23,21 @@
  */
 package com.johnsproject.jpge2.processors;
 
-public class MatrixProcessor extends MathProcessor {
-
-	public static final int[][] MATRIX_IDENTITY = generateMatrix();
+public class MatrixProcessor {
 	
-	private static final int[][] matrixCache1 = generateMatrix();
-	private static final int[][] matrixCache2 = generateMatrix();
+	private static final int FP_ONE = MathProcessor.FP_ONE;
+
+	public static final int[][] MATRIX_IDENTITY = generate();
+	
+	private static final int[][] matrixCache1 = generate();
+	private static final int[][] matrixCache2 = generate();
 	
 	/**
 	 * Returns an identity matrix.
 	 * 
 	 * @return
 	 */
-	public static int[][] generateMatrix() {
+	public static int[][] generate() {
 		return new int[][] {
 			{FP_ONE, 0, 0, 0},
 			{0, FP_ONE, 0, 0},
@@ -80,7 +82,7 @@ public class MatrixProcessor extends MathProcessor {
 				result += (long)matrixCache1[1][j] * matrixCache2[i][1];
 				result += (long)matrixCache1[2][j] * matrixCache2[i][2];
 				result += (long)matrixCache1[3][j] * matrixCache2[i][3];
-				out[i][j] = (int)multiply(result, 1);
+				out[i][j] = (int)MathProcessor.multiply(result, 1);
 			}
 		}
 		return out;
@@ -134,8 +136,8 @@ public class MatrixProcessor extends MathProcessor {
 	 */
 	public static int[][] rotateX(int[][] matrix, int angle, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
-		int cos = cos(angle);
-		int sin = sin(angle);
+		int cos = MathProcessor.cos(angle);
+		int sin = MathProcessor.sin(angle);
 		matrixCache1[1][1] = cos;
 		matrixCache1[1][2] = sin;
 		matrixCache1[2][1] = -sin;
@@ -153,8 +155,8 @@ public class MatrixProcessor extends MathProcessor {
 	 */
 	public static int[][] rotateY(int[][] matrix, int angle, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
-		int cos = cos(angle);
-		int sin = sin(angle);
+		int cos = MathProcessor.cos(angle);
+		int sin = MathProcessor.sin(angle);
 		matrixCache1[0][0] = cos;
 		matrixCache1[0][2] = -sin;
 		matrixCache1[2][0] = sin;
@@ -172,8 +174,8 @@ public class MatrixProcessor extends MathProcessor {
 	 */
 	public static int[][] rotateZ(int[][] matrix, int angle, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
-		int cos = cos(angle);
-		int sin = sin(angle);
+		int cos = MathProcessor.cos(angle);
+		int sin = MathProcessor.sin(angle);
 		matrixCache1[0][0] = cos;
 		matrixCache1[0][1] = sin;
 		matrixCache1[1][0] = -sin;

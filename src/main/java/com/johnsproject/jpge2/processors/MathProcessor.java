@@ -45,18 +45,18 @@ public class MathProcessor {
 	 * This is the bit representation of the default fixed point precision value. 
 	 * That means that the 'point' is at the {@value #FP_BITS}th bit of the integer.
 	 */
-	public static final int FP_BITS = 10;
+	public static final byte FP_BITS = 10;
 	
 	/**
 	 * This is the integer representation of the default fixed point precision value. 
 	 * It is the same as the fixed point '1'.
 	 */
-	public static final int FP_ONE = 1 << FP_BITS;
+	public static final short FP_ONE = 1 << FP_BITS;
 	
 	/**
 	 * It is the same as the fixed point '0.5'.
 	 */
-	public static final int FP_HALF = 1 << (FP_BITS - 1);
+	public static final short FP_HALF = 1 << (FP_BITS - 1);
 	
 	/**
 	 * Returns the fixed point representation of value.

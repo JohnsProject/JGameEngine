@@ -8,9 +8,8 @@ import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.processors.GraphicsProcessor;
 
-public abstract class Shader extends GraphicsProcessor {
+public abstract class Shader {
 	
 	public abstract void update(List<Light> lights, FrameBuffer frameBuffer);
 	

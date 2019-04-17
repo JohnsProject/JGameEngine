@@ -38,7 +38,7 @@ public class Engine {
 	private EngineOptions options;
 	private List<EngineListener> engineListeners;
 
-	public Engine() {
+	private Engine() {
 		options = new EngineOptions();
 		engineListeners = new ArrayList<EngineListener>();
 		startEngineLoop();

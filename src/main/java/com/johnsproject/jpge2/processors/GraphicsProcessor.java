@@ -26,13 +26,21 @@ package com.johnsproject.jpge2.processors;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.shaders.Shader;
 
-public class GraphicsProcessor extends VectorProcessor {
+public class GraphicsProcessor {
+	
+	private static final byte VECTOR_X = VectorProcessor.VECTOR_X;
+	private static final byte VECTOR_Y = VectorProcessor.VECTOR_Y;
+	private static final byte VECTOR_Z = VectorProcessor.VECTOR_Z;
+	private static final byte VECTOR_W = VectorProcessor.VECTOR_W;
+	
+	private static final byte FP_BITS = MathProcessor.FP_BITS;
+	private static final int FP_ONE = MathProcessor.FP_ONE;
 	
 	private static final int INTERPOLATE_SHIFT = FP_BITS * 2;
 	
-	private static final long[] depth = new long[3];
-	private static final int[] barycentric = generate();
-	private static final int[] pixel = generate();
+	private static final long[] depthCache = new long[3];
+	private static final int[] barycentricCache = VectorProcessor.generate();
+	private static final int[] pixelChache = VectorProcessor.generate();
 	
 	private static int[] frameBufferSize;
 	private static int[] cameraCanvas;
@@ -49,11 +57,11 @@ public class GraphicsProcessor extends VectorProcessor {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
 		
-		rotateX(out, rotation[VECTOR_X], out);
-		rotateY(out, -rotation[VECTOR_Y], out);
-		rotateZ(out, -rotation[VECTOR_Z], out);
-		scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
-		translate(out, -location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], out);
+		MatrixProcessor.rotateX(out, rotation[VECTOR_X], out);
+		MatrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
+		MatrixProcessor.rotateZ(out, -rotation[VECTOR_Z], out);
+		MatrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
+		MatrixProcessor.translate(out, -location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], out);
 		return out;
 	}
 
@@ -61,10 +69,10 @@ public class GraphicsProcessor extends VectorProcessor {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
 		
-		rotateX(out, rotation[VECTOR_X], out);
-		rotateY(out, -rotation[VECTOR_Y], out);
-		rotateZ(out, -rotation[VECTOR_Z], out);
-		scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
+		MatrixProcessor.rotateX(out, rotation[VECTOR_X], out);
+		MatrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
+		MatrixProcessor.rotateZ(out, -rotation[VECTOR_Z], out);
+		MatrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
 		return out;
 	}
 	
@@ -72,15 +80,15 @@ public class GraphicsProcessor extends VectorProcessor {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 	
-		translate(out, location[VECTOR_X], -location[VECTOR_Y], -location[VECTOR_Z], out);
-		rotateX(out, -rotation[VECTOR_X], out);
-		rotateY(out, rotation[VECTOR_Y], out);
-		rotateZ(out, rotation[VECTOR_Z], out);
+		MatrixProcessor.translate(out, location[VECTOR_X], -location[VECTOR_Y], -location[VECTOR_Z], out);
+		MatrixProcessor.rotateX(out, -rotation[VECTOR_X], out);
+		MatrixProcessor.rotateY(out, rotation[VECTOR_Y], out);
+		MatrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
 		return out;
 	}
 
 	public static int[][] getOrthographicMatrix(int[] frustum, int[][] out) {
-		int scaleFactor = (multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
+		int scaleFactor = (MathProcessor.multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
 		out[0][0] = (FP_ONE * scaleFactor) << FP_BITS;
 		out[1][1] = (FP_ONE * scaleFactor) << FP_BITS;
 		out[2][2] = -FP_BITS;
@@ -89,7 +97,7 @@ public class GraphicsProcessor extends VectorProcessor {
 	}
 	
 	public static int[][] getPerspectiveMatrix(int[] frustum, int[][] out) {
-		int scaleFactor = (multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
+		int scaleFactor = (MathProcessor.multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
 		out[0][0] = (frustum[0] * scaleFactor) << FP_BITS;
 		out[1][1] = (frustum[0] * scaleFactor) << FP_BITS;
 		out[2][2] = -FP_BITS;
@@ -98,10 +106,10 @@ public class GraphicsProcessor extends VectorProcessor {
 	}
 
 	public static int[] viewport(int[] location, int[] out) {
-		int portX = multiply(cameraCanvas[VECTOR_X] + ((cameraCanvas[2] - cameraCanvas[VECTOR_X]) >> 1), frameBufferSize[0] - 1);
-		int portY = multiply(cameraCanvas[VECTOR_Y] + ((cameraCanvas[3] - cameraCanvas[VECTOR_Y]) >> 1), frameBufferSize[1] - 1);
-		out[VECTOR_X] = divide(location[VECTOR_X], location[VECTOR_W]) + portX;
-		out[VECTOR_Y] = divide(location[VECTOR_Y], location[VECTOR_W]) + portY;
+		int portX = MathProcessor.multiply(cameraCanvas[VECTOR_X] + ((cameraCanvas[2] - cameraCanvas[VECTOR_X]) >> 1), frameBufferSize[0] - 1);
+		int portY = MathProcessor.multiply(cameraCanvas[VECTOR_Y] + ((cameraCanvas[3] - cameraCanvas[VECTOR_Y]) >> 1), frameBufferSize[1] - 1);
+		out[VECTOR_X] = MathProcessor.divide(location[VECTOR_X], location[VECTOR_W]) + portX;
+		out[VECTOR_Y] = MathProcessor.divide(location[VECTOR_Y], location[VECTOR_W]) + portY;
 		return out;
 	}
 	
@@ -110,10 +118,10 @@ public class GraphicsProcessor extends VectorProcessor {
 	}
 	
 	public static boolean isInsideFrustum(int[] location1, int[] location2, int[] location3, int[] frustum) {
-		int xleft = multiply(cameraCanvas[VECTOR_X], frameBufferSize[0]);
-		int yleft = multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1]);
-		int xright = multiply(cameraCanvas[2], frameBufferSize[0]);
-		int yright = multiply(cameraCanvas[3], frameBufferSize[1]);
+		int xleft = MathProcessor.multiply(cameraCanvas[VECTOR_X], frameBufferSize[0]);
+		int yleft = MathProcessor.multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1]);
+		int xright = MathProcessor.multiply(cameraCanvas[2], frameBufferSize[0]);
+		int yright = MathProcessor.multiply(cameraCanvas[3], frameBufferSize[1]);
 		
 		boolean insideWidth = (location1[VECTOR_X] > xleft) && (location1[VECTOR_X] < xright);
 		boolean insideHeight = (location1[VECTOR_Y] > yleft) && (location1[VECTOR_Y] < yright);
@@ -143,10 +151,10 @@ public class GraphicsProcessor extends VectorProcessor {
 		int maxY = Math.max(location1[VECTOR_Y], Math.max(location2[VECTOR_Y], location3[VECTOR_Y]));
 
 		// clip against screen limits
-		minX = Math.max(minX, multiply(cameraCanvas[VECTOR_X], frameBufferSize[0] - 1));
-		minY = Math.max(minY, multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1] - 1));
-		maxX = Math.min(maxX, multiply(cameraCanvas[2], frameBufferSize[0] - 1));
-		maxY = Math.min(maxY, multiply(cameraCanvas[3], frameBufferSize[1] - 1));
+		minX = Math.max(minX, MathProcessor.multiply(cameraCanvas[VECTOR_X], frameBufferSize[0] - 1));
+		minY = Math.max(minY, MathProcessor.multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1] - 1));
+		maxX = Math.min(maxX, MathProcessor.multiply(cameraCanvas[2], frameBufferSize[0] - 1));
+		maxY = Math.min(maxY, MathProcessor.multiply(cameraCanvas[3], frameBufferSize[1] - 1));
 		
 		location1[VECTOR_Z] = Math.max(1, location1[VECTOR_Z]);
 		location2[VECTOR_Z] = Math.max(1, location2[VECTOR_Z]);
@@ -158,35 +166,35 @@ public class GraphicsProcessor extends VectorProcessor {
 	    int a20 = location3[VECTOR_Y] - location1[VECTOR_Y], b20 = location1[VECTOR_X] - location3[VECTOR_X];
 
 	    int one = 1 << INTERPOLATE_SHIFT;
-		depth[0] = one / location1[VECTOR_Z];
-		depth[1] = one / location2[VECTOR_Z];
-		depth[2] = one / location3[VECTOR_Z];
-		barycentric[VECTOR_W] = barycentric(location1, location2, location3);
+		depthCache[0] = one / location1[VECTOR_Z];
+		depthCache[1] = one / location2[VECTOR_Z];
+		depthCache[2] = one / location3[VECTOR_Z];
+		barycentricCache[VECTOR_W] = barycentric(location1, location2, location3);
 	    
 	    // barycentric coordinates at minX/minY edge
-	    pixel[VECTOR_X] = minX;
-	    pixel[VECTOR_Y] = minY;
-	    pixel[VECTOR_Z] = 0;
-	    int barycentric0_row = barycentric(location2, location3, pixel);
-	    int barycentric1_row = barycentric(location3, location1, pixel);
-	    int barycentric2_row = barycentric(location1, location2, pixel);
+	    pixelChache[VECTOR_X] = minX;
+	    pixelChache[VECTOR_Y] = minY;
+	    pixelChache[VECTOR_Z] = 0;
+	    int barycentric0_row = barycentric(location2, location3, pixelChache);
+	    int barycentric1_row = barycentric(location3, location1, pixelChache);
+	    int barycentric2_row = barycentric(location1, location2, pixelChache);
 	    
-		for (pixel[VECTOR_Y] = minY; pixel[VECTOR_Y] < maxY; pixel[VECTOR_Y]++) {
+		for (pixelChache[VECTOR_Y] = minY; pixelChache[VECTOR_Y] < maxY; pixelChache[VECTOR_Y]++) {
 			
-			barycentric[VECTOR_X] = barycentric0_row;
-			barycentric[VECTOR_Y] = barycentric1_row;
-			barycentric[VECTOR_Z] = barycentric2_row;
+			barycentricCache[VECTOR_X] = barycentric0_row;
+			barycentricCache[VECTOR_Y] = barycentric1_row;
+			barycentricCache[VECTOR_Z] = barycentric2_row;
 			
-			for (pixel[VECTOR_X] = minX; pixel[VECTOR_X] < maxX; pixel[VECTOR_X]++) {
+			for (pixelChache[VECTOR_X] = minX; pixelChache[VECTOR_X] < maxX; pixelChache[VECTOR_X]++) {
 				
-				if ((barycentric[VECTOR_X] | barycentric[VECTOR_Y] | barycentric[VECTOR_Z]) > 0) {
-					pixel[VECTOR_Z] = interpolatDepth(depth, barycentric);
-					shader.fragment(pixel, barycentric);
+				if ((barycentricCache[VECTOR_X] | barycentricCache[VECTOR_Y] | barycentricCache[VECTOR_Z]) > 0) {
+					pixelChache[VECTOR_Z] = interpolatDepth(depthCache, barycentricCache);
+					shader.fragment(pixelChache, barycentricCache);
 				}
 				
-				barycentric[VECTOR_X] += a12;
-				barycentric[VECTOR_Y] += a20;
-				barycentric[VECTOR_Z] += a01;
+				barycentricCache[VECTOR_X] += a12;
+				barycentricCache[VECTOR_Y] += a20;
+				barycentricCache[VECTOR_Z] += a01;
 			}
 			
 			barycentric0_row += b12;
@@ -203,11 +211,11 @@ public class GraphicsProcessor extends VectorProcessor {
 	}
 	
 	public static int interpolate(int[] values, int[] barycentric) {
-		long dotProduct = values[VECTOR_X] * depth[0] * barycentric[VECTOR_X]
-						+ values[VECTOR_Y] * depth[1] * barycentric[VECTOR_Y]
-						+ values[VECTOR_Z] * depth[2] * barycentric[VECTOR_Z];
+		long dotProduct = values[VECTOR_X] * depthCache[0] * barycentric[VECTOR_X]
+						+ values[VECTOR_Y] * depthCache[1] * barycentric[VECTOR_Y]
+						+ values[VECTOR_Z] * depthCache[2] * barycentric[VECTOR_Z];
 		// normalize values
-		return (int) ((((dotProduct * pixel[VECTOR_Z])) / barycentric[VECTOR_W]) >> INTERPOLATE_SHIFT);
+		return (int) ((((dotProduct * pixelChache[VECTOR_Z])) / barycentric[VECTOR_W]) >> INTERPOLATE_SHIFT);
 	}
 
 	public static int barycentric(int[] vector1, int[] vector2, int[] vector3) {
