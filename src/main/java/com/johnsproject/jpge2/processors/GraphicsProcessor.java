@@ -80,7 +80,7 @@ public class GraphicsProcessor extends VectorProcessor {
 	}
 
 	public static int[][] getOrthographicMatrix(int[] frustum, int[][] out) {
-		int scaleFactor = (frameBufferSize[1] >> 6) + 1;
+		int scaleFactor = (multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
 		out[0][0] = (FP_ONE * scaleFactor) << FP_BITS;
 		out[1][1] = (FP_ONE * scaleFactor) << FP_BITS;
 		out[2][2] = -FP_BITS;
@@ -89,7 +89,7 @@ public class GraphicsProcessor extends VectorProcessor {
 	}
 	
 	public static int[][] getPerspectiveMatrix(int[] frustum, int[][] out) {
-		int scaleFactor = (frameBufferSize[1] >> 6) + 1;
+		int scaleFactor = (multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
 		out[0][0] = (frustum[0] * scaleFactor) << FP_BITS;
 		out[1][1] = (frustum[0] * scaleFactor) << FP_BITS;
 		out[2][2] = -FP_BITS;
@@ -105,17 +105,40 @@ public class GraphicsProcessor extends VectorProcessor {
 		return out;
 	}
 	
-	public static void drawTriangle(int[] location1, int[] location2, int[] location3) {
+	public static boolean isBackface(int[] location1, int[] location2, int[] location3) {
+		return barycentric(location1, location2, location3) <= 0;
+	}
+	
+	public static boolean isInsideFrustum(int[] location1, int[] location2, int[] location3, int[] frustum) {
+		int xleft = multiply(cameraCanvas[VECTOR_X], frameBufferSize[0]);
+		int yleft = multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1]);
+		int xright = multiply(cameraCanvas[2], frameBufferSize[0]);
+		int yright = multiply(cameraCanvas[3], frameBufferSize[1]);
 		
-		int one = 1 << INTERPOLATE_SHIFT;
-		depth[0] = one / location1[VECTOR_Z];
-		depth[1] = one / location2[VECTOR_Z];
-		depth[2] = one / location3[VECTOR_Z];
-		barycentric[VECTOR_W] = barycentric(location1, location2, location3);
+		boolean insideWidth = (location1[VECTOR_X] > xleft) && (location1[VECTOR_X] < xright);
+		boolean insideHeight = (location1[VECTOR_Y] > yleft) && (location1[VECTOR_Y] < yright);
+		boolean insideDepth = (location1[VECTOR_Z] > frustum[1]) && (location1[VECTOR_Z] < frustum[2]);
+		boolean location1Inside = insideWidth && insideHeight && insideDepth;
+		
+		insideWidth = (location2[VECTOR_X] > xleft) && (location2[VECTOR_X] < xright);
+		insideHeight = (location2[VECTOR_Y] > yleft) && (location2[VECTOR_Y] < yright);
+		insideDepth = (location2[VECTOR_Z] > frustum[1]) && (location2[VECTOR_Z] < frustum[2]);
+		boolean location2Inside = insideWidth && insideHeight && insideDepth;
+		
+		insideWidth = (location3[VECTOR_X] > xleft) && (location3[VECTOR_X] < xright);
+		insideHeight = (location3[VECTOR_Y] > yleft) && (location3[VECTOR_Y] < yright);
+		insideDepth = (location3[VECTOR_Z] > frustum[1]) && (location3[VECTOR_Z] < frustum[2]);
+		boolean location3Inside = insideWidth && insideHeight && insideDepth;
+		
+		return location1Inside || location2Inside || location3Inside;
+	}
+	
+	public static void drawTriangle(int[] location1, int[] location2, int[] location3) {
 		
 		// compute boundig box of faces
 		int minX = Math.min(location1[VECTOR_X], Math.min(location2[VECTOR_X], location3[VECTOR_X]));
 		int minY = Math.min(location1[VECTOR_Y], Math.min(location2[VECTOR_Y], location3[VECTOR_Y]));
+		
 		int maxX = Math.max(location1[VECTOR_X], Math.max(location2[VECTOR_X], location3[VECTOR_X]));
 		int maxY = Math.max(location1[VECTOR_Y], Math.max(location2[VECTOR_Y], location3[VECTOR_Y]));
 
@@ -125,11 +148,21 @@ public class GraphicsProcessor extends VectorProcessor {
 		maxX = Math.min(maxX, multiply(cameraCanvas[2], frameBufferSize[0] - 1));
 		maxY = Math.min(maxY, multiply(cameraCanvas[3], frameBufferSize[1] - 1));
 		
+		location1[VECTOR_Z] = Math.max(1, location1[VECTOR_Z]);
+		location2[VECTOR_Z] = Math.max(1, location2[VECTOR_Z]);
+		location3[VECTOR_Z] = Math.max(1, location3[VECTOR_Z]);
+		
 		// triangle setup
 		int a01 = location1[VECTOR_Y] - location2[VECTOR_Y], b01 = location2[VECTOR_X] - location1[VECTOR_X];
 	    int a12 = location2[VECTOR_Y] - location3[VECTOR_Y], b12 = location3[VECTOR_X] - location2[VECTOR_X];
 	    int a20 = location3[VECTOR_Y] - location1[VECTOR_Y], b20 = location1[VECTOR_X] - location3[VECTOR_X];
 
+	    int one = 1 << INTERPOLATE_SHIFT;
+		depth[0] = one / location1[VECTOR_Z];
+		depth[1] = one / location2[VECTOR_Z];
+		depth[2] = one / location3[VECTOR_Z];
+		barycentric[VECTOR_W] = barycentric(location1, location2, location3);
+	    
 	    // barycentric coordinates at minX/minY edge
 	    pixel[VECTOR_X] = minX;
 	    pixel[VECTOR_Y] = minY;
@@ -146,7 +179,7 @@ public class GraphicsProcessor extends VectorProcessor {
 			
 			for (pixel[VECTOR_X] = minX; pixel[VECTOR_X] < maxX; pixel[VECTOR_X]++) {
 				
-				if ((barycentric[VECTOR_X] | barycentric[VECTOR_Y] | barycentric[VECTOR_Z]) >= 0) {
+				if ((barycentric[VECTOR_X] | barycentric[VECTOR_Y] | barycentric[VECTOR_Z]) > 0) {
 					pixel[VECTOR_Z] = interpolatDepth(depth, barycentric);
 					shader.fragment(pixel, barycentric);
 				}
@@ -170,8 +203,6 @@ public class GraphicsProcessor extends VectorProcessor {
 	}
 	
 	public static int interpolate(int[] values, int[] barycentric) {
-		// depth = vectorCache1;
-		// pixel = vectorCache3;
 		long dotProduct = values[VECTOR_X] * depth[0] * barycentric[VECTOR_X]
 						+ values[VECTOR_Y] * depth[1] * barycentric[VECTOR_Y]
 						+ values[VECTOR_Z] * depth[2] * barycentric[VECTOR_Z];

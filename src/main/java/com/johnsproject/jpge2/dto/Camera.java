@@ -38,7 +38,8 @@ public class Camera extends SceneObject {
 
 	public Camera(String name, Transform transform) {
 		super(name, transform);
-		this.canvas = new int[] {0, 0, MathProcessor.FP_ONE, MathProcessor.FP_ONE};
+		int one = MathProcessor.FP_ONE;
+		this.canvas = new int[] {0, 0, one, one};
 		this.frustum = new int[] {60, 100, 10000};
 	}
 

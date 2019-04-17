@@ -9,6 +9,7 @@ import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.importers.SOMImporter;
 import com.johnsproject.jpge2.importers.SceneImporter;
+import com.johnsproject.jpge2.processors.MathProcessor;
 
 public class EngineTest implements EngineListener {
 
@@ -36,7 +37,7 @@ public class EngineTest implements EngineListener {
 			Model model = SOMImporter.load("C:/Development/test.som");
 			model.getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
 			Engine.getInstance().getOptions().getScene().addCamera(new Camera("Default Camera", new Transform()));
-			Engine.getInstance().getOptions().getScene().getCameras().get(0).getTransform().translate(0, 0, 100);
+			Engine.getInstance().getOptions().getScene().getCameras().get(0).getTransform().translate(0, 0, MathProcessor.FP_ONE * 100);
 			Engine.getInstance().getOptions().getScene().addModel(model);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -60,7 +61,8 @@ public class EngineTest implements EngineListener {
 
 	public void fixedUpdate() {
 		for (int i = 0; i < Engine.getInstance().getOptions().getScene().getModels().size(); i++) {
-			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().rotate(0, 0, 1000);
+			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().rotate(0, 0, MathProcessor.FP_ONE);
+//			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().translate(0, MathProcessor.FP_ONE, 0);
 		}
 	}
 

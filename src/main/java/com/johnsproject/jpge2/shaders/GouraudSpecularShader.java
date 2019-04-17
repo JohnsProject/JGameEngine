@@ -39,8 +39,6 @@ public class GouraudSpecularShader extends Shader {
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
 
-	private boolean verticesInside = true;
-
 	public void update(List<Light> lights, FrameBuffer frameBuffer) {
 		this.lights = lights;
 		this.frameBuffer = frameBuffer;
@@ -120,8 +118,6 @@ public class GouraudSpecularShader extends Shader {
 		multiply(location, viewMatrix, location);
 		multiply(location, projectionMatrix, location);
 		viewport(location, location);
-		if ((location[VECTOR_Z] < camera.getFrustum()[1]) || (location[VECTOR_Z] > camera.getFrustum()[2]))
-			verticesInside = false;
 	}
 
 	public void geometry(Face face) {
@@ -131,7 +127,7 @@ public class GouraudSpecularShader extends Shader {
 
 		color = face.getMaterial().getColor();
 
-		if ((barycentric(location1, location2, location3) > 0) && verticesInside) {
+		if (!isBackface(location1, location2, location3) && isInsideFrustum(location1, location2, location3, camera.getFrustum())) {
 			texture = face.getMaterial().getTexture();
 			// set uv values that will be interpolated and fit uv into texture resolution
 			if (texture != null) {
@@ -146,7 +142,6 @@ public class GouraudSpecularShader extends Shader {
 			}
 			drawTriangle(location1, location2, location3);
 		}
-		verticesInside = true;
 	}
 
 	public void fragment(int[] location, int[] barycentric) {

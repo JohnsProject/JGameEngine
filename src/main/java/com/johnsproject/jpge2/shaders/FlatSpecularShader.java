@@ -146,10 +146,8 @@ public class FlatSpecularShader extends Shader {
 			multiply(vertexLocation, viewMatrix, vertexLocation);
 			multiply(vertexLocation, projectionMatrix, vertexLocation);
 			viewport(vertexLocation, vertexLocation);
-			if ((vertexLocation[VECTOR_Z] < camera.getFrustum()[1]) || (vertexLocation[VECTOR_Z] > camera.getFrustum()[2]))
-				return;
 		}
-		if (barycentric(location1, location2, location3) > 0) {
+		if (!isBackface(location1, location2, location3) && isInsideFrustum(location1, location2, location3, camera.getFrustum())) {
 			texture = face.getMaterial().getTexture();
 			// set uv values that will be interpolated and fit uv into texture resolution
 			if (texture != null) {
