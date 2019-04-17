@@ -11,7 +11,7 @@ import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.shaders.Shader;
+import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
 public class GraphicsController implements EngineListener {
 	

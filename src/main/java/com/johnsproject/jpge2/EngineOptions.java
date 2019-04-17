@@ -32,7 +32,7 @@ import com.johnsproject.jpge2.processors.MathProcessor;
 import com.johnsproject.jpge2.shaders.FlatSpecularShader;
 import com.johnsproject.jpge2.shaders.GouraudSpecularShader;
 import com.johnsproject.jpge2.shaders.PhongSpecularShader;
-import com.johnsproject.jpge2.shaders.Shader;
+import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
 public class EngineOptions {
 	

@@ -35,11 +35,12 @@ import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processors.ColorProcessor;
 import com.johnsproject.jpge2.processors.GraphicsProcessor;
+import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 import com.johnsproject.jpge2.processors.MathProcessor;
 import com.johnsproject.jpge2.processors.MatrixProcessor;
 import com.johnsproject.jpge2.processors.VectorProcessor;
 
-public class FlatSpecularShader extends Shader {
+public class FlatSpecularShader implements Shader {
 
 	private static final byte VECTOR_X = VectorProcessor.VECTOR_X;
 	private static final byte VECTOR_Y = VectorProcessor.VECTOR_Y;
