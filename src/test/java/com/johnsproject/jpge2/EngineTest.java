@@ -10,7 +10,7 @@ import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.importers.SOMImporter;
 import com.johnsproject.jpge2.importers.SceneImporter;
 
-public class EngineTest implements EngineListener{
+public class EngineTest implements EngineListener {
 
 	private static final int WINDOW_W = 640;
 	private static final int WINDOW_H = 480;
@@ -60,7 +60,7 @@ public class EngineTest implements EngineListener{
 
 	public void fixedUpdate() {
 		for (int i = 0; i < Engine.getInstance().getOptions().getScene().getModels().size(); i++) {
-			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().rotate(0, 0, 1);
+			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().rotate(0, 0, 1000);
 		}
 	}
 

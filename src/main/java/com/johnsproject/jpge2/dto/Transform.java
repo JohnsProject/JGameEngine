@@ -23,14 +23,13 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processors.MathProcessor;
 import com.johnsproject.jpge2.processors.VectorProcessor;
 
 public class Transform {
 
-	private static final byte vx = VectorProcessor.VECTOR_X;
-	private static final byte vy = VectorProcessor.VECTOR_Y;
-	private static final byte vz = VectorProcessor.VECTOR_Z;
+	private static final byte VECTOR_X = VectorProcessor.VECTOR_X;
+	private static final byte VECTOR_Y = VectorProcessor.VECTOR_Y;
+	private static final byte VECTOR_Z = VectorProcessor.VECTOR_Z;
 
 	private int[] location;
 	private int[] rotation;
@@ -49,27 +48,27 @@ public class Transform {
 	}
 
 	public void translate(int x, int y, int z) {
-		location[vx] += x << MathProcessor.FP_BITS;
-		location[vy] += y << MathProcessor.FP_BITS;
-		location[vz] += z << MathProcessor.FP_BITS;
+		location[VECTOR_X] += x;
+		location[VECTOR_Y] += y;
+		location[VECTOR_Z] += z;
 	}
 
 	public void rotate(int x, int y, int z) {
-		rotation[vx] += x;
-		rotation[vy] += y;
-		rotation[vz] += z;
+		rotation[VECTOR_X] += x;
+		rotation[VECTOR_Y] += y;
+		rotation[VECTOR_Z] += z;
 	}
 
 	public void translate(int[] vector) {
-		location[vx] += vector[vx] << MathProcessor.FP_BITS;
-		location[vy] += vector[vz] << MathProcessor.FP_BITS;
-		location[vy] += vector[vz] << MathProcessor.FP_BITS;
+		location[VECTOR_X] += vector[VECTOR_X];
+		location[VECTOR_Y] += vector[VECTOR_Z];
+		location[VECTOR_Y] += vector[VECTOR_Z];
 	}
 
 	public void rotate(int[] vector) {
-		rotation[vx] += vector[vx];
-		rotation[vy] += vector[vz];
-		rotation[vy] += vector[vz];
+		rotation[VECTOR_X] += vector[VECTOR_X];
+		rotation[VECTOR_Y] += vector[VECTOR_Z];
+		rotation[VECTOR_Y] += vector[VECTOR_Z];
 	}
 
 	public int[] getLocation() {
@@ -77,9 +76,9 @@ public class Transform {
 	}
 
 	public void setLocation(int x, int y, int z) {
-		location[vx] = x << MathProcessor.FP_BITS;
-		location[vy] = y << MathProcessor.FP_BITS;
-		location[vz] = z << MathProcessor.FP_BITS;
+		location[VECTOR_X] = x;
+		location[VECTOR_Y] = y;
+		location[VECTOR_Z] = z;
 	}
 
 	public int[] getRotation() {
@@ -87,9 +86,9 @@ public class Transform {
 	}
 
 	public void setRotation(int x, int y, int z) {
-		rotation[vx] = x;
-		rotation[vy] = y;
-		rotation[vz] = z;
+		rotation[VECTOR_X] = x;
+		rotation[VECTOR_Y] = y;
+		rotation[VECTOR_Z] = z;
 	}
 
 	public int[] getScale() {
@@ -97,8 +96,8 @@ public class Transform {
 	}
 
 	public void setScale(int x, int y, int z) {
-		scale[vx] = x;
-		scale[vy] = y;
-		scale[vz] = z;
+		scale[VECTOR_X] = x;
+		scale[VECTOR_Y] = y;
+		scale[VECTOR_Z] = z;
 	}
 }

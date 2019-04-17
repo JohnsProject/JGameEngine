@@ -8,17 +8,18 @@ import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.processors.GraphicsProcessor;
 
-public interface Shader {
+public abstract class Shader extends GraphicsProcessor {
 	
-	public void update(List<Light> lights, FrameBuffer frameBuffer);
+	public abstract void update(List<Light> lights, FrameBuffer frameBuffer);
 	
-	public void setup(Model model, Camera camera);
+	public abstract void setup(Model model, Camera camera);
 	
-	public void vertex(int index, Vertex vertex);
+	public abstract void vertex(int index, Vertex vertex);
 
-	public void geometry(Face face);
+	public abstract void geometry(Face face);
 
-	public void fragment(int[] location, int[] barycentric);
+	public abstract void fragment(int[] location, int[] barycentric);
 	
 }

@@ -23,12 +23,9 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processors.VectorProcessor;
+import com.johnsproject.jpge2.processors.MathProcessor;
 
 public class Camera extends SceneObject {
-
-	private static final byte vx = VectorProcessor.VECTOR_X;
-	private static final byte vy = VectorProcessor.VECTOR_Y;
 
 	public enum CameraType {
 		ORTHOGRAPHIC,
@@ -41,8 +38,8 @@ public class Camera extends SceneObject {
 
 	public Camera(String name, Transform transform) {
 		super(name, transform);
-		this.canvas = VectorProcessor.generate(0, 0, 1024, 1024);
-		this.frustum = VectorProcessor.generate(60, 100, 10000);
+		this.canvas = new int[] {0, 0, MathProcessor.FP_ONE, MathProcessor.FP_ONE};
+		this.frustum = new int[] {60, 100, 10000};
 	}
 
 	public int[] getCanvas() {
@@ -54,8 +51,8 @@ public class Camera extends SceneObject {
 	}
 
 	public void setCanvas(int x, int y, int width, int height) {
-		this.canvas[vx] = x;
-		this.canvas[vy] = y;
+		this.canvas[0] = x;
+		this.canvas[1] = y;
 		this.canvas[2] = width;
 		this.canvas[3] = height;
 	}

@@ -23,32 +23,24 @@
  */
 package com.johnsproject.jpge2.processors;
 
-/**
- * @author schnu
- *
- */
-/**
- * @author schnu
- *
- */
-public class MatrixProcessor {
+public class MatrixProcessor extends MathProcessor {
 
-	public static final int[][] IDENTITY = MatrixProcessor.generate();
+	public static final int[][] MATRIX_IDENTITY = generateMatrix();
 	
-	private static final int[][] matrixCache1 = MatrixProcessor.generate();
-	private static final int[][] matrixCache2 = MatrixProcessor.generate();
+	private static final int[][] matrixCache1 = generateMatrix();
+	private static final int[][] matrixCache2 = generateMatrix();
 	
 	/**
 	 * Returns an identity matrix.
 	 * 
 	 * @return
 	 */
-	public static int[][] generate() {
+	public static int[][] generateMatrix() {
 		return new int[][] {
-			{MathProcessor.FP_ONE, 0, 0, 0},
-			{0, MathProcessor.FP_ONE, 0, 0},
-			{0, 0, MathProcessor.FP_ONE, 0},
-			{0, 0, 0, MathProcessor.FP_ONE}
+			{FP_ONE, 0, 0, 0},
+			{0, FP_ONE, 0, 0},
+			{0, 0, FP_ONE, 0},
+			{0, 0, 0, FP_ONE}
 		};
 	}
 	
@@ -88,7 +80,7 @@ public class MatrixProcessor {
 				result += (long)matrixCache1[1][j] * matrixCache2[i][1];
 				result += (long)matrixCache1[2][j] * matrixCache2[i][2];
 				result += (long)matrixCache1[3][j] * matrixCache2[i][3];
-				out[i][j] = (int)MathProcessor.multiply(result, 1);
+				out[i][j] = (int)multiply(result, 1);
 			}
 		}
 		return out;
@@ -107,7 +99,7 @@ public class MatrixProcessor {
 	 * @param out
 	 */
 	public static int[][] translate(int[][] matrix, int x, int y, int z, int[][] out) {
-		copy(matrixCache1, IDENTITY);
+		copy(matrixCache1, MATRIX_IDENTITY);
 		matrixCache1[3][0] = x;
 		matrixCache1[3][1] = y;
 		matrixCache1[3][2] = z;
@@ -125,10 +117,10 @@ public class MatrixProcessor {
 	 * @param out
 	 */
 	public static int[][] scale(int[][] matrix, int x, int y, int z, int[][] out) {
-		copy(matrixCache1, IDENTITY);
-		matrixCache1[0][0] = x << MathProcessor.FP_BITS;
-		matrixCache1[1][1] = y << MathProcessor.FP_BITS;
-		matrixCache1[2][2] = z << MathProcessor.FP_BITS;
+		copy(matrixCache1, MATRIX_IDENTITY);
+		matrixCache1[0][0] = x;
+		matrixCache1[1][1] = y;
+		matrixCache1[2][2] = z;
 		multiply(matrixCache1, matrix, out);
 		return out;
 	}
@@ -141,9 +133,9 @@ public class MatrixProcessor {
 	 * @param out
 	 */
 	public static int[][] rotateX(int[][] matrix, int angle, int[][] out) {
-		copy(matrixCache1, IDENTITY);
-		int cos = MathProcessor.cos(angle);
-		int sin = MathProcessor.sin(angle);
+		copy(matrixCache1, MATRIX_IDENTITY);
+		int cos = cos(angle);
+		int sin = sin(angle);
 		matrixCache1[1][1] = cos;
 		matrixCache1[1][2] = sin;
 		matrixCache1[2][1] = -sin;
@@ -160,9 +152,9 @@ public class MatrixProcessor {
 	 * @param out
 	 */
 	public static int[][] rotateY(int[][] matrix, int angle, int[][] out) {
-		copy(matrixCache1, IDENTITY);
-		int cos = MathProcessor.cos(angle);
-		int sin = MathProcessor.sin(angle);
+		copy(matrixCache1, MATRIX_IDENTITY);
+		int cos = cos(angle);
+		int sin = sin(angle);
 		matrixCache1[0][0] = cos;
 		matrixCache1[0][2] = -sin;
 		matrixCache1[2][0] = sin;
@@ -179,9 +171,9 @@ public class MatrixProcessor {
 	 * @param out
 	 */
 	public static int[][] rotateZ(int[][] matrix, int angle, int[][] out) {
-		copy(matrixCache1, IDENTITY);
-		int cos = MathProcessor.cos(angle);
-		int sin = MathProcessor.sin(angle);
+		copy(matrixCache1, MATRIX_IDENTITY);
+		int cos = cos(angle);
+		int sin = sin(angle);
 		matrixCache1[0][0] = cos;
 		matrixCache1[0][1] = sin;
 		matrixCache1[1][0] = -sin;

@@ -59,12 +59,23 @@ public class MathProcessor {
 	public static final int FP_HALF = 1 << (FP_BITS - 1);
 	
 	/**
+	 * Returns the fixed point representation of value.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public static int generate(float value) {
+		return (int)(value * FP_ONE);
+	}
+	
+	/**
 	 * Returns the fixed point sine of the given angle.
 	 * 
 	 * @param angle in degrees, not fixed point.
 	 * @return
 	 */
 	public static int sin(int angle) {
+		angle >>= FP_BITS;
 		angle = ((angle % 360) + 360) % 360;
 		int quadrant = (angle / 90) + 1;
 		angle %= 90;
@@ -105,6 +116,7 @@ public class MathProcessor {
 	 * @return
 	 */
 	public static int cos(int angle) {
+		angle >>= FP_BITS;
 		angle = ((angle % 360) + 360) % 360;
 		int quadrant = (angle / 90) + 1;
 		angle %= 90;
