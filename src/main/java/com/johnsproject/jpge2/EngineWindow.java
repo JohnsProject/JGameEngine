@@ -34,8 +34,8 @@ public class EngineWindow extends Frame implements EngineListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private int width = 0;
-	private int height = 0;
+	private int width;
+	private int height;
 	private EnginePanel panel;
 
 	public EngineWindow(int width, int height) {

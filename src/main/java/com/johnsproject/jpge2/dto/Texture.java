@@ -28,7 +28,7 @@ import java.awt.image.DataBufferInt;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.johnsproject.jpge2.processors.FileProcessor;
+import com.johnsproject.jpge2.Engine;
 
 public class Texture {
 	
@@ -43,28 +43,28 @@ public class Texture {
 	}
 	
 	public Texture (String path) throws IOException{
-		BufferedImage img = FileProcessor.loadImage(path);
+		BufferedImage img = Engine.getInstance().getProcessor().getFileProcessor().loadImage(path);
 		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
 		this.width = img.getWidth();
 		this.height = img.getHeight();
 	}
 	
 	public Texture (String path, int width, int height) throws IOException{
-		BufferedImage img = FileProcessor.loadImage(path, width, height);
+		BufferedImage img = Engine.getInstance().getProcessor().getFileProcessor().loadImage(path, width, height);
 		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
 		this.width = img.getWidth();
 		this.height = img.getHeight();
 	}
 	
 	public Texture (InputStream stream) throws IOException{
-		BufferedImage img = FileProcessor.loadImage(stream);
+		BufferedImage img = Engine.getInstance().getProcessor().getFileProcessor().loadImage(stream);
 		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
 		this.width = img.getWidth();
 		this.height = img.getHeight();
 	}
 	
 	public Texture (InputStream stream, int width, int height) throws IOException{
-		BufferedImage img = FileProcessor.loadImage(stream, width, height);
+		BufferedImage img = Engine.getInstance().getProcessor().getFileProcessor().loadImage(stream, width, height);
 		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
 		this.width = img.getWidth();
 		this.height = img.getHeight();

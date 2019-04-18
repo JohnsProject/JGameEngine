@@ -37,7 +37,7 @@ public class ColorProcessor {
 	/**
 	 * Some default integer sRGB colors.
 	 */
-	public static final int WHITE = Color.white.getRGB(),
+	public final int WHITE = Color.white.getRGB(),
 							BLUE = Color.blue.getRGB(),
 							CYAN = Color.cyan.getRGB(),
 							GREEN = Color.green.getRGB(),
@@ -53,17 +53,23 @@ public class ColorProcessor {
 	/**
 	 * Bits count representing each color value.
 	 */
-	public static final byte COLOR_BITS = 8;
+	public final byte COLOR_BITS = 8;
 	
 	/**
 	 * Value representing the range of each color values. (0 - {@value #COLOR_VALUE})
 	 */
-	private static final int COLOR_VALUE = 0xFF;
+	private final int COLOR_VALUE = 0xFF;
 	
-	private static final byte GREENSHIFT = 8;
-	private static final byte REDSHIFT = 16;
-	private static final byte ALPHASHIFT = 24;
+	private final byte GREENSHIFT = 8;
+	private final byte REDSHIFT = 16;
+	private final byte ALPHASHIFT = 24;
 
+	private final MathProcessor mathProcessor;
+	
+	ColorProcessor(MathProcessor mathProcessor) {
+		this.mathProcessor = mathProcessor;
+	}
+	
 	/**
 	 * Returns a integer sRGB color. 
 	 * (Bits 24-31 are alpha, 16-23 are red, 8-15 are green, 0-7 are blue)
@@ -74,12 +80,12 @@ public class ColorProcessor {
 	 * @param b
 	 * @return
 	 */
-	public static int generate(int a, int r, int g, int b) {
+	public int generate(int a, int r, int g, int b) {
 		int color = 0;
-		color |= MathProcessor.clamp(a, 0, 255) << ALPHASHIFT;
-		color |= MathProcessor.clamp(r, 0, 255) << REDSHIFT;
-		color |= MathProcessor.clamp(g, 0, 255) << GREENSHIFT;
-		color |= MathProcessor.clamp(b, 0, 255);
+		color |= mathProcessor.clamp(a, 0, 255) << ALPHASHIFT;
+		color |= mathProcessor.clamp(r, 0, 255) << REDSHIFT;
+		color |= mathProcessor.clamp(g, 0, 255) << GREENSHIFT;
+		color |= mathProcessor.clamp(b, 0, 255);
 		return color;
 	}
 
@@ -92,12 +98,12 @@ public class ColorProcessor {
 	 * @param b
 	 * @return
 	 */
-	public static int generate(int r, int g, int b) {
+	public int generate(int r, int g, int b) {
 		int color = 0;
 		color |= (255) << ALPHASHIFT;
-		color |= MathProcessor.clamp(r, 0, 255) << REDSHIFT;
-		color |= MathProcessor.clamp(g, 0, 255) << GREENSHIFT;
-		color |= MathProcessor.clamp(b, 0, 255);
+		color |= mathProcessor.clamp(r, 0, 255) << REDSHIFT;
+		color |= mathProcessor.clamp(g, 0, 255) << GREENSHIFT;
+		color |= mathProcessor.clamp(b, 0, 255);
 		return color;
 	}
 
@@ -108,7 +114,7 @@ public class ColorProcessor {
 	 * @param color
 	 * @return
 	 */
-	public static int getBlue(int color) {
+	public int getBlue(int color) {
 		return (color) & COLOR_VALUE;
 	}
 
@@ -119,7 +125,7 @@ public class ColorProcessor {
 	 * @param color
 	 * @return
 	 */
-	public static int getGreen(int color) {
+	public int getGreen(int color) {
 		return (color >> GREENSHIFT) & COLOR_VALUE;
 	}
 
@@ -130,7 +136,7 @@ public class ColorProcessor {
 	 * @param color
 	 * @return
 	 */
-	public static int getRed(int color) {
+	public int getRed(int color) {
 		return (color >> REDSHIFT) & COLOR_VALUE;
 	}
 
@@ -141,7 +147,7 @@ public class ColorProcessor {
 	 * @param color
 	 * @return
 	 */
-	public static int getAlpha(int color) {
+	public int getAlpha(int color) {
 		return (color >> ALPHASHIFT) & COLOR_VALUE;
 	}
 
@@ -155,7 +161,7 @@ public class ColorProcessor {
 	 * @param factor
 	 * @return
 	 */
-	public static int multiply(int color, int factor) {
+	public int multiply(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
 		factor += 255;
 		r = (r * factor) >> 8;
@@ -172,7 +178,7 @@ public class ColorProcessor {
 	 * @param factor
 	 * @return
 	 */
-	public static int multiplyARGB(int color, int factor) {
+	public int multiplyARGB(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
 		factor += 255;
 		r = (r * factor) >> 8;
@@ -190,7 +196,7 @@ public class ColorProcessor {
 	 * @param color2
 	 * @return
 	 */
-	public static int add(int color1, int color2) {
+	public int add(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
 		int r = (r1 + r2);
@@ -206,7 +212,7 @@ public class ColorProcessor {
 	 * @param color2
 	 * @return
 	 */
-	public static int addARGB(int color1, int color2) {
+	public int addARGB(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
 		int r = (r1 + r2);
@@ -224,7 +230,7 @@ public class ColorProcessor {
 	 * @param color2
 	 * @return
 	 */
-	public static int multiplyColor(int color1, int color2) {
+	public int multiplyColor(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
 		int r = (r1 * r2) >> 8;
@@ -240,7 +246,7 @@ public class ColorProcessor {
 	 * @param color2
 	 * @return
 	 */
-	public static int multiplyColorARGB(int color1, int color2) {
+	public int multiplyColorARGB(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
 		int r = (r1 * r2) >> 8;
@@ -260,7 +266,7 @@ public class ColorProcessor {
 	 * @param factor
 	 * @return
 	 */
-	public static int lerp(int color1, int color2, int factor) {
+	public int lerp(int color1, int color2, int factor) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
 		int r = (r1 + (((r2 - r1) * factor) >> 8));
@@ -278,7 +284,7 @@ public class ColorProcessor {
 	 * @param factor
 	 * @return
 	 */
-	public static int lerpARGB(int color1, int color2, int factor) {
+	public int lerpARGB(int color1, int color2, int factor) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
 		int r = (r1 + (((r2 - r1) * factor) >> 8));

@@ -26,8 +26,6 @@ package com.johnsproject.jpge2.dto;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-import com.johnsproject.jpge2.processors.VectorProcessor;
-
 public class FrameBuffer {
 
 	private int[] size;
@@ -41,7 +39,7 @@ public class FrameBuffer {
 	}
 
 	public FrameBuffer(int width, int height) {
-		this.size = VectorProcessor.generate();
+		this.size = new int[] {width, height, 0, 0};
 		setSize(width, height);
 	}
 

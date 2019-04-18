@@ -12,7 +12,7 @@ public class EngineStatistics implements EngineListener{
 	private static final int STATISTICS_HEIGHT = 100;
 	private static final Color STATISTICS_BACKROUND = new Color(200, 200, 200, 100);
 	
-	private long lastUpdateTime = 0; 
+	private long lastUpdateTime; 
 	
 	public EngineStatistics() {
 		Engine.getInstance().addEngineListener(this);

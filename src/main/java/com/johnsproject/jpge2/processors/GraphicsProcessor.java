@@ -45,57 +45,70 @@ public class GraphicsProcessor {
 	
 	private static final int INTERPOLATE_SHIFT = FP_BITS * 2;
 	
-	private static final long[] depthCache = new long[3];
-	private static final int[] barycentricCache = VectorProcessor.generate();
-	private static final int[] pixelChache = VectorProcessor.generate();
+	private final long[] depthCache;
+	private final int[] barycentricCache;
+	private final int[] pixelChache;
 	
-	private static int[] frameBufferSize;
-	private static int[] cameraCanvas;
-	private static Shader shader;
+	private int[] frameBufferSize;
+	private int[] cameraCanvas;
+	private Shader shader;
 	
-	public static void setup(int[] frameBufferSize, int[] cameraCanvas, Shader shader) {
-		GraphicsProcessor.frameBufferSize = frameBufferSize;
-		GraphicsProcessor.cameraCanvas = cameraCanvas;
-		GraphicsProcessor.shader = shader;
+	private final MathProcessor mathProcessor;
+	private final MatrixProcessor matrixProcessor;
+	private final VectorProcessor vectorProcessor;
+	
+	GraphicsProcessor(MathProcessor mathProcessor, MatrixProcessor matrixProcessor, VectorProcessor vectorProcessor) {
+		this.mathProcessor = mathProcessor;
+		this.matrixProcessor = matrixProcessor;
+		this.vectorProcessor = vectorProcessor;
+		this.depthCache = new long[3];
+		this.barycentricCache = this.vectorProcessor.generate();
+		this.pixelChache = this.vectorProcessor.generate();
+	}
+	
+	public void setup(int[] frameBufferSize, int[] cameraCanvas, Shader shader) {
+		this.frameBufferSize = frameBufferSize;
+		this.cameraCanvas = cameraCanvas;
+		this.shader = shader;
 	}
 
-	public static int[][] getModelMatrix(Transform transform, int[][] out) {
+	public int[][] getModelMatrix(Transform transform, int[][] out) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
 		
-		MatrixProcessor.rotateX(out, rotation[VECTOR_X], out);
-		MatrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
-		MatrixProcessor.rotateZ(out, -rotation[VECTOR_Z], out);
-		MatrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
-		MatrixProcessor.translate(out, -location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], out);
+		matrixProcessor.rotateX(out, rotation[VECTOR_X], out);
+		matrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
+		matrixProcessor.rotateZ(out, -rotation[VECTOR_Z], out);
+		matrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
+		matrixProcessor.translate(out, -location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], out);
 		return out;
 	}
 
-	public static int[][] getNormalMatrix(Transform transform, int[][] out) {
+	public int[][] getNormalMatrix(Transform transform, int[][] out) {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
 		
-		MatrixProcessor.rotateX(out, rotation[VECTOR_X], out);
-		MatrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
-		MatrixProcessor.rotateZ(out, -rotation[VECTOR_Z], out);
-		MatrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
+		matrixProcessor.rotateX(out, rotation[VECTOR_X], out);
+		matrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
+		matrixProcessor.rotateZ(out, -rotation[VECTOR_Z], out);
+		matrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
 		return out;
 	}
 	
-	public static int[][] getViewMatrix(Transform transform, int[][] out) {
+	public int[][] getViewMatrix(Transform transform, int[][] out) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 	
-		MatrixProcessor.translate(out, location[VECTOR_X], -location[VECTOR_Y], -location[VECTOR_Z], out);
-		MatrixProcessor.rotateX(out, -rotation[VECTOR_X], out);
-		MatrixProcessor.rotateY(out, rotation[VECTOR_Y], out);
-		MatrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
+		matrixProcessor.translate(out, location[VECTOR_X], -location[VECTOR_Y], -location[VECTOR_Z], out);
+		matrixProcessor.rotateX(out, -rotation[VECTOR_X], out);
+		matrixProcessor.rotateY(out, rotation[VECTOR_Y], out);
+		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
 		return out;
 	}
 
-	public static int[][] getOrthographicMatrix(int[] frustum, int[][] out) {
-		int scaleFactor = (MathProcessor.multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
+	public int[][] getOrthographicMatrix(int[] frustum, int[][] out) {
+		int scaleFactor = (mathProcessor.multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
 		out[0][0] = (FP_ONE * scaleFactor) << FP_BITS;
 		out[1][1] = (FP_ONE * scaleFactor) << FP_BITS;
 		out[2][2] = -FP_BITS;
@@ -103,8 +116,8 @@ public class GraphicsProcessor {
 		return out;
 	}
 	
-	public static int[][] getPerspectiveMatrix(int[] frustum, int[][] out) {
-		int scaleFactor = (MathProcessor.multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
+	public int[][] getPerspectiveMatrix(int[] frustum, int[][] out) {
+		int scaleFactor = (mathProcessor.multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
 		out[0][0] = (frustum[0] * scaleFactor) << FP_BITS;
 		out[1][1] = (frustum[0] * scaleFactor) << FP_BITS;
 		out[2][2] = -FP_BITS;
@@ -112,23 +125,23 @@ public class GraphicsProcessor {
 		return out;
 	}
 
-	public static int[] viewport(int[] location, int[] out) {
-		int portX = MathProcessor.multiply(cameraCanvas[VECTOR_X] + ((cameraCanvas[2] - cameraCanvas[VECTOR_X]) >> 1), frameBufferSize[0] - 1);
-		int portY = MathProcessor.multiply(cameraCanvas[VECTOR_Y] + ((cameraCanvas[3] - cameraCanvas[VECTOR_Y]) >> 1), frameBufferSize[1] - 1);
-		out[VECTOR_X] = MathProcessor.divide(location[VECTOR_X], location[VECTOR_W]) + portX;
-		out[VECTOR_Y] = MathProcessor.divide(location[VECTOR_Y], location[VECTOR_W]) + portY;
+	public int[] viewport(int[] location, int[] out) {
+		int portX = mathProcessor.multiply(cameraCanvas[VECTOR_X] + ((cameraCanvas[2] - cameraCanvas[VECTOR_X]) >> 1), frameBufferSize[0] - 1);
+		int portY = mathProcessor.multiply(cameraCanvas[VECTOR_Y] + ((cameraCanvas[3] - cameraCanvas[VECTOR_Y]) >> 1), frameBufferSize[1] - 1);
+		out[VECTOR_X] = mathProcessor.divide(location[VECTOR_X], location[VECTOR_W]) + portX;
+		out[VECTOR_Y] = mathProcessor.divide(location[VECTOR_Y], location[VECTOR_W]) + portY;
 		return out;
 	}
 	
-	public static boolean isBackface(int[] location1, int[] location2, int[] location3) {
+	public boolean isBackface(int[] location1, int[] location2, int[] location3) {
 		return barycentric(location1, location2, location3) <= 0;
 	}
 	
-	public static boolean isInsideFrustum(int[] location1, int[] location2, int[] location3, int[] frustum) {
-		int xleft = MathProcessor.multiply(cameraCanvas[VECTOR_X], frameBufferSize[0]);
-		int yleft = MathProcessor.multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1]);
-		int xright = MathProcessor.multiply(cameraCanvas[2], frameBufferSize[0]);
-		int yright = MathProcessor.multiply(cameraCanvas[3], frameBufferSize[1]);
+	public boolean isInsideFrustum(int[] location1, int[] location2, int[] location3, int[] frustum) {
+		int xleft = mathProcessor.multiply(cameraCanvas[VECTOR_X], frameBufferSize[0]);
+		int yleft = mathProcessor.multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1]);
+		int xright = mathProcessor.multiply(cameraCanvas[2], frameBufferSize[0]);
+		int yright = mathProcessor.multiply(cameraCanvas[3], frameBufferSize[1]);
 		
 		boolean insideWidth = (location1[VECTOR_X] > xleft) && (location1[VECTOR_X] < xright);
 		boolean insideHeight = (location1[VECTOR_Y] > yleft) && (location1[VECTOR_Y] < yright);
@@ -148,7 +161,7 @@ public class GraphicsProcessor {
 		return location1Inside || location2Inside || location3Inside;
 	}
 	
-	public static void drawTriangle(int[] location1, int[] location2, int[] location3) {
+	public void drawTriangle(int[] location1, int[] location2, int[] location3) {
 		
 		// compute boundig box of faces
 		int minX = Math.min(location1[VECTOR_X], Math.min(location2[VECTOR_X], location3[VECTOR_X]));
@@ -158,10 +171,10 @@ public class GraphicsProcessor {
 		int maxY = Math.max(location1[VECTOR_Y], Math.max(location2[VECTOR_Y], location3[VECTOR_Y]));
 
 		// clip against screen limits
-		minX = Math.max(minX, MathProcessor.multiply(cameraCanvas[VECTOR_X], frameBufferSize[0] - 1));
-		minY = Math.max(minY, MathProcessor.multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1] - 1));
-		maxX = Math.min(maxX, MathProcessor.multiply(cameraCanvas[2], frameBufferSize[0] - 1));
-		maxY = Math.min(maxY, MathProcessor.multiply(cameraCanvas[3], frameBufferSize[1] - 1));
+		minX = Math.max(minX, mathProcessor.multiply(cameraCanvas[VECTOR_X], frameBufferSize[0] - 1));
+		minY = Math.max(minY, mathProcessor.multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1] - 1));
+		maxX = Math.min(maxX, mathProcessor.multiply(cameraCanvas[2], frameBufferSize[0] - 1));
+		maxY = Math.min(maxY, mathProcessor.multiply(cameraCanvas[3], frameBufferSize[1] - 1));
 		
 		location1[VECTOR_Z] = Math.max(1, location1[VECTOR_Z]);
 		location2[VECTOR_Z] = Math.max(1, location2[VECTOR_Z]);
@@ -210,14 +223,14 @@ public class GraphicsProcessor {
 		}
 	}
 	
-	private static int interpolatDepth(long[] depth, int[] barycentric) {
+	private int interpolatDepth(long[] depth, int[] barycentric) {
 		long dotProduct = barycentric[VECTOR_X] * depth[0]
 						+ barycentric[VECTOR_Y] * depth[1]
 						+ barycentric[VECTOR_Z] * depth[2];
 		return (int) (((long)barycentric[VECTOR_W] << INTERPOLATE_SHIFT) / dotProduct);
 	}
 	
-	public static int interpolate(int[] values, int[] barycentric) {
+	public int interpolate(int[] values, int[] barycentric) {
 		long dotProduct = values[VECTOR_X] * depthCache[0] * barycentric[VECTOR_X]
 						+ values[VECTOR_Y] * depthCache[1] * barycentric[VECTOR_Y]
 						+ values[VECTOR_Z] * depthCache[2] * barycentric[VECTOR_Z];
@@ -225,14 +238,14 @@ public class GraphicsProcessor {
 		return (int) ((((dotProduct * pixelChache[VECTOR_Z])) / barycentric[VECTOR_W]) >> INTERPOLATE_SHIFT);
 	}
 
-	public static int barycentric(int[] vector1, int[] vector2, int[] vector3) {
+	public int barycentric(int[] vector1, int[] vector2, int[] vector3) {
 		return (vector2[VECTOR_X] - vector1[VECTOR_X]) * (vector3[VECTOR_Y] - vector1[VECTOR_Y])
 				- (vector3[VECTOR_X] - vector1[VECTOR_X]) * (vector2[VECTOR_Y] - vector1[VECTOR_Y]);
 	}
 	
-	public interface Shader {
+	public static abstract class Shader {
 		
-		public abstract void update(List<Light> lights, FrameBuffer frameBuffer);
+		public Shader(CentralProcessor centralProcessor) {}
 		
 		public abstract void setup(Model model, Camera camera);
 		
@@ -241,6 +254,33 @@ public class GraphicsProcessor {
 		public abstract void geometry(Face face);
 
 		public abstract void fragment(int[] location, int[] barycentric);
+		
+		public abstract void setDataBuffer(ShaderDataBuffer shaderDataBuffer);
+		
+		public abstract ShaderDataBuffer getDataBuffer();
+		
+	}
+	
+	public static class ShaderDataBuffer {
+		
+		private List<Light> lights;
+		private FrameBuffer frameBuffer;
+		
+		public List<Light> getLights() {
+			return lights;
+		}
+		
+		public void setLights(List<Light> lights) {
+			this.lights = lights;
+		}
+		
+		public FrameBuffer getFrameBuffer() {
+			return frameBuffer;
+		}
+		
+		public void setFrameBuffer(FrameBuffer frameBuffer) {
+			this.frameBuffer = frameBuffer;
+		}
 		
 	}
 	

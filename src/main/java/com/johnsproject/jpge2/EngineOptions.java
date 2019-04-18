@@ -28,10 +28,6 @@ import java.util.List;
 
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Scene;
-import com.johnsproject.jpge2.processors.MathProcessor;
-import com.johnsproject.jpge2.shaders.FlatSpecularShader;
-import com.johnsproject.jpge2.shaders.GouraudSpecularShader;
-import com.johnsproject.jpge2.shaders.PhongSpecularShader;
 import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 
 public class EngineOptions {
@@ -51,7 +47,6 @@ public class EngineOptions {
 		frameBuffer = new FrameBuffer(1, 1);
 		scene = new Scene();
 		shaders = new ArrayList<Shader>();
-		addShader(new FlatSpecularShader());
 		preprocessingShadersCount = 0;
 		shadersCount = 0;
 		postprocessingShadersCount = 0;

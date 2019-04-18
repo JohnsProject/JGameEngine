@@ -32,18 +32,24 @@ public class VectorProcessor {
 	public static final byte VECTOR_Z = 2;
 	public static final byte VECTOR_W = 3;
 	
-	public static final int[] VECTOR_UP = generate(0, FP_ONE, 0);
-	public static final int[] VECTOR_DOWN = generate(0, -FP_ONE, 0);
-	public static final int[] VECTOR_RIGHT = generate(FP_ONE, 0, 0);
-	public static final int[] VECTOR_LEFT = generate(-FP_ONE, 0, 0);
-	public static final int[] VECTOR_FORWARD = generate(0, 0, FP_ONE);
-	public static final int[] VECTOR_BACK = generate(0, 0, -FP_ONE);
-	public static final int[] VECTOR_ONE = generate(FP_ONE, FP_ONE, FP_ONE);
-	public static final int[] VECTOR_ZERO = generate(0, 0, 0);
+	public static final int[] VECTOR_UP = new int[] {0, FP_ONE, 0, FP_ONE};
+	public static final int[] VECTOR_DOWN = new int[] {0, -FP_ONE, 0, FP_ONE};
+	public static final int[] VECTOR_RIGHT = new int[] {FP_ONE, 0, 0, FP_ONE};
+	public static final int[] VECTOR_LEFT = new int[] {-FP_ONE, 0, 0, FP_ONE};
+	public static final int[] VECTOR_FORWARD = new int[] {0, 0, FP_ONE, FP_ONE};
+	public static final int[] VECTOR_BACK = new int[] {0, 0, -FP_ONE, FP_ONE};
+	public static final int[] VECTOR_ONE = new int[] {FP_ONE, FP_ONE, FP_ONE, FP_ONE};
+	public static final int[] VECTOR_ZERO = new int[] {0, 0, 0, 0};
 	
 	
-	private static final int[] vectorCache1 = generate();
-	private static final int[] vectorCache2 = generate();
+	private final int[] vectorCache1 = generate();
+	private final int[] vectorCache2 = generate();
+	
+	private final MathProcessor mathProcessor;
+	
+	VectorProcessor(MathProcessor mathProcessor) {
+		this.mathProcessor = mathProcessor;
+	}
 	
 	/**
 	 * Generates a vector using the given values and returns it.
@@ -54,7 +60,7 @@ public class VectorProcessor {
 	 * @param z
 	 * @return
 	 */
-	public static int[] generate(int x, int y, int z, int w) {
+	public int[] generate(int x, int y, int z, int w) {
 		return new int[] {x, y, z, w};
 	}
 	
@@ -67,7 +73,7 @@ public class VectorProcessor {
 	 * @param z
 	 * @return
 	 */
-	public static int[] generate(int x, int y, int z) {
+	public int[] generate(int x, int y, int z) {
 		return new int[] {x, y, z, FP_ONE};
 	}
 
@@ -79,7 +85,7 @@ public class VectorProcessor {
 	 * @param y
 	 * @return
 	 */
-	public static int[] generate(int x, int y) {
+	public int[] generate(int x, int y) {
 		return new int[] {x, y, 0, FP_ONE};
 	}
 	
@@ -89,7 +95,7 @@ public class VectorProcessor {
 	 * 
 	 * @return
 	 */
-	public static int[] generate() {
+	public int[] generate() {
 		return new int[] {0, 0, 0, FP_ONE};
 	}
 
@@ -100,7 +106,7 @@ public class VectorProcessor {
 	 * @param value
 	 * @param out
 	 */
-	public static int[] add(int[] vector1, int value, int[] out) {
+	public int[] add(int[] vector1, int value, int[] out) {
 		out[VECTOR_X] = vector1[VECTOR_X] + value;
 		out[VECTOR_Y] = vector1[VECTOR_Y] + value;
 		out[VECTOR_Z] = vector1[VECTOR_Z] + value;
@@ -114,7 +120,7 @@ public class VectorProcessor {
 	 * @param value
 	 * @param out
 	 */
-	public static int[] subtract(int[] vector1, int value, int[] out) {
+	public int[] subtract(int[] vector1, int value, int[] out) {
 		out[VECTOR_X] = vector1[VECTOR_X] - value;
 		out[VECTOR_Y] = vector1[VECTOR_Y] - value;
 		out[VECTOR_Z] = vector1[VECTOR_Z] - value;
@@ -128,10 +134,10 @@ public class VectorProcessor {
 	 * @param value
 	 * @param out
 	 */
-	public static int[] multiply(int[] vector1, int value, int[] out) {
-		out[VECTOR_X] = MathProcessor.multiply(vector1[VECTOR_X], value);
-		out[VECTOR_Y] = MathProcessor.multiply(vector1[VECTOR_Y], value);
-		out[VECTOR_Z] = MathProcessor.multiply(vector1[VECTOR_Z], value);
+	public int[] multiply(int[] vector1, int value, int[] out) {
+		out[VECTOR_X] = mathProcessor.multiply(vector1[VECTOR_X], value);
+		out[VECTOR_Y] = mathProcessor.multiply(vector1[VECTOR_Y], value);
+		out[VECTOR_Z] = mathProcessor.multiply(vector1[VECTOR_Z], value);
 		return out;
 	}
 
@@ -142,10 +148,10 @@ public class VectorProcessor {
 	 * @param value
 	 * @param out
 	 */
-	public static int[] divide(int[] vector1, int value, int[] out) {
-		out[VECTOR_X] = MathProcessor.divide(vector1[VECTOR_X], value);
-		out[VECTOR_Y] = MathProcessor.divide(vector1[VECTOR_Y], value);
-		out[VECTOR_Z] = MathProcessor.divide(vector1[VECTOR_Z], value);
+	public int[] divide(int[] vector1, int value, int[] out) {
+		out[VECTOR_X] = mathProcessor.divide(vector1[VECTOR_X], value);
+		out[VECTOR_Y] = mathProcessor.divide(vector1[VECTOR_Y], value);
+		out[VECTOR_Z] = mathProcessor.divide(vector1[VECTOR_Z], value);
 		return out;
 	}
 
@@ -156,7 +162,7 @@ public class VectorProcessor {
 	 * @param vector2
 	 * @param out
 	 */
-	public static int[] add(int[] vector1, int[] vector2, int[] out) {
+	public int[] add(int[] vector1, int[] vector2, int[] out) {
 		out[VECTOR_X] = vector1[VECTOR_X] + vector2[VECTOR_X];
 		out[VECTOR_Y] = vector1[VECTOR_Y] + vector2[VECTOR_Y];
 		out[VECTOR_Z] = vector1[VECTOR_Z] + vector2[VECTOR_Z];
@@ -170,7 +176,7 @@ public class VectorProcessor {
 	 * @param vector2
 	 * @param out
 	 */
-	public static int[] subtract(int[] vector1, int[] vector2, int[] out) {
+	public int[] subtract(int[] vector1, int[] vector2, int[] out) {
 		out[VECTOR_X] = vector1[VECTOR_X] - vector2[VECTOR_X];
 		out[VECTOR_Y] = vector1[VECTOR_Y] - vector2[VECTOR_Y];
 		out[VECTOR_Z] = vector1[VECTOR_Z] - vector2[VECTOR_Z];
@@ -184,10 +190,10 @@ public class VectorProcessor {
 	 * @param vector2
 	 * @param out
 	 */
-	public static int[] multiply(int[] vector1, int[] vector2, int[] out) {
-		out[VECTOR_X] = MathProcessor.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
-		out[VECTOR_Y] = MathProcessor.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		out[VECTOR_Z] = MathProcessor.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+	public int[] multiply(int[] vector1, int[] vector2, int[] out) {
+		out[VECTOR_X] = mathProcessor.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
+		out[VECTOR_Y] = mathProcessor.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		out[VECTOR_Z] = mathProcessor.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return out;
 	}
 
@@ -198,10 +204,10 @@ public class VectorProcessor {
 	 * @param vector2
 	 * @param out
 	 */
-	public static int[] divide(int[] vector1, int[] vector2, int[] out) {
-		out[VECTOR_X] = MathProcessor.divide(vector1[VECTOR_X], vector2[VECTOR_X]);
-		out[VECTOR_Y] = MathProcessor.divide(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		out[VECTOR_Z] = MathProcessor.divide(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+	public int[] divide(int[] vector1, int[] vector2, int[] out) {
+		out[VECTOR_X] = mathProcessor.divide(vector1[VECTOR_X], vector2[VECTOR_X]);
+		out[VECTOR_Y] = mathProcessor.divide(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		out[VECTOR_Z] = mathProcessor.divide(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return out;
 	}
 
@@ -212,14 +218,14 @@ public class VectorProcessor {
 	 * @param matrix
 	 * @param out
 	 */
-	public static int[] multiply(int[] vector, int[][] matrix, int[] out) {
+	public int[] multiply(int[] vector, int[][] matrix, int[] out) {
 		// ensures that will return right values if vector is the same as out
 		copy(vectorCache1, vector);
 		for (int i = 0; i < 4; i++) {
 			long result = (long)matrix[0][i] * vectorCache1[VECTOR_X];
 			result += (long)matrix[1][i] * vectorCache1[VECTOR_Y];
 			result += (long)matrix[2][i] * vectorCache1[VECTOR_Z];
-			out[i] = (int)(MathProcessor.multiply(result, 1) + matrix[3][i]);
+			out[i] = (int)(mathProcessor.multiply(result, 1) + matrix[3][i]);
 		}
 		return out;
 	}
@@ -230,8 +236,8 @@ public class VectorProcessor {
 	 * @param vector
 	 * @return
 	 */
-	public static int magnitude(int[] vector) {
-		return MathProcessor.sqrt(dotProduct(vector, vector));
+	public int magnitude(int[] vector) {
+		return mathProcessor.sqrt(dotProduct(vector, vector));
 	}
 
 	/**
@@ -241,11 +247,11 @@ public class VectorProcessor {
 	 * @param vector2
 	 * @return
 	 */
-	public static int dotProduct(int[] vector1, int[] vector2) {
+	public int dotProduct(int[] vector1, int[] vector2) {
 		long x = (long)vector1[VECTOR_X] * vector2[VECTOR_X];
 		long y = (long)vector1[VECTOR_Y] * vector2[VECTOR_Y];
 		long z = (long)vector1[VECTOR_Z] * vector2[VECTOR_Z];
-		return (int)MathProcessor.multiply(x + y + z, 1);
+		return (int)mathProcessor.multiply(x + y + z, 1);
 	}
 
 	/**
@@ -255,16 +261,16 @@ public class VectorProcessor {
 	 * @param vector2
 	 * @param out
 	 */
-	public static int[] crossProduct(int[] vector1, int[] vector2, int[] out) {
+	public int[] crossProduct(int[] vector1, int[] vector2, int[] out) {
 		// ensures that will return right values if vector is the same as out
 		copy(vectorCache1, vector1);
 		copy(vectorCache2, vector2);
-		out[VECTOR_X] = MathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_Z]);
-		out[VECTOR_Y] = MathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_X]);
-		out[VECTOR_Z] = MathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Y]);
-		out[VECTOR_X] -= MathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_Y]);
-		out[VECTOR_Y] -= MathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Z]);
-		out[VECTOR_Z] -= MathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_X]);
+		out[VECTOR_X] = mathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_Z]);
+		out[VECTOR_Y] = mathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_X]);
+		out[VECTOR_Z] = mathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Y]);
+		out[VECTOR_X] -= mathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_Y]);
+		out[VECTOR_Y] -= mathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Z]);
+		out[VECTOR_Z] -= mathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_X]);
 		return out;
 	}
 	
@@ -274,7 +280,7 @@ public class VectorProcessor {
 	 * @param vector
 	 * @param out
 	 */
-	public static int[] normalize(int[] vector, int[] out) {
+	public int[] normalize(int[] vector, int[] out) {
 		int magnitude = magnitude(vector) >> MathProcessor.FP_BITS;
 		if (magnitude != 0) {
 			out[VECTOR_X] = vector[VECTOR_X] / magnitude;
@@ -291,7 +297,7 @@ public class VectorProcessor {
 	 * @param reflectionVector
 	 * @param out
 	 */
-	public static int[] reflect(int[] vector, int[] reflectionVector, int[] out) {
+	public int[] reflect(int[] vector, int[] reflectionVector, int[] out) {
 		copy(vectorCache1, reflectionVector);
 		int dot = 2 * dotProduct(vector, vectorCache1);
 		multiply(vectorCache1, dot, vectorCache1);
@@ -306,7 +312,7 @@ public class VectorProcessor {
 	 * @param vector2
 	 * @return true if vector1 is equal to vector2 if not false.
 	 */
-	public static boolean equals(int[] vector1, int[] vector2) {
+	public boolean equals(int[] vector1, int[] vector2) {
 		if (vector1[VECTOR_X] != vector2[VECTOR_X])
 			return false;
 		if (vector1[VECTOR_Y] != vector2[VECTOR_Y])
@@ -324,7 +330,7 @@ public class VectorProcessor {
 	 * @param vector1
 	 * @param vector2
 	 */
-	public static void swap(int[] vector1, int[] vector2) {
+	public void swap(int[] vector1, int[] vector2) {
 		int tmp = 0;
 		// swap x values
 		tmp = vector1[VECTOR_X];
@@ -350,7 +356,7 @@ public class VectorProcessor {
 	 * @param vector
 	 * @param out
 	 */
-	public static int[] invert(int[] vector, int[] out) {
+	public int[] invert(int[] vector, int[] out) {
 		out[VECTOR_X] = -vector[VECTOR_X];
 		out[VECTOR_Y] = -vector[VECTOR_Y];
 		out[VECTOR_Z] = -vector[VECTOR_Z];
@@ -364,7 +370,7 @@ public class VectorProcessor {
 	 * @param vector vector with values.
 	 * @param target target vector.
 	 */
-	public static int[] copy(int[] target, int[] vector) {
+	public int[] copy(int[] target, int[] vector) {
 		target[VECTOR_X] = vector[VECTOR_X];
 		target[VECTOR_Y] = vector[VECTOR_Y];
 		target[VECTOR_Z] = vector[VECTOR_Z];
@@ -378,7 +384,7 @@ public class VectorProcessor {
 	 * @param vector
 	 * @return
 	 */
-	public static String toString(int[] vector) {
+	public String toString(int[] vector) {
 		String result = "(";
 		for (int i = 0; i < vector.length; i++) {
 			result += vector[i] + ", ";

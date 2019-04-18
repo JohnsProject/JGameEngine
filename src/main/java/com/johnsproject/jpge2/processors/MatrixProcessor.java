@@ -27,17 +27,28 @@ public class MatrixProcessor {
 	
 	private static final int FP_ONE = MathProcessor.FP_ONE;
 
-	public static final int[][] MATRIX_IDENTITY = generate();
+	public static final int[][] MATRIX_IDENTITY = new int[][] {
+		{FP_ONE, 0, 0, 0},
+		{0, FP_ONE, 0, 0},
+		{0, 0, FP_ONE, 0},
+		{0, 0, 0, FP_ONE}
+	};
 	
-	private static final int[][] matrixCache1 = generate();
-	private static final int[][] matrixCache2 = generate();
+	private final int[][] matrixCache1 = generate();
+	private final int[][] matrixCache2 = generate();
+	
+	private final MathProcessor mathProcessor;
+	
+	MatrixProcessor(MathProcessor mathProcessor) {
+		this.mathProcessor = mathProcessor;
+	}
 	
 	/**
 	 * Returns an identity matrix.
 	 * 
 	 * @return
 	 */
-	public static int[][] generate() {
+	public int[][] generate() {
 		return new int[][] {
 			{FP_ONE, 0, 0, 0},
 			{0, FP_ONE, 0, 0},
@@ -53,7 +64,7 @@ public class MatrixProcessor {
 	 * @param matrix2
 	 * @param out
 	 */
-	public static int[][] add(int[][] matrix1, int[][] matrix2, int[][] out) {
+	public int[][] add(int[][] matrix1, int[][] matrix2, int[][] out) {
 		// ensures that will return right values if matrix or matrix two is the same as out
 		copy(matrixCache1, matrix1);
 		copy(matrixCache2, matrix2);
@@ -72,7 +83,7 @@ public class MatrixProcessor {
 	 * @param matrix2
 	 * @param out
 	 */
-	public static int[][] multiply(int[][] matrix1, int[][] matrix2, int[][] out) {
+	public int[][] multiply(int[][] matrix1, int[][] matrix2, int[][] out) {
 		// ensures that will return right values if matrix or matrix two is the same as out
 		copy(matrixCache1, matrix1);
 		copy(matrixCache2, matrix2);
@@ -82,7 +93,7 @@ public class MatrixProcessor {
 				result += (long)matrixCache1[1][j] * matrixCache2[i][1];
 				result += (long)matrixCache1[2][j] * matrixCache2[i][2];
 				result += (long)matrixCache1[3][j] * matrixCache2[i][3];
-				out[i][j] = (int)MathProcessor.multiply(result, 1);
+				out[i][j] = (int)mathProcessor.multiply(result, 1);
 			}
 		}
 		return out;
@@ -100,7 +111,7 @@ public class MatrixProcessor {
 	 * @param z
 	 * @param out
 	 */
-	public static int[][] translate(int[][] matrix, int x, int y, int z, int[][] out) {
+	public int[][] translate(int[][] matrix, int x, int y, int z, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
 		matrixCache1[3][0] = x;
 		matrixCache1[3][1] = y;
@@ -118,7 +129,7 @@ public class MatrixProcessor {
 	 * @param z
 	 * @param out
 	 */
-	public static int[][] scale(int[][] matrix, int x, int y, int z, int[][] out) {
+	public int[][] scale(int[][] matrix, int x, int y, int z, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
 		matrixCache1[0][0] = x;
 		matrixCache1[1][1] = y;
@@ -134,10 +145,10 @@ public class MatrixProcessor {
 	 * @param angle
 	 * @param out
 	 */
-	public static int[][] rotateX(int[][] matrix, int angle, int[][] out) {
+	public int[][] rotateX(int[][] matrix, int angle, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
-		int cos = MathProcessor.cos(angle);
-		int sin = MathProcessor.sin(angle);
+		int cos = mathProcessor.cos(angle);
+		int sin = mathProcessor.sin(angle);
 		matrixCache1[1][1] = cos;
 		matrixCache1[1][2] = sin;
 		matrixCache1[2][1] = -sin;
@@ -153,10 +164,10 @@ public class MatrixProcessor {
 	 * @param angle
 	 * @param out
 	 */
-	public static int[][] rotateY(int[][] matrix, int angle, int[][] out) {
+	public int[][] rotateY(int[][] matrix, int angle, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
-		int cos = MathProcessor.cos(angle);
-		int sin = MathProcessor.sin(angle);
+		int cos = mathProcessor.cos(angle);
+		int sin = mathProcessor.sin(angle);
 		matrixCache1[0][0] = cos;
 		matrixCache1[0][2] = -sin;
 		matrixCache1[2][0] = sin;
@@ -172,10 +183,10 @@ public class MatrixProcessor {
 	 * @param angle
 	 * @param out
 	 */
-	public static int[][] rotateZ(int[][] matrix, int angle, int[][] out) {
+	public int[][] rotateZ(int[][] matrix, int angle, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
-		int cos = MathProcessor.cos(angle);
-		int sin = MathProcessor.sin(angle);
+		int cos = mathProcessor.cos(angle);
+		int sin = mathProcessor.sin(angle);
 		matrixCache1[0][0] = cos;
 		matrixCache1[0][1] = sin;
 		matrixCache1[1][0] = -sin;
@@ -190,7 +201,7 @@ public class MatrixProcessor {
 	 * @param target
 	 * @param matrix
 	 */
-	public static int[][] copy(int[][] target, int[][] matrix) {
+	public int[][] copy(int[][] target, int[][] matrix) {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				target[i][j] = matrix[i][j];
@@ -206,7 +217,7 @@ public class MatrixProcessor {
 	 * @param matrix2
 	 * @return
 	 */
-	public static boolean equals(int[][] matrix1, int[][] matrix2) {
+	public boolean equals(int[][] matrix1, int[][] matrix2) {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				if (matrix1[i][j] != matrix2[i][j]) return false;
@@ -221,7 +232,7 @@ public class MatrixProcessor {
 	 * @param matrix
 	 * @return
 	 */
-	public static String toString(int[][] matrix) {
+	public String toString(int[][] matrix) {
 		String result = "";
 		for (int i = 0; i < 4; i++) {
 			result += '|';

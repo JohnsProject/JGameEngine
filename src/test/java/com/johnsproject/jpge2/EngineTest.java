@@ -21,6 +21,7 @@ public class EngineTest implements EngineListener {
 	}
 	
 	EngineTest() {
+		Engine.getInstance().start();
 		Engine.getInstance().addEngineListener(this);
 	}
 	
@@ -34,9 +35,9 @@ public class EngineTest implements EngineListener {
 
 	static void useSOM() {
 		try {
-			Model model = SOMImporter.load("C:/Development/test.som");
+			Model model = new SOMImporter(Engine.getInstance().getProcessor()).load("C:/Development/test.som");
 			model.getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
-			Engine.getInstance().getOptions().getScene().addCamera(new Camera("Default Camera", new Transform()));
+			Engine.getInstance().getOptions().getScene().addCamera(new Camera("Default Camera", new Transform(new int[3], new int[3], new int[3])));
 			Engine.getInstance().getOptions().getScene().getCameras().get(0).getTransform().translate(0, 0, MathProcessor.FP_ONE * 100);
 			Engine.getInstance().getOptions().getScene().addModel(model);
 		} catch (IOException e) {
@@ -46,7 +47,7 @@ public class EngineTest implements EngineListener {
 	
 	static void useScene() {
 		try {
-			Scene scene = SceneImporter.load("C:/Development/test.scene");
+			Scene scene = new SceneImporter(Engine.getInstance().getProcessor()).load("C:/Development/test.scene");
 			scene.getModel("Ground").getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
 //			scene.getModels().get(0).getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
 			Engine.getInstance().getOptions().setScene(scene);

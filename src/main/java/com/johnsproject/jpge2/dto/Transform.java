@@ -40,12 +40,6 @@ public class Transform {
 		this.rotation = rotation;
 		this.scale = scale;
 	}
-	
-	public Transform() {
-		this.location = VectorProcessor.generate();
-		this.rotation = VectorProcessor.generate();
-		this.scale = VectorProcessor.generate(10, 10, 10);
-	}
 
 	public void translate(int x, int y, int z) {
 		location[VECTOR_X] += x;

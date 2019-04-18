@@ -26,6 +26,11 @@ package com.johnsproject.jpge2;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.johnsproject.jpge2.controllers.CentralController;
+import com.johnsproject.jpge2.processors.CentralProcessor;
+import com.johnsproject.jpge2.shaders.FlatSpecularShader;
+import com.johnsproject.jpge2.shaders.GouraudSpecularShader;
+
 public class Engine {
 
 	private static Engine engine = new Engine();
@@ -37,36 +42,56 @@ public class Engine {
 	private Thread engineThread;
 	private EngineOptions options;
 	private List<EngineListener> engineListeners;
+	private CentralController controller;
+	private CentralProcessor processor;
+	
+	private volatile boolean running;
 
 	private Engine() {
 		options = new EngineOptions();
 		engineListeners = new ArrayList<EngineListener>();
-		startEngineLoop();
 	}
 
+	public void start() {
+		this.controller = new CentralController(this);
+		this.processor = new CentralProcessor();
+		startEngineLoop();
+	}
+	
+	public void start(CentralController centralController, CentralProcessor centralProcessor) {
+		this.controller = centralController;
+		this.processor = centralProcessor;
+		startEngineLoop();
+	}
+	
+	private void stop() {
+		running = false;
+	}
+	
 	private void startEngineLoop() {
+		running = true;
+		options.addShader(new GouraudSpecularShader(processor));
+		
 		engineThread = new Thread(new Runnable() {
 			
 			long nextUpateTick = System.currentTimeMillis();
 			long current = System.currentTimeMillis();
-			int updateSkipRate = 0;
+			int updatesToCatchUp = 0;
 			int loops = 0;
 
 			public void run() {
-				// initialize the controllers
-				new EngineControllersInitializer(getInstance());
 				for (int i = 0; i < engineListeners.size(); i++) {
 					engineListeners.get(i).start();
 				}
-				while (true) {
+				while (running) {
 					loops = 0;
-					updateSkipRate = 1000 / getOptions().getUpdateRate();
+					updatesToCatchUp = 1000 / getOptions().getUpdateRate();
 					current = System.currentTimeMillis();
 					while (current > nextUpateTick && loops < getOptions().getMaxUpdateSkip()) {
 						for (int i = 0; i < engineListeners.size(); i++) {
 							engineListeners.get(i).fixedUpdate();
 						}
-						nextUpateTick += updateSkipRate;
+						nextUpateTick += updatesToCatchUp;
 						loops++;
 					}
 					for (int i = 0; i < engineListeners.size(); i++) {
@@ -98,6 +123,14 @@ public class Engine {
 	public void removeEngineListener(EngineListener listener) {
 		engineListeners.remove(listener);
 		sortListeners();
+	}
+
+	public CentralController getController() {
+		return controller;
+	}
+
+	public CentralProcessor getProcessor() {
+		return processor;
 	}
 
 	private void sortListeners() {
