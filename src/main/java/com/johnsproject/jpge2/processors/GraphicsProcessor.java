@@ -43,7 +43,10 @@ public class GraphicsProcessor {
 	private static final byte FP_BITS = MathProcessor.FP_BITS;
 	private static final int FP_ONE = MathProcessor.FP_ONE;
 	
-	private static final int INTERPOLATE_SHIFT = FP_BITS * 2;
+	private static final byte INTERPOLATE_BITS = FP_BITS * 2;
+	private static final long INTERPOLATE_ONE = 1 << INTERPOLATE_BITS;
+	
+	private long oneByBarycentric = 0;
 	
 	private final long[] depthCache;
 	private final int[] barycentricCache;
@@ -185,16 +188,17 @@ public class GraphicsProcessor {
 	    int a12 = location2[VECTOR_Y] - location3[VECTOR_Y], b12 = location3[VECTOR_X] - location2[VECTOR_X];
 	    int a20 = location3[VECTOR_Y] - location1[VECTOR_Y], b20 = location1[VECTOR_X] - location3[VECTOR_X];
 
-	    int one = 1 << INTERPOLATE_SHIFT;
-		depthCache[0] = one / location1[VECTOR_Z];
-		depthCache[1] = one / location2[VECTOR_Z];
-		depthCache[2] = one / location3[VECTOR_Z];
-		barycentricCache[VECTOR_W] = barycentric(location1, location2, location3);
+	    barycentricCache[VECTOR_W] = barycentric(location1, location2, location3);
+		depthCache[0] = INTERPOLATE_ONE / location1[VECTOR_Z];
+		depthCache[1] = INTERPOLATE_ONE / location2[VECTOR_Z];
+		depthCache[2] = INTERPOLATE_ONE / location3[VECTOR_Z];
+		oneByBarycentric = INTERPOLATE_ONE / barycentricCache[VECTOR_W];
 	    
 	    // barycentric coordinates at minX/minY edge
 	    pixelChache[VECTOR_X] = minX;
 	    pixelChache[VECTOR_Y] = minY;
 	    pixelChache[VECTOR_Z] = 0;
+	    
 	    int barycentric0_row = barycentric(location2, location3, pixelChache);
 	    int barycentric1_row = barycentric(location3, location1, pixelChache);
 	    int barycentric2_row = barycentric(location1, location2, pixelChache);
@@ -227,15 +231,17 @@ public class GraphicsProcessor {
 		long dotProduct = barycentric[VECTOR_X] * depth[0]
 						+ barycentric[VECTOR_Y] * depth[1]
 						+ barycentric[VECTOR_Z] * depth[2];
-		return (int) (((long)barycentric[VECTOR_W] << INTERPOLATE_SHIFT) / dotProduct);
+		return (int) (((long)barycentric[VECTOR_W] << INTERPOLATE_BITS) / dotProduct);
 	}
 	
-	public int interpolate(int[] values, int[] barycentric) {
+	public int interpolate(int[] values, int[] barycentric) {		
 		long dotProduct = values[VECTOR_X] * depthCache[0] * barycentric[VECTOR_X]
 						+ values[VECTOR_Y] * depthCache[1] * barycentric[VECTOR_Y]
 						+ values[VECTOR_Z] * depthCache[2] * barycentric[VECTOR_Z];
 		// normalize values
-		return (int) ((((dotProduct * pixelChache[VECTOR_Z])) / barycentric[VECTOR_W]) >> INTERPOLATE_SHIFT);
+		long result = (dotProduct * pixelChache[VECTOR_Z]) >> INTERPOLATE_BITS;
+		result = (result * oneByBarycentric) >> INTERPOLATE_BITS;
+		return (int)result;
 	}
 
 	public int barycentric(int[] vector1, int[] vector2, int[] vector3) {
