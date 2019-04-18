@@ -37,7 +37,7 @@ public class ColorProcessor {
 	/**
 	 * Some default integer sRGB colors.
 	 */
-	public final int WHITE = Color.white.getRGB(),
+	public static final int WHITE = Color.white.getRGB(),
 							BLUE = Color.blue.getRGB(),
 							CYAN = Color.cyan.getRGB(),
 							GREEN = Color.green.getRGB(),
@@ -53,16 +53,16 @@ public class ColorProcessor {
 	/**
 	 * Bits count representing each color value.
 	 */
-	public final byte COLOR_BITS = 8;
+	public static final byte COLOR_BITS = 8;
 	
 	/**
 	 * Value representing the range of each color values. (0 - {@value #COLOR_VALUE})
 	 */
-	private final int COLOR_VALUE = 0xFF;
+	public static final int COLOR_VALUE = 0xFF;
 	
-	private final byte GREENSHIFT = 8;
-	private final byte REDSHIFT = 16;
-	private final byte ALPHASHIFT = 24;
+	private static final byte GREENSHIFT = 8;
+	private static final byte REDSHIFT = 16;
+	private static final byte ALPHASHIFT = 24;
 
 	private final MathProcessor mathProcessor;
 	
@@ -292,5 +292,10 @@ public class ColorProcessor {
 		int b = (b1 + (((b2 - b1) * factor) >> 8));
 		int a = (a1 + (((a2 - a1) * factor) >> 8));
 		return generate(a, r, g, b);
+	}
+	
+	public String toString(int color) {
+		int r1 = getRed(color), g1 = getGreen(color), b1 = getBlue(color), a1 = getAlpha(color);
+		return "(" + a1 + ", " + g1 + ", " + b1 + ", " + r1 + ")";
 	}
 }

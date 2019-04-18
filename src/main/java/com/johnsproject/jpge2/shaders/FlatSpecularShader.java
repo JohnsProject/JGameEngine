@@ -156,7 +156,8 @@ public class FlatSpecularShader extends Shader {
 		vectorProcessor.add(location1, location2, faceLocation);
 		vectorProcessor.add(faceLocation, location3, faceLocation);
 		vectorProcessor.divide(faceLocation, 3 << FP_BITS, faceLocation);
-		lightColor = colorProcessor.WHITE;
+		
+		lightColor = ColorProcessor.WHITE;
 		lightFactor = 0;
 
 		vectorProcessor.multiply(normal, normalMatrix, normal);
@@ -190,7 +191,7 @@ public class FlatSpecularShader extends Shader {
 			lightColor = colorProcessor.lerp(lightColor, light.getDiffuseColor(), currentFactor);
 			lightFactor += currentFactor;
 		}
-		modelColor = colorProcessor.lerp(colorProcessor.BLACK, material.getColor(), lightFactor);
+		modelColor = colorProcessor.lerp(ColorProcessor.BLACK, material.getColor(), lightFactor);
 		modelColor = colorProcessor.multiplyColor(modelColor, lightColor);
 		for (int i = 0; i < face.getVertices().length; i++) {
 			int[] vertexLocation = face.getVertices()[i].getLocation();
@@ -223,7 +224,7 @@ public class FlatSpecularShader extends Shader {
 			int texel = texture.getPixel(u, v);
 			if (colorProcessor.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;
-			modelColor = colorProcessor.lerp(colorProcessor.BLACK, texel, lightFactor);
+			modelColor = colorProcessor.lerp(ColorProcessor.BLACK, texel, lightFactor);
 			modelColor = colorProcessor.multiplyColor(modelColor, lightColor);
 		}
 		frameBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], (byte) 0, modelColor);

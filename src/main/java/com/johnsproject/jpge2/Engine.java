@@ -30,6 +30,7 @@ import com.johnsproject.jpge2.controllers.CentralController;
 import com.johnsproject.jpge2.processors.CentralProcessor;
 import com.johnsproject.jpge2.shaders.FlatSpecularShader;
 import com.johnsproject.jpge2.shaders.GouraudSpecularShader;
+import com.johnsproject.jpge2.shaders.PhongSpecularShader;
 
 public class Engine {
 
@@ -64,13 +65,13 @@ public class Engine {
 		startEngineLoop();
 	}
 	
-	private void stop() {
+	public void stop() {
 		running = false;
 	}
 	
 	private void startEngineLoop() {
 		running = true;
-		options.addShader(new GouraudSpecularShader(processor));
+		options.addShader(new FlatSpecularShader(processor));
 		
 		engineThread = new Thread(new Runnable() {
 			

@@ -131,9 +131,9 @@ public class SceneImporter {
 			String typeData = lightData.split("type<")[1].split(">type")[0];
 			String strengthData = lightData.split("strength<")[1].split(">strength")[0];
 			String[] colorData = lightData.split("color<")[1].split(">color")[0].split(",");
-			int red = mathProcessor.generate(getFloat(colorData[0]) * 256);
-			int green = mathProcessor.generate(getFloat(colorData[1]) * 256);
-			int blue = mathProcessor.generate(getFloat(colorData[2]) * 256);
+			int red = (int)(getFloat(colorData[0]) * 256);
+			int green = (int)(getFloat(colorData[1]) * 256);
+			int blue = (int)(getFloat(colorData[2]) * 256);
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
 			Light light = new Light(name, transform);
 			if (typeData.equals("SUN"))

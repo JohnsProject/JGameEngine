@@ -203,7 +203,7 @@ public class PhongSpecularShader extends Shader {
 		normalizedNormal[VECTOR_Y] = graphicsProcessor.interpolate(normalY, barycentric);
 		normalizedNormal[VECTOR_Z] = graphicsProcessor.interpolate(normalZ, barycentric);
 
-		int lightColor = colorProcessor.WHITE;
+		int lightColor = ColorProcessor.WHITE;
 		int lightFactor = 0;
 
 		for (int i = 0; i < lights.size(); i++) {
@@ -239,10 +239,10 @@ public class PhongSpecularShader extends Shader {
 			int texel = texture.getPixel(u, v);
 			if (colorProcessor.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;
-			modelColor = colorProcessor.lerp(colorProcessor.BLACK, texel, lightFactor);
+			modelColor = colorProcessor.lerp(ColorProcessor.BLACK, texel, lightFactor);
 			modelColor = colorProcessor.multiplyColor(modelColor, lightColor);
 		} else {
-			modelColor = colorProcessor.lerp(colorProcessor.BLACK, material.getColor(), lightFactor);
+			modelColor = colorProcessor.lerp(ColorProcessor.BLACK, material.getColor(), lightFactor);
 			modelColor = colorProcessor.multiplyColor(modelColor, lightColor);
 		}
 		frameBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], (byte) 0, modelColor);
