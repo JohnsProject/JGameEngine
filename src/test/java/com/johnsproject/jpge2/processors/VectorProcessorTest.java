@@ -40,4 +40,16 @@ public class VectorProcessorTest {
 		assert(out[2] == 292);
 	}
 	
+	@Test
+	public void rotateXTest() throws Exception {
+		VectorProcessor vectorProcessor = new VectorProcessor(new MathProcessor());
+		int[] out = vectorProcessor.generate();
+		int[] vector = vectorProcessor.generate(100, 100, 100);
+		vectorProcessor.rotateX(vector, 30 << MathProcessor.FP_BITS, out);
+		assert(out[0] == 100);
+		assert(out[1] == 37);
+		assert(out[2] == 137);
+		assert(out[3] == 1024);
+	}
+	
 }

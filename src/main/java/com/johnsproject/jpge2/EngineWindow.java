@@ -25,7 +25,7 @@ package com.johnsproject.jpge2;
 
 import java.awt.Canvas;
 import java.awt.Frame;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -40,7 +40,6 @@ public class EngineWindow extends Frame implements EngineListener {
 
 	public EngineWindow(int width, int height) {
 		setSize(width, height);
-		panel = new EnginePanel();
 		this.setLayout(null);
 		this.setResizable(false);
 		this.setVisible(true);
@@ -51,7 +50,9 @@ public class EngineWindow extends Frame implements EngineListener {
 			}
 		});
 		this.createBufferStrategy(2);
+		panel = new EnginePanel();
 		this.add(panel);
+		panel.setup();
 		Engine.getInstance().addEngineListener(this);
 	}
 
@@ -73,15 +74,20 @@ public class EngineWindow extends Frame implements EngineListener {
 
 		private static final long serialVersionUID = 1L;
 
-		public void drawBuffer() {
+		private BufferStrategy bufferStrategy;
+		
+		private void setup() {
 			if (this.getBufferStrategy() == null) {
 				this.createBufferStrategy(2);
 			}
-			BufferStrategy s = this.getBufferStrategy();
-			Graphics g = s.getDrawGraphics();
-			g.clearRect(0, 0, width, height);
-			g.drawImage(Engine.getInstance().getOptions().getFrameBuffer().getImage(), 0, 0, null);
-			s.show();
+			bufferStrategy = this.getBufferStrategy();
+		}
+		
+		public void drawBuffer() {
+			Graphics2D graphics = (Graphics2D) bufferStrategy.getDrawGraphics();
+			graphics.clearRect(0, 0, width, height);
+			graphics.drawImage(Engine.getInstance().getOptions().getFrameBuffer().getImage(), 0, 0, width, height, null);
+			bufferStrategy.show();
 		}
 	}
 

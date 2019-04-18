@@ -27,17 +27,20 @@ public class Light extends SceneObject {
 	
 	public enum LightType {
 		DIRECTIONAL,
-		POINT
+		POINT,
+		SPOT
 	}
 	
 	private LightType type;
 	private int strength;
 	private int diffuseColor;
+	private int[] direction;
 	
-	public Light(String name, Transform transform) {
+	public Light(String name, int[] direction, Transform transform) {
 		super(name, transform);
 		this.type = LightType.DIRECTIONAL;
-		this.strength = 10;
+		this.strength = 100000;
+		this.direction = direction;
 	}
 
 	public LightType getType() {
@@ -62,5 +65,13 @@ public class Light extends SceneObject {
 
 	public void setDiffuseColor(int diffuseColor) {
 		this.diffuseColor = diffuseColor;
+	}
+
+	public int[] getDirection() {
+		return direction;
+	}
+
+	public void setDirection(int[] direction) {
+		this.direction = direction;
 	}
 }

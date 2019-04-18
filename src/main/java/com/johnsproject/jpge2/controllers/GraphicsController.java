@@ -12,7 +12,6 @@ import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
-import com.johnsproject.jpge2.processors.GraphicsProcessor.ShaderDataBuffer;
 
 public class GraphicsController implements EngineListener {
 	
@@ -34,10 +33,7 @@ public class GraphicsController implements EngineListener {
 		int postShadersCount = options.getPostprocessingShadersCount();
 		for (int i = 0; i < shaders.size(); i++) {
 			Shader shader = shaders.get(i);
-			ShaderDataBuffer dataBuffer = shader.getDataBuffer();
-			dataBuffer.setFrameBuffer(frameBuffer);
-			dataBuffer.setLights(scene.getLights());
-			shader.setDataBuffer(dataBuffer);
+			shader.update(scene.getLights(), frameBuffer);
 			for (int j = 0; j < scene.getCameras().size(); j++) {
 				Camera camera = scene.getCameras().get(j);
 				for (int k = 0; k < scene.getModels().size(); k++) {

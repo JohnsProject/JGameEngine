@@ -43,7 +43,7 @@ public class GraphicsProcessor {
 	private static final byte FP_BITS = MathProcessor.FP_BITS;
 	private static final int FP_ONE = MathProcessor.FP_ONE;
 	
-	private static final byte INTERPOLATE_BITS = FP_BITS * 2;
+	private static final byte INTERPOLATE_BITS = 25;
 	private static final long INTERPOLATE_ONE = 1 << INTERPOLATE_BITS;
 	
 	private long oneByBarycentric = 0;
@@ -212,7 +212,7 @@ public class GraphicsProcessor {
 			for (pixelChache[VECTOR_X] = minX; pixelChache[VECTOR_X] < maxX; pixelChache[VECTOR_X]++) {
 				
 				if ((barycentricCache[VECTOR_X] | barycentricCache[VECTOR_Y] | barycentricCache[VECTOR_Z]) > 0) {
-					pixelChache[VECTOR_Z] = interpolatDepth(depthCache, barycentricCache);
+					pixelChache[VECTOR_Z] = interpolatDepth(depthCache, barycentricCache);					
 					shader.fragment(pixelChache, barycentricCache);
 				}
 				
@@ -253,6 +253,8 @@ public class GraphicsProcessor {
 		
 		public Shader(CentralProcessor centralProcessor) {}
 		
+		public abstract void update(List<Light> lights, FrameBuffer frameBuffer);
+		
 		public abstract void setup(Model model, Camera camera);
 		
 		public abstract void vertex(int index, Vertex vertex);
@@ -260,33 +262,6 @@ public class GraphicsProcessor {
 		public abstract void geometry(Face face);
 
 		public abstract void fragment(int[] location, int[] barycentric);
-		
-		public abstract void setDataBuffer(ShaderDataBuffer shaderDataBuffer);
-		
-		public abstract ShaderDataBuffer getDataBuffer();
-		
-	}
-	
-	public static class ShaderDataBuffer {
-		
-		private List<Light> lights;
-		private FrameBuffer frameBuffer;
-		
-		public List<Light> getLights() {
-			return lights;
-		}
-		
-		public void setLights(List<Light> lights) {
-			this.lights = lights;
-		}
-		
-		public FrameBuffer getFrameBuffer() {
-			return frameBuffer;
-		}
-		
-		public void setFrameBuffer(FrameBuffer frameBuffer) {
-			this.frameBuffer = frameBuffer;
-		}
 		
 	}
 	

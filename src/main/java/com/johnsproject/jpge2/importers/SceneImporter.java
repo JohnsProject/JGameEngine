@@ -135,11 +135,18 @@ public class SceneImporter {
 			int green = (int)(getFloat(colorData[1]) * 256);
 			int blue = (int)(getFloat(colorData[2]) * 256);
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
-			Light light = new Light(name, transform);
-			if (typeData.equals("SUN"))
+			int[] direction = vectorProcessor.generate();
+			vectorProcessor.rotate(VectorProcessor.VECTOR_DOWN, transform.getRotation(), direction);
+			Light light = new Light(name, direction, transform);
+			if (typeData.equals("SUN")) {
 				light.setType(LightType.DIRECTIONAL);
-			if (typeData.equals("POINT"))
+			}
+			if (typeData.equals("POINT")) {
 				light.setType(LightType.POINT);
+			}
+			if (typeData.equals("SPOT")) {
+				light.setType(LightType.SPOT);
+			}
 			light.setStrength(mathProcessor.generate(getFloat(strengthData)));
 			light.setDiffuseColor(colorProcessor.generate(red, green, blue));
 			lights[i] = light;
@@ -218,7 +225,7 @@ public class SceneImporter {
 			int alpha = (int)(getFloat(materialData[4]) * 256);
 			int diffuse = mathProcessor.generate(getFloat(materialData[5]));
 			int specular = mathProcessor.generate(getFloat(materialData[6]));
-			int shininess = (int)(getFloat(materialData[7]) / 10);
+			int shininess = mathProcessor.generate(getFloat(materialData[7]) / 10);
 			materials[i] = new Material(i, name, colorProcessor.generate(alpha, red, green, blue), diffuse, specular, shininess, null);
 		}
 		return materials;

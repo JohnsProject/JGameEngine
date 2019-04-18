@@ -55,14 +55,14 @@ public class Transform {
 
 	public void translate(int[] vector) {
 		location[VECTOR_X] += vector[VECTOR_X];
-		location[VECTOR_Y] += vector[VECTOR_Z];
-		location[VECTOR_Y] += vector[VECTOR_Z];
+		location[VECTOR_Y] += vector[VECTOR_Y];
+		location[VECTOR_Z] += vector[VECTOR_Z];
 	}
 
 	public void rotate(int[] vector) {
 		rotation[VECTOR_X] += vector[VECTOR_X];
-		rotation[VECTOR_Y] += vector[VECTOR_Z];
-		rotation[VECTOR_Y] += vector[VECTOR_Z];
+		rotation[VECTOR_Y] += vector[VECTOR_Y];
+		rotation[VECTOR_Z] += vector[VECTOR_Z];
 	}
 
 	public int[] getLocation() {

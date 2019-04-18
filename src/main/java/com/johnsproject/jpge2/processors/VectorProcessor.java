@@ -32,12 +32,12 @@ public class VectorProcessor {
 	public static final byte VECTOR_Z = 2;
 	public static final byte VECTOR_W = 3;
 	
-	public static final int[] VECTOR_UP = new int[] {0, FP_ONE, 0, FP_ONE};
-	public static final int[] VECTOR_DOWN = new int[] {0, -FP_ONE, 0, FP_ONE};
+	public static final int[] VECTOR_UP = new int[] {0, 0, FP_ONE, FP_ONE};
+	public static final int[] VECTOR_DOWN = new int[] {0, 0, -FP_ONE, FP_ONE};
 	public static final int[] VECTOR_RIGHT = new int[] {FP_ONE, 0, 0, FP_ONE};
 	public static final int[] VECTOR_LEFT = new int[] {-FP_ONE, 0, 0, FP_ONE};
-	public static final int[] VECTOR_FORWARD = new int[] {0, 0, FP_ONE, FP_ONE};
-	public static final int[] VECTOR_BACK = new int[] {0, 0, -FP_ONE, FP_ONE};
+	public static final int[] VECTOR_FORWARD = new int[] {0, FP_ONE, 0, FP_ONE};
+	public static final int[] VECTOR_BACK = new int[] {0, -FP_ONE, 0, FP_ONE};
 	public static final int[] VECTOR_ONE = new int[] {FP_ONE, FP_ONE, FP_ONE, FP_ONE};
 	public static final int[] VECTOR_ZERO = new int[] {0, 0, 0, 0};
 	
@@ -305,6 +305,81 @@ public class VectorProcessor {
 		return out;
 	}
 
+	/**
+	 * Sets out equals the vector rotated around (0, 0, 0) at z axis by the given angle.
+	 * 
+	 * @param vector
+	 * @param angle
+	 * @param out
+	 * @return
+	 */
+	public int[] rotateZ(int[] vector, int angle, int[] out) {
+		// ensures that will return right values if vector is the same as out
+		copy(vectorCache1, vector);
+		int sin = mathProcessor.sin(angle), cos = mathProcessor.cos(angle);
+		out[VECTOR_X] = mathProcessor.multiply(vectorCache1[VECTOR_X], cos);
+		out[VECTOR_X] -= mathProcessor.multiply(vectorCache1[VECTOR_Y], sin);
+		out[VECTOR_Y] = mathProcessor.multiply(vectorCache1[VECTOR_Y], cos);
+		out[VECTOR_Y] += mathProcessor.multiply(vectorCache1[VECTOR_X], sin);
+		out[VECTOR_Z] = vectorCache1[VECTOR_Z];
+		return out;
+	}
+
+	/**
+	 * Sets out equals the vector rotated around (0, 0, 0) at y axis by the given angle.
+	 * 
+	 * @param vector
+	 * @param angle
+	 * @param out
+	 * @return
+	 */
+	public int[] rotateY(int[] vector, int angle, int[] out) {
+		// ensures that will return right values if vector is the same as out
+		copy(vectorCache1, vector);
+		int sin = mathProcessor.sin(angle), cos = mathProcessor.cos(angle);
+		out[VECTOR_X] = mathProcessor.multiply(vectorCache1[VECTOR_X], cos);
+		out[VECTOR_X] -= mathProcessor.multiply(vectorCache1[VECTOR_Z], sin);
+		out[VECTOR_Y] = vectorCache1[VECTOR_Y];
+		out[VECTOR_Z] = mathProcessor.multiply(vectorCache1[VECTOR_Z], cos);
+		out[VECTOR_Z] += mathProcessor.multiply(vectorCache1[VECTOR_X], sin);
+		return out;
+	}
+
+	/**
+	 * Sets out equals the vector rotated around (0, 0, 0) at x axis by the given angle.
+	 * 
+	 * @param vector
+	 * @param angle
+	 * @param out
+	 * @return
+	 */
+	public int[] rotateX(int[] vector, int angle, int[] out) {
+		// ensures that will return right values if vector is the same as out
+		copy(vectorCache1, vector);
+		int sin = mathProcessor.sin(angle), cos = mathProcessor.cos(angle);
+		out[VECTOR_X] = vectorCache1[VECTOR_X];
+		out[VECTOR_Y] = mathProcessor.multiply(vectorCache1[VECTOR_Y], cos);
+		out[VECTOR_Y] -= mathProcessor.multiply(vectorCache1[VECTOR_Z], sin);
+		out[VECTOR_Z] = mathProcessor.multiply(vectorCache1[VECTOR_Z], cos);
+		out[VECTOR_Z] += mathProcessor.multiply(vectorCache1[VECTOR_Y], sin);
+		return out;
+	}
+
+	/**
+	 * Sets out equals the vector rotated around (0, 0, 0) at all three axis by the given angles.
+	 * 
+	 * @param vector
+	 * @param angle
+	 * @param out
+	 * @return
+	 */
+	public int[] rotate(int[] vector, int[] angles, int[] out) {
+		rotateX(vector, angles[VECTOR_X], out);
+		rotateZ(out, angles[VECTOR_Z], out);
+		rotateY(out, angles[VECTOR_Y], out);
+		return out;
+	}
+	
 	/**
 	 * Checks if vector1 is equal to vector2.
 	 * 

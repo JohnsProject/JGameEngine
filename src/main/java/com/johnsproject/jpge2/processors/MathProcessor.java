@@ -73,7 +73,7 @@ public class MathProcessor {
 	/**
 	 * Returns the fixed point sine of the given angle.
 	 * 
-	 * @param angle in degrees, not fixed point.
+	 * @param angle in fixed point degrees.
 	 * @return
 	 */
 	public int sin(int angle) {
@@ -114,7 +114,7 @@ public class MathProcessor {
 	/**
 	 * Returns the fixed point cosine of the given angle.
 	 * 
-	 * @param angle in degrees, not fixed point.
+	 * @param angle in fixed point degrees.
 	 * @return
 	 */
 	public int cos(int angle) {
@@ -140,7 +140,7 @@ public class MathProcessor {
 	/**
 	 * Returns the fixed point tangent of the given angle.
 	 * 
-	 * @param angle in degrees, not fixed point.
+	 * @param angle in fixed point degrees.
 	 * @return
 	 */
 	public int tan(int angle) {
