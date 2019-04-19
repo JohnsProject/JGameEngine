@@ -268,6 +268,6 @@ public class PhongSpecularShader extends Shader {
 		specularFactor = mathProcessor.pow(specularFactor, material.getShininess() >> FP_BITS);
 		specularFactor = mathProcessor.multiply(specularFactor, material.getSpecularIntensity());
 		// putting it all together...
-		return mathProcessor.multiply(diffuseFactor + specularFactor, 100);
+		return (diffuseFactor + specularFactor << 8) >> FP_BITS;
 	}
 }

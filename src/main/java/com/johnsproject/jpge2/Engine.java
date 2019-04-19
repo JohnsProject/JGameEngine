@@ -71,7 +71,7 @@ public class Engine {
 	
 	private void startEngineLoop() {
 		running = true;
-		options.addShader(new PhongSpecularShader(processor));
+		options.addShader(new GouraudSpecularShader(processor));
 		
 		engineThread = new Thread(new Runnable() {
 			

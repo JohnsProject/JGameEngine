@@ -220,7 +220,7 @@ public class MathProcessor {
 		random += random + (random & random);
 		return normalize(random, min, max);
 	}
-
+	
 	/**
 	 * Returns the square root of the given number. If number < 0 the method returns
 	 * 0.
