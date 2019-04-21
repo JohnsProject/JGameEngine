@@ -104,18 +104,18 @@ public class GraphicsProcessor {
 		int[] rotation = transform.getRotation();
 	
 		matrixProcessor.translate(out, location[VECTOR_X], -location[VECTOR_Y], -location[VECTOR_Z], out);
+		matrixProcessor.rotateZ(out, rotation[VECTOR_Y], out);
+		matrixProcessor.rotateY(out, rotation[VECTOR_Z], out);
 		matrixProcessor.rotateX(out, -rotation[VECTOR_X], out);
-		matrixProcessor.rotateY(out, rotation[VECTOR_Y], out);
-		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
 		return out;
 	}
 
 	public int[][] getOrthographicMatrix(int[] frustum, int[][] out) {
 		int scaleFactor = (mathProcessor.multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
-		out[0][0] = (FP_ONE * scaleFactor) << FP_BITS;
-		out[1][1] = (FP_ONE * scaleFactor) << FP_BITS;
+		out[0][0] = (frustum[0] * scaleFactor * FP_BITS);
+		out[1][1] = (frustum[0] * scaleFactor * FP_BITS);
 		out[2][2] = -FP_BITS;
-		out[3][3] = (frustum[3] - frustum[2]) << (FP_BITS * 2);
+		out[3][3] = -FP_ONE * FP_ONE;
 		return out;
 	}
 	
