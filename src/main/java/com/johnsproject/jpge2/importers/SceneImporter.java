@@ -26,8 +26,6 @@ package com.johnsproject.jpge2.importers;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.xml.sax.ext.LexicalHandler;
-
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Camera.CameraType;
 import com.johnsproject.jpge2.dto.Face;

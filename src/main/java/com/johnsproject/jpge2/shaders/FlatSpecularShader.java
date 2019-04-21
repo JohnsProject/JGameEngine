@@ -138,14 +138,14 @@ public class FlatSpecularShader extends Shader {
 
 	@Override
 	public void vertex(int index, Vertex vertex) {
-		int[] location = vectorProcessor.copy(vertex.getLocation(), vertex.getStartLocation());
+		int[] location = vertex.getLocation();
 		vectorProcessor.multiply(location, modelMatrix, location);
 	}
 
 	@Override
 	public void geometry(Face face) {
 		Material material = face.getMaterial();
-		int[] normal = vectorProcessor.copy(face.getNormal(), face.getStartNormal());
+		int[] normal = face.getNormal();
 		int[] location1 = face.getVertex(0).getLocation();
 		int[] location2 = face.getVertex(1).getLocation();
 		int[] location3 = face.getVertex(2).getLocation();

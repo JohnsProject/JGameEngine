@@ -27,7 +27,6 @@ public class Face {
 		
 	private int index;
 	private Vertex[] vertices;
-	private int[] startNormal;
 	private int[] normal;
 	private int[] uv1;
 	private int[] uv2;
@@ -40,8 +39,7 @@ public class Face {
 		this.vertices[0] = vertex1;
 		this.vertices[1] = vertex2;
 		this.vertices[2] = vertex3;
-		this.startNormal = normal;
-		this.normal = normal.clone();
+		this.normal = normal;
 		this.uv1 = uv1;
 		this.uv2 = uv2;
 		this.uv3 = uv3;
@@ -62,10 +60,6 @@ public class Face {
 
 	public int[] getNormal() {
 		return normal;
-	}
-	
-	public int[] getStartNormal() {
-		return startNormal;
 	}
 	
 	public int[] getUV1() {

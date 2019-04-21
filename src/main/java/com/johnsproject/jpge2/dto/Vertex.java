@@ -26,18 +26,14 @@ package com.johnsproject.jpge2.dto;
 public class Vertex {
 	
 	private int index;
-	private int[] startLocation;
 	private int[] location;
-	private int[] startNormal;
 	private int[] normal;
 	private Material material;
 	
 	public Vertex(int index, int[] location, int[] normal, Material material) {
 		this.index = index;
-		this.startLocation = location;
-		this.location = location.clone();
-		this.startNormal = normal;
-		this.normal = normal.clone();
+		this.location = location;
+		this.normal = normal;
 		this.material = material;
 	}
 
@@ -49,16 +45,8 @@ public class Vertex {
 		return location;
 	}
 	
-	public int[] getStartLocation() {
-		return startLocation;
-	}
-	
 	public int[] getNormal() {
 		return normal;
-	}
-
-	public int[] getStartNormal() {
-		return startNormal;
 	}
 	
 	public Material getMaterial() {

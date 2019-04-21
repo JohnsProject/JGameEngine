@@ -54,8 +54,8 @@ public class Engine {
 	}
 
 	public void start() {
-		this.controller = new CentralController(this);
 		this.processor = new CentralProcessor();
+		this.controller = new CentralController(this, processor);
 		startEngineLoop();
 	}
 	

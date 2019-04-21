@@ -123,8 +123,8 @@ public class GouraudSpecularShader extends Shader {
 	@Override
 	public void vertex(int index, Vertex vertex) {
 		Material material = vertex.getMaterial();
-		int[] location = vectorProcessor.copy(vertex.getLocation(), vertex.getStartLocation());
-		int[] normal = vectorProcessor.copy(vertex.getNormal(), vertex.getStartNormal());
+		int[] location = vertex.getLocation();
+		int[] normal = vertex.getNormal();
 		vectorProcessor.multiply(location, modelMatrix, location);
 		vectorProcessor.multiply(normal, normalMatrix, normal);
 
