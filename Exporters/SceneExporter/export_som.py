@@ -20,6 +20,9 @@ def write(filepath):
 			light.name = blenderLight.name
 			light.type = blenderLight.type
 			light.strength = blenderLight.energy
+			if light.type == "SPOT":
+				light.spot = math.degrees(blenderLight.spot_size)
+				light.blend = blenderLight.spot_blend
 			light.color.red = blenderLight.color[0]
 			light.color.green = blenderLight.color[1]
 			light.color.blue = blenderLight.color[2]
@@ -136,6 +139,8 @@ def writeToFile(filepath, scene):
 		lights += ("	name<" + light.name + ">name\n")
 		lights += ("	type<" + light.type + ">type\n")
 		lights += ("	strength<" + ("%f" % light.strength) + ">strength\n")
+		lights += ("	spot<" + ("%f" % light.spot) + ">spot\n")
+		lights += ("	blend<" + ("%f" % light.blend) + ">blend\n")
 		lights += ("	color<" + light.color.toString() + ">color\n")
 		lights += ("	transform<" + light.transform.toString() + ">transform\n")
 		lights += ">light\n"
@@ -197,6 +202,8 @@ class Light:
 		self.type = 0
 		self.color = Color()
 		self.strength = 0
+		self.spot = 0
+		self.blend = 0
 		
 class Model:
 	def __init__(self):

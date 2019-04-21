@@ -138,6 +138,7 @@ public class GouraudSpecularShader extends Shader {
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
 			int currentFactor = 0;
+			int attenuation = 0;
 			switch (light.getType()) {
 			case DIRECTIONAL:
 				vectorProcessor.invert(light.getDirection(), lightDirection);
@@ -146,25 +147,26 @@ public class GouraudSpecularShader extends Shader {
 			case POINT:
 				vectorProcessor.subtract(light.getTransform().getLocation(), location, lightLocation);
 				// attenuation
-				long distance = vectorProcessor.magnitude(lightLocation);
-				int attenuation = FP_ONE;
-				attenuation += mathProcessor.multiply(distance, 3000);
-				attenuation += mathProcessor.multiply(mathProcessor.multiply(distance, distance), 20);
-				attenuation = attenuation >> FP_BITS;
+				attenuation = getAttenuation(lightLocation);
 				// other light values
 				vectorProcessor.normalize(lightLocation, lightLocation);
 				currentFactor = getLightFactor(normalizedNormal, lightLocation, viewDirection, material);
 				currentFactor = (currentFactor * 100) / attenuation;
 				break;
-			case SPOT:
-				vectorProcessor.subtract(light.getTransform().getLocation(), location, lightLocation);
-				vectorProcessor.normalize(lightLocation, lightLocation);
-				
+			case SPOT:				
 				vectorProcessor.invert(light.getDirection(), lightDirection);
-				
-				int dot = vectorProcessor.dotProduct(lightLocation, lightDirection);
-				if(dot > mathProcessor.cos(30 << FP_BITS))
+				vectorProcessor.subtract(light.getTransform().getLocation(), location, lightLocation);
+				// attenuation
+				attenuation = getAttenuation(lightLocation);
+				vectorProcessor.normalize(lightLocation, lightLocation);
+				int theta = vectorProcessor.dotProduct(lightLocation, lightDirection);
+				int phi = mathProcessor.cos(light.getSpotSize() >> 1);
+				if(theta > phi) {
+					int intensity = -mathProcessor.divide(phi - theta, light.getSpotSoftness() + 1);
+					intensity = mathProcessor.clamp(intensity, 1, FP_ONE);
 					currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, material);
+					currentFactor = (currentFactor * intensity) / attenuation;
+				}
 				break;
 			}
 			currentFactor = mathProcessor.multiply(currentFactor, light.getStrength());
@@ -241,5 +243,14 @@ public class GouraudSpecularShader extends Shader {
 		specularFactor = mathProcessor.multiply(specularFactor, material.getSpecularIntensity());
 		// putting it all together...
 		return (diffuseFactor + specularFactor << 8) >> FP_BITS;
+	}
+	
+	private int getAttenuation(int[] lightLocation) {
+		// attenuation
+		long distance = vectorProcessor.magnitude(lightLocation);
+		int attenuation = FP_ONE;
+		attenuation += mathProcessor.multiply(distance, 3000);
+		attenuation += mathProcessor.multiply(mathProcessor.multiply(distance, distance), 20);
+		return attenuation >> FP_BITS;
 	}
 }

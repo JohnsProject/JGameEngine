@@ -35,12 +35,16 @@ public class Light extends SceneObject {
 	private int strength;
 	private int diffuseColor;
 	private int[] direction;
+	private int spotSize;
+	private int spotSoftness;
 	
 	public Light(String name, int[] direction, Transform transform) {
 		super(name, transform);
 		this.type = LightType.DIRECTIONAL;
 		this.strength = 100000;
 		this.direction = direction;
+		this.spotSize = 60000;
+		this.spotSoftness = 800;
 	}
 
 	public LightType getType() {
@@ -73,5 +77,21 @@ public class Light extends SceneObject {
 
 	public void setDirection(int[] direction) {
 		this.direction = direction;
+	}
+
+	public int getSpotSize() {
+		return spotSize;
+	}
+
+	public void setSpotSize(int spotSize) {
+		this.spotSize = spotSize;
+	}
+
+	public int getSpotSoftness() {
+		return spotSoftness;
+	}
+
+	public void setSpotSoftness(int spotSoftness) {
+		this.spotSoftness = spotSoftness;
 	}
 }

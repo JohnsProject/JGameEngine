@@ -26,6 +26,8 @@ package com.johnsproject.jpge2.importers;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.xml.sax.ext.LexicalHandler;
+
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Camera.CameraType;
 import com.johnsproject.jpge2.dto.Face;
@@ -130,11 +132,13 @@ public class SceneImporter {
 			String name = lightData.split("name<")[1].split(">name")[0];
 			String typeData = lightData.split("type<")[1].split(">type")[0];
 			String strengthData = lightData.split("strength<")[1].split(">strength")[0];
+			String spotData = lightData.split("spot<")[1].split(">spot")[0];
+			String blendData = lightData.split("blend<")[1].split(">blend")[0];
 			String[] colorData = lightData.split("color<")[1].split(">color")[0].split(",");
+			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
 			int red = (int)(getFloat(colorData[0]) * 256);
 			int green = (int)(getFloat(colorData[1]) * 256);
 			int blue = (int)(getFloat(colorData[2]) * 256);
-			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
 			int[] direction = vectorProcessor.generate();
 			vectorProcessor.rotate(VectorProcessor.VECTOR_DOWN, transform.getRotation(), direction);
 			Light light = new Light(name, direction, transform);
@@ -149,6 +153,8 @@ public class SceneImporter {
 			}
 			light.setStrength(mathProcessor.generate(getFloat(strengthData)));
 			light.setDiffuseColor(colorProcessor.generate(red, green, blue));
+			light.setSpotSize(mathProcessor.generate(getFloat(spotData)));
+			light.setSpotSoftness(mathProcessor.generate(getFloat(blendData)));
 			lights[i] = light;
 		}
 		return lights;
