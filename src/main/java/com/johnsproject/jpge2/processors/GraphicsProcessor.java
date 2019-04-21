@@ -253,7 +253,7 @@ public class GraphicsProcessor {
 		
 		public Shader(CentralProcessor centralProcessor) {}
 		
-		public abstract void update(List<Light> lights, FrameBuffer frameBuffer);
+		public abstract void update(ShaderDataBuffer shaderDataBuffer);
 		
 		public abstract void setup(Model model, Camera camera);
 		
@@ -265,4 +265,22 @@ public class GraphicsProcessor {
 		
 	}
 	
+	public static class ShaderDataBuffer {
+		
+		List<Light> lights;
+		FrameBuffer frameBuffer;
+		
+		public List<Light> getLights() {
+			return lights;
+		}
+		public void setLights(List<Light> lights) {
+			this.lights = lights;
+		}
+		public FrameBuffer getFrameBuffer() {
+			return frameBuffer;
+		}
+		public void setFrameBuffer(FrameBuffer frameBuffer) {
+			this.frameBuffer = frameBuffer;
+		}
+	}	
 }

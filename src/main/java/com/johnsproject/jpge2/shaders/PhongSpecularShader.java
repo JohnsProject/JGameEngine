@@ -14,6 +14,7 @@ import com.johnsproject.jpge2.processors.CentralProcessor;
 import com.johnsproject.jpge2.processors.ColorProcessor;
 import com.johnsproject.jpge2.processors.GraphicsProcessor;
 import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
+import com.johnsproject.jpge2.processors.GraphicsProcessor.ShaderDataBuffer;
 import com.johnsproject.jpge2.processors.MathProcessor;
 import com.johnsproject.jpge2.processors.MatrixProcessor;
 import com.johnsproject.jpge2.processors.VectorProcessor;
@@ -99,9 +100,9 @@ public class PhongSpecularShader extends Shader {
 	}
 	
 	@Override
-	public void update(List<Light> lights, FrameBuffer frameBuffer) {
-		this.lights = lights;
-		this.frameBuffer = frameBuffer;
+	public void update(ShaderDataBuffer shaderDataBuffer) {
+		this.lights = shaderDataBuffer.getLights();
+		this.frameBuffer = shaderDataBuffer.getFrameBuffer();
 		frameBuffer.clearColorBuffer();
 		frameBuffer.clearDepthBuffer();
 	}

@@ -14,6 +14,7 @@ import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processors.CentralProcessor;
 import com.johnsproject.jpge2.processors.VectorProcessor;
 import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
+import com.johnsproject.jpge2.processors.GraphicsProcessor.ShaderDataBuffer;
 
 public class GraphicsController implements EngineListener {
 	
@@ -28,6 +29,8 @@ public class GraphicsController implements EngineListener {
 	private final Engine engine;
 	private final VectorProcessor vectorProcessor;
 	
+	private ShaderDataBuffer shaderDataBuffer;
+	
 	GraphicsController(Engine engine, CentralProcessor processor) {
 		this.engine = engine;
 		this.vectorProcessor = processor.getVectorProcessor();
@@ -38,6 +41,7 @@ public class GraphicsController implements EngineListener {
 		this.normal1Cache = vectorProcessor.generate();
 		this.normal2Cache = vectorProcessor.generate();
 		this.normal3Cache = vectorProcessor.generate();
+		this.shaderDataBuffer = new ShaderDataBuffer();
 		engine.addEngineListener(this);
 	}
 	
@@ -48,11 +52,13 @@ public class GraphicsController implements EngineListener {
 		Scene scene = options.getScene();
 		FrameBuffer frameBuffer = options.getFrameBuffer();
 		List<Shader> shaders = options.getShaders();
+		shaderDataBuffer.setFrameBuffer(frameBuffer);
+		shaderDataBuffer.setLights(scene.getLights());
 		int preShadersCount = options.getPreprocessingShadersCount();
 		int postShadersCount = options.getPostprocessingShadersCount();
 		for (int i = 0; i < shaders.size(); i++) {
 			Shader shader = shaders.get(i);
-			shader.update(scene.getLights(), frameBuffer);
+			shader.update(shaderDataBuffer);
 			for (int j = 0; j < scene.getCameras().size(); j++) {
 				Camera camera = scene.getCameras().get(j);
 				for (int k = 0; k < scene.getModels().size(); k++) {
@@ -101,4 +107,11 @@ public class GraphicsController implements EngineListener {
 		return 10000;
 	}
 
+	public ShaderDataBuffer getShaderDataBuffer() {
+		return shaderDataBuffer;
+	}
+
+	public void setShaderDataBuffer(ShaderDataBuffer shaderDataBuffer) {
+		this.shaderDataBuffer = shaderDataBuffer;
+	}
 }
