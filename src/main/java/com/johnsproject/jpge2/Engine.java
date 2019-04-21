@@ -31,7 +31,6 @@ import com.johnsproject.jpge2.processors.CentralProcessor;
 import com.johnsproject.jpge2.shaders.FlatSpecularShader;
 import com.johnsproject.jpge2.shaders.GouraudSpecularShader;
 import com.johnsproject.jpge2.shaders.PhongSpecularShader;
-import com.johnsproject.jpge2.shaders.ShadowMappingShader;
 
 public class Engine {
 

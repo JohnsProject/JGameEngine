@@ -23,6 +23,7 @@
  */
 package com.johnsproject.jpge2.processors;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.johnsproject.jpge2.dto.Camera;
@@ -32,6 +33,7 @@ import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader.ShaderPass;
 
 public class GraphicsProcessor {
 	
@@ -54,7 +56,7 @@ public class GraphicsProcessor {
 	
 	private int[] frameBufferSize;
 	private int[] cameraCanvas;
-	private Shader shader;
+	private ShaderPass shaderPass;
 	
 	private final MathProcessor mathProcessor;
 	private final MatrixProcessor matrixProcessor;
@@ -69,10 +71,10 @@ public class GraphicsProcessor {
 		this.pixelChache = this.vectorProcessor.generate();
 	}
 	
-	public void setup(int[] frameBufferSize, int[] cameraCanvas, Shader shader) {
+	public void setup(int[] frameBufferSize, int[] cameraCanvas, ShaderPass shaderPass) {
 		this.frameBufferSize = frameBufferSize;
 		this.cameraCanvas = cameraCanvas;
-		this.shader = shader;
+		this.shaderPass = shaderPass;
 	}
 
 	public int[][] getModelMatrix(Transform transform, int[][] out) {
@@ -104,8 +106,8 @@ public class GraphicsProcessor {
 		int[] rotation = transform.getRotation();
 	
 		matrixProcessor.translate(out, location[VECTOR_X], -location[VECTOR_Y], -location[VECTOR_Z], out);
-		matrixProcessor.rotateZ(out, rotation[VECTOR_Y], out);
-		matrixProcessor.rotateY(out, rotation[VECTOR_Z], out);
+		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
+		matrixProcessor.rotateY(out, rotation[VECTOR_Y], out);
 		matrixProcessor.rotateX(out, -rotation[VECTOR_X], out);
 		return out;
 	}
@@ -213,7 +215,7 @@ public class GraphicsProcessor {
 				
 				if ((barycentricCache[VECTOR_X] | barycentricCache[VECTOR_Y] | barycentricCache[VECTOR_Z]) > 0) {
 					pixelChache[VECTOR_Z] = interpolatDepth(depthCache, barycentricCache);					
-					shader.fragment(pixelChache, barycentricCache);
+					shaderPass.fragment(pixelChache, barycentricCache);
 				}
 				
 				barycentricCache[VECTOR_X] += a12;
@@ -251,36 +253,83 @@ public class GraphicsProcessor {
 	
 	public static abstract class Shader {
 		
-		public Shader(CentralProcessor centralProcessor) {}
+		private List<ShaderPass> passes;
+		
+		public Shader(CentralProcessor centralProcessor) {
+			passes = new ArrayList<ShaderPass>();
+		}
 		
 		public abstract void update(ShaderDataBuffer shaderDataBuffer);
 		
-		public abstract void setup(Model model, Camera camera);
+		public final void addPass(ShaderPass pass) {
+			passes.add(pass);
+		}
 		
-		public abstract void vertex(int index, Vertex vertex);
+		public final void removePass(ShaderPass pass) {
+			passes.remove(pass);
+		}
+		
+		public final void setup(Model model, Camera camera) {
+			for (int i = 0; i < passes.size(); i++) {
+				passes.get(i).setup(model, camera);
+			}
+		}
+		
+		public final void vertex(int index, Vertex vertex) {
+			for (int i = 0; i < passes.size(); i++) {
+				passes.get(i).vertex(index, vertex);
+			}
+		}
 
-		public abstract void geometry(Face face);
+		public final void geometry(Face face) {
+			for (int i = 0; i < passes.size(); i++) {
+				passes.get(i).geometry(face);
+			}
+		}
 
-		public abstract void fragment(int[] location, int[] barycentric);
+		public final void fragment(int[] location, int[] barycentric) {
+			for (int i = 0; i < passes.size(); i++) {
+				passes.get(i).fragment(location, barycentric);
+			}
+		}
+		
+		public static abstract class ShaderPass {
+			
+			public ShaderPass(Shader shader) {
+				shader.addPass(this);
+			}
+			
+			public abstract void setup(Model model, Camera camera);
+			
+			public abstract void vertex(int index, Vertex vertex);
+
+			public abstract void geometry(Face face);
+
+			public abstract void fragment(int[] location, int[] barycentric);
+			
+		}
 		
 	}
 	
 	public static class ShaderDataBuffer {
 		
-		List<Light> lights;
-		FrameBuffer frameBuffer;
+		private FrameBuffer frameBuffer;
+		private List<Light> lights;
+		
+		public FrameBuffer getFrameBuffer() {
+			return frameBuffer;
+		}
+		
+		public void setFrameBuffer(FrameBuffer frameBuffer) {
+			this.frameBuffer = frameBuffer;
+		}
 		
 		public List<Light> getLights() {
 			return lights;
 		}
+		
 		public void setLights(List<Light> lights) {
 			this.lights = lights;
 		}
-		public FrameBuffer getFrameBuffer() {
-			return frameBuffer;
-		}
-		public void setFrameBuffer(FrameBuffer frameBuffer) {
-			this.frameBuffer = frameBuffer;
-		}
-	}	
+	}
 }

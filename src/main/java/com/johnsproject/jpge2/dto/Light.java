@@ -23,6 +23,8 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.processors.VectorProcessor;
+
 public class Light extends SceneObject {
 	
 	public enum LightType {
@@ -38,11 +40,11 @@ public class Light extends SceneObject {
 	private int spotSize;
 	private int spotSoftness;
 	
-	public Light(String name, int[] direction, Transform transform) {
+	public Light(String name, Transform transform) {
 		super(name, transform);
 		this.type = LightType.DIRECTIONAL;
 		this.strength = 100000;
-		this.direction = direction;
+		this.direction = VectorProcessor.VECTOR_DOWN;
 		this.spotSize = 60000;
 		this.spotSoftness = 800;
 	}

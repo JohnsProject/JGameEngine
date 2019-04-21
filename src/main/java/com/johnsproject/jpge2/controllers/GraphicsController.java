@@ -54,8 +54,6 @@ public class GraphicsController implements EngineListener {
 		List<Shader> shaders = options.getShaders();
 		shaderDataBuffer.setFrameBuffer(frameBuffer);
 		shaderDataBuffer.setLights(scene.getLights());
-		int preShadersCount = options.getPreprocessingShadersCount();
-		int postShadersCount = options.getPostprocessingShadersCount();
 		for (int i = 0; i < shaders.size(); i++) {
 			Shader shader = shaders.get(i);
 			shader.update(shaderDataBuffer);
@@ -66,7 +64,7 @@ public class GraphicsController implements EngineListener {
 					shader.setup(model, camera);
 					for (int l = 0; l < model.getFaces().length; l++) {
 						Face face = model.getFace(l);
-						if ((face.getMaterial().getShaderPass() == i - preShadersCount) || (i < preShadersCount) || (i > postShadersCount)) {
+						if (face.getMaterial().getShaderPass() == i) {
 							backup(face);
 							for (int m = 0; m < face.getVertices().length; m++) {
 								Vertex vertex = face.getVertices()[m];

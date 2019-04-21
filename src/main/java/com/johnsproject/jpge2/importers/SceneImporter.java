@@ -138,8 +138,10 @@ public class SceneImporter {
 			int green = (int)(getFloat(colorData[1]) * 256);
 			int blue = (int)(getFloat(colorData[2]) * 256);
 			int[] direction = vectorProcessor.generate();
-			vectorProcessor.rotate(VectorProcessor.VECTOR_DOWN, transform.getRotation(), direction);
-			Light light = new Light(name, direction, transform);
+			vectorProcessor.rotateX(VectorProcessor.VECTOR_DOWN, transform.getRotation()[VECTOR_X], direction);
+			vectorProcessor.rotateY(direction, -transform.getRotation()[VECTOR_Y], direction);
+			vectorProcessor.rotateZ(direction, -transform.getRotation()[VECTOR_Z], direction);
+			Light light = new Light(name, transform);
 			if (typeData.equals("SUN")) {
 				light.setType(LightType.DIRECTIONAL);
 			}
@@ -153,6 +155,7 @@ public class SceneImporter {
 			light.setDiffuseColor(colorProcessor.generate(red, green, blue));
 			light.setSpotSize(mathProcessor.generate(getFloat(spotData)));
 			light.setSpotSoftness(mathProcessor.generate(getFloat(blendData)));
+			light.setDirection(direction);
 			lights[i] = light;
 		}
 		return lights;

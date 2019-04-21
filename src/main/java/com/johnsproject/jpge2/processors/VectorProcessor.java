@@ -364,21 +364,6 @@ public class VectorProcessor {
 		out[VECTOR_Z] += mathProcessor.multiply(vectorCache1[VECTOR_Y], sin);
 		return out;
 	}
-
-	/**
-	 * Sets out equals the vector rotated around (0, 0, 0) at all three axis by the given angles.
-	 * 
-	 * @param vector
-	 * @param angle
-	 * @param out
-	 * @return
-	 */
-	public int[] rotate(int[] vector, int[] angles, int[] out) {
-		rotateX(vector, angles[VECTOR_X], out);
-		rotateZ(out, angles[VECTOR_Z], out);
-		rotateY(out, angles[VECTOR_Y], out);
-		return out;
-	}
 	
 	/**
 	 * Checks if vector1 is equal to vector2.
