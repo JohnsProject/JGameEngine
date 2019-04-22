@@ -84,7 +84,7 @@ public class GraphicsProcessor {
 		
 		matrixProcessor.rotateX(out, rotation[VECTOR_X], out);
 		matrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
-		matrixProcessor.rotateZ(out, -rotation[VECTOR_Z], out);
+		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
 		matrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
 		matrixProcessor.translate(out, -location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], out);
 		return out;
@@ -96,7 +96,7 @@ public class GraphicsProcessor {
 		
 		matrixProcessor.rotateX(out, rotation[VECTOR_X], out);
 		matrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
-		matrixProcessor.rotateZ(out, -rotation[VECTOR_Z], out);
+		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
 		matrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
 		return out;
 	}
@@ -269,28 +269,24 @@ public class GraphicsProcessor {
 			passes.remove(pass);
 		}
 		
-		public final void setup(Model model, Camera camera) {
-			for (int i = 0; i < passes.size(); i++) {
-				passes.get(i).setup(model, camera);
-			}
+		public final List<ShaderPass> getPasses(){
+			return passes;
 		}
 		
-		public final void vertex(int index, Vertex vertex) {
-			for (int i = 0; i < passes.size(); i++) {
-				passes.get(i).vertex(index, vertex);
-			}
+		public final void setup(int pass, Model model, Camera camera) {
+			passes.get(pass).setup(model, camera);
+		}
+		
+		public final void vertex(int pass, int index, Vertex vertex) {
+			passes.get(pass).vertex(index, vertex);
 		}
 
-		public final void geometry(Face face) {
-			for (int i = 0; i < passes.size(); i++) {
-				passes.get(i).geometry(face);
-			}
+		public final void geometry(int pass, Face face) {
+			passes.get(pass).geometry(face);
 		}
 
-		public final void fragment(int[] location, int[] barycentric) {
-			for (int i = 0; i < passes.size(); i++) {
-				passes.get(i).fragment(location, barycentric);
-			}
+		public final void fragment(int pass, int[] location, int[] barycentric) {
+			passes.get(pass).fragment(location, barycentric);
 		}
 		
 		public static abstract class ShaderPass {

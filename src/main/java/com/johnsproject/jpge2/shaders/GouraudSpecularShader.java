@@ -139,7 +139,7 @@ public class GouraudSpecularShader extends Shader {
 			vectorProcessor.multiply(normal, normalMatrix, normal);
 	
 			int lightColor = ColorProcessor.WHITE;
-			int lightFactor = 0;
+			int lightFactor = 50;
 	
 			vectorProcessor.subtract(camera.getTransform().getLocation(), location, viewDirection);
 			// normalize values

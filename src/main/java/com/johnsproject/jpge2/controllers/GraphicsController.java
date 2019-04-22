@@ -54,24 +54,27 @@ public class GraphicsController implements EngineListener {
 		List<Shader> shaders = options.getShaders();
 		shaderDataBuffer.setFrameBuffer(frameBuffer);
 		shaderDataBuffer.setLights(scene.getLights());
-		for (int i = 0; i < shaders.size(); i++) {
-			Shader shader = shaders.get(i);
+		for (int s = 0; s < shaders.size(); s++) {
+			Shader shader = shaders.get(s);
+			int passCount = shader.getPasses().size();
 			shader.update(shaderDataBuffer);
-			for (int j = 0; j < scene.getCameras().size(); j++) {
-				Camera camera = scene.getCameras().get(j);
-				for (int k = 0; k < scene.getModels().size(); k++) {
-					Model model = scene.getModels().get(k);
-					shader.setup(model, camera);
-					for (int l = 0; l < model.getFaces().length; l++) {
-						Face face = model.getFace(l);
-						if (face.getMaterial().getShaderPass() == i) {
-							backup(face);
-							for (int m = 0; m < face.getVertices().length; m++) {
-								Vertex vertex = face.getVertices()[m];
-								shader.vertex(m, vertex);
+			for (int c = 0; c < scene.getCameras().size(); c++) {
+				Camera camera = scene.getCameras().get(c);
+				for (int m = 0; m < scene.getModels().size(); m++) {
+					Model model = scene.getModels().get(m);
+					for (int p = 0; p < passCount; p++) {
+						shader.setup(p, model, camera);
+						for (int f = 0; f < model.getFaces().length; f++) {
+							Face face = model.getFace(f);
+							if (face.getMaterial().getShaderIndex() == s) {
+								backup(face);
+								for (int v = 0; v < face.getVertices().length; v++) {
+									Vertex vertex = face.getVertices()[v];
+									shader.vertex(p, v, vertex);
+								}
+								shader.geometry(p, face);
+								restore(face);
 							}
-							shader.geometry(face);
-							restore(face);
 						}
 					}
 				}

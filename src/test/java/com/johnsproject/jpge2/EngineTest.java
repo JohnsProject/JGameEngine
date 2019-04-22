@@ -14,8 +14,8 @@ import com.johnsproject.jpge2.processors.VectorProcessor;
 
 public class EngineTest implements EngineListener {
 
-	private static final int WINDOW_W = 800;
-	private static final int WINDOW_H = 640;
+	private static final int WINDOW_W = 640;
+	private static final int WINDOW_H = 480;
 	
 	public static void main(String[] args) {
 		new EngineTest();
@@ -63,7 +63,7 @@ public class EngineTest implements EngineListener {
 
 	public void fixedUpdate() {
 		for (int i = 0; i < Engine.getInstance().getOptions().getScene().getModels().size(); i++) {
-			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().rotate(VectorProcessor.VECTOR_UP);
+//			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().rotate(VectorProcessor.VECTOR_UP);
 //			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().translate(VectorProcessor.VECTOR_RIGHT);
 		}
 	}

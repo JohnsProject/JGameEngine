@@ -164,7 +164,7 @@ public class FlatSpecularShader extends Shader {
 			vectorProcessor.divide(faceLocation, 3 << FP_BITS, faceLocation);
 			
 			lightColor = ColorProcessor.WHITE;
-			lightFactor = 0;
+			lightFactor = 50;
 	
 			vectorProcessor.multiply(normal, normalMatrix, normal);
 			vectorProcessor.subtract(camera.getTransform().getLocation(), faceLocation, viewDirection);

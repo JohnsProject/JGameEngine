@@ -163,7 +163,7 @@ public class ColorProcessor {
 	 */
 	public int multiply(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
-		factor += 255;
+		factor += 1;
 		r = (r * factor) >> 8;
 		g = (g * factor) >> 8;
 		b = (b * factor) >> 8;
@@ -180,7 +180,7 @@ public class ColorProcessor {
 	 */
 	public int multiplyARGB(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
-		factor += 255;
+		factor += 1;
 		r = (r * factor) >> 8;
 		g = (g * factor) >> 8;
 		b = (b * factor) >> 8;

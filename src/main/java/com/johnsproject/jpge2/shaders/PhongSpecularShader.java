@@ -211,7 +211,7 @@ public class PhongSpecularShader extends Shader {
 			normalizedNormal[VECTOR_Z] = graphicsProcessor.interpolate(normalZ, barycentric);
 	
 			int lightColor = ColorProcessor.WHITE;
-			int lightFactor = 0;
+			int lightFactor = 50;
 	
 			for (int i = 0; i < lights.size(); i++) {
 				Light light = lights.get(i);
@@ -251,7 +251,6 @@ public class PhongSpecularShader extends Shader {
 				lightColor = colorProcessor.lerp(lightColor, light.getDiffuseColor(), currentFactor);
 				lightFactor += currentFactor;
 			}
-	
 			if (texture != null) {
 				int u = graphicsProcessor.interpolate(uvX, barycentric);
 				int v = graphicsProcessor.interpolate(uvY, barycentric);

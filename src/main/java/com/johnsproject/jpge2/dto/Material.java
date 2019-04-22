@@ -32,7 +32,7 @@ public class Material {
 	private int specularIntensity;
 	private int shininess;
 	private Texture texture;
-	private int shaderPass;
+	private int shaderIndex;
 	
 	public Material(int index, String name, int diffuseColor, int diffuseIntensity, int specularIntensity, int shininess, Texture texture){
 		this.index = index;
@@ -42,7 +42,7 @@ public class Material {
 		this.specularIntensity = specularIntensity;
 		this.shininess = shininess;
 		this.texture = texture;
-		this.shaderPass = 0;
+		this.shaderIndex = 0;
 	}
 
 	public int getIndex() {
@@ -61,12 +61,12 @@ public class Material {
 		this.texture = texture;
 	}
 	
-	public int getShaderPass() {
-		return shaderPass;
+	public int getShaderIndex() {
+		return shaderIndex;
 	}
 
-	public void setShaderPass(int shaderPass) {
-		this.shaderPass = shaderPass;
+	public void setShaderIndex(int shaderIndex) {
+		this.shaderIndex = shaderIndex;
 	}
 
 	public int getColor() {
