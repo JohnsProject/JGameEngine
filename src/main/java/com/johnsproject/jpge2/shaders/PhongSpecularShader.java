@@ -38,9 +38,14 @@ public class PhongSpecularShader extends Shader {
 	private final int[][] normalMatrix;
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
+	
+	private int directionalLightIndex;
 	private final int[][] directionalLightMatrix;
-
-	private FrameBuffer directionalShadowMap;
+	private final FrameBuffer directionalShadowMap;
+	
+	private int spotLightIndex;
+	private final int[][] spotLightMatrix;
+	private final FrameBuffer spotShadowMap;
 
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
@@ -57,12 +62,16 @@ public class PhongSpecularShader extends Shader {
 		this.normalMatrix = matrixProcessor.generate();
 		this.viewMatrix = matrixProcessor.generate();
 		this.projectionMatrix = matrixProcessor.generate();
-		this.directionalLightMatrix = matrixProcessor.generate();
 		
+		this.directionalLightMatrix = matrixProcessor.generate();
 		this.directionalShadowMap = new FrameBuffer(640, 640);
+		
+		this.spotLightMatrix = matrixProcessor.generate();
+		this.spotShadowMap = new FrameBuffer(320, 320);
 
-		new ShadowPass(this);
-		new DrawPass(this);
+		new DirectionalPass(this);
+		new SpotPass(this);
+		new RenderPass(this);
 	}
 
 	@Override
@@ -72,37 +81,69 @@ public class PhongSpecularShader extends Shader {
 		frameBuffer.clearColorBuffer();
 		frameBuffer.clearDepthBuffer();
 		directionalShadowMap.clearDepthBuffer();
+		spotShadowMap.clearDepthBuffer();
+		
+		directionalLightIndex = -1;
+		spotLightIndex = -1;
+		
+		int directional = Integer.MAX_VALUE;
+		int spot = Integer.MAX_VALUE;
+		for (int i = 0; i < lights.size(); i++) {
+			Light light = lights.get(i);
+			int distance = vectorProcessor.magnitude(light.getTransform().getLocation());
+			switch (light.getType()) {
+				case DIRECTIONAL:
+					if (distance < directional) {
+						directional = distance;
+						directionalLightIndex = i;
+					}
+					break;
+				case POINT:
+					break;
+				case SPOT:
+					if (distance < spot) {
+						spot = distance;
+						spotLightIndex = i;
+					}
+					break;
+			}
+		}
 	}
 
-	private class ShadowPass extends ShaderPass {
+	private class DirectionalPass extends ShaderPass {
 
 		private final int[] lightFrustum;
 
 		private Camera camera;
 
-		public ShadowPass(Shader shader) {
+		public DirectionalPass(Shader shader) {
 			super(shader);
-			this.lightFrustum = vectorProcessor.generate(60, 0, 10000);
+			this.lightFrustum = vectorProcessor.generate(30, 0, 10000);
 		}
 
 		@Override
 		public void setup(Model model, Camera camera) {
 			this.camera = camera;
-
+			
+			if (directionalLightIndex < 0)
+				return;
+			
 			graphicsProcessor.setup(directionalShadowMap.getSize(), camera.getCanvas(), this);
-
-			matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
+			
 			matrixProcessor.copy(viewMatrix, MatrixProcessor.MATRIX_IDENTITY);
 			matrixProcessor.copy(projectionMatrix, MatrixProcessor.MATRIX_IDENTITY);
-
+			matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
+			
 			graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
-			graphicsProcessor.getViewMatrix(lights.get(0).getTransform(), viewMatrix);
+			graphicsProcessor.getViewMatrix(lights.get(directionalLightIndex).getTransform(), viewMatrix);
 			graphicsProcessor.getOrthographicMatrix(lightFrustum, projectionMatrix);
 			matrixProcessor.multiply(projectionMatrix, viewMatrix, directionalLightMatrix);
 		}
 
 		@Override
 		public void vertex(int index, Vertex vertex) {
+			if (directionalLightIndex < 0)
+				return;
 			int[] location = vertex.getLocation();
 			vectorProcessor.multiply(location, modelMatrix, location);
 			vectorProcessor.multiply(location, directionalLightMatrix, location);
@@ -111,6 +152,8 @@ public class PhongSpecularShader extends Shader {
 
 		@Override
 		public void geometry(Face face) {
+			if (directionalLightIndex < 0)
+				return;
 			int[] location1 = face.getVertex(0).getLocation();
 			int[] location2 = face.getVertex(1).getLocation();
 			int[] location3 = face.getVertex(2).getLocation();
@@ -123,15 +166,81 @@ public class PhongSpecularShader extends Shader {
 
 		@Override
 		public void fragment(int[] location, int[] barycentric) {
-			int color = (location[VECTOR_Z] + 100) >> 3;
-			color = colorProcessor.generate(color, color, color);
-			directionalShadowMap.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], (byte) 0, color);
+//			int color = (location[VECTOR_Z] + 100) >> 3;
+//			color = colorProcessor.generate(color, color, color);
 //			frameBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z] - 1000, (byte) 0, color);
+			directionalShadowMap.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], (byte) 0, 0);
+		}
+
+	}
+	
+	private class SpotPass extends ShaderPass {
+
+		private final int[] lightFrustum;
+
+		private Camera camera;
+
+		public SpotPass(Shader shader) {
+			super(shader);
+			this.lightFrustum = vectorProcessor.generate(30, 0, 10000);
+		}
+
+		@Override
+		public void setup(Model model, Camera camera) {
+			this.camera = camera;
+			
+			if (spotLightIndex < 0)
+				return;
+			
+			lightFrustum[0] = 45 - (lights.get(spotLightIndex).getSpotSize() >> (FP_BITS + 1));
+			
+			graphicsProcessor.setup(spotShadowMap.getSize(), camera.getCanvas(), this);
+			
+			matrixProcessor.copy(viewMatrix, MatrixProcessor.MATRIX_IDENTITY);
+			matrixProcessor.copy(projectionMatrix, MatrixProcessor.MATRIX_IDENTITY);
+			matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
+			
+			graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
+			graphicsProcessor.getViewMatrix(lights.get(spotLightIndex).getTransform(), viewMatrix);
+			graphicsProcessor.getPerspectiveMatrix(lightFrustum, projectionMatrix);
+			matrixProcessor.multiply(projectionMatrix, viewMatrix, spotLightMatrix);
+		}
+
+		@Override
+		public void vertex(int index, Vertex vertex) {
+			if (spotLightIndex < 0)
+				return;
+			int[] location = vertex.getLocation();
+			vectorProcessor.multiply(location, modelMatrix, location);
+			vectorProcessor.multiply(location, spotLightMatrix, location);
+			graphicsProcessor.viewport(location, location);
+		}
+
+		@Override
+		public void geometry(Face face) {
+			if (spotLightIndex < 0)
+				return;
+			int[] location1 = face.getVertex(0).getLocation();
+			int[] location2 = face.getVertex(1).getLocation();
+			int[] location3 = face.getVertex(2).getLocation();
+			
+			if (!graphicsProcessor.isBackface(location1, location2, location3)
+					&& graphicsProcessor.isInsideFrustum(location1, location2, location3, camera.getFrustum())) {
+				graphicsProcessor.drawTriangle(location1, location2, location3);
+			}
+		}
+
+		@Override
+		public void fragment(int[] location, int[] barycentric) {
+//			int color = (location[VECTOR_Z] + 100) >> 3;
+//			color = colorProcessor.generate(color, color, color);
+//			frameBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z] - 1000, (byte) 0, color);
+			spotShadowMap.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], (byte) 0, 0);
 		}
 
 	}
 
-	private class DrawPass extends ShaderPass {
+	private class RenderPass extends ShaderPass {
 
 		private final int[] uvX;
 		private final int[] uvY;
@@ -152,10 +261,15 @@ public class PhongSpecularShader extends Shader {
 		private final int[] normalY;
 		private final int[] normalZ;
 
-		private final int[] lightSpaceLocation;
-		private final int[] lightSpaceLocationX;
-		private final int[] lightSpaceLocationY;
-		private final int[] lightSpaceLocationZ;
+		private final int[] directionalLocation;
+		private final int[] directionalLocationX;
+		private final int[] directionalLocationY;
+		private final int[] directionalLocationZ;
+		
+		private final int[] spotLocation;
+		private final int[] spotLocationX;
+		private final int[] spotLocationY;
+		private final int[] spotLocationZ;
 
 		private Material material;
 		private int modelColor;
@@ -163,7 +277,7 @@ public class PhongSpecularShader extends Shader {
 
 		private Camera camera;
 
-		public DrawPass(Shader shader) {
+		public RenderPass(Shader shader) {
 			super(shader);
 
 			this.uvX = vectorProcessor.generate();
@@ -185,10 +299,15 @@ public class PhongSpecularShader extends Shader {
 			this.normalY = vectorProcessor.generate();
 			this.normalZ = vectorProcessor.generate();
 
-			this.lightSpaceLocation = vectorProcessor.generate();
-			this.lightSpaceLocationX = vectorProcessor.generate();
-			this.lightSpaceLocationY = vectorProcessor.generate();
-			this.lightSpaceLocationZ = vectorProcessor.generate();
+			this.directionalLocation = vectorProcessor.generate();
+			this.directionalLocationX = vectorProcessor.generate();
+			this.directionalLocationY = vectorProcessor.generate();
+			this.directionalLocationZ = vectorProcessor.generate();
+			
+			this.spotLocation = vectorProcessor.generate();
+			this.spotLocationX = vectorProcessor.generate();
+			this.spotLocationY = vectorProcessor.generate();
+			this.spotLocationZ = vectorProcessor.generate();
 		}
 
 		@Override
@@ -227,13 +346,21 @@ public class PhongSpecularShader extends Shader {
 			locationY[index] = location[VECTOR_Y];
 			locationZ[index] = location[VECTOR_Z];
 
-			vectorProcessor.multiply(location, directionalLightMatrix, lightSpaceLocation);
+			vectorProcessor.multiply(location, directionalLightMatrix, directionalLocation);
 			graphicsProcessor.setup(directionalShadowMap.getSize(), camera.getCanvas(), this);
-			graphicsProcessor.viewport(lightSpaceLocation, lightSpaceLocation);
+			graphicsProcessor.viewport(directionalLocation, directionalLocation);
 			graphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
-			lightSpaceLocationX[index] = lightSpaceLocation[VECTOR_X];
-			lightSpaceLocationY[index] = lightSpaceLocation[VECTOR_Y];
-			lightSpaceLocationZ[index] = lightSpaceLocation[VECTOR_Z];
+			directionalLocationX[index] = directionalLocation[VECTOR_X];
+			directionalLocationY[index] = directionalLocation[VECTOR_Y];
+			directionalLocationZ[index] = directionalLocation[VECTOR_Z];
+			
+			vectorProcessor.multiply(location, spotLightMatrix, spotLocation);
+			graphicsProcessor.setup(spotShadowMap.getSize(), camera.getCanvas(), this);
+			graphicsProcessor.viewport(spotLocation, spotLocation);
+			graphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
+			spotLocationX[index] = spotLocation[VECTOR_X];
+			spotLocationY[index] = spotLocation[VECTOR_Y];
+			spotLocationZ[index] = spotLocation[VECTOR_Z];
 
 			vectorProcessor.subtract(camera.getTransform().getLocation(), location, viewDirection);
 			vectorProcessor.normalize(viewDirection, viewDirection);
@@ -281,9 +408,13 @@ public class PhongSpecularShader extends Shader {
 		@Override
 		public void fragment(int[] location, int[] barycentric) {
 
-			lightSpaceLocation[VECTOR_X] = graphicsProcessor.interpolate(lightSpaceLocationX, barycentric);
-			lightSpaceLocation[VECTOR_Y] = graphicsProcessor.interpolate(lightSpaceLocationY, barycentric);
-			lightSpaceLocation[VECTOR_Z] = graphicsProcessor.interpolate(lightSpaceLocationZ, barycentric);
+			directionalLocation[VECTOR_X] = graphicsProcessor.interpolate(directionalLocationX, barycentric);
+			directionalLocation[VECTOR_Y] = graphicsProcessor.interpolate(directionalLocationY, barycentric);
+			directionalLocation[VECTOR_Z] = graphicsProcessor.interpolate(directionalLocationZ, barycentric);
+			
+			spotLocation[VECTOR_X] = graphicsProcessor.interpolate(spotLocationX, barycentric);
+			spotLocation[VECTOR_Y] = graphicsProcessor.interpolate(spotLocationY, barycentric);
+			spotLocation[VECTOR_Z] = graphicsProcessor.interpolate(spotLocationZ, barycentric);
 
 			viewDirection[VECTOR_X] = graphicsProcessor.interpolate(viewDirectionX, barycentric);
 			viewDirection[VECTOR_Y] = graphicsProcessor.interpolate(viewDirectionY, barycentric);
@@ -310,7 +441,10 @@ public class PhongSpecularShader extends Shader {
 					currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, material);
 					break;
 				case POINT:
+					int[] loc = light.getTransform().getLocation();
+					loc[VECTOR_X] = -loc[VECTOR_X];
 					vectorProcessor.subtract(light.getTransform().getLocation(), fragmentLocation, lightLocation);
+					loc[VECTOR_X] = -loc[VECTOR_X];
 					// attenuation
 					attenuation = getAttenuation(lightLocation);
 					vectorProcessor.normalize(lightLocation, lightLocation);
@@ -320,7 +454,10 @@ public class PhongSpecularShader extends Shader {
 					break;
 				case SPOT:
 					vectorProcessor.invert(light.getDirection(), lightDirection);
-					vectorProcessor.subtract(light.getTransform().getLocation(), fragmentLocation, lightLocation);
+					loc = light.getTransform().getLocation();
+					loc[VECTOR_X] = -loc[VECTOR_X];
+					vectorProcessor.subtract(loc, fragmentLocation, lightLocation);
+					loc[VECTOR_X] = -loc[VECTOR_X];
 					// attenuation
 					attenuation = getAttenuation(lightLocation);
 					vectorProcessor.normalize(lightLocation, lightLocation);
@@ -329,18 +466,25 @@ public class PhongSpecularShader extends Shader {
 					if (theta > phi) {
 						int intensity = -mathProcessor.divide(phi - theta, light.getSpotSoftness() + 1);
 						intensity = mathProcessor.clamp(intensity, 1, FP_ONE);
-						currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, material);
+						currentFactor = getLightFactor(normalizedNormal, lightLocation, viewDirection, material);
 						currentFactor = (currentFactor * intensity) / attenuation;
 					}
 					break;
 				}
 				currentFactor = mathProcessor.multiply(currentFactor, light.getStrength());
-				if(inShadow(lightSpaceLocation)) {
+				boolean inShadow = false;
+				if (i == directionalLightIndex) {
+					inShadow = inShadow(directionalLocation, directionalShadowMap);
+					lightFactor += currentFactor;
+				} else if ((i == spotLightIndex) && (currentFactor > 10)) {
+					inShadow = inShadow(spotLocation, spotShadowMap);
+				}
+				if(inShadow) {
 					lightColor = colorProcessor.lerp(lightColor, light.getShadowColor(), 128);
 				} else {
 					lightColor = colorProcessor.lerp(lightColor, light.getColor(), currentFactor);
+					lightFactor += currentFactor;
 				}
-				lightFactor += currentFactor;
 			}
 			if (texture != null) {
 				int u = graphicsProcessor.interpolate(uvX, barycentric);
@@ -376,19 +520,20 @@ public class PhongSpecularShader extends Shader {
 			// attenuation
 			long distance = vectorProcessor.magnitude(lightLocation);
 			int attenuation = FP_ONE;
-			attenuation += mathProcessor.multiply(distance, 1400);
-			attenuation += mathProcessor.multiply(mathProcessor.multiply(distance, distance), 900);
+			attenuation += mathProcessor.multiply(distance, 14000);
+			attenuation += mathProcessor.multiply(mathProcessor.multiply(distance, distance), 90);
 			attenuation >>= FP_BITS;
 			return ((attenuation << 8) >> FP_BITS) + 1;
 		}
 
-		private boolean inShadow(int[] lightSpaceLocation) {
+		private boolean inShadow(int[] lightSpaceLocation, FrameBuffer shadowMap) {
 			int x = lightSpaceLocation[VECTOR_X];
 			int y = lightSpaceLocation[VECTOR_Y];
-			x = mathProcessor.clamp(x, 0, directionalShadowMap.getSize()[0] - 1);
-			y = mathProcessor.clamp(y, 0, directionalShadowMap.getSize()[1] - 1);
-			int depth = directionalShadowMap.getDepth(x, y);
-			return depth < lightSpaceLocation[VECTOR_Z] - 50;
+			x = mathProcessor.clamp(x, 0, shadowMap.getSize()[0] - 1);
+			y = mathProcessor.clamp(y, 0, shadowMap.getSize()[1] - 1);
+			int depth = shadowMap.getDepth(x, y);
+			int bias = 50;
+			return depth < lightSpaceLocation[VECTOR_Z] - bias;
 		}
 	}
 }
