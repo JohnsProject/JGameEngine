@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
 
+import com.johnsproject.jpge2.controllers.GraphicsController;
 import com.johnsproject.jpge2.dto.Model;
 
 public class EngineStatistics implements EngineListener{
@@ -31,11 +32,11 @@ public class EngineStatistics implements EngineListener{
 		lastUpdateTime = currentTime;
 		long fps = 1000 / elapsed;
 		long ramUsage = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) >> 20;
-		EngineOptions options = Engine.getInstance().getOptions();
-		int[] frameBufferSize = options.getFrameBuffer().getSize();
-		int maxFPS = options.getUpdateRate();
-		int shadersCount = options.getShaders().size();
-		List<Model> models = options.getScene().getModels();
+		GraphicsController graphicsController = Engine.getInstance().getController().getGraphicsController();
+		int[] frameBufferSize = graphicsController.getFrameBuffer().getSize();
+		int maxFPS = Engine.getInstance().getUpdateRate();
+		int shadersCount = graphicsController.getShaders().size();
+		List<Model> models = Engine.getInstance().getScene().getModels();
 		int verticesCount = 0;
 		int trianglesCount = 0;
 		for (int i = 0; i < models.size(); i++) {
@@ -43,7 +44,7 @@ public class EngineStatistics implements EngineListener{
 			verticesCount += model.getVertices().length;
 			trianglesCount += model.getFaces().length;
 		}
-		Graphics2D g = Engine.getInstance().getOptions().getFrameBuffer().getImage().createGraphics();
+		Graphics2D g = graphicsController.getFrameBuffer().getImage().createGraphics();
 		g.setColor(STATISTICS_BACKROUND);
 		g.fillRect(STATISTICS_X, STATISTICS_Y, STATISTICS_WIDTH, STATISTICS_HEIGHT);
 		g.setColor(Color.black);

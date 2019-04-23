@@ -30,6 +30,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 
+import com.johnsproject.jpge2.dto.FrameBuffer;
+
 public class EngineWindow extends Frame implements EngineListener {
 
 	private static final long serialVersionUID = 1L;
@@ -37,9 +39,12 @@ public class EngineWindow extends Frame implements EngineListener {
 	private int width;
 	private int height;
 	private EnginePanel panel;
+	private FrameBuffer frameBuffer;
 
-	public EngineWindow(int width, int height) {
-		setSize(width, height);
+	public EngineWindow(FrameBuffer frameBuffer) {
+		int[] size = frameBuffer.getSize();
+		setSize(size[0], size[1]);
+		this.frameBuffer = frameBuffer;
 		this.setLayout(null);
 		this.setResizable(false);
 		this.setVisible(true);
@@ -86,7 +91,7 @@ public class EngineWindow extends Frame implements EngineListener {
 		public void drawBuffer() {
 			Graphics2D graphics = (Graphics2D) bufferStrategy.getDrawGraphics();
 			graphics.clearRect(0, 0, width, height);
-			graphics.drawImage(Engine.getInstance().getOptions().getFrameBuffer().getImage(), 0, 0, width, height, null);
+			graphics.drawImage(frameBuffer.getImage(), 0, 0, width, height, null);
 			bufferStrategy.show();
 		}
 	}

@@ -1,10 +1,10 @@
 package com.johnsproject.jpge2.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.johnsproject.jpge2.Engine;
 import com.johnsproject.jpge2.EngineListener;
-import com.johnsproject.jpge2.EngineOptions;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
@@ -13,6 +13,7 @@ import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processors.CentralProcessor;
 import com.johnsproject.jpge2.processors.VectorProcessor;
+import com.johnsproject.jpge2.shaders.PhongSpecularShader;
 import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader;
 import com.johnsproject.jpge2.processors.GraphicsProcessor.ShaderDataBuffer;
 
@@ -30,6 +31,8 @@ public class GraphicsController implements EngineListener {
 	private final VectorProcessor vectorProcessor;
 	
 	private ShaderDataBuffer shaderDataBuffer;
+	private FrameBuffer frameBuffer;
+	private List<Shader> shaders;
 	
 	GraphicsController(Engine engine, CentralProcessor processor) {
 		this.engine = engine;
@@ -42,16 +45,16 @@ public class GraphicsController implements EngineListener {
 		this.normal2Cache = vectorProcessor.generate();
 		this.normal3Cache = vectorProcessor.generate();
 		this.shaderDataBuffer = new ShaderDataBuffer();
+		frameBuffer = new FrameBuffer(320, 240);
+		shaders = new ArrayList<Shader>();
+		addShader(new PhongSpecularShader(processor));
 		engine.addEngineListener(this);
 	}
 	
 	public void start() { }
 	
 	public void update() {
-		EngineOptions options = engine.getOptions();
-		Scene scene = options.getScene();
-		FrameBuffer frameBuffer = options.getFrameBuffer();
-		List<Shader> shaders = options.getShaders();
+		Scene scene = engine.getScene();
 		shaderDataBuffer.setFrameBuffer(frameBuffer);
 		shaderDataBuffer.setLights(scene.getLights());
 		for (int s = 0; s < shaders.size(); s++) {
@@ -114,5 +117,25 @@ public class GraphicsController implements EngineListener {
 
 	public void setShaderDataBuffer(ShaderDataBuffer shaderDataBuffer) {
 		this.shaderDataBuffer = shaderDataBuffer;
+	}
+	
+	public FrameBuffer getFrameBuffer() {
+		return frameBuffer;
+	}
+	
+	public void addShader(Shader shader) {
+		shaders.add(shader);
+	}
+	
+	public void removeShader(Shader shader) {
+		shaders.remove(shader);
+	}
+	
+	public List<Shader> getShaders() {
+		return shaders;
+	}
+	
+	public Shader getShader(int index) {
+		return shaders.get(index);
 	}
 }

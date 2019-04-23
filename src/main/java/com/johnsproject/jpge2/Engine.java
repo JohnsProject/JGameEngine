@@ -27,10 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.johnsproject.jpge2.controllers.CentralController;
+import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.processors.CentralProcessor;
-import com.johnsproject.jpge2.shaders.FlatSpecularShader;
-import com.johnsproject.jpge2.shaders.GouraudSpecularShader;
-import com.johnsproject.jpge2.shaders.PhongSpecularShader;
 
 public class Engine {
 
@@ -41,15 +39,19 @@ public class Engine {
 	}
 
 	private Thread engineThread;
-	private EngineOptions options;
 	private List<EngineListener> engineListeners;
 	private CentralController controller;
 	private CentralProcessor processor;
+	private int maxUpdateSkip;
+	private int updateRate;
+	private Scene scene;
 	
 	private volatile boolean running;
 
 	private Engine() {
-		options = new EngineOptions();
+		updateRate = 25;
+		maxUpdateSkip = 10;
+		scene = new Scene();
 		engineListeners = new ArrayList<EngineListener>();
 	}
 
@@ -71,7 +73,6 @@ public class Engine {
 	
 	private void startEngineLoop() {
 		running = true;
-		options.addShader(new PhongSpecularShader(processor));
 		
 		engineThread = new Thread(new Runnable() {
 			
@@ -86,9 +87,9 @@ public class Engine {
 				}
 				while (running) {
 					loops = 0;
-					updatesToCatchUp = 1000 / getOptions().getUpdateRate();
+					updatesToCatchUp = 1000 / getUpdateRate();
 					current = System.currentTimeMillis();
-					while (current > nextUpateTick && loops < getOptions().getMaxUpdateSkip()) {
+					while (current > nextUpateTick && loops < getMaxUpdateSkip()) {
 						for (int i = 0; i < engineListeners.size(); i++) {
 							engineListeners.get(i).fixedUpdate();
 						}
@@ -112,10 +113,6 @@ public class Engine {
 		engineThread.start();
 	}
 
-	public EngineOptions getOptions() {
-		return options;
-	}
-
 	public void addEngineListener(EngineListener listener) {
 		engineListeners.add(listener);
 		sortListeners();
@@ -132,6 +129,30 @@ public class Engine {
 
 	public CentralProcessor getProcessor() {
 		return processor;
+	}
+	
+	public int getUpdateRate() {
+		return updateRate;
+	}
+	
+	public void setUpdateRate(int updateRate) {
+		this.updateRate = updateRate;
+	}
+	
+	public int getMaxUpdateSkip() {
+		return maxUpdateSkip;
+	}
+	
+	public void setMaxUpdateSkip(int maxUpdateSkip) {
+		this.maxUpdateSkip = maxUpdateSkip;
+	}
+	
+	public Scene getScene() {
+		return scene;
+	}
+
+	public void setScene(Scene scene) {
+		this.scene = scene;
 	}
 
 	private void sortListeners() {
