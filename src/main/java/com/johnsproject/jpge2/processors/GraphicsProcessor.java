@@ -82,11 +82,11 @@ public class GraphicsProcessor {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
 		
-		matrixProcessor.rotateX(out, rotation[VECTOR_X], out);
-		matrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
-		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
 		matrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
-		matrixProcessor.translate(out, -location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], out);
+		matrixProcessor.rotateX(out, rotation[VECTOR_X], out);
+		matrixProcessor.rotateY(out, rotation[VECTOR_Y], out);
+		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
+		matrixProcessor.translate(out, location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], out);
 		return out;
 	}
 
@@ -94,10 +94,10 @@ public class GraphicsProcessor {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
 		
-		matrixProcessor.rotateX(out, rotation[VECTOR_X], out);
-		matrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
-		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
 		matrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
+		matrixProcessor.rotateX(out, rotation[VECTOR_X], out);
+		matrixProcessor.rotateY(out, rotation[VECTOR_Y], out);
+		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
 		return out;
 	}
 	
@@ -105,9 +105,9 @@ public class GraphicsProcessor {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 	
-		matrixProcessor.translate(out, location[VECTOR_X], -location[VECTOR_Y], -location[VECTOR_Z], out);
-		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
-		matrixProcessor.rotateY(out, rotation[VECTOR_Y], out);
+		matrixProcessor.translate(out, -location[VECTOR_X], -location[VECTOR_Y], -location[VECTOR_Z], out);
+		matrixProcessor.rotateZ(out, -rotation[VECTOR_Z], out);
+		matrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
 		matrixProcessor.rotateX(out, -rotation[VECTOR_X], out);
 		return out;
 	}
@@ -176,10 +176,10 @@ public class GraphicsProcessor {
 		int maxY = Math.max(location1[VECTOR_Y], Math.max(location2[VECTOR_Y], location3[VECTOR_Y]));
 
 		// clip against screen limits
-		minX = Math.max(minX, mathProcessor.multiply(cameraCanvas[VECTOR_X], frameBufferSize[0] - 1));
-		minY = Math.max(minY, mathProcessor.multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1] - 1));
-		maxX = Math.min(maxX, mathProcessor.multiply(cameraCanvas[2], frameBufferSize[0] - 1));
-		maxY = Math.min(maxY, mathProcessor.multiply(cameraCanvas[3], frameBufferSize[1] - 1));
+		minX = Math.max(minX, mathProcessor.multiply(cameraCanvas[VECTOR_X], frameBufferSize[0]));
+		minY = Math.max(minY, mathProcessor.multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1]));
+		maxX = Math.min(maxX, mathProcessor.multiply(cameraCanvas[2], frameBufferSize[0]));
+		maxY = Math.min(maxY, mathProcessor.multiply(cameraCanvas[3], frameBufferSize[1]));
 		
 		location1[VECTOR_Z] = Math.max(1, location1[VECTOR_Z]);
 		location2[VECTOR_Z] = Math.max(1, location2[VECTOR_Z]);

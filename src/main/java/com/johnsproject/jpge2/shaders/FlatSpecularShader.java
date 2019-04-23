@@ -187,7 +187,7 @@ public class FlatSpecularShader extends Shader {
 					// other light values
 					vectorProcessor.normalize(lightLocation, lightLocation);
 					currentFactor = getLightFactor(normalizedNormal, lightLocation, viewDirection, material);
-					currentFactor = (currentFactor * 100) / attenuation;
+					currentFactor = (currentFactor << 8) / attenuation;
 					break;
 				case SPOT:				
 					vectorProcessor.invert(light.getDirection(), lightDirection);
@@ -206,7 +206,7 @@ public class FlatSpecularShader extends Shader {
 					break;
 				}
 				currentFactor = mathProcessor.multiply(currentFactor, light.getStrength());
-				lightColor = colorProcessor.lerp(lightColor, light.getDiffuseColor(), currentFactor);
+				lightColor = colorProcessor.lerp(lightColor, light.getColor(), currentFactor);
 				lightFactor += currentFactor;
 			}
 			modelColor = colorProcessor.lerp(ColorProcessor.BLACK, material.getColor(), lightFactor);
@@ -269,9 +269,10 @@ public class FlatSpecularShader extends Shader {
 			// attenuation
 			long distance = vectorProcessor.magnitude(lightLocation);
 			int attenuation = FP_ONE;
-			attenuation += mathProcessor.multiply(distance, 3000);
-			attenuation += mathProcessor.multiply(mathProcessor.multiply(distance, distance), 20);
-			return attenuation >> FP_BITS;
+			attenuation += mathProcessor.multiply(distance, 1400);
+			attenuation += mathProcessor.multiply(mathProcessor.multiply(distance, distance), 900);
+			attenuation >>= FP_BITS;
+			return (attenuation << 8) >> FP_BITS;
 		}
 	}
 }

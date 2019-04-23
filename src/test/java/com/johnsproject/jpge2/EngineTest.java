@@ -49,7 +49,7 @@ public class EngineTest implements EngineListener {
 	static void useScene() {
 		try {
 			Scene scene = new SceneImporter(Engine.getInstance().getProcessor()).load("C:/Development/test.scene");
-			scene.getModel("Ground").getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
+//			scene.getModel("Ground").getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
 //			scene.getModels().get(0).getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
 			Engine.getInstance().getOptions().setScene(scene);
 		} catch (IOException e) {
@@ -63,7 +63,7 @@ public class EngineTest implements EngineListener {
 
 	public void fixedUpdate() {
 		for (int i = 0; i < Engine.getInstance().getOptions().getScene().getModels().size(); i++) {
-//			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().rotate(VectorProcessor.VECTOR_UP);
+//			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().rotate(VectorProcessor.VECTOR_RIGHT);
 //			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().translate(VectorProcessor.VECTOR_RIGHT);
 		}
 	}

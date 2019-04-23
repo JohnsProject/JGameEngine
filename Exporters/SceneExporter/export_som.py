@@ -11,7 +11,7 @@ def write(filepath):
 			camera = Camera()
 			camera.name = blenderCamera.name
 			camera.type = blenderCamera.type
-			setCameraTransform(camera.transform, object)
+			setTransform(camera.transform, object)
 			scene.cameras.append(camera)
 			
 		if object.type == "LAMP":
@@ -26,7 +26,7 @@ def write(filepath):
 			light.color.red = blenderLight.color[0]
 			light.color.green = blenderLight.color[1]
 			light.color.blue = blenderLight.color[2]
-			setLightTransform(light.transform, object)
+			setTransform(light.transform, object)
 			scene.lights.append(light)
 			
 		if object.type == "MESH":
@@ -39,7 +39,7 @@ def write(filepath):
 			bm.free()
 			model = Model()
 			model.name = object.name
-			setModelTransform(model.transform, object)
+			setTransform(model.transform, object)
 			i = 0
 			for blenderVertex in blenderModel.vertices:
 				vertex = Vertex()
@@ -150,29 +150,7 @@ def writeToFile(filepath, scene):
 	# close file
 	file.close()
 
-def setLightTransform(transform, object):
-	transform.location.append(-object.location[0])
-	transform.location.append(object.location[1])
-	transform.location.append(object.location[2])
-	transform.rotation.append(math.degrees(object.rotation_euler[0]))
-	transform.rotation.append(math.degrees(object.rotation_euler[1]))
-	transform.rotation.append(math.degrees(object.rotation_euler[2]))
-	transform.scale.append(object.scale[0])
-	transform.scale.append(object.scale[1])
-	transform.scale.append(object.scale[2])
-
-def setCameraTransform(transform, object):
-	transform.location.append(object.location[0])
-	transform.location.append(object.location[1])
-	transform.location.append(object.location[2])
-	transform.rotation.append(math.degrees(object.rotation_euler[0]))
-	transform.rotation.append(math.degrees(object.rotation_euler[1]))
-	transform.rotation.append(math.degrees(object.rotation_euler[2]))
-	transform.scale.append(object.scale[0])
-	transform.scale.append(object.scale[1])
-	transform.scale.append(object.scale[2])
-
-def setModelTransform(transform, object):
+def setTransform(transform, object):
 	transform.location.append(object.location[0])
 	transform.location.append(object.location[1])
 	transform.location.append(object.location[2])

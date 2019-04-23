@@ -133,10 +133,8 @@ public class SceneImporter {
 			String spotData = lightData.split("spot<")[1].split(">spot")[0];
 			String blendData = lightData.split("blend<")[1].split(">blend")[0];
 			String[] colorData = lightData.split("color<")[1].split(">color")[0].split(",");
+			String[] shadowColorData = lightData.split("shadowColor<")[1].split(">shadowColor")[0].split(",");
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
-			int red = (int)(getFloat(colorData[0]) * 256);
-			int green = (int)(getFloat(colorData[1]) * 256);
-			int blue = (int)(getFloat(colorData[2]) * 256);
 			int[] direction = vectorProcessor.generate();
 			vectorProcessor.rotateX(VectorProcessor.VECTOR_DOWN, transform.getRotation()[VECTOR_X], direction);
 			vectorProcessor.rotateY(direction, -transform.getRotation()[VECTOR_Y], direction);
@@ -152,7 +150,14 @@ public class SceneImporter {
 				light.setType(LightType.SPOT);
 			}
 			light.setStrength(mathProcessor.generate(getFloat(strengthData)));
-			light.setDiffuseColor(colorProcessor.generate(red, green, blue));
+			int red = (int)(getFloat(colorData[0]) * 256);
+			int green = (int)(getFloat(colorData[1]) * 256);
+			int blue = (int)(getFloat(colorData[2]) * 256);
+			light.setColor(colorProcessor.generate(red, green, blue));
+			red = (int)(getFloat(shadowColorData[0]) * 256);
+			green = (int)(getFloat(shadowColorData[1]) * 256);
+			blue = (int)(getFloat(shadowColorData[2]) * 256);
+			light.setShadowColor(colorProcessor.generate(red, green, blue));
 			light.setSpotSize(mathProcessor.generate(getFloat(spotData)));
 			light.setSpotSoftness(mathProcessor.generate(getFloat(blendData)));
 			light.setDirection(direction);

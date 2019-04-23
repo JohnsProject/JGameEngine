@@ -39,7 +39,7 @@ public class VectorProcessor {
 	public static final int[] VECTOR_FORWARD = new int[] {0, FP_ONE, 0, FP_ONE};
 	public static final int[] VECTOR_BACK = new int[] {0, -FP_ONE, 0, FP_ONE};
 	public static final int[] VECTOR_ONE = new int[] {FP_ONE, FP_ONE, FP_ONE, FP_ONE};
-	public static final int[] VECTOR_ZERO = new int[] {0, 0, 0, 0};
+	public static final int[] VECTOR_ZERO = new int[] {0, 0, 0, FP_ONE};
 	
 	
 	private final int[] vectorCache1 = generate();

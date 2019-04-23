@@ -35,7 +35,8 @@ public class Light extends SceneObject {
 	
 	private LightType type;
 	private int strength;
-	private int diffuseColor;
+	private int color;
+	private int shadowColor;
 	private int[] direction;
 	private int spotSize;
 	private int spotSoftness;
@@ -65,12 +66,20 @@ public class Light extends SceneObject {
 		this.strength = strength;
 	}
 
-	public int getDiffuseColor() {
-		return diffuseColor;
+	public int getColor() {
+		return color;
 	}
 
-	public void setDiffuseColor(int diffuseColor) {
-		this.diffuseColor = diffuseColor;
+	public void setColor(int color) {
+		this.color = color;
+	}
+
+	public int getShadowColor() {
+		return shadowColor;
+	}
+
+	public void setShadowColor(int shadowColor) {
+		this.shadowColor = shadowColor;
 	}
 
 	public int[] getDirection() {

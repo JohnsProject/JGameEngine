@@ -113,7 +113,7 @@ public class MatrixProcessor {
 	 */
 	public int[][] translate(int[][] matrix, int x, int y, int z, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
-		matrixCache1[3][0] = x;
+		matrixCache1[3][0] = -x;
 		matrixCache1[3][1] = y;
 		matrixCache1[3][2] = z;
 		multiply(matrixCache1, matrix, out);
@@ -166,8 +166,8 @@ public class MatrixProcessor {
 	 */
 	public int[][] rotateY(int[][] matrix, int angle, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
-		int cos = mathProcessor.cos(angle);
-		int sin = mathProcessor.sin(angle);
+		int cos = mathProcessor.cos(-angle);
+		int sin = mathProcessor.sin(-angle);
 		matrixCache1[0][0] = cos;
 		matrixCache1[0][2] = -sin;
 		matrixCache1[2][0] = sin;
@@ -185,8 +185,8 @@ public class MatrixProcessor {
 	 */
 	public int[][] rotateZ(int[][] matrix, int angle, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
-		int cos = mathProcessor.cos(angle);
-		int sin = mathProcessor.sin(angle);
+		int cos = mathProcessor.cos(-angle);
+		int sin = mathProcessor.sin(-angle);
 		matrixCache1[0][0] = cos;
 		matrixCache1[0][1] = sin;
 		matrixCache1[1][0] = -sin;
