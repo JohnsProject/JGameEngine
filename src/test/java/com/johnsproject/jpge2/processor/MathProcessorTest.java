@@ -1,6 +1,8 @@
-package com.johnsproject.jpge2.processors;
+package com.johnsproject.jpge2.processor;
 
 import org.junit.Test;
+
+import com.johnsproject.jpge2.processor.MathProcessor;
 
 public class MathProcessorTest {
 	

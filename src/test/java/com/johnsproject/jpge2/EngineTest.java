@@ -2,16 +2,16 @@ package com.johnsproject.jpge2;
 
 import java.io.IOException;
 
-import com.johnsproject.jpge2.controllers.GraphicsController;
+import com.johnsproject.jpge2.controller.GraphicsController;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
-import com.johnsproject.jpge2.importers.SOMImporter;
-import com.johnsproject.jpge2.importers.SceneImporter;
-import com.johnsproject.jpge2.processors.MathProcessor;
-import com.johnsproject.jpge2.processors.VectorProcessor;
+import com.johnsproject.jpge2.importer.SOMImporter;
+import com.johnsproject.jpge2.importer.SceneImporter;
+import com.johnsproject.jpge2.processor.MathProcessor;
+import com.johnsproject.jpge2.processor.VectorProcessor;
 
 public class EngineTest implements EngineListener {
 

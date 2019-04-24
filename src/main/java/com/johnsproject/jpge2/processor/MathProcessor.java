@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jpge2.processors;
+package com.johnsproject.jpge2.processor;
 
 /**
  * The MathProcessor class contains methods for performing fixed point math operations 

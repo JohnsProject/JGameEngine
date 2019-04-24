@@ -1,6 +1,10 @@
-package com.johnsproject.jpge2.processors;
+package com.johnsproject.jpge2.processor;
 
 import org.junit.Test;
+
+import com.johnsproject.jpge2.processor.MathProcessor;
+import com.johnsproject.jpge2.processor.MatrixProcessor;
+import com.johnsproject.jpge2.processor.VectorProcessor;
 
 public class MatrixProcessorTest {
 	

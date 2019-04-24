@@ -21,19 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jpge2.processors;
+package com.johnsproject.jpge2.processor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.johnsproject.jpge2.dto.Camera;
-import com.johnsproject.jpge2.dto.Face;
-import com.johnsproject.jpge2.dto.FrameBuffer;
-import com.johnsproject.jpge2.dto.Light;
-import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Transform;
-import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.processors.GraphicsProcessor.Shader.ShaderPass;
+import com.johnsproject.jpge2.shader.Shader;
 
 public class GraphicsProcessor {
 	
@@ -56,7 +47,7 @@ public class GraphicsProcessor {
 	
 	private int[] frameBufferSize;
 	private int[] cameraCanvas;
-	private ShaderPass shaderPass;
+	private Shader shader;
 	
 	private final MathProcessor mathProcessor;
 	private final MatrixProcessor matrixProcessor;
@@ -71,10 +62,10 @@ public class GraphicsProcessor {
 		this.pixelChache = this.vectorProcessor.generate();
 	}
 	
-	public void setup(int[] frameBufferSize, int[] cameraCanvas, ShaderPass shaderPass) {
+	public void setup(int[] frameBufferSize, int[] cameraCanvas, Shader shader) {
 		this.frameBufferSize = frameBufferSize;
 		this.cameraCanvas = cameraCanvas;
-		this.shaderPass = shaderPass;
+		this.shader = shader;
 	}
 
 	public int[][] getModelMatrix(Transform transform, int[][] out) {
@@ -215,7 +206,7 @@ public class GraphicsProcessor {
 				
 				if ((barycentricCache[VECTOR_X] | barycentricCache[VECTOR_Y] | barycentricCache[VECTOR_Z]) > 0) {
 					pixelChache[VECTOR_Z] = interpolatDepth(depthCache, barycentricCache);					
-					shaderPass.fragment(pixelChache, barycentricCache);
+					shader.fragment(pixelChache, barycentricCache);
 				}
 				
 				barycentricCache[VECTOR_X] += a12;
@@ -249,83 +240,5 @@ public class GraphicsProcessor {
 	public int barycentric(int[] vector1, int[] vector2, int[] vector3) {
 		return (vector2[VECTOR_X] - vector1[VECTOR_X]) * (vector3[VECTOR_Y] - vector1[VECTOR_Y])
 				- (vector3[VECTOR_X] - vector1[VECTOR_X]) * (vector2[VECTOR_Y] - vector1[VECTOR_Y]);
-	}
-	
-	public static abstract class Shader {
-		
-		private List<ShaderPass> passes;
-		
-		public Shader(CentralProcessor centralProcessor) {
-			passes = new ArrayList<ShaderPass>();
-		}
-		
-		public abstract void update(ShaderDataBuffer shaderDataBuffer);
-		
-		public final void addPass(ShaderPass pass) {
-			passes.add(pass);
-		}
-		
-		public final void removePass(ShaderPass pass) {
-			passes.remove(pass);
-		}
-		
-		public final List<ShaderPass> getPasses(){
-			return passes;
-		}
-		
-		public final void setup(int pass, Model model, Camera camera) {
-			passes.get(pass).setup(model, camera);
-		}
-		
-		public final void vertex(int pass, int index, Vertex vertex) {
-			passes.get(pass).vertex(index, vertex);
-		}
-
-		public final void geometry(int pass, Face face) {
-			passes.get(pass).geometry(face);
-		}
-
-		public final void fragment(int pass, int[] location, int[] barycentric) {
-			passes.get(pass).fragment(location, barycentric);
-		}
-		
-		public static abstract class ShaderPass {
-			
-			public ShaderPass(Shader shader) {
-				shader.addPass(this);
-			}
-			
-			public abstract void setup(Model model, Camera camera);
-			
-			public abstract void vertex(int index, Vertex vertex);
-
-			public abstract void geometry(Face face);
-
-			public abstract void fragment(int[] location, int[] barycentric);
-			
-		}
-		
-	}
-	
-	public static class ShaderDataBuffer {
-		
-		private FrameBuffer frameBuffer;
-		private List<Light> lights;
-		
-		public FrameBuffer getFrameBuffer() {
-			return frameBuffer;
-		}
-		
-		public void setFrameBuffer(FrameBuffer frameBuffer) {
-			this.frameBuffer = frameBuffer;
-		}
-		
-		public List<Light> getLights() {
-			return lights;
-		}
-		
-		public void setLights(List<Light> lights) {
-			this.lights = lights;
-		}
 	}
 }

@@ -26,9 +26,9 @@ package com.johnsproject.jpge2;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.johnsproject.jpge2.controllers.CentralController;
+import com.johnsproject.jpge2.controller.CentralController;
 import com.johnsproject.jpge2.dto.Scene;
-import com.johnsproject.jpge2.processors.CentralProcessor;
+import com.johnsproject.jpge2.processor.CentralProcessor;
 
 public class Engine {
 

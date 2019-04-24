@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
 
-import com.johnsproject.jpge2.controllers.GraphicsController;
+import com.johnsproject.jpge2.controller.GraphicsController;
 import com.johnsproject.jpge2.dto.Model;
 
 public class EngineStatistics implements EngineListener{

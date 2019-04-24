@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jpge2.processors;
+package com.johnsproject.jpge2.processor;
 
 import java.awt.Color;
 

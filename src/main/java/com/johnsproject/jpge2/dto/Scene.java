@@ -50,6 +50,10 @@ public class Scene {
 		return models;
 	}
 	
+	public Model getModel(int index) {
+		return models.get(index);
+	}
+	
 	public Model getModel(String name) {
 		for (int i = 0; i < models.size(); i++) {
 			Model model = models.get(i);
@@ -72,6 +76,10 @@ public class Scene {
 		return lights;
 	}
 	
+	public Light getLight(int index) {
+		return lights.get(index);
+	}
+	
 	public Light getLight(String name) {
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
@@ -92,6 +100,10 @@ public class Scene {
 
 	public List<Camera> getCameras() {
 		return cameras;
+	}
+	
+	public Camera getCamera(int index) {
+		return cameras.get(index);
 	}
 	
 	public Camera getCamera(String name) {

@@ -1,4 +1,4 @@
-package com.johnsproject.jpge2.processors;
+package com.johnsproject.jpge2.processor;
 
 public class CentralProcessor {
 

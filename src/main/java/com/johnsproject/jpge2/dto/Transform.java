@@ -23,7 +23,7 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processors.VectorProcessor;
+import com.johnsproject.jpge2.processor.VectorProcessor;
 
 public class Transform {
 

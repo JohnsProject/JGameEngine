@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jpge2.importers;
+package com.johnsproject.jpge2.importer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,11 +31,11 @@ import com.johnsproject.jpge2.dto.Material;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.processors.CentralProcessor;
-import com.johnsproject.jpge2.processors.ColorProcessor;
-import com.johnsproject.jpge2.processors.FileProcessor;
-import com.johnsproject.jpge2.processors.MathProcessor;
-import com.johnsproject.jpge2.processors.VectorProcessor;
+import com.johnsproject.jpge2.processor.CentralProcessor;
+import com.johnsproject.jpge2.processor.ColorProcessor;
+import com.johnsproject.jpge2.processor.FileProcessor;
+import com.johnsproject.jpge2.processor.MathProcessor;
+import com.johnsproject.jpge2.processor.VectorProcessor;
 
 public class SOMImporter {
 	
