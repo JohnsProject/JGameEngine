@@ -22,7 +22,7 @@ public class ShaderData implements ShaderDataBuffer {
 	private int linearAttenuation = 14000;
 	private int quadraticAttenuation = 90;
 	
-	private int lightRange = MathProcessor.FP_ONE * 100;
+	private int lightRange = MathProcessor.FP_ONE * 500;
 
 	public FrameBuffer getFrameBuffer() {
 		return frameBuffer;

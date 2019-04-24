@@ -9,9 +9,11 @@ import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Light.LightType;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.ShaderData;
+import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.GraphicsProcessor;
+import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.processor.MatrixProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
 
@@ -84,14 +86,26 @@ public class DirectionalLightShadowShader extends Shader {
 		matrixProcessor.copy(viewMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		matrixProcessor.copy(projectionMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		
-		graphicsProcessor.getViewMatrix(lights.get(shaderData.getDirectionalLightIndex()).getTransform(), viewMatrix);
+		Transform transform = lights.get(shaderData.getDirectionalLightIndex()).getTransform();
+		int[] direction = lights.get(shaderData.getDirectionalLightIndex()).getDirection();
+		int[] location = transform.getLocation();
+		int x = location[VECTOR_X];
+		int y = location[VECTOR_Y];
+		int z = location[VECTOR_Z];
+		final int factor = 200;
+		// place directional light 'infinitely' far away
+		transform.setLocation(direction[VECTOR_X] * factor, -direction[VECTOR_Y] * factor, -direction[VECTOR_Z] * factor);
+		graphicsProcessor.getViewMatrix(transform, viewMatrix);
 		graphicsProcessor.getOrthographicMatrix(lightFrustum, projectionMatrix);
 		matrixProcessor.multiply(projectionMatrix, viewMatrix, shaderData.getDirectionalLightMatrix());
+		location[VECTOR_X] = x;
+		location[VECTOR_Y] = y;
+		location[VECTOR_Z] = z;
 	}
 	
 	@Override
 	public void setup(Model model) {
-		if (shaderData.getSpotLightIndex() < 0)
+		if (shaderData.getDirectionalLightIndex() < 0)
 			return;
 		matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);

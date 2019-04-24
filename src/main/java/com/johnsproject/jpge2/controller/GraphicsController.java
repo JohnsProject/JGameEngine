@@ -53,13 +53,13 @@ public class GraphicsController implements EngineListener {
 		this.normal2Cache = vectorProcessor.generate();
 		this.normal3Cache = vectorProcessor.generate();
 		this.shaderDataBuffer = new ShaderData();
-		frameBuffer = new FrameBuffer(320, 240);
+		frameBuffer = new FrameBuffer(1, 1);
 		shaders = new ArrayList<Shader>();
 		engine.addEngineListener(this);
 		
 		addPreprocessingShader(new SpotLightShadowShader(processor));
 		addPreprocessingShader(new DirectionalLightShadowShader(processor));
-		addShader(new FlatSpecularShader(processor));
+		addShader(new PhongSpecularShader(processor));
 	}
 	
 	public void start() { }
