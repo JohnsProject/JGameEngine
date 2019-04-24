@@ -6,7 +6,6 @@ import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
-import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.ShaderData;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.dto.Light.LightType;
@@ -28,7 +27,6 @@ public class SpotLightShadowShader extends Shader{
 	private final VectorProcessor vectorProcessor;
 	private final GraphicsProcessor graphicsProcessor;
 
-	private final int[][] modelMatrix;
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
 	
@@ -44,7 +42,6 @@ public class SpotLightShadowShader extends Shader{
 		this.vectorProcessor = centralProcessor.getVectorProcessor();
 		this.graphicsProcessor = centralProcessor.getGraphicsProcessor();
 
-		this.modelMatrix = matrixProcessor.generate();
 		this.viewMatrix = matrixProcessor.generate();
 		this.projectionMatrix = matrixProcessor.generate();
 		
@@ -95,21 +92,12 @@ public class SpotLightShadowShader extends Shader{
 		graphicsProcessor.getPerspectiveMatrix(lightFrustum, projectionMatrix);
 		matrixProcessor.multiply(projectionMatrix, viewMatrix, shaderData.getSpotLightMatrix());
 	}
-	
-	@Override
-	public void setup(Model model) {
-		if (shaderData.getSpotLightIndex() < 0)
-			return;
-		matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
-		graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
-	}
 
 	@Override
 	public void vertex(int index, Vertex vertex) {
 		if (shaderData.getSpotLightIndex() < 0)
 			return;
 		int[] location = vertex.getLocation();
-		vectorProcessor.multiply(location, modelMatrix, location);
 		vectorProcessor.multiply(location, shaderData.getSpotLightMatrix(), location);
 		graphicsProcessor.viewport(location, location);
 	}

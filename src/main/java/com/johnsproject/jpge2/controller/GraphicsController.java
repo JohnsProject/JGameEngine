@@ -13,6 +13,8 @@ import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.ShaderData;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processor.CentralProcessor;
+import com.johnsproject.jpge2.processor.GraphicsProcessor;
+import com.johnsproject.jpge2.processor.MatrixProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
 import com.johnsproject.jpge2.shader.DirectionalLightShadowShader;
 import com.johnsproject.jpge2.shader.FlatSpecularShader;
@@ -32,8 +34,13 @@ public class GraphicsController implements EngineListener {
 	private final int[] normal2Cache;
 	private final int[] normal3Cache;
 	
+	private final int[][] modelMatrix;
+	private final int[][] normalMatrix;
+	
 	private final Engine engine;
 	private final VectorProcessor vectorProcessor;
+	private final MatrixProcessor matrixProcessor;
+	private final GraphicsProcessor graphicsProcessor;
 	
 	private ShaderDataBuffer shaderDataBuffer;
 	private FrameBuffer frameBuffer;
@@ -45,6 +52,8 @@ public class GraphicsController implements EngineListener {
 	GraphicsController(Engine engine, CentralProcessor processor) {
 		this.engine = engine;
 		this.vectorProcessor = processor.getVectorProcessor();
+		this.matrixProcessor = processor.getMatrixProcessor();
+		this.graphicsProcessor = processor.getGraphicsProcessor();
 		this.location0Cache = vectorProcessor.generate();
 		this.location1Cache = vectorProcessor.generate();
 		this.location2Cache = vectorProcessor.generate();
@@ -52,6 +61,10 @@ public class GraphicsController implements EngineListener {
 		this.normal1Cache = vectorProcessor.generate();
 		this.normal2Cache = vectorProcessor.generate();
 		this.normal3Cache = vectorProcessor.generate();
+		
+		this.modelMatrix = matrixProcessor.generate();
+		this.normalMatrix = matrixProcessor.generate();
+		
 		this.shaderDataBuffer = new ShaderData();
 		frameBuffer = new FrameBuffer(1, 1);
 		shaders = new ArrayList<Shader>();
@@ -76,7 +89,10 @@ public class GraphicsController implements EngineListener {
 				shader.setup(camera);
 				for (int m = 0; m < scene.getModels().size(); m++) {
 					Model model = scene.getModels().get(m);
-					shader.setup(model);
+					matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
+					matrixProcessor.copy(normalMatrix, MatrixProcessor.MATRIX_IDENTITY);
+					graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
+					graphicsProcessor.getNormalMatrix(model.getTransform(), normalMatrix);
 					for (int f = 0; f < model.getFaces().length; f++) {
 						Face face = model.getFace(f);
 						if ((face.getMaterial().getShaderIndex() == s - preShadersCount)
@@ -84,8 +100,11 @@ public class GraphicsController implements EngineListener {
 							backup(face);
 							for (int v = 0; v < face.getVertices().length; v++) {
 								Vertex vertex = face.getVertices()[v];
+								vectorProcessor.multiply(vertex.getLocation(), modelMatrix, vertex.getLocation());
+								vectorProcessor.multiply(vertex.getNormal(), normalMatrix, vertex.getNormal());
 								shader.vertex(v, vertex);
 							}
+							vectorProcessor.multiply(face.getNormal(), normalMatrix, face.getNormal());
 							shader.geometry(face);
 							restore(face);
 						}

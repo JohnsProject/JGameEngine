@@ -7,7 +7,6 @@ import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Material;
-import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.ShaderData;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
@@ -33,8 +32,6 @@ public class PhongSpecularShader extends Shader {
 	private final ColorProcessor colorProcessor;
 	private final GraphicsProcessor graphicsProcessor;
 
-	private final int[][] modelMatrix;
-	private final int[][] normalMatrix;
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
 	
@@ -84,8 +81,6 @@ public class PhongSpecularShader extends Shader {
 		this.colorProcessor = centralProcessor.getColorProcessor();
 		this.graphicsProcessor = centralProcessor.getGraphicsProcessor();
 
-		this.modelMatrix = matrixProcessor.generate();
-		this.normalMatrix = matrixProcessor.generate();
 		this.viewMatrix = matrixProcessor.generate();
 		this.projectionMatrix = matrixProcessor.generate();
 
@@ -148,25 +143,20 @@ public class PhongSpecularShader extends Shader {
 			break;
 		}
 	}
-	
-	@Override
-	public void setup(Model model) {		
-		matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
-		matrixProcessor.copy(normalMatrix, MatrixProcessor.MATRIX_IDENTITY);
-
-		graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
-		graphicsProcessor.getNormalMatrix(model.getTransform(), normalMatrix);
-	}
 
 	@Override
 	public void vertex(int index, Vertex vertex) {
 		int[] location = vertex.getLocation();
 		int[] normal = vertex.getNormal();
 
-		vectorProcessor.multiply(location, modelMatrix, location);
 		locationX[index] = location[VECTOR_X];
 		locationY[index] = location[VECTOR_Y];
 		locationZ[index] = location[VECTOR_Z];
+		
+		vectorProcessor.normalize(normal, normalizedNormal);
+		normalX[index] = normalizedNormal[VECTOR_X];
+		normalY[index] = normalizedNormal[VECTOR_Y];
+		normalZ[index] = normalizedNormal[VECTOR_Z];
 
 		if (shaderData.getDirectionalLightMatrix() != null) {
 			vectorProcessor.multiply(location, shaderData.getDirectionalLightMatrix(), directionalLocation);
@@ -197,12 +187,6 @@ public class PhongSpecularShader extends Shader {
 		vectorProcessor.multiply(location, viewMatrix, location);
 		vectorProcessor.multiply(location, projectionMatrix, location);
 		graphicsProcessor.viewport(location, location);
-
-		vectorProcessor.multiply(normal, normalMatrix, normal);
-		vectorProcessor.normalize(normal, normalizedNormal);
-		normalX[index] = normalizedNormal[VECTOR_X];
-		normalY[index] = normalizedNormal[VECTOR_Y];
-		normalZ[index] = normalizedNormal[VECTOR_Z];
 	}
 
 	@Override

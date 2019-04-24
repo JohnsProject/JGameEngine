@@ -7,13 +7,11 @@ import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Light.LightType;
-import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.ShaderData;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.GraphicsProcessor;
-import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.processor.MatrixProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
 
@@ -27,7 +25,6 @@ public class DirectionalLightShadowShader extends Shader {
 	private final VectorProcessor vectorProcessor;
 	private final GraphicsProcessor graphicsProcessor;
 
-	private final int[][] modelMatrix;
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
 	
@@ -43,7 +40,6 @@ public class DirectionalLightShadowShader extends Shader {
 		this.vectorProcessor = centralProcessor.getVectorProcessor();
 		this.graphicsProcessor = centralProcessor.getGraphicsProcessor();
 
-		this.modelMatrix = matrixProcessor.generate();
 		this.viewMatrix = matrixProcessor.generate();
 		this.projectionMatrix = matrixProcessor.generate();
 		this.lightFrustum = vectorProcessor.generate(30, 0, 10000);
@@ -94,7 +90,9 @@ public class DirectionalLightShadowShader extends Shader {
 		int z = location[VECTOR_Z];
 		final int factor = 200;
 		// place directional light 'infinitely' far away
-		transform.setLocation(direction[VECTOR_X] * factor, -direction[VECTOR_Y] * factor, -direction[VECTOR_Z] * factor);
+		location[VECTOR_X] = cameraLocation[VECTOR_X] + direction[VECTOR_X] * factor;
+		location[VECTOR_Y] = cameraLocation[VECTOR_Y] - direction[VECTOR_Y] * factor;
+		location[VECTOR_Z] = cameraLocation[VECTOR_Z] - direction[VECTOR_Z] * factor;
 		graphicsProcessor.getViewMatrix(transform, viewMatrix);
 		graphicsProcessor.getOrthographicMatrix(lightFrustum, projectionMatrix);
 		matrixProcessor.multiply(projectionMatrix, viewMatrix, shaderData.getDirectionalLightMatrix());
@@ -102,21 +100,12 @@ public class DirectionalLightShadowShader extends Shader {
 		location[VECTOR_Y] = y;
 		location[VECTOR_Z] = z;
 	}
-	
-	@Override
-	public void setup(Model model) {
-		if (shaderData.getDirectionalLightIndex() < 0)
-			return;
-		matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
-		graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
-	}
 
 	@Override
 	public void vertex(int index, Vertex vertex) {
 		if (shaderData.getDirectionalLightIndex() < 0)
 			return;
 		int[] location = vertex.getLocation();
-		vectorProcessor.multiply(location, modelMatrix, location);
 		vectorProcessor.multiply(location, shaderData.getDirectionalLightMatrix(), location);
 		graphicsProcessor.viewport(location, location);
 	}

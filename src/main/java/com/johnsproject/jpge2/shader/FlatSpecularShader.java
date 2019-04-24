@@ -30,7 +30,6 @@ import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Material;
-import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.ShaderData;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
@@ -65,8 +64,6 @@ public class FlatSpecularShader extends Shader {
 	private final int[] viewDirection;
 	private final int[] faceLocation;
 	
-	private final int[][] modelMatrix;
-	private final int[][] normalMatrix;
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
 	
@@ -100,8 +97,6 @@ public class FlatSpecularShader extends Shader {
 		this.viewDirection = vectorProcessor.generate();
 		this.faceLocation = vectorProcessor.generate();
 
-		this.modelMatrix = matrixProcessor.generate();
-		this.normalMatrix = matrixProcessor.generate();
 		this.viewMatrix = matrixProcessor.generate();
 		this.projectionMatrix = matrixProcessor.generate();
 		
@@ -138,21 +133,9 @@ public class FlatSpecularShader extends Shader {
 			break;
 		}
 	}
-	
-	@Override
-	public void setup(Model model) {		
-		matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
-		matrixProcessor.copy(normalMatrix, MatrixProcessor.MATRIX_IDENTITY);
-
-		graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
-		graphicsProcessor.getNormalMatrix(model.getTransform(), normalMatrix);
-	}
 
 	@Override
-	public void vertex(int index, Vertex vertex) {
-		int[] location = vertex.getLocation();
-		vectorProcessor.multiply(location, modelMatrix, location);
-	}
+	public void vertex(int index, Vertex vertex) {	}
 
 	@Override
 	public void geometry(Face face) {
@@ -181,8 +164,6 @@ public class FlatSpecularShader extends Shader {
 		
 		lightColor = ColorProcessor.WHITE;
 		lightFactor = 50;
-
-		vectorProcessor.multiply(normal, normalMatrix, normal);
 		
 		int[] cameraLocation = camera.getTransform().getLocation();		
 		vectorProcessor.subtract(cameraLocation, faceLocation, viewDirection);
