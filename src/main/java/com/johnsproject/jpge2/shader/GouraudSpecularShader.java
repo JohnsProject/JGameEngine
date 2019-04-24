@@ -126,14 +126,14 @@ public class GouraudSpecularShader extends Shader {
 
 		if (shaderData.getDirectionalLightMatrix() != null) {
 			vectorProcessor.multiply(location, shaderData.getDirectionalLightMatrix(), directionalLocation);
-			graphicsProcessor.setup(shaderData.getDirectionalShadowMap().getSize(), camera.getCanvas(), this);
+			graphicsProcessor.setup(shaderData.getDirectionalShadowMap().getSize(), VectorProcessor.VECTOR_UP, this);
 			graphicsProcessor.viewport(directionalLocation, directionalLocation);
 			graphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
 		}
 		
 		if (shaderData.getSpotLightMatrix() != null) {
 			vectorProcessor.multiply(location, shaderData.getSpotLightMatrix(), spotLocation);
-			graphicsProcessor.setup(shaderData.getSpotShadowMap().getSize(), camera.getCanvas(), this);
+			graphicsProcessor.setup(shaderData.getSpotShadowMap().getSize(), VectorProcessor.VECTOR_UP, this);
 			graphicsProcessor.viewport(spotLocation, spotLocation);
 			graphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
 		}
@@ -141,7 +141,7 @@ public class GouraudSpecularShader extends Shader {
 		int lightColor = ColorProcessor.WHITE;
 		int lightFactor = 50;
 
-		int[] cameraLocation = camera.getTransform().getLocation();		
+		int[] cameraLocation = camera.getTransform().getLocation();	
 		vectorProcessor.subtract(cameraLocation, location, viewDirection);
 		// normalize values
 		vectorProcessor.normalize(normal, normalizedNormal);
@@ -157,11 +157,9 @@ public class GouraudSpecularShader extends Shader {
 				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, material);
 				break;
 			case POINT:
-				lightPosition[VECTOR_X] = -lightPosition[VECTOR_X];
 				if (vectorProcessor.distance(cameraLocation, lightPosition) > shaderData.getLightRange())
 					continue;
 				vectorProcessor.subtract(lightPosition, location, lightLocation);
-				lightPosition[VECTOR_X] = -lightPosition[VECTOR_X];
 				// attenuation
 				attenuation = getAttenuation(lightLocation);
 				// other light values
@@ -171,11 +169,9 @@ public class GouraudSpecularShader extends Shader {
 				break;
 			case SPOT:				
 				vectorProcessor.invert(light.getDirection(), lightDirection);
-				lightPosition[VECTOR_X] = -lightPosition[VECTOR_X];
 				if (vectorProcessor.distance(cameraLocation, lightPosition) > shaderData.getLightRange())
 					continue;
 				vectorProcessor.subtract(lightPosition, location, lightLocation);
-				lightPosition[VECTOR_X] = -lightPosition[VECTOR_X];
 				// attenuation
 				attenuation = getAttenuation(lightLocation);
 				vectorProcessor.normalize(lightLocation, lightLocation);

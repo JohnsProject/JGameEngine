@@ -34,8 +34,8 @@ public class VectorProcessor {
 	
 	public static final int[] VECTOR_UP = new int[] {0, 0, FP_ONE, FP_ONE};
 	public static final int[] VECTOR_DOWN = new int[] {0, 0, -FP_ONE, FP_ONE};
-	public static final int[] VECTOR_RIGHT = new int[] {FP_ONE, 0, 0, FP_ONE};
-	public static final int[] VECTOR_LEFT = new int[] {-FP_ONE, 0, 0, FP_ONE};
+	public static final int[] VECTOR_RIGHT = new int[] {-FP_ONE, 0, 0, FP_ONE};
+	public static final int[] VECTOR_LEFT = new int[] {FP_ONE, 0, 0, FP_ONE};
 	public static final int[] VECTOR_FORWARD = new int[] {0, FP_ONE, 0, FP_ONE};
 	public static final int[] VECTOR_BACK = new int[] {0, -FP_ONE, 0, FP_ONE};
 	public static final int[] VECTOR_ONE = new int[] {FP_ONE, FP_ONE, FP_ONE, FP_ONE};
@@ -262,9 +262,7 @@ public class VectorProcessor {
 	 * @return
 	 */
 	public int distance(int[] vector1, int[] vector2) {
-		vectorCache1[VECTOR_X] = vector2[VECTOR_X] + vector1[VECTOR_X];
-		vectorCache1[VECTOR_Y] = vector2[VECTOR_Y] - vector1[VECTOR_Y];
-		vectorCache1[VECTOR_Z] = vector2[VECTOR_Z] - vector1[VECTOR_Z];
+		subtract(vector2, vector1, vectorCache1);
 		return magnitude(vectorCache1);
 	}
 

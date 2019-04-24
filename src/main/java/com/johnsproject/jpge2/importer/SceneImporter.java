@@ -170,7 +170,7 @@ public class SceneImporter {
 		int x = mathProcessor.generate((getFloat(transformData[VECTOR_X]) * 10));
 		int y = mathProcessor.generate((getFloat(transformData[VECTOR_Y]) * 10));
 		int z = mathProcessor.generate((getFloat(transformData[VECTOR_Z]) * 10));
-		int[] location = vectorProcessor.generate(x, y, z);
+		int[] location = vectorProcessor.generate(-x, y, z);
 		x = mathProcessor.generate(getFloat(transformData[3 + VECTOR_X]));
 		y = mathProcessor.generate(getFloat(transformData[3 + VECTOR_Y]));
 		z = mathProcessor.generate(getFloat(transformData[3 + VECTOR_Z]));

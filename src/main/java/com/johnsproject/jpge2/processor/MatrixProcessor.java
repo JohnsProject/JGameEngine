@@ -113,7 +113,7 @@ public class MatrixProcessor {
 	 */
 	public int[][] translate(int[][] matrix, int x, int y, int z, int[][] out) {
 		copy(matrixCache1, MATRIX_IDENTITY);
-		matrixCache1[3][0] = -x;
+		matrixCache1[3][0] = x;
 		matrixCache1[3][1] = y;
 		matrixCache1[3][2] = z;
 		multiply(matrixCache1, matrix, out);
