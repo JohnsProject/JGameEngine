@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
-import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.ShaderData;
+import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.dto.Light.LightType;
 import com.johnsproject.jpge2.processor.CentralProcessor;
@@ -56,14 +56,18 @@ public class SpotLightShadowShader extends Shader{
 		
 		if (shaderData.getSpotLightMatrix() == null) {
 			shaderData.setSpotLightMatrix(matrixProcessor.generate());
-			shaderData.setSpotShadowMap(new FrameBuffer(240, 240));
+			shaderData.setSpotShadowMap(new Texture(240, 240));
 		}
 	}
 
 	@Override
 	public void setup(Camera camera) {
 		this.camera = camera;
-		shaderData.getSpotShadowMap().clearDepthBuffer();		
+		Texture shadowMap = shaderData.getSpotShadowMap();
+		// reset shadow map
+		for (int i = 0; i < shadowMap.getPixels().length; i++) {
+			shadowMap.getPixels()[i] = Integer.MAX_VALUE;
+		}		
 		shaderData.setSpotLightIndex(-1);
 		
 		int[] cameraLocation = camera.getTransform().getLocation();		
@@ -121,7 +125,10 @@ public class SpotLightShadowShader extends Shader{
 //		int color = (location[VECTOR_Z] + 100) >> 3;
 //		color = colorProcessor.generate(color, color, color);
 //		frameBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z] - 1000, (byte) 0, color);
-		shaderData.getSpotShadowMap().setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], (byte) 0, 0);
+		Texture shadowMap = shaderData.getSpotShadowMap();
+		if (shadowMap.getPixel(location[VECTOR_X], location[VECTOR_Y]) > location[VECTOR_Z]) {
+			shadowMap.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z]);
+		}
 	}
 	
 }

@@ -262,7 +262,9 @@ public class VectorProcessor {
 	 * @return
 	 */
 	public int distance(int[] vector1, int[] vector2) {
-		subtract(vector2, vector1, vectorCache1);
+		vectorCache1[VECTOR_X] = vector2[VECTOR_X] + vector1[VECTOR_X];
+		vectorCache1[VECTOR_Y] = vector2[VECTOR_Y] - vector1[VECTOR_Y];
+		vectorCache1[VECTOR_Z] = vector2[VECTOR_Z] - vector1[VECTOR_Z];
 		return magnitude(vectorCache1);
 	}
 

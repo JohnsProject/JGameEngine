@@ -33,60 +33,50 @@ import com.johnsproject.jpge2.Engine;
 public class Texture {
 	
 	private int[] image;
-	private int width, height;
+	private int[] size;
 	
 	public Texture (int width, int height){
-		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
-		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		this.width = img.getWidth();
-		this.height = img.getHeight();
+		this.size = new int[] {width, height, width * height, 0};
+		this.image = new int[size[2]];
 	}
 	
 	public Texture (String path) throws IOException{
 		BufferedImage img = Engine.getInstance().getProcessor().getFileProcessor().loadImage(path);
 		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		this.width = img.getWidth();
-		this.height = img.getHeight();
+		this.size = new int[] {img.getWidth(), img.getHeight(), img.getWidth() * img.getHeight(), 0};
 	}
 	
 	public Texture (String path, int width, int height) throws IOException{
 		BufferedImage img = Engine.getInstance().getProcessor().getFileProcessor().loadImage(path, width, height);
 		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		this.width = img.getWidth();
-		this.height = img.getHeight();
+		this.size = new int[] {img.getWidth(), img.getHeight(), img.getWidth() * img.getHeight(), 0};
 	}
 	
 	public Texture (InputStream stream) throws IOException{
 		BufferedImage img = Engine.getInstance().getProcessor().getFileProcessor().loadImage(stream);
 		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		this.width = img.getWidth();
-		this.height = img.getHeight();
+		this.size = new int[] {img.getWidth(), img.getHeight(), img.getWidth() * img.getHeight(), 0};
 	}
 	
 	public Texture (InputStream stream, int width, int height) throws IOException{
 		BufferedImage img = Engine.getInstance().getProcessor().getFileProcessor().loadImage(stream, width, height);
 		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		this.width = img.getWidth();
-		this.height = img.getHeight();
+		this.size = new int[] {img.getWidth(), img.getHeight(), img.getWidth() * img.getHeight(), 0};
 	}
 	
 	public void setPixel(int x, int y, int color){
-		image[x + (y * width)] = color;
+		image[x + (y * size[0])] = color;
 	}
 	
 	public int getPixel(int x, int y){
-		return image[x + (y * width)];
+		return image[x + (y * size[0])];
 	}
 	
 	public int[] getPixels() {
 		return image;
 	}
 	
-	public int getWidth(){
-		return width;
-	}
-	
-	public int getHeight(){
-		return height;
+	public int[] getSize(){
+		return size;
 	}
 }

@@ -65,7 +65,7 @@ public class EngineTest implements EngineListener {
 
 	public void fixedUpdate() {
 		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
-//			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(VectorProcessor.VECTOR_UP);
+			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(VectorProcessor.VECTOR_UP);
 //			Engine.getInstance().getOptions().getScene().getModels().get(i).getTransform().translate(VectorProcessor.VECTOR_RIGHT);
 		}
 	}

@@ -12,11 +12,11 @@ public class ShaderData implements ShaderDataBuffer {
 	
 	private int directionalLightIndex = -1;
 	private int[][] directionalLightMatrix;
-	private FrameBuffer directionalShadowMap;
+	private Texture directionalShadowMap;
 	
 	private int spotLightIndex = -1;
 	private int[][] spotLightMatrix;
-	private FrameBuffer spotShadowMap;
+	private Texture spotShadowMap;
 	
 	private int constantAttenuation = MathProcessor.FP_ONE;
 	private int linearAttenuation = 14000;
@@ -56,11 +56,11 @@ public class ShaderData implements ShaderDataBuffer {
 		this.directionalLightMatrix = directionalLightMatrix;
 	}
 
-	public FrameBuffer getDirectionalShadowMap() {
+	public Texture getDirectionalShadowMap() {
 		return directionalShadowMap;
 	}
 
-	public void setDirectionalShadowMap(FrameBuffer directionalShadowMap) {
+	public void setDirectionalShadowMap(Texture directionalShadowMap) {
 		this.directionalShadowMap = directionalShadowMap;
 	}
 
@@ -80,11 +80,11 @@ public class ShaderData implements ShaderDataBuffer {
 		this.spotLightMatrix = spotLightMatrix;
 	}
 
-	public FrameBuffer getSpotShadowMap() {
+	public Texture getSpotShadowMap() {
 		return spotShadowMap;
 	}
 
-	public void setSpotShadowMap(FrameBuffer spotShadowMap) {
+	public void setSpotShadowMap(Texture spotShadowMap) {
 		this.spotShadowMap = spotShadowMap;
 	}
 

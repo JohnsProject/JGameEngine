@@ -245,8 +245,8 @@ public class FlatSpecularShader extends Shader {
 			texture = face.getMaterial().getTexture();
 			// set uv values that will be interpolated and fit uv into texture resolution
 			if (texture != null) {
-				int width = texture.getWidth() - 1;
-				int height = texture.getHeight() - 1;
+				int width = texture.getSize()[0]- 1;
+				int height = texture.getSize()[1] - 1;
 				uvX[0] = mathProcessor.multiply(face.getUV1()[VECTOR_X], width);
 				uvX[1] = mathProcessor.multiply(face.getUV2()[VECTOR_X], width);
 				uvX[2] = mathProcessor.multiply(face.getUV3()[VECTOR_X], width);
@@ -298,12 +298,12 @@ public class FlatSpecularShader extends Shader {
 		return (attenuation << 8) >> FP_BITS;
 	}
 	
-	private boolean inShadow(int[] lightSpaceLocation, FrameBuffer shadowMap) {
+	private boolean inShadow(int[] lightSpaceLocation, Texture shadowMap) {
 		int x = lightSpaceLocation[VECTOR_X];
 		int y = lightSpaceLocation[VECTOR_Y];
 		x = mathProcessor.clamp(x, 0, shadowMap.getSize()[0] - 1);
 		y = mathProcessor.clamp(y, 0, shadowMap.getSize()[1] - 1);
-		int depth = shadowMap.getDepth(x, y);
+		int depth = shadowMap.getPixel(x, y);
 		int bias = 50;
 		return depth < lightSpaceLocation[VECTOR_Z] - bias;
 	}

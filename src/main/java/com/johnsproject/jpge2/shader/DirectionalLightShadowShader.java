@@ -4,10 +4,10 @@ import java.util.List;
 
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
-import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Light.LightType;
 import com.johnsproject.jpge2.dto.ShaderData;
+import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processor.CentralProcessor;
@@ -52,14 +52,18 @@ public class DirectionalLightShadowShader extends Shader {
 		this.lights = shaderData.getLights();
 		if (shaderData.getDirectionalLightMatrix() == null) {
 			shaderData.setDirectionalLightMatrix(matrixProcessor.generate());
-			shaderData.setDirectionalShadowMap(new FrameBuffer(320, 320));
+			shaderData.setDirectionalShadowMap(new Texture(320, 320));
 		}
 	}
 
 	@Override
 	public void setup(Camera camera) {
 		this.camera = camera;
-		shaderData.getDirectionalShadowMap().clearDepthBuffer();		
+		Texture shadowMap = shaderData.getDirectionalShadowMap();
+		// reset shadow map
+		for (int i = 0; i < shadowMap.getPixels().length; i++) {
+			shadowMap.getPixels()[i] = Integer.MAX_VALUE;
+		}		
 		shaderData.setDirectionalLightIndex(-1);
 		
 		int[] cameraLocation = camera.getTransform().getLocation();		
@@ -88,11 +92,11 @@ public class DirectionalLightShadowShader extends Shader {
 		int x = location[VECTOR_X];
 		int y = location[VECTOR_Y];
 		int z = location[VECTOR_Z];
-		final int factor = 200;
 		// place directional light 'infinitely' far away
-		location[VECTOR_X] = cameraLocation[VECTOR_X] + direction[VECTOR_X] * factor;
-		location[VECTOR_Y] = cameraLocation[VECTOR_Y] - direction[VECTOR_Y] * factor;
-		location[VECTOR_Z] = cameraLocation[VECTOR_Z] - direction[VECTOR_Z] * factor;
+		final int factor = 200;
+		location[VECTOR_X] = direction[VECTOR_X] * factor + cameraLocation[VECTOR_X];
+		location[VECTOR_Y] = direction[VECTOR_Y] * factor - (cameraLocation[VECTOR_Y] >> 3);
+		location[VECTOR_Z] = -direction[VECTOR_Z] * factor;
 		graphicsProcessor.getViewMatrix(transform, viewMatrix);
 		graphicsProcessor.getOrthographicMatrix(lightFrustum, projectionMatrix);
 		matrixProcessor.multiply(projectionMatrix, viewMatrix, shaderData.getDirectionalLightMatrix());
@@ -126,6 +130,9 @@ public class DirectionalLightShadowShader extends Shader {
 
 	@Override
 	public void fragment(int[] location, int[] barycentric) {
-		shaderData.getDirectionalShadowMap().setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], (byte) 0, 0);
+		Texture shadowMap = shaderData.getDirectionalShadowMap();
+		if (shadowMap.getPixel(location[VECTOR_X], location[VECTOR_Y]) > location[VECTOR_Z]) {
+			shadowMap.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z]);
+		}
 	}
 }
