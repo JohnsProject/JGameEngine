@@ -71,12 +71,10 @@ public class PhongSpecularShader extends Shader {
 	private int modelColor;
 	private Texture texture;
 
-	private Camera camera;
-
-	private ShaderData shaderData;
-	
+	private Camera camera;	
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
+	private ShaderData shaderData;
 
 	public PhongSpecularShader(CentralProcessor centralProcessor) {
 		super(centralProcessor);

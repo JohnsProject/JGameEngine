@@ -42,9 +42,7 @@ public class EngineWindow extends Frame implements EngineListener {
 	private FrameBuffer frameBuffer;
 
 	public EngineWindow(FrameBuffer frameBuffer) {
-		int[] size = frameBuffer.getSize();
-		setSize(size[0], size[1]);
-		this.frameBuffer = frameBuffer;
+		setFrameBuffer(frameBuffer);
 		this.setLayout(null);
 		this.setResizable(false);
 		this.setVisible(true);
@@ -64,7 +62,6 @@ public class EngineWindow extends Frame implements EngineListener {
 	public EnginePanel getPanel() {
 		return panel;
 	}
-	
 
 	public void update() {
 		panel.drawBuffer();
@@ -73,6 +70,12 @@ public class EngineWindow extends Frame implements EngineListener {
 			height = this.getHeight();
 			panel.setSize(width, height);
 		}
+	}
+	
+	public void setFrameBuffer(FrameBuffer frameBuffer) {
+		int[] size = frameBuffer.getSize();
+		setSize(size[0], size[1]);
+		this.frameBuffer = frameBuffer;
 	}
 
 	public class EnginePanel extends Canvas {

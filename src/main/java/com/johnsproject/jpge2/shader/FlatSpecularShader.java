@@ -31,6 +31,7 @@ import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Material;
 import com.johnsproject.jpge2.dto.Model;
+import com.johnsproject.jpge2.dto.ShaderData;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processor.CentralProcessor;
@@ -69,15 +70,18 @@ public class FlatSpecularShader extends Shader {
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
 	
+	private final int[] directionalLocation;	
+	private final int[] spotLocation;
+	
 	private int lightColor;
 	private int lightFactor;
 	private int modelColor;
 	private Texture texture;
 	
-	private Camera camera;
-	
+	private Camera camera;	
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
+	private ShaderData shaderData;
 	
 	public FlatSpecularShader(CentralProcessor centralProcessor) {
 		super(centralProcessor);
@@ -100,12 +104,16 @@ public class FlatSpecularShader extends Shader {
 		this.normalMatrix = matrixProcessor.generate();
 		this.viewMatrix = matrixProcessor.generate();
 		this.projectionMatrix = matrixProcessor.generate();
+		
+		this.directionalLocation = vectorProcessor.generate();
+		this.spotLocation = vectorProcessor.generate();
 	}
 	
 	@Override
 	public void update(ShaderDataBuffer shaderDataBuffer) {
-		this.lights = shaderDataBuffer.getLights();
-		this.frameBuffer = shaderDataBuffer.getFrameBuffer();
+		this.shaderData = (ShaderData)shaderDataBuffer;
+		this.lights = shaderData.getLights();
+		this.frameBuffer = shaderData.getFrameBuffer();
 		frameBuffer.clearColorBuffer();
 		frameBuffer.clearDepthBuffer();
 	}
@@ -153,6 +161,20 @@ public class FlatSpecularShader extends Shader {
 		vectorProcessor.add(faceLocation, location3, faceLocation);
 		vectorProcessor.divide(faceLocation, 3 << FP_BITS, faceLocation);
 		
+		if (shaderData.getDirectionalLightMatrix() != null) {
+			vectorProcessor.multiply(faceLocation, shaderData.getDirectionalLightMatrix(), directionalLocation);
+			graphicsProcessor.setup(shaderData.getDirectionalShadowMap().getSize(), camera.getCanvas(), this);
+			graphicsProcessor.viewport(directionalLocation, directionalLocation);
+			graphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
+		}
+		
+		if (shaderData.getSpotLightMatrix() != null) {
+			vectorProcessor.multiply(faceLocation, shaderData.getSpotLightMatrix(), spotLocation);
+			graphicsProcessor.setup(shaderData.getSpotShadowMap().getSize(), camera.getCanvas(), this);
+			graphicsProcessor.viewport(spotLocation, spotLocation);
+			graphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
+		}
+		
 		lightColor = ColorProcessor.WHITE;
 		lightFactor = 50;
 
@@ -171,7 +193,10 @@ public class FlatSpecularShader extends Shader {
 				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, material);
 				break;
 			case POINT:
+				int[] loc = light.getTransform().getLocation();
+				loc[VECTOR_X] = -loc[VECTOR_X];
 				vectorProcessor.subtract(light.getTransform().getLocation(), faceLocation, lightLocation);
+				loc[VECTOR_X] = -loc[VECTOR_X];
 				// attenuation
 				attenuation = getAttenuation(lightLocation);
 				// other light values
@@ -181,7 +206,10 @@ public class FlatSpecularShader extends Shader {
 				break;
 			case SPOT:				
 				vectorProcessor.invert(light.getDirection(), lightDirection);
+				loc = light.getTransform().getLocation();
+				loc[VECTOR_X] = -loc[VECTOR_X];
 				vectorProcessor.subtract(light.getTransform().getLocation(), faceLocation, lightLocation);
+				loc[VECTOR_X] = -loc[VECTOR_X];
 				// attenuation
 				attenuation = getAttenuation(lightLocation);
 				vectorProcessor.normalize(lightLocation, lightLocation);
@@ -196,8 +224,23 @@ public class FlatSpecularShader extends Shader {
 				break;
 			}
 			currentFactor = mathProcessor.multiply(currentFactor, light.getStrength());
-			lightColor = colorProcessor.lerp(lightColor, light.getColor(), currentFactor);
-			lightFactor += currentFactor;
+			boolean inShadow = false;
+			if (i == shaderData.getDirectionalLightIndex()) {
+				if (shaderData.getDirectionalLightMatrix() != null) {
+					inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
+					lightFactor += currentFactor;
+				}
+			} else if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
+				if (shaderData.getSpotLightMatrix() != null) {
+					inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
+				}
+			}
+			if(inShadow) {
+				lightColor = colorProcessor.lerp(lightColor, light.getShadowColor(), 128);
+			} else {
+				lightColor = colorProcessor.lerp(lightColor, light.getColor(), currentFactor);
+				lightFactor += currentFactor;
+			}
 		}
 		modelColor = colorProcessor.lerp(ColorProcessor.BLACK, material.getColor(), lightFactor);
 		modelColor = colorProcessor.multiplyColor(modelColor, lightColor);
@@ -259,9 +302,19 @@ public class FlatSpecularShader extends Shader {
 		// attenuation
 		long distance = vectorProcessor.magnitude(lightLocation);
 		int attenuation = FP_ONE;
-		attenuation += mathProcessor.multiply(distance, 1400);
-		attenuation += mathProcessor.multiply(mathProcessor.multiply(distance, distance), 900);
+		attenuation += mathProcessor.multiply(distance, 14000);
+		attenuation += mathProcessor.multiply(mathProcessor.multiply(distance, distance), 90);
 		attenuation >>= FP_BITS;
 		return (attenuation << 8) >> FP_BITS;
+	}
+	
+	private boolean inShadow(int[] lightSpaceLocation, FrameBuffer shadowMap) {
+		int x = lightSpaceLocation[VECTOR_X];
+		int y = lightSpaceLocation[VECTOR_Y];
+		x = mathProcessor.clamp(x, 0, shadowMap.getSize()[0] - 1);
+		y = mathProcessor.clamp(y, 0, shadowMap.getSize()[1] - 1);
+		int depth = shadowMap.getDepth(x, y);
+		int bias = 50;
+		return depth < lightSpaceLocation[VECTOR_Z] - bias;
 	}
 }

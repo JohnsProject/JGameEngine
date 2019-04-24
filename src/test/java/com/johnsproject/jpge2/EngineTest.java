@@ -15,8 +15,8 @@ import com.johnsproject.jpge2.processor.VectorProcessor;
 
 public class EngineTest implements EngineListener {
 
-	private static final int WINDOW_W = 640;
-	private static final int WINDOW_H = 480;
+	private static final int WINDOW_W = 800;
+	private static final int WINDOW_H = 640;
 	
 	public static void main(String[] args) {
 		new EngineTest();

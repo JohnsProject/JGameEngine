@@ -54,7 +54,7 @@ public class DirectionalLightShadowShader extends Shader {
 		this.lights = shaderData.getLights();
 		if (shaderData.getDirectionalLightMatrix() == null) {
 			shaderData.setDirectionalLightMatrix(matrixProcessor.generate());
-			shaderData.setDirectionalShadowMap(new FrameBuffer(640, 640));
+			shaderData.setDirectionalShadowMap(new FrameBuffer(320, 320));
 		}
 		
 		shaderData.getDirectionalShadowMap().clearDepthBuffer();		

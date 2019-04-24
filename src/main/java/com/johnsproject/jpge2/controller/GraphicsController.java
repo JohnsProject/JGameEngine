@@ -59,7 +59,7 @@ public class GraphicsController implements EngineListener {
 		
 		addPreprocessingShader(new SpotLightShadowShader(processor));
 		addPreprocessingShader(new DirectionalLightShadowShader(processor));
-		addShader(new PhongSpecularShader(processor));
+		addShader(new FlatSpecularShader(processor));
 	}
 	
 	public void start() { }

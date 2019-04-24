@@ -59,7 +59,7 @@ public class SpotLightShadowShader extends Shader{
 		
 		if (shaderData.getSpotLightMatrix() == null) {
 			shaderData.setSpotLightMatrix(matrixProcessor.generate());
-			shaderData.setSpotShadowMap(new FrameBuffer(320, 320));
+			shaderData.setSpotShadowMap(new FrameBuffer(240, 240));
 		}
 		
 		shaderData.getSpotShadowMap().clearDepthBuffer();		
