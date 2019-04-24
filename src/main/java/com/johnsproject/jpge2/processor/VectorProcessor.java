@@ -253,6 +253,18 @@ public class VectorProcessor {
 		long z = (long)vector1[VECTOR_Z] * vector2[VECTOR_Z];
 		return (int)mathProcessor.multiply(x + y + z, 1);
 	}
+	
+	/**
+	 * Returns the dot product of vector1 and vector2.
+	 * 
+	 * @param vector1
+	 * @param vector2
+	 * @return
+	 */
+	public int distance(int[] vector1, int[] vector2) {
+		subtract(vector2, vector1, vectorCache1);
+		return magnitude(vectorCache1);
+	}
 
 	/**
 	 * Sets out equals the result of the cross product of vector1 and vector2.

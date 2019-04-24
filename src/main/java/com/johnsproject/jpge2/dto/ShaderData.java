@@ -2,6 +2,7 @@ package com.johnsproject.jpge2.dto;
 
 import java.util.List;
 
+import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 
 public class ShaderData implements ShaderDataBuffer {
@@ -16,6 +17,12 @@ public class ShaderData implements ShaderDataBuffer {
 	private int spotLightIndex = -1;
 	private int[][] spotLightMatrix;
 	private FrameBuffer spotShadowMap;
+	
+	private int constantAttenuation = MathProcessor.FP_ONE;
+	private int linearAttenuation = 14000;
+	private int quadraticAttenuation = 90;
+	
+	private int lightRange = MathProcessor.FP_ONE * 100;
 
 	public FrameBuffer getFrameBuffer() {
 		return frameBuffer;
@@ -79,5 +86,37 @@ public class ShaderData implements ShaderDataBuffer {
 
 	public void setSpotShadowMap(FrameBuffer spotShadowMap) {
 		this.spotShadowMap = spotShadowMap;
+	}
+
+	public int getConstantAttenuation() {
+		return constantAttenuation;
+	}
+
+	public void setConstantAttenuation(int constantAttenuation) {
+		this.constantAttenuation = constantAttenuation;
+	}
+
+	public int getLinearAttenuation() {
+		return linearAttenuation;
+	}
+
+	public void setLinearAttenuation(int linearAttenuation) {
+		this.linearAttenuation = linearAttenuation;
+	}
+
+	public int getQuadraticAttenuation() {
+		return quadraticAttenuation;
+	}
+
+	public void setQuadraticAttenuation(int quadraticAttenuation) {
+		this.quadraticAttenuation = quadraticAttenuation;
+	}
+
+	public int getLightRange() {
+		return lightRange;
+	}
+
+	public void setLightRange(int lightRange) {
+		this.lightRange = lightRange;
 	}
 }

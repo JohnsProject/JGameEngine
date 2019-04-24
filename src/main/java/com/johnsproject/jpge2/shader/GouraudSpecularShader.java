@@ -103,18 +103,13 @@ public class GouraudSpecularShader extends Shader {
 	}
 
 	@Override
-	public void setup(Model model, Camera camera) {
+	public void setup(Camera camera) {
 		this.camera = camera;
-
 		graphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
 		
-		matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
-		matrixProcessor.copy(normalMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		matrixProcessor.copy(viewMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		matrixProcessor.copy(projectionMatrix, MatrixProcessor.MATRIX_IDENTITY);
-
-		graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
-		graphicsProcessor.getNormalMatrix(model.getTransform(), normalMatrix);
+		
 		graphicsProcessor.getViewMatrix(camera.getTransform(), viewMatrix);
 
 		switch (camera.getType()) {
@@ -126,6 +121,15 @@ public class GouraudSpecularShader extends Shader {
 			graphicsProcessor.getPerspectiveMatrix(camera.getFrustum(), projectionMatrix);
 			break;
 		}
+	}
+	
+	@Override
+	public void setup(Model model) {		
+		matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
+		matrixProcessor.copy(normalMatrix, MatrixProcessor.MATRIX_IDENTITY);
+
+		graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
+		graphicsProcessor.getNormalMatrix(model.getTransform(), normalMatrix);
 	}
 
 	@Override
@@ -153,7 +157,8 @@ public class GouraudSpecularShader extends Shader {
 		int lightColor = ColorProcessor.WHITE;
 		int lightFactor = 50;
 
-		vectorProcessor.subtract(camera.getTransform().getLocation(), location, viewDirection);
+		int[] cameraLocation = camera.getTransform().getLocation();		
+		vectorProcessor.subtract(cameraLocation, location, viewDirection);
 		// normalize values
 		vectorProcessor.normalize(normal, normalizedNormal);
 		vectorProcessor.normalize(viewDirection, viewDirection);
@@ -161,16 +166,18 @@ public class GouraudSpecularShader extends Shader {
 			Light light = lights.get(i);
 			int currentFactor = 0;
 			int attenuation = 0;
+			int[] lightPosition = light.getTransform().getLocation();
 			switch (light.getType()) {
 			case DIRECTIONAL:
 				vectorProcessor.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, material);
 				break;
 			case POINT:
-				int[] loc = light.getTransform().getLocation();
-				loc[VECTOR_X] = -loc[VECTOR_X];
-				vectorProcessor.subtract(light.getTransform().getLocation(), location, lightLocation);
-				loc[VECTOR_X] = -loc[VECTOR_X];
+				lightPosition[VECTOR_X] = -lightPosition[VECTOR_X];
+				if (vectorProcessor.distance(cameraLocation, lightPosition) > shaderData.getLightRange())
+					continue;
+				vectorProcessor.subtract(lightPosition, location, lightLocation);
+				lightPosition[VECTOR_X] = -lightPosition[VECTOR_X];
 				// attenuation
 				attenuation = getAttenuation(lightLocation);
 				// other light values
@@ -180,10 +187,11 @@ public class GouraudSpecularShader extends Shader {
 				break;
 			case SPOT:				
 				vectorProcessor.invert(light.getDirection(), lightDirection);
-				loc = light.getTransform().getLocation();
-				loc[VECTOR_X] = -loc[VECTOR_X];
-				vectorProcessor.subtract(light.getTransform().getLocation(), location, lightLocation);
-				loc[VECTOR_X] = -loc[VECTOR_X];
+				lightPosition[VECTOR_X] = -lightPosition[VECTOR_X];
+				if (vectorProcessor.distance(cameraLocation, lightPosition) > shaderData.getLightRange())
+					continue;
+				vectorProcessor.subtract(lightPosition, location, lightLocation);
+				lightPosition[VECTOR_X] = -lightPosition[VECTOR_X];
 				// attenuation
 				attenuation = getAttenuation(lightLocation);
 				vectorProcessor.normalize(lightLocation, lightLocation);
@@ -291,9 +299,9 @@ public class GouraudSpecularShader extends Shader {
 	private int getAttenuation(int[] lightLocation) {
 		// attenuation
 		long distance = vectorProcessor.magnitude(lightLocation);
-		int attenuation = FP_ONE;
-		attenuation += mathProcessor.multiply(distance, 14000);
-		attenuation += mathProcessor.multiply(mathProcessor.multiply(distance, distance), 90);
+		int attenuation = shaderData.getConstantAttenuation();
+		attenuation += mathProcessor.multiply(distance, shaderData.getLinearAttenuation());
+		attenuation += mathProcessor.multiply(mathProcessor.multiply(distance, distance), shaderData.getQuadraticAttenuation());
 		attenuation >>= FP_BITS;
 		return (attenuation << 8) >> FP_BITS;
 	}

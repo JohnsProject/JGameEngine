@@ -56,37 +56,45 @@ public class DirectionalLightShadowShader extends Shader {
 			shaderData.setDirectionalLightMatrix(matrixProcessor.generate());
 			shaderData.setDirectionalShadowMap(new FrameBuffer(320, 320));
 		}
-		
+	}
+
+	@Override
+	public void setup(Camera camera) {
+		this.camera = camera;
 		shaderData.getDirectionalShadowMap().clearDepthBuffer();		
 		shaderData.setDirectionalLightIndex(-1);
 		
+		int[] cameraLocation = camera.getTransform().getLocation();		
 		int distance = Integer.MAX_VALUE;
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
-			int dist = vectorProcessor.magnitude(light.getTransform().getLocation());
+			int[] lightPosition = light.getTransform().getLocation();
+			int dist = vectorProcessor.distance(cameraLocation, lightPosition);
 			if ((light.getType() == LightType.DIRECTIONAL) && (dist < distance)) {
 				distance = dist;
 				shaderData.setDirectionalLightIndex(i);
 			}
 		}
-	}
-
-	@Override
-	public void setup(Model model, Camera camera) {
-		this.camera = camera;
 		
 		if (shaderData.getDirectionalLightIndex() < 0)
 			return;
+		
 		graphicsProcessor.setup(shaderData.getDirectionalShadowMap().getSize(), camera.getCanvas(), this);
 		
 		matrixProcessor.copy(viewMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		matrixProcessor.copy(projectionMatrix, MatrixProcessor.MATRIX_IDENTITY);
-		matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		
-		graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
 		graphicsProcessor.getViewMatrix(lights.get(shaderData.getDirectionalLightIndex()).getTransform(), viewMatrix);
 		graphicsProcessor.getOrthographicMatrix(lightFrustum, projectionMatrix);
 		matrixProcessor.multiply(projectionMatrix, viewMatrix, shaderData.getDirectionalLightMatrix());
+	}
+	
+	@Override
+	public void setup(Model model) {
+		if (shaderData.getSpotLightIndex() < 0)
+			return;
+		matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
+		graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
 	}
 
 	@Override

@@ -73,9 +73,10 @@ public class GraphicsController implements EngineListener {
 			shader.update(shaderDataBuffer);
 			for (int c = 0; c < scene.getCameras().size(); c++) {
 				Camera camera = scene.getCameras().get(c);
+				shader.setup(camera);
 				for (int m = 0; m < scene.getModels().size(); m++) {
 					Model model = scene.getModels().get(m);
-					shader.setup(model, camera);
+					shader.setup(model);
 					for (int f = 0; f < model.getFaces().length; f++) {
 						Face face = model.getFace(f);
 						if ((face.getMaterial().getShaderIndex() == s - preShadersCount)

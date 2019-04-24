@@ -12,7 +12,9 @@ public abstract class Shader {
 	
 	public abstract void update(ShaderDataBuffer shaderDataBuffer);
 	
-	public abstract void setup(Model model, Camera camera);
+	public abstract void setup(Camera camera);
+	
+	public abstract void setup(Model model);
 	
 	public abstract void vertex(int index, Vertex vertex);
 

@@ -61,24 +61,25 @@ public class SpotLightShadowShader extends Shader{
 			shaderData.setSpotLightMatrix(matrixProcessor.generate());
 			shaderData.setSpotShadowMap(new FrameBuffer(240, 240));
 		}
-		
+	}
+
+	@Override
+	public void setup(Camera camera) {
+		this.camera = camera;
 		shaderData.getSpotShadowMap().clearDepthBuffer();		
 		shaderData.setSpotLightIndex(-1);
 		
+		int[] cameraLocation = camera.getTransform().getLocation();		
 		int distance = Integer.MAX_VALUE;
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
-			int dist = vectorProcessor.magnitude(light.getTransform().getLocation());
+			int[] lightPosition = light.getTransform().getLocation();
+			int dist = vectorProcessor.distance(cameraLocation, lightPosition);
 			if ((light.getType() == LightType.SPOT) && (dist < distance)) {
 				distance = dist;
 				shaderData.setSpotLightIndex(i);
 			}
 		}
-	}
-
-	@Override
-	public void setup(Model model, Camera camera) {
-		this.camera = camera;
 		
 		if (shaderData.getSpotLightIndex() < 0)
 			return;
@@ -89,12 +90,18 @@ public class SpotLightShadowShader extends Shader{
 		
 		matrixProcessor.copy(viewMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		matrixProcessor.copy(projectionMatrix, MatrixProcessor.MATRIX_IDENTITY);
-		matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		
-		graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
 		graphicsProcessor.getViewMatrix(lights.get(shaderData.getSpotLightIndex()).getTransform(), viewMatrix);
 		graphicsProcessor.getPerspectiveMatrix(lightFrustum, projectionMatrix);
 		matrixProcessor.multiply(projectionMatrix, viewMatrix, shaderData.getSpotLightMatrix());
+	}
+	
+	@Override
+	public void setup(Model model) {
+		if (shaderData.getSpotLightIndex() < 0)
+			return;
+		matrixProcessor.copy(modelMatrix, MatrixProcessor.MATRIX_IDENTITY);
+		graphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
 	}
 
 	@Override
