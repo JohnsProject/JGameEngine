@@ -11,7 +11,7 @@ public class TextureProcessor {
 
 	private FileProcessor fileProcessor;
 	
-	public TextureProcessor(FileProcessor fileProcessor) {
+	TextureProcessor(FileProcessor fileProcessor) {
 		this.fileProcessor = fileProcessor;
 	}
 	

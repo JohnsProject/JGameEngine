@@ -1,5 +1,9 @@
 package com.johnsproject.jpge2;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -17,7 +21,7 @@ import com.johnsproject.jpge2.processor.ColorProcessor;
 import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
 
-public class EngineTest implements EngineListener {
+public class EngineTest implements EngineListener, MouseMotionListener, KeyListener {
 
 	private static final int WINDOW_W = 800;
 	private static final int WINDOW_H = 640;
@@ -42,6 +46,8 @@ public class EngineTest implements EngineListener {
 		Engine.getInstance().addEngineListener(new EngineWindow(graphicsController.getFrameBuffer()));
 //		useSOM();
 		useScene();
+		Engine.getInstance().getController().getInputController().addMouseMotionListener(this);
+		Engine.getInstance().getController().getInputController().addKeyListener(this);
 	}
 
 	void useSOM() {
@@ -74,19 +80,45 @@ public class EngineTest implements EngineListener {
 	private final int[] cache;
 	
 	public void fixedUpdate() {
-//		Transform transform = Engine.getInstance().getScene().getCamera(0).getTransform();
-//		VectorProcessor vectorProcessor = Engine.getInstance().getProcessor().getVectorProcessor();
-//		vectorProcessor.rotateX(VectorProcessor.VECTOR_DOWN, transform.getRotation()[0], cache);
-//		vectorProcessor.rotateY(cache, -transform.getRotation()[1], cache);
-//		vectorProcessor.rotateZ(cache, -transform.getRotation()[2], cache);
-//		transform.translate(cache);
+		if (move) {
+			Transform transform = Engine.getInstance().getScene().getCamera(0).getTransform();
+			VectorProcessor vectorProcessor = Engine.getInstance().getProcessor().getVectorProcessor();
+			vectorProcessor.direction(transform.getRotation(), cache);
+			vectorProcessor.multiply(cache, 2 << 10, cache);
+			transform.translate(cache);
+		}
 		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
-			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(VectorProcessor.VECTOR_UP);
+//			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(VectorProcessor.VECTOR_UP);
 //			Engine.getInstance().getScene().getModels().get(i).getTransform().translate(VectorProcessor.VECTOR_RIGHT);
 		}
 	}
 
 	public int getPriority() {
 		return 0;
+	}
+
+	public void mouseDragged(MouseEvent e) {
+		
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		Transform transform = Engine.getInstance().getScene().getCamera(0).getTransform();
+		int[] rotation = transform.getRotation();
+		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << 10;
+		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << 10;
+	}
+
+	public void keyTyped(KeyEvent e) {
+		
+	}
+
+	
+	boolean move = false;
+	public void keyPressed(KeyEvent e) {
+		move = true;
+	}
+
+	public void keyReleased(KeyEvent e) {
+		 move = false;
 	}
 }

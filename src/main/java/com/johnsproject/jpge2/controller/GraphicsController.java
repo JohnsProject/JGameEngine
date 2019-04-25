@@ -42,9 +42,10 @@ public class GraphicsController implements EngineListener {
 	private final MatrixProcessor matrixProcessor;
 	private final GraphicsProcessor graphicsProcessor;
 	
+	private final List<Shader> shaders;
 	private ShaderDataBuffer shaderDataBuffer;
 	private FrameBuffer frameBuffer;
-	private List<Shader> shaders;
+	
 	private int preShadersCount;
 	private int shadersCount;
 	private int postShadersCount;
@@ -71,7 +72,7 @@ public class GraphicsController implements EngineListener {
 		
 		addPreprocessingShader(new SpotLightShadowShader(processor));
 		addPreprocessingShader(new DirectionalLightShadowShader(processor));
-		addShader(new PhongSpecularShader(processor));
+		addShader(new GouraudSpecularShader(processor));
 	}
 	
 	public void start() { }

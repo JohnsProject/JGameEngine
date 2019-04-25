@@ -29,7 +29,6 @@ public class DirectionalLightShadowShader extends Shader {
 	private final int[][] projectionMatrix;
 	
 	private final int[] lightFrustum;
-	private final int[] lightLocation;
 
 	private List<Light> lights;
 	private ShaderData shaderData;
@@ -42,8 +41,7 @@ public class DirectionalLightShadowShader extends Shader {
 
 		this.viewMatrix = matrixProcessor.generate();
 		this.projectionMatrix = matrixProcessor.generate();
-		this.lightFrustum = vectorProcessor.generate(20, 0, 10000000);
-		this.lightLocation = vectorProcessor.generate();
+		this.lightFrustum = vectorProcessor.generate(30, 0, 100000);
 	}
 	
 	@Override
@@ -87,17 +85,9 @@ public class DirectionalLightShadowShader extends Shader {
 		matrixProcessor.copy(projectionMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		
 		Transform transform = lights.get(shaderData.getDirectionalLightIndex()).getTransform();
-		int[] directional = lights.get(shaderData.getDirectionalLightIndex()).getDirection();
-		int[] location = transform.getLocation();
-		vectorProcessor.copy(lightLocation, location);
-		int factor = 1000;
-		location[VECTOR_X] = -directional[VECTOR_X] * factor + cameraLocation[VECTOR_X];
-		location[VECTOR_Y] = -directional[VECTOR_Y] * factor + cameraLocation[VECTOR_Y];
-		location[VECTOR_Z] = -directional[VECTOR_Z] * factor + cameraLocation[VECTOR_Z];
 		graphicsProcessor.getViewMatrix(transform, viewMatrix);
 		graphicsProcessor.getOrthographicMatrix(lightFrustum, projectionMatrix);
 		matrixProcessor.multiply(projectionMatrix, viewMatrix, shaderData.getDirectionalLightMatrix());
-		vectorProcessor.copy(location, lightLocation);
 	}
 
 	@Override
