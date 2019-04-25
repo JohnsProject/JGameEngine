@@ -26,11 +26,6 @@ package com.johnsproject.jpge2.dto;
 import com.johnsproject.jpge2.processor.MathProcessor;
 
 public class Camera extends SceneObject {
-
-	public enum CameraType {
-		ORTHOGRAPHIC,
-		PERSPECTIVE
-	}
 	
 	private CameraType type;
 	private int[] canvas;
@@ -47,29 +42,8 @@ public class Camera extends SceneObject {
 		return canvas;
 	}
 
-	public void setCanvas(int[] canvas) {
-		this.canvas = canvas;
-	}
-
-	public void setCanvas(int x, int y, int width, int height) {
-		this.canvas[0] = x;
-		this.canvas[1] = y;
-		this.canvas[2] = width;
-		this.canvas[3] = height;
-	}
-
 	public int[] getFrustum() {
 		return frustum;
-	}
-
-	public void setFrustum(int[] frustum) {
-		this.frustum = frustum;
-	}
-
-	public void setFrustum(int fov, int near, int far) {
-		this.frustum[0] = fov;
-		this.frustum[1] = near;
-		this.frustum[2] = far;
 	}
 
 	public CameraType getType() {

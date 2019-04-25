@@ -378,6 +378,20 @@ public class VectorProcessor {
 	}
 	
 	/**
+	 * Sets out equals the a vector pointing at the given angles.
+	 * 
+	 * @param angles
+	 * @param out
+	 * @return
+	 */
+	public int[] direction(int[] angles, int[] out) {
+		rotateX(VectorProcessor.VECTOR_DOWN, angles[VECTOR_X], out);
+		rotateY(out, -angles[VECTOR_Y], out);
+		rotateZ(out, -angles[VECTOR_Z], out);
+		return out;
+	}
+	
+	/**
 	 * Checks if vector1 is equal to vector2.
 	 * 
 	 * @param vector1

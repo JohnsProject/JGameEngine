@@ -8,6 +8,7 @@ public class CentralProcessor {
 	private final MathProcessor mathProcessor;
 	private final MatrixProcessor matrixProcessor;
 	private final VectorProcessor vectorProcessor;
+	private final TextureProcessor textureProcessor;
 
 	public CentralProcessor() {
 		this.fileProcessor = new FileProcessor();
@@ -15,6 +16,7 @@ public class CentralProcessor {
 		this.colorProcessor = new ColorProcessor(mathProcessor);
 		this.matrixProcessor = new MatrixProcessor(mathProcessor);
 		this.vectorProcessor = new VectorProcessor(mathProcessor);
+		this.textureProcessor = new TextureProcessor(fileProcessor);
 		this.graphicsProcessor = new GraphicsProcessor(mathProcessor, matrixProcessor, vectorProcessor);
 	}
 
@@ -40,5 +42,9 @@ public class CentralProcessor {
 
 	public VectorProcessor getVectorProcessor() {
 		return vectorProcessor;
+	}
+
+	public TextureProcessor getTextureProcessor() {
+		return textureProcessor;
 	}
 }

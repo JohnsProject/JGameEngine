@@ -5,7 +5,7 @@ import java.util.List;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Light;
-import com.johnsproject.jpge2.dto.Light.LightType;
+import com.johnsproject.jpge2.dto.LightType;
 import com.johnsproject.jpge2.dto.ShaderData;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
@@ -61,8 +61,8 @@ public class DirectionalLightShadowShader extends Shader {
 	public void setup(Camera camera) {
 		Texture shadowMap = shaderData.getDirectionalShadowMap();
 		// reset shadow map
-		for (int i = 0; i < shadowMap.getPixels().length; i++) {
-			shadowMap.getPixels()[i] = Integer.MAX_VALUE;
+		for (int i = 0; i < shadowMap.getPixelBuffer().length; i++) {
+			shadowMap.getPixelBuffer()[i] = Integer.MAX_VALUE;
 		}		
 		shaderData.setDirectionalLightIndex(-1);
 		

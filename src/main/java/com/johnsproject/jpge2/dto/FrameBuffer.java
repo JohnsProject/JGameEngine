@@ -30,108 +30,34 @@ public class FrameBuffer {
 
 	private int[] size;
 	private BufferedImage image;
-	private int[] colorBuffer;
-	private int[] depthBuffer;
-	private byte[] stencilBuffer;
+	private Texture colorBuffer;
+	private Texture depthBuffer;
+	private Texture stencilBuffer;
 
-	public FrameBuffer(int[] size) {
-		setSize(size);
-	}
-
-	public FrameBuffer(int width, int height) {
-		this.size = new int[] {width, height, 0, 0};
-		setSize(width, height);
+	public FrameBuffer(BufferedImage image) {
+		this.size = new int[] {image.getWidth(), image.getHeight(), 0, 0};
+		this.size[2] = size[0] * size[1];
+		this.image = image;
+		int[] pixelBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+		this.colorBuffer = new Texture(size[0], size[1], pixelBuffer);
+		this.depthBuffer = new Texture(size[0], size[1]);
+		this.stencilBuffer = new Texture(size[0], size[1]);
 	}
 
 	public BufferedImage getImage() {
 		return image;
 	}
 	
-	public int[] getColorBuffer() {
+	public Texture getColorBuffer() {
 		return colorBuffer;
 	}
 
-	public int[] getDepthBuffer() {
+	public Texture getDepthBuffer() {
 		return depthBuffer;
 	}
 	
-	public byte[] getStencilBuffer() {
+	public Texture getStencilBuffer() {
 		return stencilBuffer;
-	}
-
-	public void clearColorBuffer() {
-		for (int i = 0; i < colorBuffer.length; i++) {
-			colorBuffer[i] = 0;
-		}
-	}
-
-	public void clearDepthBuffer() {
-		for (int i = 0; i < depthBuffer.length; i++) {
-			depthBuffer[i] = Integer.MAX_VALUE;
-		}
-	}
-	
-	public void clearStencilBuffer() {
-		for (int i = 0; i < depthBuffer.length; i++) {
-			stencilBuffer[i] = 0;
-		}
-	}
-	
-	public void setSize(int[] size) {
-		this.size = size;
-		this.image = new BufferedImage(size[0], size[1], BufferedImage.TYPE_INT_ARGB_PRE);
-		this.colorBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-		this.depthBuffer = new int[size[2]];
-		this.stencilBuffer = new byte[size[2]];
-	}
-
-	public void setSize(int width, int height) {
-		this.size[0] = width;
-		this.size[1] = height;
-		this.size[2] = width * height;
-		this.image = new BufferedImage(size[0], size[1], BufferedImage.TYPE_INT_ARGB_PRE);
-		this.colorBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-		this.depthBuffer = new int[size[2]];
-		this.stencilBuffer = new byte[size[2]];
-	}
-
-	public void setPixel(int x, int y, int z, byte stencil, int color) {
-		int pos = x + (y * size[0]);
-		if (depthBuffer[pos] > z) {
-			depthBuffer[pos] = z;
-			stencilBuffer[pos] = stencil;
-			colorBuffer[pos] = color;
-		}
-	}
-	
-	public void setColor(int x, int y, int color) {
-		int pos = x + (y * size[0]);
-		colorBuffer[pos] = color;
-	}
-	
-	public void setDepth(int x, int y, int z) {
-		int pos = x + (y * size[0]);
-		depthBuffer[pos] = z;
-	}
-	
-	public void setStencil(int x, int y, byte stencil) {
-		int pos = x + (y * size[0]);
-		stencilBuffer[pos] = stencil;
-	}
-
-	public int getColor(int x, int y) {
-		int pos = x + (y * size[0]);
-		return colorBuffer[pos];
-	}
-
-	public int getDepth(int x, int y) {
-		int pos = x + (y * size[0]);
-		return depthBuffer[pos];
-	}
-	
-	public byte getStencil(int x, int y) {
-		int pos = x + (y * size[0]);
-		return stencilBuffer[pos];
 	}
 
 	public int[] getSize() {

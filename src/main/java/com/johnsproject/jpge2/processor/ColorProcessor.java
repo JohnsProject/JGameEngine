@@ -24,6 +24,7 @@
 package com.johnsproject.jpge2.processor;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 
 /**
  * The ColorProcessor class contains methods for generating and performing 
@@ -54,6 +55,11 @@ public class ColorProcessor {
 	 * Bits count representing each color value.
 	 */
 	public static final byte COLOR_BITS = 8;
+	
+	/**
+	 * Number representing the BufferedImage color type that the ColorProcessor handles.
+	 */
+	public static final byte COLOR_TYPE = BufferedImage.TYPE_INT_ARGB;
 	
 	/**
 	 * Value representing the range of each color values. (0 - {@value #COLOR_VALUE})

@@ -8,7 +8,7 @@ import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.ShaderData;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.dto.Light.LightType;
+import com.johnsproject.jpge2.dto.LightType;
 import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.GraphicsProcessor;
 import com.johnsproject.jpge2.processor.MathProcessor;
@@ -65,8 +65,8 @@ public class SpotLightShadowShader extends Shader{
 		this.camera = camera;
 		Texture shadowMap = shaderData.getSpotShadowMap();
 		// reset shadow map
-		for (int i = 0; i < shadowMap.getPixels().length; i++) {
-			shadowMap.getPixels()[i] = Integer.MAX_VALUE;
+		for (int i = 0; i < shadowMap.getPixelBuffer().length; i++) {
+			shadowMap.getPixelBuffer()[i] = Integer.MAX_VALUE;
 		}		
 		shaderData.setSpotLightIndex(-1);
 		

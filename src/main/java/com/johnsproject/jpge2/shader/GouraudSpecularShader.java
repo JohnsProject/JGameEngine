@@ -15,6 +15,7 @@ import com.johnsproject.jpge2.processor.ColorProcessor;
 import com.johnsproject.jpge2.processor.GraphicsProcessor;
 import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.processor.MatrixProcessor;
+import com.johnsproject.jpge2.processor.TextureProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
 
 public class GouraudSpecularShader extends Shader {
@@ -31,6 +32,7 @@ public class GouraudSpecularShader extends Shader {
 	private final VectorProcessor vectorProcessor;
 	private final ColorProcessor colorProcessor;
 	private final GraphicsProcessor graphicsProcessor;
+	private final TextureProcessor textureProcessor;
 
 	private final int[] uvX;
 	private final int[] uvY;
@@ -67,6 +69,7 @@ public class GouraudSpecularShader extends Shader {
 		this.vectorProcessor = centralProcessor.getVectorProcessor();
 		this.colorProcessor = centralProcessor.getColorProcessor();
 		this.graphicsProcessor = centralProcessor.getGraphicsProcessor();
+		this.textureProcessor = centralProcessor.getTextureProcessor();
 		
 		this.uvX = vectorProcessor.generate();
 		this.uvY = vectorProcessor.generate();
@@ -93,8 +96,8 @@ public class GouraudSpecularShader extends Shader {
 		this.shaderData = (ShaderData)shaderDataBuffer;
 		this.lights = shaderData.getLights();
 		this.frameBuffer = shaderData.getFrameBuffer();
-		frameBuffer.clearColorBuffer();
-		frameBuffer.clearDepthBuffer();
+		textureProcessor.fill(0, frameBuffer.getColorBuffer());
+		textureProcessor.fill(Integer.MAX_VALUE, frameBuffer.getDepthBuffer());
 	}
 
 	@Override
@@ -257,7 +260,12 @@ public class GouraudSpecularShader extends Shader {
 			modelColor = colorProcessor.lerp(ColorProcessor.BLACK, color, lightFactor);
 			modelColor = colorProcessor.multiplyColor(modelColor, lightColor);
 		}
-		frameBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], (byte) 0, modelColor);
+		Texture colorBuffer = frameBuffer.getColorBuffer();
+		Texture depthBuffer = frameBuffer.getDepthBuffer();
+		if (depthBuffer.getPixel(location[VECTOR_X], location[VECTOR_Y]) > location[VECTOR_Z]) {
+			depthBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z]);
+			colorBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], modelColor);
+		}
 	}
 
 	private int getLightFactor(int[] normal, int[] lightDirection, int[] viewDirection, Material material) {

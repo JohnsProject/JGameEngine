@@ -66,7 +66,6 @@ public class GraphicsController implements EngineListener {
 		this.normalMatrix = matrixProcessor.generate();
 		
 		this.shaderDataBuffer = new ShaderData();
-		frameBuffer = new FrameBuffer(1, 1);
 		shaders = new ArrayList<Shader>();
 		engine.addEngineListener(this);
 		
@@ -146,6 +145,10 @@ public class GraphicsController implements EngineListener {
 
 	public void setShaderDataBuffer(ShaderDataBuffer shaderDataBuffer) {
 		this.shaderDataBuffer = shaderDataBuffer;
+	}
+	
+	public void setFrameBuffer(FrameBuffer frameBuffer) {
+		this.frameBuffer = frameBuffer;
 	}
 	
 	public FrameBuffer getFrameBuffer() {

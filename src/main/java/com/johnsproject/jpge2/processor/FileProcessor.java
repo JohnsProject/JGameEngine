@@ -138,7 +138,7 @@ public class FileProcessor {
 		try {
 			fileInputStream = new FileInputStream(path);
 			BufferedImage tmp = ImageIO.read(fileInputStream);
-			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), ColorProcessor.COLOR_TYPE);
 			image.createGraphics().drawImage(tmp, 0, 0, null);
 			image.createGraphics().dispose();
 		} finally {
@@ -161,7 +161,7 @@ public class FileProcessor {
 		BufferedImage image = null;
 		try {
 			BufferedImage tmp = ImageIO.read(stream);
-			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), ColorProcessor.COLOR_TYPE);
 			image.createGraphics().drawImage(tmp, 0, 0, null);
 			image.createGraphics().dispose();
 		} finally {}
@@ -191,7 +191,7 @@ public class FileProcessor {
 			}
 		}
 		Image tmp = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
+		BufferedImage resized = new BufferedImage(width, height, ColorProcessor.COLOR_TYPE);
 		resized.createGraphics().drawImage(tmp, 0, 0, null);
 		resized.createGraphics().dispose();
 		return resized;
@@ -213,7 +213,7 @@ public class FileProcessor {
 			image = ImageIO.read(stream);
 		} finally { }
 		Image tmp = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
+		BufferedImage resized = new BufferedImage(width, height, ColorProcessor.COLOR_TYPE);
 		resized.createGraphics().drawImage(tmp, 0, 0, null);
 		resized.createGraphics().dispose();
 		return resized;

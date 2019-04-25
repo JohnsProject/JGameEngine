@@ -77,6 +77,25 @@ public class MatrixProcessor {
 	}
 	
 	/**
+	 * Sets out equals the result of the subtraction of matrix1 and matrix2.
+	 * 
+	 * @param matrix1
+	 * @param matrix2
+	 * @param out
+	 */
+	public int[][] subtract(int[][] matrix1, int[][] matrix2, int[][] out) {
+		// ensures that will return right values if matrix or matrix two is the same as out
+		copy(matrixCache1, matrix1);
+		copy(matrixCache2, matrix2);
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				out[i][j] = matrixCache1[i][j] - matrixCache2[i][j];
+			}
+		}
+		return out;
+	}
+	
+	/**
 	 * Sets out equals the result of the multiplication of matrix1 and matrix2.
 	 * 
 	 * @param matrix1
@@ -99,8 +118,24 @@ public class MatrixProcessor {
 		return out;
 	}
 	
-	
-	
+	/**
+	 * Sets out equals the result of the division of matrix1 and matrix2.
+	 * 
+	 * @param matrix1
+	 * @param matrix2
+	 * @param out
+	 */
+	public int[][] divide(int[][] matrix1, int[][] matrix2, int[][] out) {
+		// ensures that will return right values if matrix or matrix two is the same as out
+		copy(matrixCache1, matrix1);
+		copy(matrixCache2, matrix2);
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				out[i][j] = matrixCache1[i][j] / matrixCache2[i][j];
+			}
+		}
+		return out;
+	}
 	
 	/**
 	 * Sets out equals the translated matrix. 

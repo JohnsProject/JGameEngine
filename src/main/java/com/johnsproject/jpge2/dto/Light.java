@@ -27,12 +27,6 @@ import com.johnsproject.jpge2.processor.VectorProcessor;
 
 public class Light extends SceneObject {
 	
-	public enum LightType {
-		DIRECTIONAL,
-		POINT,
-		SPOT
-	}
-	
 	private LightType type;
 	private int strength;
 	private int color;

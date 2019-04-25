@@ -23,13 +23,7 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processor.VectorProcessor;
-
 public class Transform {
-
-	private static final byte VECTOR_X = VectorProcessor.VECTOR_X;
-	private static final byte VECTOR_Y = VectorProcessor.VECTOR_Y;
-	private static final byte VECTOR_Z = VectorProcessor.VECTOR_Z;
 
 	private int[] location;
 	private int[] rotation;
@@ -40,58 +34,40 @@ public class Transform {
 		this.rotation = rotation;
 		this.scale = scale;
 	}
-
+	
 	public void translate(int x, int y, int z) {
-		location[VECTOR_X] += x;
-		location[VECTOR_Y] += y;
-		location[VECTOR_Z] += z;
+		location[0] += x;
+		location[1] += y;
+		location[2] += z;
 	}
 
 	public void rotate(int x, int y, int z) {
-		rotation[VECTOR_X] += x;
-		rotation[VECTOR_Y] += y;
-		rotation[VECTOR_Z] += z;
+		rotation[0] += x;
+		rotation[1] += y;
+		rotation[2] += z;
 	}
-
+	
 	public void translate(int[] vector) {
-		location[VECTOR_X] += vector[VECTOR_X];
-		location[VECTOR_Y] += vector[VECTOR_Y];
-		location[VECTOR_Z] += vector[VECTOR_Z];
+		location[0] += vector[0];
+		location[1] += vector[1];
+		location[2] += vector[2];
 	}
 
-	public void rotate(int[] vector) {
-		rotation[VECTOR_X] += vector[VECTOR_X];
-		rotation[VECTOR_Y] += vector[VECTOR_Y];
-		rotation[VECTOR_Z] += vector[VECTOR_Z];
+	public void rotate(int[] angles) {
+		rotation[0] += angles[0];
+		rotation[1] += angles[1];
+		rotation[2] += angles[2];
 	}
 
 	public int[] getLocation() {
 		return location;
 	}
 
-	public void setLocation(int x, int y, int z) {
-		location[VECTOR_X] = x;
-		location[VECTOR_Y] = y;
-		location[VECTOR_Z] = z;
-	}
-
 	public int[] getRotation() {
 		return rotation;
 	}
 
-	public void setRotation(int x, int y, int z) {
-		rotation[VECTOR_X] = x;
-		rotation[VECTOR_Y] = y;
-		rotation[VECTOR_Z] = z;
-	}
-
 	public int[] getScale() {
 		return scale;
-	}
-
-	public void setScale(int x, int y, int z) {
-		scale[VECTOR_X] = x;
-		scale[VECTOR_Y] = y;
-		scale[VECTOR_Z] = z;
 	}
 }

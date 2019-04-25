@@ -25,9 +25,9 @@ package com.johnsproject.jpge2.dto;
 
 public class SceneObject {
 		
-	private String name;
-	private Transform transform;
-	private boolean active;
+	protected String name;
+	protected Transform transform;
+	protected boolean active;
 	
 	public SceneObject(String name, Transform transform) {
 		this.name = name;

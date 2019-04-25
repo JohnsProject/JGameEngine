@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.johnsproject.jpge2.dto.Camera;
-import com.johnsproject.jpge2.dto.Camera.CameraType;
+import com.johnsproject.jpge2.dto.CameraType;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Material;
@@ -35,7 +35,7 @@ import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.dto.Light.LightType;
+import com.johnsproject.jpge2.dto.LightType;
 import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.ColorProcessor;
 import com.johnsproject.jpge2.processor.FileProcessor;
@@ -136,9 +136,7 @@ public class SceneImporter {
 			String[] shadowColorData = lightData.split("shadowColor<")[1].split(">shadowColor")[0].split(",");
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
 			int[] direction = vectorProcessor.generate();
-			vectorProcessor.rotateX(VectorProcessor.VECTOR_DOWN, transform.getRotation()[VECTOR_X], direction);
-			vectorProcessor.rotateY(direction, -transform.getRotation()[VECTOR_Y], direction);
-			vectorProcessor.rotateZ(direction, -transform.getRotation()[VECTOR_Z], direction);
+			vectorProcessor.direction(transform.getRotation(), direction);
 			Light light = new Light(name, transform);
 			if (typeData.equals("SUN")) {
 				light.setType(LightType.DIRECTIONAL);
