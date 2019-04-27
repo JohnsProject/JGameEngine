@@ -43,7 +43,8 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 		GraphicsController graphicsController = Engine.getInstance().getController().getGraphicsController();
 		BufferedImage image = new BufferedImage(WINDOW_W, WINDOW_H, ColorProcessor.COLOR_TYPE);
 		graphicsController.setFrameBuffer(new FrameBuffer(image));
-		Engine.getInstance().addEngineListener(new EngineWindow(graphicsController.getFrameBuffer()));
+		EngineWindow window = new EngineWindow(graphicsController.getFrameBuffer());
+		Engine.getInstance().addEngineListener(window);
 //		useSOM();
 		useScene();
 		Engine.getInstance().getController().getInputController().addMouseMotionListener(this);
@@ -88,7 +89,7 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 			transform.translate(cache);
 		}
 		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
-//			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(VectorProcessor.VECTOR_UP);
+			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(VectorProcessor.VECTOR_UP);
 //			Engine.getInstance().getScene().getModels().get(i).getTransform().translate(VectorProcessor.VECTOR_RIGHT);
 		}
 	}
@@ -102,10 +103,10 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 	}
 
 	public void mouseMoved(MouseEvent e) {
-		Transform transform = Engine.getInstance().getScene().getCamera(0).getTransform();
-		int[] rotation = transform.getRotation();
-		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << 10;
-		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << 10;
+//		Transform transform = Engine.getInstance().getScene().getCamera(0).getTransform();
+//		int[] rotation = transform.getRotation();
+//		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << 10;
+//		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << 10;
 	}
 
 	public void keyTyped(KeyEvent e) {

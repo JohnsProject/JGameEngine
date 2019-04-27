@@ -70,9 +70,9 @@ public class GraphicsController implements EngineListener {
 		shaders = new ArrayList<Shader>();
 		engine.addEngineListener(this);
 		
-		addPreprocessingShader(new SpotLightShadowShader(processor));
-		addPreprocessingShader(new DirectionalLightShadowShader(processor));
-		addShader(new GouraudSpecularShader(processor));
+//		addPreprocessingShader(new SpotLightShadowShader(processor));
+//		addPreprocessingShader(new DirectionalLightShadowShader(processor));
+		addShader(new FlatSpecularShader(processor));
 	}
 	
 	public void start() { }
