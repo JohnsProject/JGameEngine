@@ -24,7 +24,9 @@ import com.johnsproject.jpge2.processor.VectorProcessor;
 public class EngineTest implements EngineListener, MouseMotionListener, KeyListener {
 
 	private static final int WINDOW_W = 800;
-	private static final int WINDOW_H = 640;
+	private static final int WINDOW_H = 600;
+	private static final int RENDER_W = 320;
+	private static final int RENDER_H = 240;
 	private CentralProcessor centralProcessor;
 	
 	public static void main(String[] args) {
@@ -41,9 +43,10 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 	public void start() {
 		new EngineStatistics();
 		GraphicsController graphicsController = Engine.getInstance().getController().getGraphicsController();
-		BufferedImage image = new BufferedImage(WINDOW_W, WINDOW_H, ColorProcessor.COLOR_TYPE);
+		BufferedImage image = new BufferedImage(RENDER_W, RENDER_H, ColorProcessor.COLOR_TYPE);
 		graphicsController.setFrameBuffer(new FrameBuffer(image));
 		EngineWindow window = new EngineWindow(graphicsController.getFrameBuffer());
+		window.setSize(WINDOW_W, WINDOW_H);
 		Engine.getInstance().addEngineListener(window);
 //		useSOM();
 		useScene();
@@ -89,7 +92,7 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 			transform.translate(cache);
 		}
 		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
-			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(VectorProcessor.VECTOR_UP);
+//			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(0, 0, 1000);
 //			Engine.getInstance().getScene().getModels().get(i).getTransform().translate(VectorProcessor.VECTOR_RIGHT);
 		}
 	}
@@ -103,10 +106,10 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 	}
 
 	public void mouseMoved(MouseEvent e) {
-//		Transform transform = Engine.getInstance().getScene().getCamera(0).getTransform();
-//		int[] rotation = transform.getRotation();
-//		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << 10;
-//		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << 10;
+		Transform transform = Engine.getInstance().getScene().getCamera(0).getTransform();
+		int[] rotation = transform.getRotation();
+		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << 10;
+		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << 10;
 	}
 
 	public void keyTyped(KeyEvent e) {

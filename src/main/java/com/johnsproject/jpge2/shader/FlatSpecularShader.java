@@ -180,6 +180,8 @@ public class FlatSpecularShader extends Shader {
 			int[] lightPosition = light.getTransform().getLocation();
 			switch (light.getType()) {
 			case DIRECTIONAL:
+				if (vectorProcessor.distance(cameraLocation, lightPosition) > shaderData.getLightRange())
+					continue;
 				vectorProcessor.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, material);
 				break;

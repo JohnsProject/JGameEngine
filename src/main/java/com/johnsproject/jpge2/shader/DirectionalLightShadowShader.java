@@ -70,7 +70,7 @@ public class DirectionalLightShadowShader extends Shader {
 			Light light = lights.get(i);
 			int[] lightPosition = light.getTransform().getLocation();
 			int dist = vectorProcessor.distance(cameraLocation, lightPosition);
-			if ((light.getType() == LightType.DIRECTIONAL) && (dist < distance)) {
+			if ((light.getType() == LightType.DIRECTIONAL) & (dist < distance) & (dist < shaderData.getLightRange())) {
 				distance = dist;
 				shaderData.setDirectionalLightIndex(i);
 			}

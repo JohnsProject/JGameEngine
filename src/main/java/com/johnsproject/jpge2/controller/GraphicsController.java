@@ -17,6 +17,7 @@ import com.johnsproject.jpge2.processor.GraphicsProcessor;
 import com.johnsproject.jpge2.processor.MatrixProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
 import com.johnsproject.jpge2.shader.DirectionalLightShadowShader;
+import com.johnsproject.jpge2.shader.FXAAShader;
 import com.johnsproject.jpge2.shader.FlatSpecularShader;
 import com.johnsproject.jpge2.shader.GouraudSpecularShader;
 import com.johnsproject.jpge2.shader.PhongSpecularShader;
@@ -70,9 +71,10 @@ public class GraphicsController implements EngineListener {
 		shaders = new ArrayList<Shader>();
 		engine.addEngineListener(this);
 		
-//		addPreprocessingShader(new SpotLightShadowShader(processor));
-//		addPreprocessingShader(new DirectionalLightShadowShader(processor));
+		addPreprocessingShader(new SpotLightShadowShader(processor));
+		addPreprocessingShader(new DirectionalLightShadowShader(processor));
 		addShader(new FlatSpecularShader(processor));
+		addPostprocessingShader(new FXAAShader(processor));
 	}
 	
 	public void start() { }
@@ -96,7 +98,7 @@ public class GraphicsController implements EngineListener {
 					for (int f = 0; f < model.getFaces().length; f++) {
 						Face face = model.getFace(f);
 						if ((face.getMaterial().getShaderIndex() == s - preShadersCount)
-								|| (s < preShadersCount) || (s > preShadersCount + shadersCount)) {
+								| (s < preShadersCount) | (s > preShadersCount + shadersCount)) {
 							backup(face);
 							for (int v = 0; v < face.getVertices().length; v++) {
 								Vertex vertex = face.getVertices()[v];

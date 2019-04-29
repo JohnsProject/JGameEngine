@@ -32,7 +32,6 @@ public class SpotLightShadowShader extends Shader{
 	
 	private final int[] lightFrustum;
 
-	private Camera camera;
 	private List<Light> lights;
 	private ShaderData shaderData;
 
@@ -56,13 +55,12 @@ public class SpotLightShadowShader extends Shader{
 		
 		if (shaderData.getSpotLightMatrix() == null) {
 			shaderData.setSpotLightMatrix(matrixProcessor.generate());
-			shaderData.setSpotShadowMap(new Texture(240, 240));
+			shaderData.setSpotShadowMap(new Texture(320, 320));
 		}
 	}
 
 	@Override
 	public void setup(Camera camera) {
-		this.camera = camera;
 		Texture shadowMap = shaderData.getSpotShadowMap();
 		// reset shadow map
 		for (int i = 0; i < shadowMap.getPixelBuffer().length; i++) {
@@ -76,7 +74,7 @@ public class SpotLightShadowShader extends Shader{
 			Light light = lights.get(i);
 			int[] lightPosition = light.getTransform().getLocation();
 			int dist = vectorProcessor.distance(cameraLocation, lightPosition);
-			if ((light.getType() == LightType.SPOT) && (dist < distance)) {
+			if ((light.getType() == LightType.SPOT) & (dist < distance) & (dist < shaderData.getLightRange())) {
 				distance = dist;
 				shaderData.setSpotLightIndex(i);
 			}
@@ -115,7 +113,7 @@ public class SpotLightShadowShader extends Shader{
 		int[] location3 = face.getVertex(2).getLocation();
 		
 		if (!graphicsProcessor.isBackface(location1, location2, location3)
-				&& graphicsProcessor.isInsideFrustum(location1, location2, location3, camera.getFrustum())) {
+				&& graphicsProcessor.isInsideFrustum(location1, location2, location3, lightFrustum)) {
 			graphicsProcessor.drawTriangle(location1, location2, location3);
 		}
 	}
