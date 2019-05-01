@@ -36,6 +36,7 @@ import com.johnsproject.jpge2.processor.ColorProcessor;
 import com.johnsproject.jpge2.processor.FileProcessor;
 import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
+import com.johnsproject.jpge2.shader.SpecularShaderProperties;
 
 public class SOMImporter {
 	
@@ -147,7 +148,8 @@ public class SOMImporter {
 			int	a = mathProcessor.generate(getFloat(mDiffuseColorData[i+3]) * 256);
 			int diffuseIntensity = mathProcessor.generate(getFloat(mDiffuseIntensityData[i / 4]));
 			int specularIntensity = mathProcessor.generate(getFloat(mSpecularIntensityData[i / 4]));
-			materials[i/4] = new Material(i/4, "", colorProcessor.generate(a, r, g, b), diffuseIntensity, specularIntensity, 0, null);
+			SpecularShaderProperties properties = new SpecularShaderProperties(colorProcessor.generate(a, r, g, b), diffuseIntensity, specularIntensity, 0, null);
+			materials[i/4] = new Material(i/4, "", 0, properties);
 		}
 		return materials;
 	}

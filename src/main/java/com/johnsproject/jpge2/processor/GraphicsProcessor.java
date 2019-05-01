@@ -45,10 +45,6 @@ public class GraphicsProcessor {
 	private final int[] barycentricCache;
 	private final int[] pixelChache;
 
-	private int[] frameBufferSize;
-	private int[] cameraCanvas;
-	private Shader shader;
-
 	private final MathProcessor mathProcessor;
 	private final MatrixProcessor matrixProcessor;
 	private final VectorProcessor vectorProcessor;
@@ -61,12 +57,6 @@ public class GraphicsProcessor {
 		this.depthCache = new long[3];
 		this.barycentricCache = this.vectorProcessor.generate();
 		this.pixelChache = this.vectorProcessor.generate();
-	}
-
-	public void setup(int[] frameBufferSize, int[] cameraCanvas, Shader shader) {
-		this.frameBufferSize = frameBufferSize;
-		this.cameraCanvas = cameraCanvas;
-		this.shader = shader;
 	}
 
 	public int[][] getModelMatrix(Transform transform, int[][] out) {
@@ -104,27 +94,27 @@ public class GraphicsProcessor {
 		return out;
 	}
 
-	public int[][] getOrthographicMatrix(int[] frustum, int[][] out) {
-		int scaleFactor = (mathProcessor.multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
-		out[0][0] = (frustum[0] * scaleFactor * FP_BITS);
-		out[1][1] = (frustum[0] * scaleFactor * FP_BITS);
+	public int[][] getOrthographicMatrix(int[] cameraCanvas, int[] cameraFrustum, int[][] out) {
+		int scaleFactor = (cameraCanvas[3] >> 6) + 1;
+		out[0][0] = (cameraFrustum[0] * scaleFactor * FP_BITS);
+		out[1][1] = (cameraFrustum[0] * scaleFactor * FP_BITS);
 		out[2][2] = -FP_BITS;
 		out[3][3] = -FP_ONE * FP_ONE;
 		return out;
 	}
 
-	public int[][] getPerspectiveMatrix(int[] frustum, int[][] out) {
-		int scaleFactor = (mathProcessor.multiply(frameBufferSize[1], cameraCanvas[3]) >> 6) + 1;
-		out[0][0] = (frustum[0] * scaleFactor) << FP_BITS;
-		out[1][1] = (frustum[0] * scaleFactor) << FP_BITS;
+	public int[][] getPerspectiveMatrix(int[] cameraCanvas, int[] cameraFrustum, int[][] out) {
+		int scaleFactor = (cameraCanvas[3] >> 6) + 1;
+		out[0][0] = (cameraFrustum[0] * scaleFactor) << FP_BITS;
+		out[1][1] = (cameraFrustum[0] * scaleFactor) << FP_BITS;
 		out[2][2] = -FP_BITS;
 		out[2][3] = FP_ONE * FP_ONE;
 		return out;
 	}
 
-	public int[] viewport(int[] location, int[] out) {
-		int portX = mathProcessor.multiply(cameraCanvas[VECTOR_X] + ((cameraCanvas[2] - cameraCanvas[VECTOR_X]) >> 1), frameBufferSize[0] - 1);
-		int portY = mathProcessor.multiply(cameraCanvas[VECTOR_Y] + ((cameraCanvas[3] - cameraCanvas[VECTOR_Y]) >> 1), frameBufferSize[1] - 1);
+	public int[] viewport(int[] location, int[] cameraCanvas, int[] out) {
+		int portX = cameraCanvas[VECTOR_X] + ((cameraCanvas[2] - cameraCanvas[VECTOR_X]) >> 1);
+		int portY = cameraCanvas[VECTOR_Y] + ((cameraCanvas[3] - cameraCanvas[VECTOR_Y]) >> 1);
 		out[VECTOR_X] = mathProcessor.divide(location[VECTOR_X], location[VECTOR_W]) + portX;
 		out[VECTOR_Y] = mathProcessor.divide(location[VECTOR_Y], location[VECTOR_W]) + portY;
 		return out;
@@ -135,31 +125,31 @@ public class GraphicsProcessor {
 				- (location3[VECTOR_X] - location1[VECTOR_X]) * (location2[VECTOR_Y] - location1[VECTOR_Y]) <= 0;
 	}
 
-	public boolean isInsideFrustum(int[] location1, int[] location2, int[] location3, int[] frustum) {
-		int xleft = mathProcessor.multiply(cameraCanvas[VECTOR_X], frameBufferSize[0]);
-		int yleft = mathProcessor.multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1]);
-		int xright = mathProcessor.multiply(cameraCanvas[2], frameBufferSize[0]);
-		int yright = mathProcessor.multiply(cameraCanvas[3], frameBufferSize[1]);
+	public boolean isInsideFrustum(int[] location1, int[] location2, int[] location3, int[] cameraCanvas, int[] cameraFrustum) {
+		int xleft = cameraCanvas[VECTOR_X];
+		int yleft = cameraCanvas[VECTOR_Y];
+		int xright = cameraCanvas[2];
+		int yright = cameraCanvas[3];
 
 		boolean insideWidth = (location1[VECTOR_X] > xleft) & (location1[VECTOR_X] < xright);
 		boolean insideHeight = (location1[VECTOR_Y] > yleft) & (location1[VECTOR_Y] < yright);
-		boolean insideDepth = (location1[VECTOR_Z] > frustum[1]) & (location1[VECTOR_Z] < frustum[2]);
+		boolean insideDepth = (location1[VECTOR_Z] > cameraFrustum[1]) & (location1[VECTOR_Z] < cameraFrustum[2]);
 		boolean location1Inside = insideWidth & insideHeight & insideDepth;
 
 		insideWidth = (location2[VECTOR_X] > xleft) & (location2[VECTOR_X] < xright);
 		insideHeight = (location2[VECTOR_Y] > yleft) & (location2[VECTOR_Y] < yright);
-		insideDepth = (location2[VECTOR_Z] > frustum[1]) & (location2[VECTOR_Z] < frustum[2]);
+		insideDepth = (location2[VECTOR_Z] > cameraFrustum[1]) & (location2[VECTOR_Z] < cameraFrustum[2]);
 		boolean location2Inside = insideWidth & insideHeight & insideDepth;
 
 		insideWidth = (location3[VECTOR_X] > xleft) & (location3[VECTOR_X] < xright);
 		insideHeight = (location3[VECTOR_Y] > yleft) & (location3[VECTOR_Y] < yright);
-		insideDepth = (location3[VECTOR_Z] > frustum[1]) & (location3[VECTOR_Z] < frustum[2]);
+		insideDepth = (location3[VECTOR_Z] > cameraFrustum[1]) & (location3[VECTOR_Z] < cameraFrustum[2]);
 		boolean location3Inside = insideWidth & insideHeight & insideDepth;
 
 		return location1Inside | location2Inside | location3Inside;
 	}
 
-	public void drawTriangle(int[] location1, int[] location2, int[] location3) {
+	public void drawTriangle(int[] location1, int[] location2, int[] location3, int[] cameraCanvas, Shader shader) {
 		// compute boundig box of faces
 		int minX = Math.min(location1[VECTOR_X], Math.min(location2[VECTOR_X], location3[VECTOR_X]));
 		int minY = Math.min(location1[VECTOR_Y], Math.min(location2[VECTOR_Y], location3[VECTOR_Y]));
@@ -168,10 +158,10 @@ public class GraphicsProcessor {
 		int maxY = Math.max(location1[VECTOR_Y], Math.max(location2[VECTOR_Y], location3[VECTOR_Y]));
 
 		// clip against screen limits
-		minX = Math.max(minX, mathProcessor.multiply(cameraCanvas[VECTOR_X], frameBufferSize[0]));
-		minY = Math.max(minY, mathProcessor.multiply(cameraCanvas[VECTOR_Y], frameBufferSize[1]));
-		maxX = Math.min(maxX, mathProcessor.multiply(cameraCanvas[2], frameBufferSize[0]));
-		maxY = Math.min(maxY, mathProcessor.multiply(cameraCanvas[3], frameBufferSize[1]));
+		minX = Math.max(minX, cameraCanvas[VECTOR_X]);
+		minY = Math.max(minY, cameraCanvas[VECTOR_Y]);
+		maxX = Math.min(maxX, cameraCanvas[2]);
+		maxY = Math.min(maxY, cameraCanvas[3]);
 
 		location1[VECTOR_Z] = Math.max(1, location1[VECTOR_Z]);
 		location2[VECTOR_Z] = Math.max(1, location2[VECTOR_Z]);
@@ -243,5 +233,13 @@ public class GraphicsProcessor {
 	public int barycentric(int[] vector1, int[] vector2, int[] vector3) {
 		return (vector2[VECTOR_X] - vector1[VECTOR_X]) * (vector3[VECTOR_Y] - vector1[VECTOR_Y])
 				- (vector3[VECTOR_X] - vector1[VECTOR_X]) * (vector2[VECTOR_Y] - vector1[VECTOR_Y]);
+	}
+	
+	public int[] portCanvas(int[] cameraCanvas, int[] frameBufferSize, int[] out) {
+		out[0] = (frameBufferSize[0] * cameraCanvas[0]) / 100;
+		out[1] = (frameBufferSize[1] * cameraCanvas[1]) / 100;
+		out[2] = (frameBufferSize[0] * cameraCanvas[2]) / 100;
+		out[3] = (frameBufferSize[1] * cameraCanvas[3]) / 100;
+		return out;
 	}
 }

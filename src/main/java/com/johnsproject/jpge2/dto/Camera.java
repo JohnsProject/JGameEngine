@@ -23,8 +23,6 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processor.MathProcessor;
-
 public class Camera extends SceneObject {
 	
 	private CameraType type;
@@ -33,9 +31,8 @@ public class Camera extends SceneObject {
 
 	public Camera(String name, Transform transform) {
 		super(name, transform);
-		int one = MathProcessor.FP_ONE;
-		this.canvas = new int[] {0, 0, one, one};
-		this.frustum = new int[] {60, 100, 10000};
+		this.canvas = new int[] {0, 0, 100, 100};
+		this.frustum = new int[] {60, 100, 10000, 0};
 	}
 
 	public int[] getCanvas() {

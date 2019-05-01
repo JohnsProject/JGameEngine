@@ -41,6 +41,7 @@ import com.johnsproject.jpge2.processor.ColorProcessor;
 import com.johnsproject.jpge2.processor.FileProcessor;
 import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
+import com.johnsproject.jpge2.shader.SpecularShaderProperties;
 
 public class SceneImporter {
 	
@@ -236,7 +237,8 @@ public class SceneImporter {
 			int diffuse = mathProcessor.generate(getFloat(materialData[5]));
 			int specular = mathProcessor.generate(getFloat(materialData[6]));
 			int shininess = mathProcessor.generate(getFloat(materialData[7]) / 10);
-			materials[i] = new Material(i, name, colorProcessor.generate(alpha, red, green, blue), diffuse, specular, shininess, null);
+			SpecularShaderProperties properties = new SpecularShaderProperties(colorProcessor.generate(alpha, red, green, blue), diffuse, specular, shininess, null);
+			materials[i] = new Material(i, name, 0, properties);
 		}
 		return materials;
 	}

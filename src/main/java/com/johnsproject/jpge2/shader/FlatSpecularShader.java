@@ -29,8 +29,6 @@ import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
-import com.johnsproject.jpge2.dto.Material;
-import com.johnsproject.jpge2.dto.ShaderData;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processor.CentralProcessor;
@@ -65,6 +63,7 @@ public class FlatSpecularShader extends Shader {
 	private final int[] lightDirection;
 	private final int[] viewDirection;
 	private final int[] faceLocation;
+	private final int[] portedCanvas;
 	
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
@@ -81,6 +80,7 @@ public class FlatSpecularShader extends Shader {
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
 	private ShaderData shaderData;
+	private SpecularShaderProperties shaderProperties;
 	
 	public FlatSpecularShader(CentralProcessor centralProcessor) {
 		super(centralProcessor);
@@ -99,6 +99,7 @@ public class FlatSpecularShader extends Shader {
 		this.lightDirection = vectorProcessor.generate();
 		this.viewDirection = vectorProcessor.generate();
 		this.faceLocation = vectorProcessor.generate();
+		this.portedCanvas = vectorProcessor.generate();
 
 		this.viewMatrix = matrixProcessor.generate();
 		this.projectionMatrix = matrixProcessor.generate();
@@ -119,20 +120,21 @@ public class FlatSpecularShader extends Shader {
 	@Override
 	public void setup(Camera camera) {
 		this.camera = camera;
-		graphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
 		
 		matrixProcessor.copy(viewMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		matrixProcessor.copy(projectionMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		
 		graphicsProcessor.getViewMatrix(camera.getTransform(), viewMatrix);
 
+		graphicsProcessor.portCanvas(camera.getCanvas(), frameBuffer.getSize(), portedCanvas);
+		
 		switch (camera.getType()) {
 		case ORTHOGRAPHIC:
-			graphicsProcessor.getOrthographicMatrix(camera.getFrustum(), projectionMatrix);
+			graphicsProcessor.getOrthographicMatrix(portedCanvas, camera.getFrustum(), projectionMatrix);
 			break;
 
 		case PERSPECTIVE:
-			graphicsProcessor.getPerspectiveMatrix(camera.getFrustum(), projectionMatrix);
+			graphicsProcessor.getPerspectiveMatrix(portedCanvas, camera.getFrustum(), projectionMatrix);
 			break;
 		}
 	}
@@ -142,7 +144,7 @@ public class FlatSpecularShader extends Shader {
 
 	@Override
 	public void geometry(Face face) {
-		Material material = face.getMaterial();
+		this.shaderProperties = (SpecularShaderProperties)face.getMaterial().getProperties();
 		int[] normal = face.getNormal();
 		int[] location1 = face.getVertex(0).getLocation();
 		int[] location2 = face.getVertex(1).getLocation();
@@ -153,16 +155,12 @@ public class FlatSpecularShader extends Shader {
 		
 		if (shaderData.getDirectionalLightMatrix() != null) {
 			vectorProcessor.multiply(faceLocation, shaderData.getDirectionalLightMatrix(), directionalLocation);
-			graphicsProcessor.setup(shaderData.getDirectionalShadowMap().getSize(), VectorProcessor.VECTOR_UP, this);
-			graphicsProcessor.viewport(directionalLocation, directionalLocation);
-			graphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
+			graphicsProcessor.viewport(directionalLocation, shaderData.getDirectionalLightCanvas(), directionalLocation);
 		}
 		
 		if (shaderData.getSpotLightMatrix() != null) {
 			vectorProcessor.multiply(faceLocation, shaderData.getSpotLightMatrix(), spotLocation);
-			graphicsProcessor.setup(shaderData.getSpotShadowMap().getSize(), VectorProcessor.VECTOR_UP, this);
-			graphicsProcessor.viewport(spotLocation, spotLocation);
-			graphicsProcessor.setup(frameBuffer.getSize(), camera.getCanvas(), this);
+			graphicsProcessor.viewport(spotLocation, shaderData.getSpotLightCanvas(), spotLocation);
 		}
 		
 		lightColor = ColorProcessor.WHITE;
@@ -183,7 +181,7 @@ public class FlatSpecularShader extends Shader {
 				if (vectorProcessor.distance(cameraLocation, lightPosition) > shaderData.getLightRange())
 					continue;
 				vectorProcessor.invert(light.getDirection(), lightDirection);
-				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, material);
+				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
 				break;
 			case POINT:
 				if (vectorProcessor.distance(cameraLocation, lightPosition) > shaderData.getLightRange())
@@ -193,7 +191,7 @@ public class FlatSpecularShader extends Shader {
 				attenuation = getAttenuation(lightLocation);
 				// other light values
 				vectorProcessor.normalize(lightLocation, lightLocation);
-				currentFactor = getLightFactor(normalizedNormal, lightLocation, viewDirection, material);
+				currentFactor = getLightFactor(normalizedNormal, lightLocation, viewDirection, shaderProperties);
 				currentFactor = (currentFactor << 8) / attenuation;
 				break;
 			case SPOT:				
@@ -209,7 +207,7 @@ public class FlatSpecularShader extends Shader {
 				if(theta > phi) {
 					int intensity = -mathProcessor.divide(phi - theta, light.getSpotSoftness() + 1);
 					intensity = mathProcessor.clamp(intensity, 1, FP_ONE);
-					currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, material);
+					currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
 					currentFactor = (currentFactor * intensity) / attenuation;
 				}
 				break;
@@ -233,17 +231,17 @@ public class FlatSpecularShader extends Shader {
 				lightFactor += currentFactor;
 			}
 		}
-		modelColor = colorProcessor.lerp(ColorProcessor.BLACK, material.getColor(), lightFactor);
+		modelColor = colorProcessor.lerp(ColorProcessor.BLACK, shaderProperties.getDiffuseColor(), lightFactor);
 		modelColor = colorProcessor.multiplyColor(modelColor, lightColor);
 		for (int i = 0; i < face.getVertices().length; i++) {
 			int[] vertexLocation = face.getVertices()[i].getLocation();
 			vectorProcessor.multiply(vertexLocation, viewMatrix, vertexLocation);
 			vectorProcessor.multiply(vertexLocation, projectionMatrix, vertexLocation);
-			graphicsProcessor.viewport(vertexLocation, vertexLocation);
+			graphicsProcessor.viewport(vertexLocation, portedCanvas, vertexLocation);
 		}
 		if (!graphicsProcessor.isBackface(location1, location2, location3)
-				&& graphicsProcessor.isInsideFrustum(location1, location2, location3, camera.getFrustum())) {
-			texture = face.getMaterial().getTexture();
+				&& graphicsProcessor.isInsideFrustum(location1, location2, location3, portedCanvas, camera.getFrustum())) {
+			texture = shaderProperties.getTexture();
 			// set uv values that will be interpolated and fit uv into texture resolution
 			if (texture != null) {
 				int width = texture.getSize()[0]- 1;
@@ -255,7 +253,7 @@ public class FlatSpecularShader extends Shader {
 				uvY[1] = mathProcessor.multiply(face.getUV2()[VECTOR_Y], height);
 				uvY[2] = mathProcessor.multiply(face.getUV3()[VECTOR_Y], height);
 			}
-			graphicsProcessor.drawTriangle(location1, location2, location3);
+			graphicsProcessor.drawTriangle(location1, location2, location3, portedCanvas, this);
 		}
 	}
 
@@ -278,18 +276,18 @@ public class FlatSpecularShader extends Shader {
 		}
 	}
 
-	private int getLightFactor(int[] normal, int[] lightDirection, int[] viewDirection, Material material) {
+	private int getLightFactor(int[] normal, int[] lightDirection, int[] viewDirection, SpecularShaderProperties properties) {
 		// diffuse
 		int dotProduct = vectorProcessor.dotProduct(normal, lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);
-		diffuseFactor = mathProcessor.multiply(diffuseFactor, material.getDiffuseIntensity());
+		diffuseFactor = mathProcessor.multiply(diffuseFactor, properties.getDiffuseIntensity());
 		// specular
 		vectorProcessor.invert(lightDirection, lightDirection);
 		vectorProcessor.reflect(lightDirection, normal, lightDirection);
 		dotProduct = vectorProcessor.dotProduct(viewDirection, lightDirection);
 		int specularFactor = Math.max(dotProduct, 0);
-		specularFactor = mathProcessor.pow(specularFactor, material.getShininess() >> FP_BITS);
-		specularFactor = mathProcessor.multiply(specularFactor, material.getSpecularIntensity());
+		specularFactor = mathProcessor.pow(specularFactor, properties.getShininess() >> FP_BITS);
+		specularFactor = mathProcessor.multiply(specularFactor, properties.getSpecularIntensity());
 		// putting it all together...
 		return (diffuseFactor + specularFactor << 8) >> FP_BITS;
 	}

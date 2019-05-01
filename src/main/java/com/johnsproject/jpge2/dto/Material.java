@@ -23,26 +23,19 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.shader.ShaderProperties;
+
 public class Material {
 
 	private int index;
 	private String name;
-	private int diffuseIntensity;
-	private int diffuseColor;
-	private int specularIntensity;
-	private int shininess;
-	private Texture texture;
 	private int shaderIndex;
+	private ShaderProperties properties;
 	
-	public Material(int index, String name, int diffuseColor, int diffuseIntensity, int specularIntensity, int shininess, Texture texture){
+	public Material(int index, String name, int shaderIndex, ShaderProperties shaderProperties) {
 		this.index = index;
 		this.name = "";
-		this.diffuseColor = diffuseColor;
-		this.diffuseIntensity = diffuseIntensity;
-		this.specularIntensity = specularIntensity;
-		this.shininess = shininess;
-		this.texture = texture;
-		this.shaderIndex = 0;
+		setShader(shaderIndex, shaderProperties);
 	}
 
 	public int getIndex() {
@@ -53,51 +46,16 @@ public class Material {
 		return name;
 	}
 	
-	public Texture getTexture() {
-		return texture;
-	}
-
-	public void setTexture(Texture texture) {
-		this.texture = texture;
-	}
-	
 	public int getShaderIndex() {
 		return shaderIndex;
 	}
 
-	public void setShaderIndex(int shaderIndex) {
+	public ShaderProperties getProperties() {
+		return properties;
+	}
+
+	public void setShader(int shaderIndex, ShaderProperties shaderProperties) {
 		this.shaderIndex = shaderIndex;
-	}
-
-	public int getColor() {
-		return diffuseColor;
-	}
-
-	public void setColor(int diffuseColor) {
-		this.diffuseColor = diffuseColor;
-	}
-	
-	public int getDiffuseIntensity() {
-		return diffuseIntensity;
-	}
-
-	public void setDiffuseIntensity(int diffuseIntensity) {
-		this.diffuseIntensity = diffuseIntensity;
-	}
-
-	public int getSpecularIntensity() {
-		return specularIntensity;
-	}
-
-	public void setSpecularIntensity(int specularIntensity) {
-		this.specularIntensity = specularIntensity;
-	}
-	
-	public int getShininess() {
-		return shininess;
-	}
-
-	public void setShininess(int shininess) {
-		this.shininess = shininess;
+		this.properties = shaderProperties;
 	}
 }

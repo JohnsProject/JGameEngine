@@ -12,7 +12,6 @@ import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
-import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.importer.SOMImporter;
 import com.johnsproject.jpge2.importer.SceneImporter;
@@ -20,13 +19,14 @@ import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.ColorProcessor;
 import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
+import com.johnsproject.jpge2.shader.SpecularShaderProperties;
 
 public class EngineTest implements EngineListener, MouseMotionListener, KeyListener {
 
-	private static final int WINDOW_W = 800;
-	private static final int WINDOW_H = 600;
-	private static final int RENDER_W = 320;
-	private static final int RENDER_H = 240;
+	private static final int WINDOW_W = 1024;
+	private static final int WINDOW_H = 768;
+	private static final int RENDER_W = 1024;
+	private static final int RENDER_H = 768;
 	private CentralProcessor centralProcessor;
 	
 	public static void main(String[] args) {
@@ -57,7 +57,7 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 	void useSOM() {
 		try {
 			Model model = new SOMImporter(Engine.getInstance().getProcessor()).load("C:/Development/test.som");
-			model.getMaterial(0).setTexture(centralProcessor.getTextureProcessor().generate("C:/Development/JohnsProject.png"));
+			((SpecularShaderProperties)model.getMaterial(0).getProperties()).setTexture(centralProcessor.getTextureProcessor().generate("C:/Development/JohnsProject.png"));
 			Engine.getInstance().getScene().addCamera(new Camera("Default Camera", new Transform(new int[3], new int[3], new int[3])));
 			Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, MathProcessor.FP_ONE * 100);
 			Engine.getInstance().getScene().addModel(model);
@@ -69,7 +69,7 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 	void useScene() {
 		try {
 			Scene scene = new SceneImporter(Engine.getInstance().getProcessor()).load("C:/Development/test.scene");
-			scene.getModel("Ground").getMaterial(0).setTexture(centralProcessor.getTextureProcessor().generate("C:/Development/JohnsProject.png"));
+			((SpecularShaderProperties)scene.getModel("Ground").getMaterial(0).getProperties()).setTexture(centralProcessor.getTextureProcessor().generate("C:/Development/JohnsProject.png"));
 //			scene.getModels().get(0).getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
 			Engine.getInstance().setScene(scene);
 		} catch (IOException e) {

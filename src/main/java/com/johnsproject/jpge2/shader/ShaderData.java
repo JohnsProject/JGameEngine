@@ -1,9 +1,11 @@
-package com.johnsproject.jpge2.dto;
+package com.johnsproject.jpge2.shader;
 
 import java.util.List;
 
+import com.johnsproject.jpge2.dto.FrameBuffer;
+import com.johnsproject.jpge2.dto.Light;
+import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.processor.MathProcessor;
-import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 
 public class ShaderData implements ShaderDataBuffer {
 	
@@ -11,10 +13,12 @@ public class ShaderData implements ShaderDataBuffer {
 	private List<Light> lights;
 	
 	private int directionalLightIndex = -1;
+	private int[] directionalLightCanvas;
 	private int[][] directionalLightMatrix;
 	private Texture directionalShadowMap;
 	
 	private int spotLightIndex = -1;
+	private int[] spotLightCanvas;
 	private int[][] spotLightMatrix;
 	private Texture spotShadowMap;
 	
@@ -22,7 +26,7 @@ public class ShaderData implements ShaderDataBuffer {
 	private int linearAttenuation = 14000;
 	private int quadraticAttenuation = 90;
 	
-	private int lightRange = MathProcessor.FP_ONE * 500;
+	private int lightRange = MathProcessor.FP_ONE * 1000;
 
 	public FrameBuffer getFrameBuffer() {
 		return frameBuffer;
@@ -86,6 +90,22 @@ public class ShaderData implements ShaderDataBuffer {
 
 	public void setSpotShadowMap(Texture spotShadowMap) {
 		this.spotShadowMap = spotShadowMap;
+	}
+	
+	public int[] getDirectionalLightCanvas() {
+		return directionalLightCanvas;
+	}
+
+	public void setDirectionalLightCanvas(int[] directionalLightCanvas) {
+		this.directionalLightCanvas = directionalLightCanvas;
+	}
+
+	public int[] getSpotLightCanvas() {
+		return spotLightCanvas;
+	}
+
+	public void setSpotLightCanvas(int[] spotLightCanvas) {
+		this.spotLightCanvas = spotLightCanvas;
 	}
 
 	public int getConstantAttenuation() {

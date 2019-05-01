@@ -10,7 +10,6 @@ import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
-import com.johnsproject.jpge2.dto.ShaderData;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.GraphicsProcessor;
@@ -22,6 +21,7 @@ import com.johnsproject.jpge2.shader.FlatSpecularShader;
 import com.johnsproject.jpge2.shader.GouraudSpecularShader;
 import com.johnsproject.jpge2.shader.PhongSpecularShader;
 import com.johnsproject.jpge2.shader.Shader;
+import com.johnsproject.jpge2.shader.ShaderData;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.SpotLightShadowShader;
 
@@ -74,7 +74,7 @@ public class GraphicsController implements EngineListener {
 		addPreprocessingShader(new SpotLightShadowShader(processor));
 		addPreprocessingShader(new DirectionalLightShadowShader(processor));
 		addShader(new FlatSpecularShader(processor));
-		addPostprocessingShader(new FXAAShader(processor));
+//		addPostprocessingShader(new FXAAShader(processor));
 	}
 	
 	public void start() { }

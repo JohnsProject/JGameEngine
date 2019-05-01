@@ -15,6 +15,10 @@ public class TextureProcessor {
 		this.fileProcessor = fileProcessor;
 	}
 	
+	public Texture generate(int width, int height) {
+		return new Texture(width, height);
+	}
+	
 	public Texture generate(String imagePath) throws IOException {
 		BufferedImage img = fileProcessor.loadImage(imagePath);
 		int[] pixelBuffer = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();

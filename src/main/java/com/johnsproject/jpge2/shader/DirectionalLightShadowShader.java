@@ -6,7 +6,6 @@ import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.LightType;
-import com.johnsproject.jpge2.dto.ShaderData;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
@@ -27,9 +26,13 @@ public class DirectionalLightShadowShader extends Shader {
 
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
+	private final int[][] lightMatrix;
 	
 	private final int[] lightFrustum;
+	private final int[] portedCanvas;
 
+	private final Texture shadowMap;
+	
 	private List<Light> lights;
 	private ShaderData shaderData;
 
@@ -41,7 +44,12 @@ public class DirectionalLightShadowShader extends Shader {
 
 		this.viewMatrix = matrixProcessor.generate();
 		this.projectionMatrix = matrixProcessor.generate();
-		this.lightFrustum = vectorProcessor.generate(30, 0, 100000);
+		this.lightMatrix = matrixProcessor.generate();
+		
+		this.lightFrustum = vectorProcessor.generate(30, 0, 1000000);
+		this.portedCanvas = vectorProcessor.generate();
+		
+		this.shadowMap = new Texture(320, 320);
 	}
 	
 	@Override
@@ -50,14 +58,14 @@ public class DirectionalLightShadowShader extends Shader {
 		
 		this.lights = shaderData.getLights();
 		if (shaderData.getDirectionalLightMatrix() == null) {
-			shaderData.setDirectionalLightMatrix(matrixProcessor.generate());
-			shaderData.setDirectionalShadowMap(new Texture(320, 320));
+			shaderData.setDirectionalLightCanvas(portedCanvas);
+			shaderData.setDirectionalLightMatrix(lightMatrix);
+			shaderData.setDirectionalShadowMap(shadowMap);
 		}
 	}
 
 	@Override
 	public void setup(Camera camera) {
-		Texture shadowMap = shaderData.getDirectionalShadowMap();
 		// reset shadow map
 		for (int i = 0; i < shadowMap.getPixelBuffer().length; i++) {
 			shadowMap.getPixelBuffer()[i] = Integer.MAX_VALUE;
@@ -79,15 +87,15 @@ public class DirectionalLightShadowShader extends Shader {
 		if (shaderData.getDirectionalLightIndex() < 0)
 			return;
 		
-		graphicsProcessor.setup(shaderData.getDirectionalShadowMap().getSize(), VectorProcessor.VECTOR_UP, this);
-		
 		matrixProcessor.copy(viewMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		matrixProcessor.copy(projectionMatrix, MatrixProcessor.MATRIX_IDENTITY);
 		
+		graphicsProcessor.portCanvas(camera.getCanvas(), shadowMap.getSize(), portedCanvas);
+		
 		Transform transform = lights.get(shaderData.getDirectionalLightIndex()).getTransform();
 		graphicsProcessor.getViewMatrix(transform, viewMatrix);
-		graphicsProcessor.getOrthographicMatrix(lightFrustum, projectionMatrix);
-		matrixProcessor.multiply(projectionMatrix, viewMatrix, shaderData.getDirectionalLightMatrix());
+		graphicsProcessor.getOrthographicMatrix(portedCanvas, lightFrustum, projectionMatrix);
+		matrixProcessor.multiply(projectionMatrix, viewMatrix, lightMatrix);
 	}
 
 	@Override
@@ -95,8 +103,8 @@ public class DirectionalLightShadowShader extends Shader {
 		if (shaderData.getDirectionalLightIndex() < 0)
 			return;
 		int[] location = vertex.getLocation();
-		vectorProcessor.multiply(location, shaderData.getDirectionalLightMatrix(), location);
-		graphicsProcessor.viewport(location, location);
+		vectorProcessor.multiply(location, lightMatrix, location);
+		graphicsProcessor.viewport(location, portedCanvas, location);
 	}
 
 	@Override
@@ -108,14 +116,13 @@ public class DirectionalLightShadowShader extends Shader {
 		int[] location3 = face.getVertex(2).getLocation();
 		
 		if (!graphicsProcessor.isBackface(location1, location2, location3)
-				&& graphicsProcessor.isInsideFrustum(location1, location2, location3, lightFrustum)) {
-			graphicsProcessor.drawTriangle(location1, location2, location3);
+				&& graphicsProcessor.isInsideFrustum(location1, location2, location3, portedCanvas, lightFrustum)) {
+			graphicsProcessor.drawTriangle(location1, location2, location3, portedCanvas, this);
 		}
 	}
 
 	@Override
 	public void fragment(int[] location, int[] barycentric) {
-		Texture shadowMap = shaderData.getDirectionalShadowMap();
 		if (shadowMap.getPixel(location[VECTOR_X], location[VECTOR_Y]) > location[VECTOR_Z]) {
 			shadowMap.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z]);
 		}
