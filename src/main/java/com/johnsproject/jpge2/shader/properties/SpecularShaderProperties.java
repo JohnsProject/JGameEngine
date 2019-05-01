@@ -1,6 +1,7 @@
-package com.johnsproject.jpge2.shader;
+package com.johnsproject.jpge2.shader.properties;
 
 import com.johnsproject.jpge2.dto.Texture;
+import com.johnsproject.jpge2.shader.ShaderProperties;
 
 public class SpecularShaderProperties implements ShaderProperties{
 

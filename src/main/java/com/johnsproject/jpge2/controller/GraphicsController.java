@@ -15,15 +15,15 @@ import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.GraphicsProcessor;
 import com.johnsproject.jpge2.processor.MatrixProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
-import com.johnsproject.jpge2.shader.DirectionalLightShadowShader;
-import com.johnsproject.jpge2.shader.FXAAShader;
-import com.johnsproject.jpge2.shader.FlatSpecularShader;
-import com.johnsproject.jpge2.shader.GouraudSpecularShader;
-import com.johnsproject.jpge2.shader.PhongSpecularShader;
 import com.johnsproject.jpge2.shader.Shader;
-import com.johnsproject.jpge2.shader.ShaderData;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
-import com.johnsproject.jpge2.shader.SpotLightShadowShader;
+import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
+import com.johnsproject.jpge2.shader.shaders.DirectionalLightShadowShader;
+import com.johnsproject.jpge2.shader.shaders.FXAAShader;
+import com.johnsproject.jpge2.shader.shaders.FlatSpecularShader;
+import com.johnsproject.jpge2.shader.shaders.GouraudSpecularShader;
+import com.johnsproject.jpge2.shader.shaders.PhongSpecularShader;
+import com.johnsproject.jpge2.shader.shaders.SpotLightShadowShader;
 
 public class GraphicsController implements EngineListener {
 	
@@ -67,7 +67,7 @@ public class GraphicsController implements EngineListener {
 		this.modelMatrix = matrixProcessor.generate();
 		this.normalMatrix = matrixProcessor.generate();
 		
-		this.shaderDataBuffer = new ShaderData();
+		this.shaderDataBuffer = new ForwardDataBuffer();
 		shaders = new ArrayList<Shader>();
 		engine.addEngineListener(this);
 		

@@ -1,4 +1,4 @@
-package com.johnsproject.jpge2.shader;
+package com.johnsproject.jpge2.shader.shaders;
 
 import java.util.List;
 
@@ -13,6 +13,9 @@ import com.johnsproject.jpge2.processor.GraphicsProcessor;
 import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.processor.MatrixProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
+import com.johnsproject.jpge2.shader.Shader;
+import com.johnsproject.jpge2.shader.ShaderDataBuffer;
+import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 
 public class SpotLightShadowShader extends Shader{
 
@@ -36,7 +39,7 @@ public class SpotLightShadowShader extends Shader{
 	private final Texture shadowMap;
 
 	private List<Light> lights;
-	private ShaderData shaderData;
+	private ForwardDataBuffer shaderData;
 
 	public SpotLightShadowShader(CentralProcessor centralProcessor) {
 		super(centralProcessor);
@@ -55,7 +58,7 @@ public class SpotLightShadowShader extends Shader{
 	
 	@Override
 	public void update(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = (ShaderData)shaderDataBuffer;
+		shaderData = (ForwardDataBuffer)shaderDataBuffer;
 		
 		this.lights = shaderData.getLights();
 		

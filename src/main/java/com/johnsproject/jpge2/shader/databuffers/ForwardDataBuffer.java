@@ -1,4 +1,4 @@
-package com.johnsproject.jpge2.shader;
+package com.johnsproject.jpge2.shader.databuffers;
 
 import java.util.List;
 
@@ -6,8 +6,9 @@ import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.processor.MathProcessor;
+import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 
-public class ShaderData implements ShaderDataBuffer {
+public class ForwardDataBuffer implements ShaderDataBuffer {
 	
 	private FrameBuffer frameBuffer;
 	private List<Light> lights;

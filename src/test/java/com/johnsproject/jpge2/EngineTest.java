@@ -19,7 +19,7 @@ import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.ColorProcessor;
 import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
-import com.johnsproject.jpge2.shader.SpecularShaderProperties;
+import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
 
 public class EngineTest implements EngineListener, MouseMotionListener, KeyListener {
 
