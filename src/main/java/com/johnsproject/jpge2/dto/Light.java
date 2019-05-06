@@ -23,7 +23,7 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processor.VectorProcessor;
+import com.johnsproject.jpge2.primitive.FPVector;
 
 public class Light extends SceneObject {
 	
@@ -31,7 +31,7 @@ public class Light extends SceneObject {
 	private int strength;
 	private int color;
 	private int shadowColor;
-	private int[] direction;
+	private FPVector direction;
 	private int spotSize;
 	private int spotSoftness;
 	
@@ -39,7 +39,7 @@ public class Light extends SceneObject {
 		super(name, transform);
 		this.type = LightType.DIRECTIONAL;
 		this.strength = 100000;
-		this.direction = VectorProcessor.VECTOR_DOWN;
+		this.direction = FPVector.VECTOR_DOWN.clone();
 		this.spotSize = 60000;
 		this.spotSoftness = 800;
 	}
@@ -76,11 +76,11 @@ public class Light extends SceneObject {
 		this.shadowColor = shadowColor;
 	}
 
-	public int[] getDirection() {
+	public FPVector getDirection() {
 		return direction;
 	}
 
-	public void setDirection(int[] direction) {
+	public void setDirection(FPVector direction) {
 		this.direction = direction;
 	}
 

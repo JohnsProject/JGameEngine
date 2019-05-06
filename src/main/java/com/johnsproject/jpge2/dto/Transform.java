@@ -23,51 +23,57 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.primitive.FPVector;
+
 public class Transform {
 
-	private int[] location;
-	private int[] rotation;
-	private int[] scale;
+	private FPVector location;
+	private FPVector rotation;
+	private FPVector scale;
 	
-	public Transform(int[] location, int[] rotation, int[] scale) {
+	public Transform() {
+		this.location = new FPVector();
+		this.rotation = new FPVector();
+		this.scale = new FPVector();
+	}
+	
+	public Transform(FPVector location, FPVector rotation, FPVector scale) {
 		this.location = location;
 		this.rotation = rotation;
 		this.scale = scale;
 	}
 	
 	public void translate(int x, int y, int z) {
-		location[0] += x;
-		location[1] += y;
-		location[2] += z;
+		int[] locationValues = location.getValues();
+		locationValues[0] += x;
+		locationValues[1] += y;
+		locationValues[2] += z;
 	}
 
 	public void rotate(int x, int y, int z) {
-		rotation[0] += x;
-		rotation[1] += y;
-		rotation[2] += z;
+		int[] rotationValues = rotation.getValues();
+		rotationValues[0] += x;
+		rotationValues[1] += y;
+		rotationValues[2] += z;
 	}
 	
-	public void translate(int[] vector) {
-		location[0] += vector[0];
-		location[1] += vector[1];
-		location[2] += vector[2];
+	public void translate(FPVector vector) {
+		location.add(vector);
 	}
 
-	public void rotate(int[] angles) {
-		rotation[0] += angles[0];
-		rotation[1] += angles[1];
-		rotation[2] += angles[2];
+	public void rotate(FPVector angles) {
+		rotation.add(angles);
 	}
 
-	public int[] getLocation() {
+	public FPVector getLocation() {
 		return location;
 	}
 
-	public int[] getRotation() {
+	public FPVector getRotation() {
 		return rotation;
 	}
 
-	public int[] getScale() {
+	public FPVector getScale() {
 		return scale;
 	}
 }

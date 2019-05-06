@@ -23,14 +23,16 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.primitive.FPVector;
+
 public class Vertex {
 	
 	private int index;
-	private int[] location;
-	private int[] normal;
+	private FPVector location;
+	private FPVector normal;
 	private Material material;
 	
-	public Vertex(int index, int[] location, int[] normal, Material material) {
+	public Vertex(int index, FPVector location, FPVector normal, Material material) {
 		this.index = index;
 		this.location = location;
 		this.normal = normal;
@@ -41,11 +43,11 @@ public class Vertex {
 		return index;
 	}
 
-	public int[] getLocation() {
+	public FPVector getLocation() {
 		return location;
 	}
 	
-	public int[] getNormal() {
+	public FPVector getNormal() {
 		return normal;
 	}
 	

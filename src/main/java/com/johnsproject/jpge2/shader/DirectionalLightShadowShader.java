@@ -1,4 +1,4 @@
-package com.johnsproject.jpge2.shader.shaders;
+package com.johnsproject.jpge2.shader;
 
 import java.util.List;
 
@@ -6,16 +6,13 @@ import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.LightType;
-import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.primitive.Texture;
 import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.GraphicsProcessor;
 import com.johnsproject.jpge2.processor.MatrixProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
-import com.johnsproject.jpge2.shader.Shader;
-import com.johnsproject.jpge2.shader.ShaderDataBuffer;
-import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 
 public class DirectionalLightShadowShader extends Shader {
 

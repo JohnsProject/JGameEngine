@@ -1,12 +1,12 @@
-package com.johnsproject.jpge2.shader.databuffers;
+package com.johnsproject.jpge2.shader;
 
 import java.util.List;
 
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
-import com.johnsproject.jpge2.dto.Texture;
+import com.johnsproject.jpge2.primitive.FPMatrix;
+import com.johnsproject.jpge2.primitive.Texture;
 import com.johnsproject.jpge2.processor.MathProcessor;
-import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 
 public class ForwardDataBuffer implements ShaderDataBuffer {
 	
@@ -15,12 +15,12 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 	
 	private int directionalLightIndex = -1;
 	private int[] directionalLightCanvas;
-	private int[][] directionalLightMatrix;
+	private FPMatrix directionalLightMatrix;
 	private Texture directionalShadowMap;
 	
 	private int spotLightIndex = -1;
 	private int[] spotLightCanvas;
-	private int[][] spotLightMatrix;
+	private FPMatrix spotLightMatrix;
 	private Texture spotShadowMap;
 	
 	private int constantAttenuation = MathProcessor.FP_ONE;
@@ -53,11 +53,11 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 		this.directionalLightIndex = directionalLightIndex;
 	}
 
-	public int[][] getDirectionalLightMatrix() {
+	public FPMatrix getDirectionalLightMatrix() {
 		return directionalLightMatrix;
 	}
 
-	public void setDirectionalLightMatrix(int[][] directionalLightMatrix) {
+	public void setDirectionalLightMatrix(FPMatrix directionalLightMatrix) {
 		this.directionalLightMatrix = directionalLightMatrix;
 	}
 
@@ -77,11 +77,11 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 		this.spotLightIndex = spotLightIndex;
 	}
 
-	public int[][] getSpotLightMatrix() {
+	public FPMatrix getSpotLightMatrix() {
 		return spotLightMatrix;
 	}
 
-	public void setSpotLightMatrix(int[][] spotLightMatrix) {
+	public void setSpotLightMatrix(FPMatrix spotLightMatrix) {
 		this.spotLightMatrix = spotLightMatrix;
 	}
 

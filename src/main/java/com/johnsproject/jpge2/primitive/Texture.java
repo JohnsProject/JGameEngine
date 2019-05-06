@@ -21,29 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jpge2.dto;
+package com.johnsproject.jpge2.primitive;
 
 public class Texture {
 	
 	private int[] pixelBuffer;
 	private int[] size;
+
+	public Texture (int width, int height){
+		this.size = new int[] {width, height, width * height, 0};
+		this.pixelBuffer = new int[size[2]];
+	}
 	
 	public Texture (int width, int height, int[] pixelBuffer){
 		this.size = new int[] {width, height, width * height, 0};
 		this.pixelBuffer = pixelBuffer;
 	}
 	
-	public Texture (int width, int height){
-		this.size = new int[] {width, height, width * height, 0};
-		this.pixelBuffer = new int[size[2]];
-	}
-	
 	public int[] getPixelBuffer() {
 		return pixelBuffer;
 	}
 	
-	public int[] getSize(){
-		return size;
+	public int getWidth(){
+		return size[0];
+	}
+	
+	public int getHeight(){
+		return size[1];
 	}
 	
 	public int getPixel(int x, int y) {
@@ -52,5 +56,26 @@ public class Texture {
 	
 	public void setPixel(int x, int y, int value) {
 		pixelBuffer[x + (y * size[0])] = value;
+	}
+	
+	public void fill(int color) {
+		for (int i = 0; i < pixelBuffer.length; i++) {
+			pixelBuffer[i] = color;
+		}
+	}
+	
+	public void fillUntil(int color, int width, int height) {
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				setPixel(i, j, color);
+			}
+		}
+	}
+	
+	public void copy(Texture target) {
+		int[] targetPixelBuffer = target.getPixelBuffer();
+		for (int i = 0; i < size[2]; i++) {
+			targetPixelBuffer[i] = pixelBuffer[i];
+		}
 	}
 }

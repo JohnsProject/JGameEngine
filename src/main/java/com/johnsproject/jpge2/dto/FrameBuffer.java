@@ -26,6 +26,8 @@ package com.johnsproject.jpge2.dto;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
+import com.johnsproject.jpge2.primitive.Texture;
+
 public class FrameBuffer {
 
 	private int[] size;
@@ -60,7 +62,11 @@ public class FrameBuffer {
 		return stencilBuffer;
 	}
 
-	public int[] getSize() {
-		return size;
+	public int getWidth(){
+		return size[0];
+	}
+	
+	public int getHeight(){
+		return size[1];
 	}
 }

@@ -28,7 +28,6 @@ import java.util.List;
 
 import com.johnsproject.jpge2.controller.CentralController;
 import com.johnsproject.jpge2.dto.Scene;
-import com.johnsproject.jpge2.processor.CentralProcessor;
 
 public class Engine {
 
@@ -41,7 +40,6 @@ public class Engine {
 	private Thread engineThread;
 	private List<EngineListener> engineListeners;
 	private CentralController controller;
-	private CentralProcessor processor;
 	private int maxUpdateSkip;
 	private int updateRate;
 	private Scene scene;
@@ -56,14 +54,12 @@ public class Engine {
 	}
 
 	public void start() {
-		this.processor = new CentralProcessor();
-		this.controller = new CentralController(this, processor);
+		this.controller = new CentralController(this);
 		startEngineLoop();
 	}
 	
-	public void start(CentralController centralController, CentralProcessor centralProcessor) {
+	public void start(CentralController centralController) {
 		this.controller = centralController;
-		this.processor = centralProcessor;
 		startEngineLoop();
 	}
 	
@@ -125,10 +121,6 @@ public class Engine {
 
 	public CentralController getController() {
 		return controller;
-	}
-
-	public CentralProcessor getProcessor() {
-		return processor;
 	}
 	
 	public int getUpdateRate() {
