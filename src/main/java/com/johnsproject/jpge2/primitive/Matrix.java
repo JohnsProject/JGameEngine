@@ -4,18 +4,18 @@ import java.util.Arrays;
 
 import com.johnsproject.jpge2.processor.MathProcessor;
 
-public class FPMatrix {
+public class Matrix {
 	private static final int FP_ONE = MathProcessor.FP_ONE;
 
 	public static final byte MATRIX_SIZE = 4;
-	public static final FPMatrix MATRIX_IDENTITY = new FPMatrix();
+	public static final Matrix MATRIX_IDENTITY = new Matrix();
 	
-	private static final FPMatrix CACHE1 = new FPMatrix();
-	private static final FPMatrix CACHE2 = new FPMatrix();
+	private static final Matrix CACHE1 = new Matrix();
+	private static final Matrix CACHE2 = new Matrix();
 	
 	private final int[][] values;
 	
-	public FPMatrix() {
+	public Matrix() {
 		values = new int[][] {
 			{FP_ONE, 0, 0, 0},
 			{0, FP_ONE, 0, 0},
@@ -28,7 +28,7 @@ public class FPMatrix {
 		return values;
 	}
 	
-	public void add(FPMatrix matrix) {
+	public void add(Matrix matrix) {
 		copy(CACHE1);
 		int[][] cacheValues = CACHE1.getValues();
 		int[][] matrixValues = matrix.getValues();
@@ -43,7 +43,7 @@ public class FPMatrix {
 		}
 	}
 	
-	public void subtract(FPMatrix matrix) {
+	public void subtract(Matrix matrix) {
 		copy(CACHE1);
 		int[][] cacheValues = CACHE1.getValues();
 		int[][] matrixValues = matrix.getValues();
@@ -58,7 +58,7 @@ public class FPMatrix {
 		}
 	}
 	
-	public void multiply(FPMatrix matrix) {
+	public void multiply(Matrix matrix) {
 		copy(CACHE1);
 		int[][] cacheValues = CACHE1.getValues();
 		int[][] matrixValues = matrix.getValues();
@@ -73,7 +73,7 @@ public class FPMatrix {
 		}
 	}
 	
-	public void divide(FPMatrix matrix) {
+	public void divide(Matrix matrix) {
 		copy(CACHE1);
 		int[][] cacheValues = CACHE1.getValues();
 		int[][] matrixValues = matrix.getValues();
@@ -88,7 +88,7 @@ public class FPMatrix {
 		}
 	}
 	
-	public void translate(FPVector vector) {
+	public void translate(Vector vector) {
 		MATRIX_IDENTITY.copy(CACHE2);
 		int[][] cacheValues = CACHE2.getValues();
 		cacheValues[3][0] = vector.getX();
@@ -97,7 +97,7 @@ public class FPMatrix {
 		multiply(CACHE2);
 	}
 	
-	public void scale(FPVector vector) {
+	public void scale(Vector vector) {
 		MATRIX_IDENTITY.copy(CACHE2);
 		int[][] cacheValues = CACHE2.getValues();
 		cacheValues[0][0] = vector.getX();
@@ -142,19 +142,19 @@ public class FPMatrix {
 		multiply(CACHE2);
 	}
 	
-	public void rotateXYZ(FPVector angles) {
+	public void rotateXYZ(Vector angles) {
 		rotateX(angles.getX());
 		rotateY(angles.getY());
 		rotateZ(angles.getZ());
 	}
 	
-	public void rotateZYX(FPVector angles) {
+	public void rotateZYX(Vector angles) {
 		rotateZ(angles.getZ());
 		rotateY(angles.getY());
 		rotateX(angles.getX());
 	}
 	
-	public void copy(FPMatrix target) {
+	public void copy(Matrix target) {
 		int[][] targetValues = target.getValues();
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
@@ -187,15 +187,15 @@ public class FPMatrix {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		FPMatrix other = (FPMatrix) obj;
+		Matrix other = (Matrix) obj;
 		if (!Arrays.deepEquals(values, other.values))
 			return false;
 		return true;
 	}
 	
 	@Override
-	public FPMatrix clone() {
-		FPMatrix result = new FPMatrix();
+	public Matrix clone() {
+		Matrix result = new Matrix();
 		this.copy(result);
 		return result;
 	}

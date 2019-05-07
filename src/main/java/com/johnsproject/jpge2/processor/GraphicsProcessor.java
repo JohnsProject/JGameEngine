@@ -24,16 +24,16 @@
 package com.johnsproject.jpge2.processor;
 
 import com.johnsproject.jpge2.dto.Transform;
-import com.johnsproject.jpge2.primitive.FPMatrix;
-import com.johnsproject.jpge2.primitive.FPVector;
+import com.johnsproject.jpge2.primitive.Matrix;
+import com.johnsproject.jpge2.primitive.Vector;
 import com.johnsproject.jpge2.shader.Shader;
 
 public class GraphicsProcessor {
 
-	private static final byte VECTOR_X = FPVector.VECTOR_X;
-	private static final byte VECTOR_Y = FPVector.VECTOR_Y;
-	private static final byte VECTOR_Z = FPVector.VECTOR_Z;
-	private static final byte VECTOR_W = FPVector.VECTOR_W;
+	private static final byte VECTOR_X = Vector.VECTOR_X;
+	private static final byte VECTOR_Y = Vector.VECTOR_Y;
+	private static final byte VECTOR_Z = Vector.VECTOR_Z;
+	private static final byte VECTOR_W = Vector.VECTOR_W;
 
 	private static final byte FP_BITS = MathProcessor.FP_BITS;
 	private static final int FP_ONE = MathProcessor.FP_ONE;
@@ -45,37 +45,41 @@ public class GraphicsProcessor {
 
 	private static final long[] depthCache = new long[3];
 	private static final int[] barycentricCache = new int[4];
-	private static final FPVector pixelChache = new FPVector();
+	private static final Vector pixelChache = new Vector();
 
 	private GraphicsProcessor() { }
 
-	public static FPMatrix getModelMatrix(Transform transform, FPMatrix out) {
-		FPVector location = transform.getLocation();
-		FPVector rotation = transform.getRotation();
-		FPVector scale = transform.getScale();
+	public static Matrix getModelMatrix(Transform transform, Matrix out) {
+		Vector location = transform.getLocation();
+		Vector rotation = transform.getRotation();
+		Vector scale = transform.getScale();
 		out.scale(scale);
 		out.rotateXYZ(rotation);
 		out.translate(location);
 		return out;
 	}
 
-	public static FPMatrix getNormalMatrix(Transform transform, FPMatrix out) {
-		FPVector rotation = transform.getRotation();
-		FPVector scale = transform.getScale();
+	public static Matrix getNormalMatrix(Transform transform, Matrix out) {
+		Vector rotation = transform.getRotation();
+		Vector scale = transform.getScale();
 		out.scale(scale);
 		out.rotateXYZ(rotation);
 		return out;
 	}
 
-	public static FPMatrix getViewMatrix(Transform transform, FPMatrix out) {
-		FPVector location = transform.getLocation();
-		FPVector rotation = transform.getRotation();
+	public static Matrix getViewMatrix(Transform transform, Matrix out) {
+		Vector location = transform.getLocation();
+		Vector rotation = transform.getRotation();
+		location.invert();
+		rotation.invert();
 		out.translate(location);
 		out.rotateZYX(rotation);
+		location.invert();
+		rotation.invert();
 		return out;
 	}
 
-	public static FPMatrix getOrthographicMatrix(int[] cameraCanvas, int[] cameraFrustum, FPMatrix out) {
+	public static Matrix getOrthographicMatrix(int[] cameraCanvas, int[] cameraFrustum, Matrix out) {
 		int[][] values = out.getValues();
 		int scaleFactor = (cameraCanvas[3] >> 6) + 1;
 		values[0][0] = (cameraFrustum[0] * scaleFactor * FP_BITS);
@@ -85,7 +89,7 @@ public class GraphicsProcessor {
 		return out;
 	}
 
-	public static FPMatrix getPerspectiveMatrix(int[] cameraCanvas, int[] cameraFrustum, FPMatrix out) {
+	public static Matrix getPerspectiveMatrix(int[] cameraCanvas, int[] cameraFrustum, Matrix out) {
 		int[][] values = out.getValues();
 		int scaleFactor = (cameraCanvas[3] >> 6) + 1;
 		values[0][0] = (cameraFrustum[0] * scaleFactor) << FP_BITS;
@@ -95,7 +99,7 @@ public class GraphicsProcessor {
 		return out;
 	}
 
-	public static FPVector viewport(FPVector location, int[] cameraCanvas, FPVector out) {
+	public static Vector viewport(Vector location, int[] cameraCanvas, Vector out) {
 		int portX = cameraCanvas[VECTOR_X] + ((cameraCanvas[2] - cameraCanvas[VECTOR_X]) >> 1);
 		int portY = cameraCanvas[VECTOR_Y] + ((cameraCanvas[3] - cameraCanvas[VECTOR_Y]) >> 1);
 		int[] outValues = out.getValues();
@@ -104,12 +108,12 @@ public class GraphicsProcessor {
 		return out;
 	}
 
-	public static boolean isBackface(FPVector location1, FPVector location2, FPVector location3) {
+	public static boolean isBackface(Vector location1, Vector location2, Vector location3) {
 		return (location2.getX() - location1.getX()) * (location3.getY() - location1.getY())
 				- (location3.getX() - location1.getX()) * (location2.getY() - location1.getY()) <= 0;
 	}
 
-	public static boolean isInsideFrustum(FPVector location1, FPVector location2, FPVector location3, int[] cameraCanvas, int[] cameraFrustum) {
+	public static boolean isInsideFrustum(Vector location1, Vector location2, Vector location3, int[] cameraCanvas, int[] cameraFrustum) {
 		int xleft = cameraCanvas[VECTOR_X];
 		int yleft = cameraCanvas[VECTOR_Y];
 		int xright = cameraCanvas[2];
@@ -133,7 +137,7 @@ public class GraphicsProcessor {
 		return location1Inside | location2Inside | location3Inside;
 	}
 
-	public static void drawTriangle(FPVector location1, FPVector location2, FPVector location3, int[] cameraCanvas, Shader shader) {
+	public static void drawTriangle(Vector location1, Vector location2, Vector location3, int[] cameraCanvas, Shader shader) {
 		// compute boundig box of faces
 		int minX = Math.min(location1.getX(), Math.min(location2.getX(), location3.getX()));
 		int minY = Math.min(location1.getY(), Math.min(location2.getY(), location3.getY()));
@@ -203,7 +207,7 @@ public class GraphicsProcessor {
 		 return (int) (((long)barycentric[3] << INTERPOLATE_BITS) / dotProduct);
 	}
 
-	public static int interpolate(FPVector values) {
+	public static int interpolate(Vector values) {
 		 long dotProduct = values.getX() * depthCache[0] * barycentricCache[0]
 						 + values.getY() * depthCache[1] * barycentricCache[1]
 						 + values.getZ() * depthCache[2] * barycentricCache[2];
@@ -213,7 +217,7 @@ public class GraphicsProcessor {
 		 return (int)result;
 	}
 
-	public static int barycentric(FPVector location1, FPVector location2, FPVector location3) {
+	public static int barycentric(Vector location1, Vector location2, Vector location3) {
 		return (location2.getX() - location1.getX()) * (location3.getY() - location1.getY())
 				- (location3.getX() - location1.getX()) * (location2.getY() - location1.getY());
 	}

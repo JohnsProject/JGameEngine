@@ -30,8 +30,8 @@ import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.primitive.FPMatrix;
-import com.johnsproject.jpge2.primitive.FPVector;
+import com.johnsproject.jpge2.primitive.Matrix;
+import com.johnsproject.jpge2.primitive.Vector;
 import com.johnsproject.jpge2.primitive.Texture;
 import com.johnsproject.jpge2.processor.ColorProcessor;
 import com.johnsproject.jpge2.processor.GraphicsProcessor;
@@ -42,21 +42,21 @@ public class FlatSpecularShader extends Shader {
 	private static final byte FP_BITS = MathProcessor.FP_BITS;
 	private static final int FP_ONE = MathProcessor.FP_ONE;
 	
-	private final FPVector uvX;
-	private final FPVector uvY;
+	private final Vector uvX;
+	private final Vector uvY;
 
-	private final FPVector normalizedNormal;
-	private final FPVector lightLocation;
-	private final FPVector lightDirection;
-	private final FPVector viewDirection;
-	private final FPVector faceLocation;
+	private final Vector normalizedNormal;
+	private final Vector lightLocation;
+	private final Vector lightDirection;
+	private final Vector viewDirection;
+	private final Vector faceLocation;
 	private final int[] portedCanvas;
 	
-	private final FPMatrix viewMatrix;
-	private final FPMatrix projectionMatrix;
+	private final Matrix viewMatrix;
+	private final Matrix projectionMatrix;
 	
-	private final FPVector directionalLocation;	
-	private final FPVector spotLocation;
+	private final Vector directionalLocation;	
+	private final Vector spotLocation;
 	
 	private int lightColor;
 	private int lightFactor;
@@ -71,21 +71,21 @@ public class FlatSpecularShader extends Shader {
 	
 	public FlatSpecularShader() {
 		
-		this.uvX = new FPVector();
-		this.uvY = new FPVector();
+		this.uvX = new Vector();
+		this.uvY = new Vector();
 
-		this.normalizedNormal = new FPVector();
-		this.lightLocation = new FPVector();
-		this.lightDirection = new FPVector();
-		this.viewDirection = new FPVector();
-		this.faceLocation = new FPVector();
+		this.normalizedNormal = new Vector();
+		this.lightLocation = new Vector();
+		this.lightDirection = new Vector();
+		this.viewDirection = new Vector();
+		this.faceLocation = new Vector();
 		this.portedCanvas = new int[4];
 
-		this.viewMatrix = new FPMatrix();
-		this.projectionMatrix = new FPMatrix();
+		this.viewMatrix = new Matrix();
+		this.projectionMatrix = new Matrix();
 		
-		this.directionalLocation = new FPVector();
-		this.spotLocation = new FPVector();
+		this.directionalLocation = new Vector();
+		this.spotLocation = new Vector();
 	}
 	
 	@Override
@@ -101,8 +101,8 @@ public class FlatSpecularShader extends Shader {
 	public void setup(Camera camera) {
 		this.camera = camera;
 		
-		FPMatrix.MATRIX_IDENTITY.copy(viewMatrix);
-		FPMatrix.MATRIX_IDENTITY.copy(projectionMatrix);
+		Matrix.MATRIX_IDENTITY.copy(viewMatrix);
+		Matrix.MATRIX_IDENTITY.copy(projectionMatrix);
 		
 		GraphicsProcessor.getViewMatrix(camera.getTransform(), viewMatrix);
 
@@ -125,11 +125,11 @@ public class FlatSpecularShader extends Shader {
 	@Override
 	public void geometry(Face face) {
 		this.shaderProperties = (SpecularShaderProperties)face.getMaterial().getProperties();
-		FPVector normal = face.getNormal();
-		FPVector location1 = face.getVertex(0).getLocation();
-		FPVector location2 = face.getVertex(1).getLocation();
-		FPVector location3 = face.getVertex(2).getLocation();
-		FPVector.VECTOR_ZERO.copy(faceLocation);
+		Vector normal = face.getNormal();
+		Vector location1 = face.getVertex(0).getLocation();
+		Vector location2 = face.getVertex(1).getLocation();
+		Vector location3 = face.getVertex(2).getLocation();
+		Vector.VECTOR_ZERO.copy(faceLocation);
 		faceLocation.add(location1);
 		faceLocation.add(location2);
 		faceLocation.add(location3);
@@ -148,7 +148,7 @@ public class FlatSpecularShader extends Shader {
 		lightColor = ColorProcessor.WHITE;
 		lightFactor = 50;
 		
-		FPVector cameraLocation = camera.getTransform().getLocation();	
+		Vector cameraLocation = camera.getTransform().getLocation();	
 		cameraLocation.copy(viewDirection);
 		viewDirection.subtract(faceLocation);
 		// normalize values
@@ -159,7 +159,7 @@ public class FlatSpecularShader extends Shader {
 			Light light = lights.get(i);
 			int currentFactor = 0;
 			int attenuation = 0;
-			FPVector lightPosition = light.getTransform().getLocation();
+			Vector lightPosition = light.getTransform().getLocation();
 			switch (light.getType()) {
 			case DIRECTIONAL:
 				if (cameraLocation.distance(lightPosition) > shaderData.getLightRange())
@@ -222,7 +222,7 @@ public class FlatSpecularShader extends Shader {
 		modelColor = ColorProcessor.lerp(ColorProcessor.BLACK, shaderProperties.getDiffuseColor(), lightFactor);
 		modelColor = ColorProcessor.multiplyColor(modelColor, lightColor);
 		for (int i = 0; i < face.getVertices().length; i++) {
-			FPVector vertexLocation = face.getVertices()[i].getLocation();
+			Vector vertexLocation = face.getVertices()[i].getLocation();
 			vertexLocation.multiply(viewMatrix);
 			vertexLocation.multiply(projectionMatrix);
 			GraphicsProcessor.viewport(vertexLocation, portedCanvas, vertexLocation);
@@ -245,7 +245,7 @@ public class FlatSpecularShader extends Shader {
 	}
 
 	@Override
-	public void fragment(FPVector location) {
+	public void fragment(Vector location) {
 		if (texture != null) {
 			int u = GraphicsProcessor.interpolate(uvX);
 			int v = GraphicsProcessor.interpolate(uvY);
@@ -257,13 +257,13 @@ public class FlatSpecularShader extends Shader {
 		}
 		Texture colorBuffer = frameBuffer.getColorBuffer();
 		Texture depthBuffer = frameBuffer.getDepthBuffer();
-		if (depthBuffer.getPixel(location.getX(), location.getY()) > location.getZ()) {
+//		if (depthBuffer.getPixel(location.getX(), location.getY()) > location.getZ()) {
 			depthBuffer.setPixel(location.getX(), location.getY(), location.getZ());
 			colorBuffer.setPixel(location.getX(), location.getY(), modelColor);
-		}
+//		}
 	}
 
-	private int getLightFactor(FPVector normal, FPVector lightDirection, FPVector viewDirection, SpecularShaderProperties properties) {
+	private int getLightFactor(Vector normal, Vector lightDirection, Vector viewDirection, SpecularShaderProperties properties) {
 		// diffuse
 		int dotProduct = normal.dotProduct(lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);
@@ -279,7 +279,7 @@ public class FlatSpecularShader extends Shader {
 		return (diffuseFactor + specularFactor << 8) >> FP_BITS;
 	}
 	
-	private int getAttenuation(FPVector lightLocation) {
+	private int getAttenuation(Vector lightLocation) {
 		// attenuation
 		long distance = lightLocation.magnitude();
 		int attenuation = shaderData.getConstantAttenuation();
@@ -289,7 +289,7 @@ public class FlatSpecularShader extends Shader {
 		return (attenuation << 8) >> FP_BITS;
 	}
 	
-	private boolean inShadow(FPVector lightSpaceLocation, Texture shadowMap) {
+	private boolean inShadow(Vector lightSpaceLocation, Texture shadowMap) {
 		int x = lightSpaceLocation.getX();
 		int y = lightSpaceLocation.getY();
 		x = MathProcessor.clamp(x, 0, shadowMap.getWidth() - 1);

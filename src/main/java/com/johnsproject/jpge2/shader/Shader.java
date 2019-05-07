@@ -3,7 +3,7 @@ package com.johnsproject.jpge2.shader;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.primitive.FPVector;
+import com.johnsproject.jpge2.primitive.Vector;
 
 public abstract class Shader {
 	
@@ -15,5 +15,5 @@ public abstract class Shader {
 
 	public abstract void geometry(Face face);
 
-	public abstract void fragment(FPVector location);
+	public abstract void fragment(Vector location);
 }

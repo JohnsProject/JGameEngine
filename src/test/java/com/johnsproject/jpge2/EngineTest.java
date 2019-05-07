@@ -12,7 +12,7 @@ import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.importer.SceneImporter;
-import com.johnsproject.jpge2.primitive.FPVector;
+import com.johnsproject.jpge2.primitive.Vector;
 import com.johnsproject.jpge2.processor.ColorProcessor;
 
 public class EngineTest implements EngineListener, MouseMotionListener, KeyListener {
@@ -29,7 +29,7 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 	EngineTest() {
 		Engine.getInstance().start();
 		Engine.getInstance().addEngineListener(this);
-		cache = new FPVector();
+		cache = new Vector();
 	}
 	
 	public void start() {
@@ -73,12 +73,12 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 		
 	}
 
-	private final FPVector cache;
+	private final Vector cache;
 	
 	public void fixedUpdate() {
 		if (move) {
 			Transform transform = Engine.getInstance().getScene().getCamera(0).getTransform();
-			FPVector.VECTOR_DOWN.copy(cache);
+			Vector.VECTOR_DOWN.copy(cache);
 			cache.rotateXYZ(transform.getRotation());
 			cache.multiply(2 << 10);
 			transform.translate(cache);

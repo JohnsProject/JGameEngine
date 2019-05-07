@@ -6,7 +6,7 @@ import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.primitive.FPVector;
+import com.johnsproject.jpge2.primitive.Vector;
 import com.johnsproject.jpge2.primitive.Texture;
 import com.johnsproject.jpge2.dto.LightType;
 import com.johnsproject.jpge2.processor.CentralProcessor;
@@ -17,9 +17,9 @@ import com.johnsproject.jpge2.processor.VectorProcessor;
 
 public class SpotLightShadowShader extends Shader{
 
-	private static final byte VECTOR_X = FPVector.VECTOR_X;
-	private static final byte VECTOR_Y = FPVector.VECTOR_Y;
-	private static final byte VECTOR_Z = FPVector.VECTOR_Z;
+	private static final byte VECTOR_X = Vector.VECTOR_X;
+	private static final byte VECTOR_Y = Vector.VECTOR_Y;
+	private static final byte VECTOR_Z = Vector.VECTOR_Z;
 	
 	private static final byte FP_BITS = MathProcessor.FP_BITS;
 

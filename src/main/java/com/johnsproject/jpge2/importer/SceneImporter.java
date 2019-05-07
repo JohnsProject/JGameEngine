@@ -35,7 +35,7 @@ import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.primitive.FPVector;
+import com.johnsproject.jpge2.primitive.Vector;
 import com.johnsproject.jpge2.dto.LightType;
 import com.johnsproject.jpge2.processor.ColorProcessor;
 import com.johnsproject.jpge2.processor.FileProcessor;
@@ -44,9 +44,9 @@ import com.johnsproject.jpge2.shader.SpecularShaderProperties;
 
 public class SceneImporter {
 	
-	private static final byte VECTOR_X = FPVector.VECTOR_X;
-	private static final byte VECTOR_Y = FPVector.VECTOR_Y;
-	private static final byte VECTOR_Z = FPVector.VECTOR_Z;
+	private static final byte VECTOR_X = Vector.VECTOR_X;
+	private static final byte VECTOR_Y = Vector.VECTOR_Y;
+	private static final byte VECTOR_Z = Vector.VECTOR_Z;
 	
 	public SceneImporter() {}
 	
@@ -125,7 +125,7 @@ public class SceneImporter {
 			String[] colorData = lightData.split("color<")[1].split(">color")[0].split(",");
 			String[] shadowColorData = lightData.split("shadowColor<")[1].split(">shadowColor")[0].split(",");
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
-			FPVector direction = FPVector.VECTOR_DOWN.clone();
+			Vector direction = Vector.VECTOR_DOWN.clone();
 			direction.rotateXYZ(transform.getRotation());
 			Light light = new Light(name, transform);
 			if (typeData.equals("SUN")) {
@@ -158,15 +158,15 @@ public class SceneImporter {
 		int x = MathProcessor.generate((getFloat(transformData[VECTOR_X]) * 10));
 		int y = MathProcessor.generate((getFloat(transformData[VECTOR_Y]) * 10));
 		int z = MathProcessor.generate((getFloat(transformData[VECTOR_Z]) * 10));
-		FPVector location = new FPVector(-x, y, z);
+		Vector location = new Vector(-x, y, z);
 		x = MathProcessor.generate(getFloat(transformData[3 + VECTOR_X]));
 		y = MathProcessor.generate(getFloat(transformData[3 + VECTOR_Y]));
 		z = MathProcessor.generate(getFloat(transformData[3 + VECTOR_Z]));
-		FPVector rotation = new FPVector(x, y, z);
+		Vector rotation = new Vector(x, y, z);
 		x = MathProcessor.generate(getFloat(transformData[6 + VECTOR_X]) * 10);
 		y = MathProcessor.generate(getFloat(transformData[6 + VECTOR_Y]) * 10);
 		z = MathProcessor.generate(getFloat(transformData[6 + VECTOR_Z]) * 10);
-		FPVector scale = new FPVector(x, y, z);
+		Vector scale = new Vector(x, y, z);
 		return new Transform(location, rotation, scale);
 	}
 
@@ -177,11 +177,11 @@ public class SceneImporter {
 			int x = MathProcessor.generate(getFloat(vertexData[VECTOR_X]));
 			int y = MathProcessor.generate(getFloat(vertexData[VECTOR_Y]));
 			int z = MathProcessor.generate(getFloat(vertexData[VECTOR_Z]));
-			FPVector location = new FPVector(x, y, z);
+			Vector location = new Vector(x, y, z);
 			x = MathProcessor.generate(getFloat(vertexData[3 + VECTOR_X]));
 			y = MathProcessor.generate(getFloat(vertexData[3 + VECTOR_Y]));
 			z = MathProcessor.generate(getFloat(vertexData[3 + VECTOR_Z]));
-			FPVector normal = new FPVector(x, y, z);
+			Vector normal = new Vector(x, y, z);
 			int material = getInt(vertexData[6]);
 			vertices[i] = new Vertex(i, location, normal, materials[material]);
 		}
@@ -198,16 +198,16 @@ public class SceneImporter {
 			int x = MathProcessor.generate(getFloat(faceData[3 + VECTOR_X]));
 			int y = MathProcessor.generate(getFloat(faceData[3 + VECTOR_Y]));
 			int z = MathProcessor.generate(getFloat(faceData[3 + VECTOR_Z]));
-			FPVector normal = new FPVector(x, y, z);
+			Vector normal = new Vector(x, y, z);
 			x = MathProcessor.generate(getFloat(faceData[6 + VECTOR_X]));
 			y = MathProcessor.generate(getFloat(faceData[6 + VECTOR_Y]));
-			FPVector uv1 = new FPVector(x, y);
+			Vector uv1 = new Vector(x, y);
 			x = MathProcessor.generate(getFloat(faceData[8 + VECTOR_X]));
 			y = MathProcessor.generate(getFloat(faceData[8 + VECTOR_Y]));
-			FPVector uv2 = new FPVector(x, y);
+			Vector uv2 = new Vector(x, y);
 			x = MathProcessor.generate(getFloat(faceData[10 + VECTOR_X]));
 			y = MathProcessor.generate(getFloat(faceData[10 + VECTOR_Y]));
-			FPVector uv3 = new FPVector(x, y);
+			Vector uv3 = new Vector(x, y);
 			int material = getInt(faceData[12]);
 			faces[i] = new Face(i, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], normal, uv1, uv2, uv3);
 		}

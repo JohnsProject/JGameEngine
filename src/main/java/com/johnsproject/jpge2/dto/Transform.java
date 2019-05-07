@@ -23,21 +23,21 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.primitive.FPVector;
+import com.johnsproject.jpge2.primitive.Vector;
 
 public class Transform {
 
-	private FPVector location;
-	private FPVector rotation;
-	private FPVector scale;
+	private Vector location;
+	private Vector rotation;
+	private Vector scale;
 	
 	public Transform() {
-		this.location = new FPVector();
-		this.rotation = new FPVector();
-		this.scale = new FPVector();
+		this.location = new Vector();
+		this.rotation = new Vector();
+		this.scale = new Vector();
 	}
 	
-	public Transform(FPVector location, FPVector rotation, FPVector scale) {
+	public Transform(Vector location, Vector rotation, Vector scale) {
 		this.location = location;
 		this.rotation = rotation;
 		this.scale = scale;
@@ -57,23 +57,23 @@ public class Transform {
 		rotationValues[2] += z;
 	}
 	
-	public void translate(FPVector vector) {
+	public void translate(Vector vector) {
 		location.add(vector);
 	}
 
-	public void rotate(FPVector angles) {
+	public void rotate(Vector angles) {
 		rotation.add(angles);
 	}
 
-	public FPVector getLocation() {
+	public Vector getLocation() {
 		return location;
 	}
 
-	public FPVector getRotation() {
+	public Vector getRotation() {
 		return rotation;
 	}
 
-	public FPVector getScale() {
+	public Vector getScale() {
 		return scale;
 	}
 }

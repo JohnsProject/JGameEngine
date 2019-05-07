@@ -11,8 +11,8 @@ import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.primitive.FPMatrix;
-import com.johnsproject.jpge2.primitive.FPVector;
+import com.johnsproject.jpge2.primitive.Matrix;
+import com.johnsproject.jpge2.primitive.Vector;
 import com.johnsproject.jpge2.processor.GraphicsProcessor;
 import com.johnsproject.jpge2.shader.DirectionalLightShadowShader;
 import com.johnsproject.jpge2.shader.FlatSpecularShader;
@@ -26,16 +26,16 @@ import com.johnsproject.jpge2.shader.SpotLightShadowShader;
 
 public class GraphicsController implements EngineListener {
 	
-	private final FPVector location0Cache;
-	private final FPVector location1Cache;
-	private final FPVector location2Cache;
-	private final FPVector normal0Cache;
-	private final FPVector normal1Cache;
-	private final FPVector normal2Cache;
-	private final FPVector normal3Cache;
+	private final Vector location0Cache;
+	private final Vector location1Cache;
+	private final Vector location2Cache;
+	private final Vector normal0Cache;
+	private final Vector normal1Cache;
+	private final Vector normal2Cache;
+	private final Vector normal3Cache;
 	
-	private final FPMatrix modelMatrix;
-	private final FPMatrix normalMatrix;
+	private final Matrix modelMatrix;
+	private final Matrix normalMatrix;
 	
 	private final Engine engine;
 	
@@ -49,16 +49,16 @@ public class GraphicsController implements EngineListener {
 	
 	GraphicsController(Engine engine) {
 		this.engine = engine;
-		this.location0Cache = new FPVector();
-		this.location1Cache = new FPVector();
-		this.location2Cache = new FPVector();
-		this.normal0Cache = new FPVector();
-		this.normal1Cache = new FPVector();
-		this.normal2Cache = new FPVector();
-		this.normal3Cache = new FPVector();
+		this.location0Cache = new Vector();
+		this.location1Cache = new Vector();
+		this.location2Cache = new Vector();
+		this.normal0Cache = new Vector();
+		this.normal1Cache = new Vector();
+		this.normal2Cache = new Vector();
+		this.normal3Cache = new Vector();
 		
-		this.modelMatrix = new FPMatrix();
-		this.normalMatrix = new FPMatrix();
+		this.modelMatrix = new Matrix();
+		this.normalMatrix = new Matrix();
 		
 		this.shaderDataBuffer = new ForwardDataBuffer();
 		shaders = new ArrayList<Shader>();
@@ -84,8 +84,8 @@ public class GraphicsController implements EngineListener {
 				shader.setup(camera);
 				for (int m = 0; m < scene.getModels().size(); m++) {
 					Model model = scene.getModels().get(m);
-					FPMatrix.MATRIX_IDENTITY.copy(modelMatrix);
-					FPMatrix.MATRIX_IDENTITY.copy(normalMatrix);
+					Matrix.MATRIX_IDENTITY.copy(modelMatrix);
+					Matrix.MATRIX_IDENTITY.copy(normalMatrix);
 					GraphicsProcessor.getModelMatrix(model.getTransform(), modelMatrix);
 					GraphicsProcessor.getNormalMatrix(model.getTransform(), normalMatrix);
 					for (int f = 0; f < model.getFaces().length; f++) {
