@@ -227,7 +227,7 @@ public class FlatSpecularShader extends Shader {
 			vertexLocation.multiply(projectionMatrix);
 			GraphicsProcessor.viewport(vertexLocation, portedCanvas, vertexLocation);
 		}
-//		if (!GraphicsProcessor.isBackface(location1, location2, location3)) {
+		if (!GraphicsProcessor.isBackface(location1, location2, location3)) {
 			texture = shaderProperties.getTexture();
 			// set uv values that will be interpolated and fit uv into texture resolution
 			if (texture != null) {
@@ -241,7 +241,7 @@ public class FlatSpecularShader extends Shader {
 				uvY.getValues()[2] = MathProcessor.multiply(face.getUV3().getY(), height);
 			}
 			GraphicsProcessor.drawTriangle(location1, location2, location3, portedCanvas, this);
-//		}
+		}
 	}
 
 	@Override

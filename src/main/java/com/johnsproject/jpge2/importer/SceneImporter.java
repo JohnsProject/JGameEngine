@@ -155,17 +155,17 @@ public class SceneImporter {
 	}
 
 	private Transform parseTransform(String[] transformData) {
-		int x = MathProcessor.generate((getFloat(transformData[VECTOR_X]) * 10));
-		int y = MathProcessor.generate((getFloat(transformData[VECTOR_Y]) * 10));
-		int z = MathProcessor.generate((getFloat(transformData[VECTOR_Z]) * 10));
-		Vector location = new Vector(-x, y, z);
+		int x = MathProcessor.generate(getFloat(transformData[VECTOR_X]));
+		int y = MathProcessor.generate(getFloat(transformData[VECTOR_Y]));
+		int z = MathProcessor.generate(getFloat(transformData[VECTOR_Z]));
+		Vector location = new Vector(x, -y, z);
 		x = MathProcessor.generate(getFloat(transformData[3 + VECTOR_X]));
 		y = MathProcessor.generate(getFloat(transformData[3 + VECTOR_Y]));
 		z = MathProcessor.generate(getFloat(transformData[3 + VECTOR_Z]));
 		Vector rotation = new Vector(x, y, z);
-		x = MathProcessor.generate(getFloat(transformData[6 + VECTOR_X]) * 10);
-		y = MathProcessor.generate(getFloat(transformData[6 + VECTOR_Y]) * 10);
-		z = MathProcessor.generate(getFloat(transformData[6 + VECTOR_Z]) * 10);
+		x = MathProcessor.generate(getFloat(transformData[6 + VECTOR_X]));
+		y = MathProcessor.generate(getFloat(transformData[6 + VECTOR_Y]));
+		z = MathProcessor.generate(getFloat(transformData[6 + VECTOR_Z]));
 		Vector scale = new Vector(x, y, z);
 		return new Transform(location, rotation, scale);
 	}
