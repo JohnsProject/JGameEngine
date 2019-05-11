@@ -77,7 +77,7 @@ public class PhongSpecularShader extends Shader {
 	private SpecularShaderProperties shaderProperties;
 
 	public PhongSpecularShader(CentralProcessor centralProcessor) {
-		super(centralProcessor);
+		super(centralProcessor, 19);
 		this.mathProcessor = centralProcessor.getMathProcessor();
 		this.matrixProcessor = centralProcessor.getMatrixProcessor();
 		this.vectorProcessor = centralProcessor.getVectorProcessor();
@@ -87,8 +87,28 @@ public class PhongSpecularShader extends Shader {
 		this.viewMatrix = matrixProcessor.generate();
 		this.projectionMatrix = matrixProcessor.generate();
 
-		this.uvX = vectorProcessor.generate();
-		this.uvY = vectorProcessor.generate();
+		this.uvX = getVariable(0);
+		this.uvY = getVariable(1);
+		
+		this.viewDirectionX = getVariable(2);
+		this.viewDirectionY = getVariable(3);
+		this.viewDirectionZ = getVariable(4);
+		this.locationX = getVariable(5);
+		this.locationY = getVariable(6);
+		this.locationZ = getVariable(7);
+		this.normalX = getVariable(8);
+		this.normalY = getVariable(9);
+		this.normalZ = getVariable(10);
+
+		this.directionalLocation = getVariable(11);
+		this.directionalLocationX = getVariable(12);
+		this.directionalLocationY = getVariable(13);
+		this.directionalLocationZ = getVariable(14);
+
+		this.spotLocation = getVariable(15);
+		this.spotLocationX = getVariable(16);
+		this.spotLocationY = getVariable(17);
+		this.spotLocationZ = getVariable(18);
 
 		this.fragmentLocation = vectorProcessor.generate();
 		this.normalizedNormal = vectorProcessor.generate();
@@ -96,26 +116,6 @@ public class PhongSpecularShader extends Shader {
 		this.lightDirection = vectorProcessor.generate();
 		this.viewDirection = vectorProcessor.generate();
 		this.portedCanvas = vectorProcessor.generate();
-
-		this.viewDirectionX = vectorProcessor.generate();
-		this.viewDirectionY = vectorProcessor.generate();
-		this.viewDirectionZ = vectorProcessor.generate();
-		this.locationX = vectorProcessor.generate();
-		this.locationY = vectorProcessor.generate();
-		this.locationZ = vectorProcessor.generate();
-		this.normalX = vectorProcessor.generate();
-		this.normalY = vectorProcessor.generate();
-		this.normalZ = vectorProcessor.generate();
-
-		this.directionalLocation = vectorProcessor.generate();
-		this.directionalLocationX = vectorProcessor.generate();
-		this.directionalLocationY = vectorProcessor.generate();
-		this.directionalLocationZ = vectorProcessor.generate();
-
-		this.spotLocation = vectorProcessor.generate();
-		this.spotLocationX = vectorProcessor.generate();
-		this.spotLocationY = vectorProcessor.generate();
-		this.spotLocationZ = vectorProcessor.generate();
 	}
 
 	@Override
@@ -218,25 +218,25 @@ public class PhongSpecularShader extends Shader {
 
 	@Override
 	public void fragment(int[] location, int[] barycentric) {		
-		directionalLocation[VECTOR_X] = graphicsProcessor.interpolate(directionalLocationX, barycentric);
-		directionalLocation[VECTOR_Y] = graphicsProcessor.interpolate(directionalLocationY, barycentric);
-		directionalLocation[VECTOR_Z] = graphicsProcessor.interpolate(directionalLocationZ, barycentric);
+		directionalLocation[VECTOR_X] = directionalLocationX[3];
+		directionalLocation[VECTOR_Y] = directionalLocationY[3];
+		directionalLocation[VECTOR_Z] = directionalLocationZ[3];
 
-		spotLocation[VECTOR_X] = graphicsProcessor.interpolate(spotLocationX, barycentric);
-		spotLocation[VECTOR_Y] = graphicsProcessor.interpolate(spotLocationY, barycentric);
-		spotLocation[VECTOR_Z] = graphicsProcessor.interpolate(spotLocationZ, barycentric);
+		spotLocation[VECTOR_X] = spotLocationX[3];
+		spotLocation[VECTOR_Y] = spotLocationY[3];
+		spotLocation[VECTOR_Z] = spotLocationZ[3];
 
-		viewDirection[VECTOR_X] = graphicsProcessor.interpolate(viewDirectionX, barycentric);
-		viewDirection[VECTOR_Y] = graphicsProcessor.interpolate(viewDirectionY, barycentric);
-		viewDirection[VECTOR_Z] = graphicsProcessor.interpolate(viewDirectionZ, barycentric);
+		viewDirection[VECTOR_X] = viewDirectionX[3];
+		viewDirection[VECTOR_Y] = viewDirectionY[3];
+		viewDirection[VECTOR_Z] = viewDirectionZ[3];
 
-		fragmentLocation[VECTOR_X] = graphicsProcessor.interpolate(locationX, barycentric);
-		fragmentLocation[VECTOR_Y] = graphicsProcessor.interpolate(locationY, barycentric);
-		fragmentLocation[VECTOR_Z] = graphicsProcessor.interpolate(locationZ, barycentric);
+		fragmentLocation[VECTOR_X] = locationX[3];
+		fragmentLocation[VECTOR_Y] = locationY[3];
+		fragmentLocation[VECTOR_Z] = locationZ[3];
 
-		normalizedNormal[VECTOR_X] = graphicsProcessor.interpolate(normalX, barycentric);
-		normalizedNormal[VECTOR_Y] = graphicsProcessor.interpolate(normalY, barycentric);
-		normalizedNormal[VECTOR_Z] = graphicsProcessor.interpolate(normalZ, barycentric);
+		normalizedNormal[VECTOR_X] = normalX[3];
+		normalizedNormal[VECTOR_Y] = normalY[3];
+		normalizedNormal[VECTOR_Z] = normalZ[3];
 
 		int lightColor = ColorProcessor.WHITE;
 		int lightFactor = 0;
@@ -304,9 +304,7 @@ public class PhongSpecularShader extends Shader {
 			}
 		}
 		if (texture != null) {
-			int u = graphicsProcessor.interpolate(uvX, barycentric);
-			int v = graphicsProcessor.interpolate(uvY, barycentric);
-			modelColor = texture.getPixel(u, v);
+			modelColor = texture.getPixel(uvX[3], uvY[3]);
 			if (colorProcessor.getAlpha(modelColor) == 0) // discard pixel if alpha = 0
 				return;
 		} else {

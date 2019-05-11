@@ -85,15 +85,15 @@ public class FlatSpecularShader extends Shader {
 	private SpecularShaderProperties shaderProperties;
 	
 	public FlatSpecularShader(CentralProcessor centralProcessor) {
-		super(centralProcessor);
+		super(centralProcessor, 2);
 		this.mathProcessor = centralProcessor.getMathProcessor();
 		this.matrixProcessor = centralProcessor.getMatrixProcessor();
 		this.vectorProcessor = centralProcessor.getVectorProcessor();
 		this.colorProcessor = centralProcessor.getColorProcessor();
 		this.graphicsProcessor = centralProcessor.getGraphicsProcessor();
 		
-		this.uvX = vectorProcessor.generate();
-		this.uvY = vectorProcessor.generate();
+		this.uvX = getVariable(0);
+		this.uvY = getVariable(1);
 
 		this.normalizedNormal = vectorProcessor.generate();
 		this.lightLocation = vectorProcessor.generate();
@@ -261,9 +261,7 @@ public class FlatSpecularShader extends Shader {
 	@Override
 	public void fragment(int[] location, int[] barycentric) {
 		if (texture != null) {
-			int u = graphicsProcessor.interpolate(uvX, barycentric);
-			int v = graphicsProcessor.interpolate(uvY, barycentric);
-			int texel = texture.getPixel(u, v);
+			int texel = texture.getPixel(uvX[3], uvY[3]);
 			if (colorProcessor.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;
 			modelColor = colorProcessor.lerp(ColorProcessor.BLACK, texel, lightFactor);

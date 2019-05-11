@@ -40,7 +40,7 @@ public class DirectionalLightShadowShader extends Shader {
 	private ForwardDataBuffer shaderData;
 
 	public DirectionalLightShadowShader(CentralProcessor centralProcessor) {
-		super(centralProcessor);
+		super(centralProcessor, 0);
 		this.matrixProcessor = centralProcessor.getMatrixProcessor();
 		this.vectorProcessor = centralProcessor.getVectorProcessor();
 		this.graphicsProcessor = centralProcessor.getGraphicsProcessor();

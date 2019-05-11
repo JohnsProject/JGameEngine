@@ -37,11 +37,9 @@ public class GraphicsProcessor {
 	private static final int FP_ONE = MathProcessor.FP_ONE;
 
 	private static final byte INTERPOLATE_BITS = 25;
-	private static final long INTERPOLATE_ONE = 1 << INTERPOLATE_BITS;
+	private static final int INTERPOLATE_ONE = 1 << INTERPOLATE_BITS;
 
-	private long oneByBarycentric = 0;
-
-	private final long[] depthCache;
+	private final int[] depthCache;
 	private final int[] barycentricCache;
 	private final int[] pixelChache;
 
@@ -54,7 +52,7 @@ public class GraphicsProcessor {
 		this.matrixProcessor = matrixProcessor;
 		this.vectorProcessor = vectorProcessor;
 
-		this.depthCache = new long[3];
+		this.depthCache = this.vectorProcessor.generate();
 		this.barycentricCache = this.vectorProcessor.generate();
 		this.pixelChache = this.vectorProcessor.generate();
 	}
@@ -180,7 +178,7 @@ public class GraphicsProcessor {
 		depthCache[0] = INTERPOLATE_ONE / location1[VECTOR_Z];
 		depthCache[1] = INTERPOLATE_ONE / location2[VECTOR_Z];
 		depthCache[2] = INTERPOLATE_ONE / location3[VECTOR_Z];
-		oneByBarycentric = INTERPOLATE_ONE / barycentricCache[3];
+		int oneByBarycentric = INTERPOLATE_ONE / barycentricCache[3];
 
 		// barycentric coordinates at minX/minY edge
 		pixelChache[VECTOR_X] = minX;
@@ -199,6 +197,11 @@ public class GraphicsProcessor {
 			for (pixelChache[VECTOR_X] = minX; pixelChache[VECTOR_X] < maxX; pixelChache[VECTOR_X]++) {
 				if ((barycentricCache[0] | barycentricCache[1] | barycentricCache[2]) > 0) {
 					pixelChache[VECTOR_Z] = interpolatDepth(depthCache, barycentricCache);
+					int[][] variables = shader.getVariables();
+					for (int i = 0; i < variables.length; i++) {
+						int[] variable = variables[i];
+						variable[3] = interpolate(variable, pixelChache, depthCache, barycentricCache, oneByBarycentric);
+					}
 					shader.fragment(pixelChache, barycentricCache);
 				}
 
@@ -213,19 +216,19 @@ public class GraphicsProcessor {
 		}
 	}
 
-	private int interpolatDepth(long[] depth, int[] barycentric) {
-		 long dotProduct = barycentric[0] * depth[0]
-						 + barycentric[1] * depth[1]
-						 + barycentric[2] * depth[2];
+	private int interpolatDepth(int[] depth, int[] barycentric) {
+		 long dotProduct = (long)barycentric[0] * depth[0]
+						 + (long)barycentric[1] * depth[1]
+						 + (long)barycentric[2] * depth[2];
 		 return (int) (((long)barycentric[3] << INTERPOLATE_BITS) / dotProduct);
 	}
 
-	public int interpolate(int[] values, int[] barycentric) {
-		 long dotProduct = values[VECTOR_X] * depthCache[0] * barycentric[0]
-						 + values[VECTOR_Y] * depthCache[1] * barycentric[1]
-						 + values[VECTOR_Z] * depthCache[2] * barycentric[2];
+	private int interpolate(int[] values, int[] pixel, int[] depth, int[] barycentric, int oneByBarycentric) {
+		 long dotProduct = (long)values[VECTOR_X] * depth[0] * barycentric[0]
+						 + (long)values[VECTOR_Y] * depth[1] * barycentric[1]
+						 + (long)values[VECTOR_Z] * depth[2] * barycentric[2];
 		 // normalize values
-		 long result = (dotProduct * pixelChache[VECTOR_Z]) >> INTERPOLATE_BITS;
+		 long result = (dotProduct * pixel[VECTOR_Z]) >> INTERPOLATE_BITS;
 		 result = (result * oneByBarycentric) >> INTERPOLATE_BITS;
 		 return (int)result;
 	}

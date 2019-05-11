@@ -65,26 +65,26 @@ public class GouraudSpecularShader extends Shader {
 	private SpecularShaderProperties shaderProperties;
 
 	public GouraudSpecularShader(CentralProcessor centralProcessor) {
-		super(centralProcessor);
+		super(centralProcessor, 6);
 		this.mathProcessor = centralProcessor.getMathProcessor();
 		this.matrixProcessor = centralProcessor.getMatrixProcessor();
 		this.vectorProcessor = centralProcessor.getVectorProcessor();
 		this.colorProcessor = centralProcessor.getColorProcessor();
 		this.graphicsProcessor = centralProcessor.getGraphicsProcessor();
 		
-		this.uvX = vectorProcessor.generate();
-		this.uvY = vectorProcessor.generate();
+		this.uvX = getVariable(0);
+		this.uvY = getVariable(1);
+		
+		this.lightFactors = getVariable(2);
+		this.lightColorR = getVariable(3);
+		this.lightColorG = getVariable(4);
+		this.lightColorB = getVariable(5);
 
 		this.normalizedNormal = vectorProcessor.generate();
 		this.lightDirection = vectorProcessor.generate();
 		this.lightLocation = vectorProcessor.generate();
 		this.viewDirection = vectorProcessor.generate();
 		this.portedCanvas = vectorProcessor.generate();
-		
-		this.lightFactors = vectorProcessor.generate();
-		this.lightColorR = vectorProcessor.generate();
-		this.lightColorG = vectorProcessor.generate();
-		this.lightColorB = vectorProcessor.generate();
 
 		this.viewMatrix = matrixProcessor.generate();
 		this.projectionMatrix = matrixProcessor.generate();
@@ -245,21 +245,15 @@ public class GouraudSpecularShader extends Shader {
 
 	@Override
 	public void fragment(int[] location, int[] barycentric) {
-		int lightFactor = graphicsProcessor.interpolate(lightFactors, barycentric);
-		int r = graphicsProcessor.interpolate(lightColorR, barycentric);
-		int g = graphicsProcessor.interpolate(lightColorG, barycentric);
-		int b = graphicsProcessor.interpolate(lightColorB, barycentric);
-		int lightColor = colorProcessor.generate(r, g, b);
+		int lightColor = colorProcessor.generate(lightColorR[3], lightColorG[3], lightColorB[3]);
 		if (texture != null) {
-			int u = graphicsProcessor.interpolate(uvX, barycentric);
-			int v = graphicsProcessor.interpolate(uvY, barycentric);
-			int texel = texture.getPixel(u, v);
+			int texel = texture.getPixel(uvX[3], uvY[3]);
 			if (colorProcessor.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;
-			modelColor = colorProcessor.lerp(ColorProcessor.BLACK, texel, lightFactor);
+			modelColor = colorProcessor.lerp(ColorProcessor.BLACK, texel, lightFactors[3]);
 			modelColor = colorProcessor.multiplyColor(modelColor, lightColor);
 		} else {
-			modelColor = colorProcessor.lerp(ColorProcessor.BLACK, color, lightFactor);
+			modelColor = colorProcessor.lerp(ColorProcessor.BLACK, color, lightFactors[3]);
 			modelColor = colorProcessor.multiplyColor(modelColor, lightColor);
 		}
 		Texture colorBuffer = frameBuffer.getColorBuffer();

@@ -95,10 +95,10 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 			vectorProcessor.multiply(cache, 2 << 10, cache);
 			transform.translate(cache);
 		}
-		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
+//		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
 //			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(0, 0, 1000);
 //			Engine.getInstance().getScene().getModels().get(i).getTransform().translate(VectorProcessor.VECTOR_RIGHT);
-		}
+//		}
 	}
 
 	public int getPriority() {
