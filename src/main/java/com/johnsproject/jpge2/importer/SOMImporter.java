@@ -33,10 +33,10 @@ import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.ColorProcessor;
-import com.johnsproject.jpge2.processor.FileProcessor;
 import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
-import com.johnsproject.jpge2.shader.SpecularShaderProperties;
+import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
+import com.johnsproject.jpge2.util.FileUtil;
 
 public class SOMImporter {
 	
@@ -44,25 +44,23 @@ public class SOMImporter {
 	private static final byte VECTOR_Y = VectorProcessor.VECTOR_Y;
 	private static final byte VECTOR_Z = VectorProcessor.VECTOR_Z;
 	
-	private final FileProcessor fileProcessor;
 	private final MathProcessor mathProcessor;
 	private final VectorProcessor vectorProcessor;
 	private final ColorProcessor colorProcessor;
 	
 	public SOMImporter(CentralProcessor centralProcessor) {
-		this.fileProcessor = centralProcessor.getFileProcessor();
 		this.mathProcessor = centralProcessor.getMathProcessor();
 		this.vectorProcessor = centralProcessor.getVectorProcessor();
 		this.colorProcessor = centralProcessor.getColorProcessor();
 	}
 	
 	public Model load(String path) throws IOException {
-		String content = fileProcessor.readFile(path);
+		String content = FileUtil.readFile(path);
 		return loadFromRaw(content);
 	}
 
 	public Model load(InputStream stream) throws IOException {
-		String content = fileProcessor.readStream(stream);
+		String content = FileUtil.readStream(stream);
 		return loadFromRaw(content);
 	}
 

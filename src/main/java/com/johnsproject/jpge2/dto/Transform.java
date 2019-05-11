@@ -23,57 +23,51 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.primitive.Vector;
-
 public class Transform {
 
-	private Vector location;
-	private Vector rotation;
-	private Vector scale;
+	private int[] location;
+	private int[] rotation;
+	private int[] scale;
 	
-	public Transform() {
-		this.location = new Vector();
-		this.rotation = new Vector();
-		this.scale = new Vector();
-	}
-	
-	public Transform(Vector location, Vector rotation, Vector scale) {
+	public Transform(int[] location, int[] rotation, int[] scale) {
 		this.location = location;
 		this.rotation = rotation;
 		this.scale = scale;
 	}
 	
 	public void translate(int x, int y, int z) {
-		int[] locationValues = location.getValues();
-		locationValues[0] += x;
-		locationValues[1] += y;
-		locationValues[2] += z;
+		location[0] += x;
+		location[1] += y;
+		location[2] += z;
 	}
 
 	public void rotate(int x, int y, int z) {
-		int[] rotationValues = rotation.getValues();
-		rotationValues[0] += x;
-		rotationValues[1] += y;
-		rotationValues[2] += z;
+		rotation[0] += x;
+		rotation[1] += y;
+		rotation[2] += z;
 	}
 	
-	public void translate(Vector vector) {
-		location.add(vector);
+	public void translate(int[] vector) {
+		location[0] += vector[0];
+		location[1] += vector[1];
+		location[2] += vector[2];
 	}
 
-	public void rotate(Vector angles) {
-		rotation.add(angles);
+	public void rotate(int[] angles) {
+		rotation[0] += angles[0];
+		rotation[1] += angles[1];
+		rotation[2] += angles[2];
 	}
 
-	public Vector getLocation() {
+	public int[] getLocation() {
 		return location;
 	}
 
-	public Vector getRotation() {
+	public int[] getRotation() {
 		return rotation;
 	}
 
-	public Vector getScale() {
+	public int[] getScale() {
 		return scale;
 	}
 }

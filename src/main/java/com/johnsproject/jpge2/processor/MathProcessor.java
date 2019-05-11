@@ -39,7 +39,7 @@ public class MathProcessor {
 			868, 878, 887, 896, 904, 912, 920, 928, 935, 943, 949, 956, 962, 968, 974, 979, 984, 989, 994, 998, 1002,
 			1005, 1008, 1011, 1014, 1016, 1018, 1020, 1022, 1023, 1023, 1024, 1024};
 
-	private static int random = 545;
+	private int random = 545;
 	
 	/**
 	 * This is the bit representation of the default fixed point precision value. 
@@ -58,7 +58,7 @@ public class MathProcessor {
 	 */
 	public static final short FP_HALF = 1 << (FP_BITS - 1);
 	
-	private MathProcessor() {}
+	public MathProcessor() {}
 	
 	/**
 	 * Returns the fixed point representation of value.
@@ -66,7 +66,7 @@ public class MathProcessor {
 	 * @param value
 	 * @return
 	 */
-	public static int generate(float value) {
+	public int generate(float value) {
 		return (int)(value * FP_ONE);
 	}
 	
@@ -76,7 +76,7 @@ public class MathProcessor {
 	 * @param angle in fixed point degrees.
 	 * @return
 	 */
-	public static int sin(int angle) {
+	public int sin(int angle) {
 		angle >>= FP_BITS;
 		angle = ((angle % 360) + 360) % 360;
 		int quadrant = (angle / 90) + 1;
@@ -117,7 +117,7 @@ public class MathProcessor {
 	 * @param angle in fixed point degrees.
 	 * @return
 	 */
-	public static int cos(int angle) {
+	public int cos(int angle) {
 		angle >>= FP_BITS;
 		angle = ((angle % 360) + 360) % 360;
 		int quadrant = (angle / 90) + 1;
@@ -143,7 +143,7 @@ public class MathProcessor {
 	 * @param angle in fixed point degrees.
 	 * @return
 	 */
-	public static int tan(int angle) {
+	public int tan(int angle) {
 		return (sin(angle) << FP_BITS) / cos(angle);
 	}
 
@@ -155,7 +155,7 @@ public class MathProcessor {
 	 * @param max
 	 * @return
 	 */
-	public static int normalize(int value, int min, int max) {
+	public int normalize(int value, int min, int max) {
 		int range = max - min;
 		return (min + ((((value - min) % range) + range) % range));
 	}
@@ -168,7 +168,7 @@ public class MathProcessor {
 	 * @param max
 	 * @return
 	 */
-	public static long normalize(long value, long min, long max) {
+	public long normalize(long value, long min, long max) {
 		long range = max - min;
 		return (min + ((((value - min) % range) + range) % range));
 	}
@@ -182,7 +182,7 @@ public class MathProcessor {
 	 * @param max
 	 * @return
 	 */
-	public static int clamp(int value, int min, int max) {
+	public int clamp(int value, int min, int max) {
 		return Math.min(max, Math.max(value, min));
 	}
 
@@ -195,7 +195,7 @@ public class MathProcessor {
 	 * @param max
 	 * @return
 	 */
-	public static long clamp(long value, long min, long max) {
+	public long clamp(long value, long min, long max) {
 		return Math.min(max, Math.max(value, min));
 	}
 
@@ -204,7 +204,7 @@ public class MathProcessor {
 	 * 
 	 * @return
 	 */
-	public static int random() {
+	public int random() {
 		random += random + (random & random);
 		return random;
 	}
@@ -216,7 +216,7 @@ public class MathProcessor {
 	 * @param max highest random value.
 	 * @return
 	 */
-	public static int random(int min, int max) {
+	public int random(int min, int max) {
 		random += random + (random & random);
 		return normalize(random, min, max);
 	}
@@ -228,7 +228,7 @@ public class MathProcessor {
 	 * @param number fixed point number.
 	 * @return fixed point result.
 	 */
-	public static int sqrt(int number) {
+	public int sqrt(int number) {
 		number >>= FP_BITS;
 		int c = 0x8000;
 		int g = 0x8000;
@@ -261,7 +261,7 @@ public class MathProcessor {
 	 * @param number fixed point number.
 	 * @return fixed point result.
 	 */
-	public static long sqrt(long number) {
+	public long sqrt(long number) {
 		number >>= FP_BITS;
 		long c = 0x8000;
 		long g = 0x8000;
@@ -294,7 +294,7 @@ public class MathProcessor {
 	 * @param exp not fixed point number.
 	 * @return fixed point result.
 	 */
-	public static int pow(int base, int exp) {
+	public int pow(int base, int exp) {
 		long lBase = base;
 		long result = FP_ONE;
 		while (exp != 0) {
@@ -314,7 +314,7 @@ public class MathProcessor {
 	 * @param exp not fixed point number.
 	 * @return fixed point result.
 	 */
-	public static long pow(long base, long exp) {
+	public long pow(long base, long exp) {
 		long result = FP_ONE;
 		while (exp != 0) {
 			if ((exp & 1) == 1) {
@@ -333,7 +333,7 @@ public class MathProcessor {
 	 * @param value2 fixed point number.
 	 * @return fixed point result.
 	 */
-	public static int multiply(int value1, int value2) {
+	public int multiply(int value1, int value2) {
 		return (int) ((((long) value1 * (long) value2) + FP_HALF) >> FP_BITS);
 	}
 
@@ -344,7 +344,7 @@ public class MathProcessor {
 	 * @param value2 fixed point number.
 	 * @return fixed point result.
 	 */
-	public static long multiply(long value1, long value2) {
+	public long multiply(long value1, long value2) {
 		return (((value1 * value2) + FP_HALF) >> FP_BITS);
 	}
 
@@ -355,7 +355,7 @@ public class MathProcessor {
 	 * @param divisor not fixed point number.
 	 * @return fixed point result.
 	 */
-	public static int divide(int dividend, int divisor) {
+	public int divide(int dividend, int divisor) {
 		if (divisor == 0)
 			return 0;
 		return (int) ((((long) dividend << FP_BITS) + FP_HALF) / divisor);
@@ -368,7 +368,7 @@ public class MathProcessor {
 	 * @param divisor not fixed point number.
 	 * @return fixed point result.
 	 */
-	public static long divide(long dividend, long divisor) {
+	public long divide(long dividend, long divisor) {
 		if (divisor == 0)
 			return 0;
 		return ((dividend << FP_BITS) + FP_HALF) / divisor;

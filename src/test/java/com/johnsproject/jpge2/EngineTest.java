@@ -8,12 +8,20 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import com.johnsproject.jpge2.controller.GraphicsController;
+import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.FrameBuffer;
+import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
+import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
+import com.johnsproject.jpge2.importer.SOMImporter;
 import com.johnsproject.jpge2.importer.SceneImporter;
-import com.johnsproject.jpge2.primitive.Vector;
+import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.ColorProcessor;
+import com.johnsproject.jpge2.processor.MathProcessor;
+import com.johnsproject.jpge2.processor.VectorProcessor;
+import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
+import com.johnsproject.jpge2.util.FileUtil;
 
 public class EngineTest implements EngineListener, MouseMotionListener, KeyListener {
 
@@ -21,6 +29,7 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 	private static final int WINDOW_H = 768;
 	private static final int RENDER_W = 1024;
 	private static final int RENDER_H = 768;
+	private CentralProcessor centralProcessor;
 	
 	public static void main(String[] args) {
 		new EngineTest();
@@ -29,7 +38,8 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 	EngineTest() {
 		Engine.getInstance().start();
 		Engine.getInstance().addEngineListener(this);
-		cache = new Vector();
+		this.centralProcessor = Engine.getInstance().getProcessor();
+		cache = centralProcessor.getVectorProcessor().generate();
 	}
 	
 	public void start() {
@@ -46,22 +56,24 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 		Engine.getInstance().getController().getInputController().addKeyListener(this);
 	}
 
-//	void useSOM() {
-//		try {
-//			Model model = SOMImporter.load("C:/Development/test.som");
-//			((SpecularShaderProperties)model.getMaterial(0).getProperties()).setTexture(centralProcessor.getTextureProcessor().generate("C:/Development/JohnsProject.png"));
-//			Engine.getInstance().getScene().addCamera(new Camera("Default Camera", new Transform()));
-//			Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, MathProcessor.FP_ONE * 100);
-//			Engine.getInstance().getScene().addModel(model);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
+	void useSOM() {
+		try {
+			Model model = new SOMImporter(Engine.getInstance().getProcessor()).load("C:/Development/test.som");
+			Texture texture = new Texture(FileUtil.loadImage("C:/Development/JohnsProject.png"));
+			((SpecularShaderProperties)model.getMaterial(0).getProperties()).setTexture(texture);
+			Engine.getInstance().getScene().addCamera(new Camera("Default Camera", new Transform(new int[3], new int[3], new int[3])));
+			Engine.getInstance().getScene().getCameras().get(0).getTransform().translate(0, 0, MathProcessor.FP_ONE * 100);
+			Engine.getInstance().getScene().addModel(model);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	void useScene() {
 		try {
-			Scene scene = new SceneImporter().load("C:/Development/test.scene");
-//			((SpecularShaderProperties)scene.getModel("Ground").getMaterial(0).getProperties()).setTexture(centralProcessor.getTextureProcessor().generate("C:/Development/JohnsProject.png"));
+			Scene scene = new SceneImporter(Engine.getInstance().getProcessor()).load("C:/Development/test.scene");
+			Texture texture = new Texture(FileUtil.loadImage("C:/Development/JohnsProject.png"));
+			((SpecularShaderProperties)scene.getModel("Ground").getMaterial(0).getProperties()).setTexture(texture);
 //			scene.getModels().get(0).getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
 			Engine.getInstance().setScene(scene);
 		} catch (IOException e) {
@@ -73,14 +85,14 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 		
 	}
 
-	private final Vector cache;
+	private final int[] cache;
 	
 	public void fixedUpdate() {
 		if (move) {
 			Transform transform = Engine.getInstance().getScene().getCamera(0).getTransform();
-			Vector.VECTOR_DOWN.copy(cache);
-			cache.rotateXYZ(transform.getRotation());
-			cache.multiply(2 << 10);
+			VectorProcessor vectorProcessor = Engine.getInstance().getProcessor().getVectorProcessor();
+			vectorProcessor.rotateXYZ(VectorProcessor.VECTOR_DOWN, transform.getRotation(), cache);
+			vectorProcessor.multiply(cache, 2 << 10, cache);
 			transform.translate(cache);
 		}
 		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
@@ -98,10 +110,10 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 	}
 
 	public void mouseMoved(MouseEvent e) {
-//		Transform transform = Engine.getInstance().getScene().getCamera(0).getTransform();
-//		FPVector rotation = transform.getRotation();
-//		rotation.getValues()[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << 10;
-//		rotation.getValues()[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << 10;
+		Transform transform = Engine.getInstance().getScene().getCamera(0).getTransform();
+		int[] rotation = transform.getRotation();
+		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << 10;
+		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << 10;
 	}
 
 	public void keyTyped(KeyEvent e) {

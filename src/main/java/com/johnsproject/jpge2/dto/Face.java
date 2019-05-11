@@ -23,19 +23,17 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.primitive.Vector;
-
 public class Face {
 		
 	private int index;
 	private Vertex[] vertices;
-	private Vector normal;
-	private Vector uv1;
-	private Vector uv2;
-	private Vector uv3;
+	private int[] normal;
+	private int[] uv1;
+	private int[] uv2;
+	private int[] uv3;
 	private Material material;
 
-	public Face(int index, Vertex vertex1, Vertex vertex2, Vertex vertex3, Material material, Vector normal, Vector uv1, Vector uv2, Vector uv3) {
+	public Face(int index, Vertex vertex1, Vertex vertex2, Vertex vertex3, Material material, int[] normal, int[] uv1, int[] uv2, int[] uv3) {
 		this.index = index;
 		this.vertices = new Vertex[3];
 		this.vertices[0] = vertex1;
@@ -60,19 +58,19 @@ public class Face {
 		return vertices;
 	}
 
-	public Vector getNormal() {
+	public int[] getNormal() {
 		return normal;
 	}
 	
-	public Vector getUV1() {
+	public int[] getUV1() {
 		return uv1;
 	}
 
-	public Vector getUV2() {
+	public int[] getUV2() {
 		return uv2;
 	}
 
-	public Vector getUV3() {
+	public int[] getUV3() {
 		return uv3;
 	}
 

@@ -21,16 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jpge2.primitive;
+package com.johnsproject.jpge2.dto;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 
 public class Texture {
 	
 	private int[] pixelBuffer;
 	private int[] size;
-
-	public Texture (int width, int height){
+	
+	public Texture (BufferedImage bufferedImage){
+		int width = bufferedImage.getWidth();
+		int height = bufferedImage.getHeight();
 		this.size = new int[] {width, height, width * height, 0};
-		this.pixelBuffer = new int[size[2]];
+		this.pixelBuffer = ((DataBufferInt)bufferedImage.getRaster().getDataBuffer()).getData();;
 	}
 	
 	public Texture (int width, int height, int[] pixelBuffer){
@@ -38,16 +43,17 @@ public class Texture {
 		this.pixelBuffer = pixelBuffer;
 	}
 	
+	public Texture (int width, int height){
+		this.size = new int[] {width, height, width * height, 0};
+		this.pixelBuffer = new int[size[2]];
+	}
+	
 	public int[] getPixelBuffer() {
 		return pixelBuffer;
 	}
 	
-	public int getWidth(){
-		return size[0];
-	}
-	
-	public int getHeight(){
-		return size[1];
+	public int[] getSize(){
+		return size;
 	}
 	
 	public int getPixel(int x, int y) {
@@ -58,24 +64,26 @@ public class Texture {
 		pixelBuffer[x + (y * size[0])] = value;
 	}
 	
-	public void fill(int color) {
+	public void fill(int value) {
+		int[] pixelBuffer = getPixelBuffer();
 		for (int i = 0; i < pixelBuffer.length; i++) {
-			pixelBuffer[i] = color;
+			pixelBuffer[i] = value;
 		}
 	}
 	
-	public void fillUntil(int color, int width, int height) {
+	public void fillUntil(int value, int width, int height) {
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
-				setPixel(i, j, color);
+				setPixel(i, j, value);
 			}
 		}
 	}
 	
 	public void copy(Texture target) {
-		int[] targetPixelBuffer = target.getPixelBuffer();
-		for (int i = 0; i < size[2]; i++) {
-			targetPixelBuffer[i] = pixelBuffer[i];
+		for (int i = 0; i < target.getSize()[0]; i++) {
+			for (int j = 0; j < target.getSize()[1]; j++) {
+				target.setPixel(i, j, getPixel(i, j));
+			}
 		}
 	}
 }

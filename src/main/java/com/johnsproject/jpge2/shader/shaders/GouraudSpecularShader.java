@@ -1,4 +1,4 @@
-package com.johnsproject.jpge2.shader;
+package com.johnsproject.jpge2.shader.shaders;
 
 import java.util.List;
 
@@ -6,15 +6,18 @@ import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
+import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.primitive.Texture;
 import com.johnsproject.jpge2.processor.CentralProcessor;
 import com.johnsproject.jpge2.processor.ColorProcessor;
 import com.johnsproject.jpge2.processor.GraphicsProcessor;
 import com.johnsproject.jpge2.processor.MathProcessor;
 import com.johnsproject.jpge2.processor.MatrixProcessor;
-import com.johnsproject.jpge2.processor.TextureProcessor;
 import com.johnsproject.jpge2.processor.VectorProcessor;
+import com.johnsproject.jpge2.shader.Shader;
+import com.johnsproject.jpge2.shader.ShaderDataBuffer;
+import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
+import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
 
 public class GouraudSpecularShader extends Shader {
 
@@ -30,7 +33,6 @@ public class GouraudSpecularShader extends Shader {
 	private final VectorProcessor vectorProcessor;
 	private final ColorProcessor colorProcessor;
 	private final GraphicsProcessor graphicsProcessor;
-	private final TextureProcessor textureProcessor;
 
 	private final int[] uvX;
 	private final int[] uvY;
@@ -69,7 +71,6 @@ public class GouraudSpecularShader extends Shader {
 		this.vectorProcessor = centralProcessor.getVectorProcessor();
 		this.colorProcessor = centralProcessor.getColorProcessor();
 		this.graphicsProcessor = centralProcessor.getGraphicsProcessor();
-		this.textureProcessor = centralProcessor.getTextureProcessor();
 		
 		this.uvX = vectorProcessor.generate();
 		this.uvY = vectorProcessor.generate();
@@ -97,8 +98,8 @@ public class GouraudSpecularShader extends Shader {
 		this.shaderData = (ForwardDataBuffer)shaderDataBuffer;
 		this.lights = shaderData.getLights();
 		this.frameBuffer = shaderData.getFrameBuffer();
-		textureProcessor.fill(0, frameBuffer.getColorBuffer());
-		textureProcessor.fill(Integer.MAX_VALUE, frameBuffer.getDepthBuffer());
+		frameBuffer.getColorBuffer().fill(0);
+		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
 	}
 
 	@Override

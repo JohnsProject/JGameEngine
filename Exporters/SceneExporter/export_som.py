@@ -152,14 +152,14 @@ def writeToFile(filepath, scene):
 
 def setTransform(transform, object):
 	transform.location.append(object.location[0])
-	transform.location.append(object.location[2])
 	transform.location.append(object.location[1])
+	transform.location.append(object.location[2])
 	transform.rotation.append(math.degrees(object.rotation_euler[0]))
-	transform.rotation.append(math.degrees(object.rotation_euler[2]))
 	transform.rotation.append(math.degrees(object.rotation_euler[1]))
+	transform.rotation.append(math.degrees(object.rotation_euler[2]))
 	transform.scale.append(object.scale[0])
-	transform.scale.append(object.scale[2])
 	transform.scale.append(object.scale[1])
+	transform.scale.append(object.scale[2])
 	
 class Scene:
 	def __init__(self):
