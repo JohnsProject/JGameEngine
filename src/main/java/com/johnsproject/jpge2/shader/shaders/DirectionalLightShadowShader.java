@@ -130,10 +130,7 @@ public class DirectionalLightShadowShader extends Shader {
 		int[] location1 = face.getVertex(0).getLocation();
 		int[] location2 = face.getVertex(1).getLocation();
 		int[] location3 = face.getVertex(2).getLocation();
-		if (!graphicsLibrary.isBackface(location1, location2, location3)
-				&& graphicsLibrary.isInsideFrustum(location1, location2, location3, portedCanvas, lightFrustum)) {
-			graphicsLibrary.drawTriangle(location1, location2, location3, portedCanvas, this);
-		}
+		graphicsLibrary.drawTriangle(location1, location2, location3, portedCanvas, lightFrustum, this);
 	}
 
 	@Override

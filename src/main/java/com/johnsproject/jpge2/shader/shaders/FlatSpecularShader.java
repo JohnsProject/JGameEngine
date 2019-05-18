@@ -225,22 +225,19 @@ public class FlatSpecularShader extends Shader {
 			vectorLibrary.multiply(vertexLocation, projectionMatrix, vertexLocation);
 			graphicsLibrary.viewport(vertexLocation, portedCanvas, vertexLocation);
 		}
-		if (!graphicsLibrary.isBackface(location1, location2, location3)
-				&& graphicsLibrary.isInsideFrustum(location1, location2, location3, portedCanvas, camera.getFrustum())) {
-			texture = shaderProperties.getTexture();
-			// set uv values that will be interpolated and fit uv into texture resolution
-			if (texture != null) {
-				int width = texture.getWidth() - 1;
-				int height = texture.getHeight() - 1;
-				uvX[0] = mathLibrary.multiply(face.getUV1()[VECTOR_X], width);
-				uvX[1] = mathLibrary.multiply(face.getUV2()[VECTOR_X], width);
-				uvX[2] = mathLibrary.multiply(face.getUV3()[VECTOR_X], width);
-				uvY[0] = mathLibrary.multiply(face.getUV1()[VECTOR_Y], height);
-				uvY[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
-				uvY[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
-			}
-			graphicsLibrary.drawTriangle(location1, location2, location3, portedCanvas, this);
+		texture = shaderProperties.getTexture();
+		// set uv values that will be interpolated and fit uv into texture resolution
+		if (texture != null) {
+			int width = texture.getWidth() - 1;
+			int height = texture.getHeight() - 1;
+			uvX[0] = mathLibrary.multiply(face.getUV1()[VECTOR_X], width);
+			uvX[1] = mathLibrary.multiply(face.getUV2()[VECTOR_X], width);
+			uvX[2] = mathLibrary.multiply(face.getUV3()[VECTOR_X], width);
+			uvY[0] = mathLibrary.multiply(face.getUV1()[VECTOR_Y], height);
+			uvY[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
+			uvY[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
 		}
+		graphicsLibrary.drawTriangle(location1, location2, location3, portedCanvas, camera.getFrustum(), this);
 	}
 
 	@Override

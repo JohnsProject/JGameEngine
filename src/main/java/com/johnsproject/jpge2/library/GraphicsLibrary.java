@@ -95,34 +95,6 @@ public class GraphicsLibrary {
 		out[VECTOR_Y] = mathLibrary.divide(location[VECTOR_Y] * scaleFactor, w) + halfY;
 		return out;
 	}
-
-	public boolean isBackface(int[] location1, int[] location2, int[] location3) {
-		return barycentric(location1, location2, location3) <= 0;
-	}
-
-	public boolean isInsideFrustum(int[] location1, int[] location2, int[] location3, int[] cameraCanvas, int[] cameraFrustum) {
-		int xleft = cameraCanvas[VECTOR_X];
-		int yleft = cameraCanvas[VECTOR_Y];
-		int xright = cameraCanvas[2];
-		int yright = cameraCanvas[3];
-
-		boolean insideWidth = (location1[VECTOR_X] > xleft) & (location1[VECTOR_X] < xright);
-		boolean insideHeight = (location1[VECTOR_Y] > yleft) & (location1[VECTOR_Y] < yright);
-		boolean insideDepth = (location1[VECTOR_Z] > cameraFrustum[1]) & (location1[VECTOR_Z] < cameraFrustum[2]);
-		boolean location1Inside = insideWidth & insideHeight & insideDepth;
-
-		insideWidth = (location2[VECTOR_X] > xleft) & (location2[VECTOR_X] < xright);
-		insideHeight = (location2[VECTOR_Y] > yleft) & (location2[VECTOR_Y] < yright);
-		insideDepth = (location2[VECTOR_Z] > cameraFrustum[1]) & (location2[VECTOR_Z] < cameraFrustum[2]);
-		boolean location2Inside = insideWidth & insideHeight & insideDepth;
-
-		insideWidth = (location3[VECTOR_X] > xleft) & (location3[VECTOR_X] < xright);
-		insideHeight = (location3[VECTOR_Y] > yleft) & (location3[VECTOR_Y] < yright);
-		insideDepth = (location3[VECTOR_Z] > cameraFrustum[1]) & (location3[VECTOR_Z] < cameraFrustum[2]);
-		boolean location3Inside = insideWidth & insideHeight & insideDepth;
-
-		return location1Inside | location2Inside | location3Inside;
-	}
 	
 	public int[] portCanvas(int[] cameraCanvas, int width, int height, int[] out) {
 		out[0] = (width * cameraCanvas[0]) / 100;
@@ -132,7 +104,15 @@ public class GraphicsLibrary {
 		return out;
 	}
 
-	public void drawTriangle(int[] location1, int[] location2, int[] location3, int[] cameraCanvas, Shader shader) {
+	public void drawTriangle(int[] location1, int[] location2, int[] location3, int[] cameraCanvas, int[] cameraFrustum, Shader shader) {
+		int triangleSize = barycentric(location1, location2, location3);
+		if(triangleSize < 0) // backface culling
+			return;		
+		boolean insideDepth1 = (location1[VECTOR_Z] > cameraFrustum[1]) & (location1[VECTOR_Z] < cameraFrustum[2]);
+		boolean insideDepth2 = (location2[VECTOR_Z] > cameraFrustum[1]) & (location2[VECTOR_Z] < cameraFrustum[2]);
+		boolean insideDepth3 = (location3[VECTOR_Z] > cameraFrustum[1]) & (location3[VECTOR_Z] < cameraFrustum[2]);
+		if (!insideDepth1 & !insideDepth2 & !insideDepth3)
+			return;
 		// compute boundig box of faces
 		int minX = Math.min(location1[VECTOR_X], Math.min(location2[VECTOR_X], location3[VECTOR_X]));
 		int minY = Math.min(location1[VECTOR_Y], Math.min(location2[VECTOR_Y], location3[VECTOR_Y]));
@@ -145,11 +125,11 @@ public class GraphicsLibrary {
 		minY = Math.max(minY, cameraCanvas[VECTOR_Y]);
 		maxX = Math.min(maxX, cameraCanvas[2]);
 		maxY = Math.min(maxY, cameraCanvas[3]);
-
+		
 		location1[VECTOR_Z] = Math.max(1, location1[VECTOR_Z]);
 		location2[VECTOR_Z] = Math.max(1, location2[VECTOR_Z]);
 		location3[VECTOR_Z] = Math.max(1, location3[VECTOR_Z]);
-
+		
 		// triangle setup
 		int a01 = location1[VECTOR_Y] - location2[VECTOR_Y];
 		int a12 = location2[VECTOR_Y] - location3[VECTOR_Y];
@@ -158,9 +138,8 @@ public class GraphicsLibrary {
 		int b01 = location2[VECTOR_X] - location1[VECTOR_X];
 		int b12 = location3[VECTOR_X] - location2[VECTOR_X];
 		int b20 = location1[VECTOR_X] - location3[VECTOR_X];
-
-		barycentricCache[3] = barycentric(location1, location2, location3);
-		barycentricCache[3] = barycentricCache[3] == 0 ? 1 : barycentricCache[3];
+		
+		barycentricCache[3] = triangleSize == 0 ? 1 : triangleSize;
 		depthCache[0] = INTERPOLATE_ONE / location1[VECTOR_Z];
 		depthCache[1] = INTERPOLATE_ONE / location2[VECTOR_Z];
 		depthCache[2] = INTERPOLATE_ONE / location3[VECTOR_Z];
@@ -183,7 +162,7 @@ public class GraphicsLibrary {
 			
 			for (pixelChache[VECTOR_X] = minX; pixelChache[VECTOR_X] < maxX; pixelChache[VECTOR_X]++) {
 				if ((barycentricCache[0] | barycentricCache[1] | barycentricCache[2]) > 0) {
-					pixelChache[VECTOR_Z] = interpolatDepth(depthCache, barycentricCache);
+					pixelChache[VECTOR_Z] = interpolateDepth(depthCache, barycentricCache);
 					for (int i = 0; i < shader.getVariables().length; i++) {
 						int[] variable = shader.getVariables()[i];
 						variable[3] = interpolate(variable, pixelChache, depthCache, barycentricCache, oneByBarycentric);
@@ -207,7 +186,7 @@ public class GraphicsLibrary {
 		}
 	}
 
-	private int interpolatDepth(int[] depth, int[] barycentric) {
+	private int interpolateDepth(int[] depth, int[] barycentric) {
 		 long dotProduct = (long)barycentric[0] * depth[0]
 						 + (long)barycentric[1] * depth[1]
 						 + (long)barycentric[2] * depth[2];

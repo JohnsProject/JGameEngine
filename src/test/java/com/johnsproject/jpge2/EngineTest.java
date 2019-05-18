@@ -21,7 +21,9 @@ import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
 import com.johnsproject.jpge2.shader.shaders.DirectionalLightShadowShader;
+import com.johnsproject.jpge2.shader.shaders.FlatSpecularShader;
 import com.johnsproject.jpge2.shader.shaders.GouraudSpecularShader;
+import com.johnsproject.jpge2.shader.shaders.PhongSpecularShader;
 import com.johnsproject.jpge2.shader.shaders.SpotLightShadowShader;
 import com.johnsproject.jpge2.util.FileUtil;
 
@@ -57,7 +59,7 @@ public class EngineTest implements EngineListener, MouseMotionListener, KeyListe
 		graphicsController.removeShader(graphicsController.getShader(0));
 //		graphicsController.addPreprocessingShader(new DirectionalLightShadowShader());
 //		graphicsController.addPreprocessingShader(new SpotLightShadowShader());
-		graphicsController.addShader(new GouraudSpecularShader());
+		graphicsController.addShader(new FlatSpecularShader());
 //		useSOM();
 		useScene();
 		Engine.getInstance().getController().getInputController().addMouseMotionListener(this);
