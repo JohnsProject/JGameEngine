@@ -21,11 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jpge2.processor;
+package com.johnsproject.jpge2.library;
 
-public class VectorProcessor {
+public class VectorLibrary {
 
-	private static final int FP_ONE = MathProcessor.FP_ONE;
+	private static final byte FP_BITS = MathLibrary.FP_BITS;
+	private static final int FP_ONE = MathLibrary.FP_ONE;
 	
 	public static final byte VECTOR_X = 0;
 	public static final byte VECTOR_Y = 1;
@@ -45,10 +46,10 @@ public class VectorProcessor {
 	private final int[] vectorCache1 = generate();
 	private final int[] vectorCache2 = generate();
 	
-	private final MathProcessor mathProcessor;
+	private final MathLibrary mathLibrary;
 	
-	VectorProcessor(MathProcessor mathProcessor) {
-		this.mathProcessor = mathProcessor;
+	public VectorLibrary() {
+		this.mathLibrary = new MathLibrary();
 	}
 	
 	/**
@@ -135,9 +136,9 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public int[] multiply(int[] vector1, int value, int[] out) {
-		out[VECTOR_X] = mathProcessor.multiply(vector1[VECTOR_X], value);
-		out[VECTOR_Y] = mathProcessor.multiply(vector1[VECTOR_Y], value);
-		out[VECTOR_Z] = mathProcessor.multiply(vector1[VECTOR_Z], value);
+		out[VECTOR_X] = mathLibrary.multiply(vector1[VECTOR_X], value);
+		out[VECTOR_Y] = mathLibrary.multiply(vector1[VECTOR_Y], value);
+		out[VECTOR_Z] = mathLibrary.multiply(vector1[VECTOR_Z], value);
 		return out;
 	}
 
@@ -149,9 +150,9 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public int[] divide(int[] vector1, int value, int[] out) {
-		out[VECTOR_X] = mathProcessor.divide(vector1[VECTOR_X], value);
-		out[VECTOR_Y] = mathProcessor.divide(vector1[VECTOR_Y], value);
-		out[VECTOR_Z] = mathProcessor.divide(vector1[VECTOR_Z], value);
+		out[VECTOR_X] = mathLibrary.divide(vector1[VECTOR_X], value);
+		out[VECTOR_Y] = mathLibrary.divide(vector1[VECTOR_Y], value);
+		out[VECTOR_Z] = mathLibrary.divide(vector1[VECTOR_Z], value);
 		return out;
 	}
 
@@ -191,9 +192,9 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public int[] multiply(int[] vector1, int[] vector2, int[] out) {
-		out[VECTOR_X] = mathProcessor.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
-		out[VECTOR_Y] = mathProcessor.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		out[VECTOR_Z] = mathProcessor.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+		out[VECTOR_X] = mathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
+		out[VECTOR_Y] = mathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		out[VECTOR_Z] = mathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return out;
 	}
 
@@ -205,9 +206,9 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public int[] divide(int[] vector1, int[] vector2, int[] out) {
-		out[VECTOR_X] = mathProcessor.divide(vector1[VECTOR_X], vector2[VECTOR_X]);
-		out[VECTOR_Y] = mathProcessor.divide(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		out[VECTOR_Z] = mathProcessor.divide(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+		out[VECTOR_X] = mathLibrary.divide(vector1[VECTOR_X], vector2[VECTOR_X]);
+		out[VECTOR_Y] = mathLibrary.divide(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		out[VECTOR_Z] = mathLibrary.divide(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return out;
 	}
 
@@ -225,7 +226,7 @@ public class VectorProcessor {
 			long result = (long)matrix[0][i] * vectorCache1[VECTOR_X];
 			result += (long)matrix[1][i] * vectorCache1[VECTOR_Y];
 			result += (long)matrix[2][i] * vectorCache1[VECTOR_Z];
-			out[i] = (int)(mathProcessor.multiply(result, 1) + matrix[3][i]);
+			out[i] = (int)((result >> FP_BITS) + matrix[3][i]);
 		}
 		return out;
 	}
@@ -237,7 +238,7 @@ public class VectorProcessor {
 	 * @return
 	 */
 	public int magnitude(int[] vector) {
-		return mathProcessor.sqrt(dotProduct(vector, vector));
+		return mathLibrary.sqrt(dotProduct(vector, vector));
 	}
 
 	/**
@@ -251,7 +252,7 @@ public class VectorProcessor {
 		long x = (long)vector1[VECTOR_X] * vector2[VECTOR_X];
 		long y = (long)vector1[VECTOR_Y] * vector2[VECTOR_Y];
 		long z = (long)vector1[VECTOR_Z] * vector2[VECTOR_Z];
-		return (int)mathProcessor.multiply(x + y + z, 1);
+		return (int)((x + y + z) >> FP_BITS);
 	}
 	
 	/**
@@ -277,12 +278,12 @@ public class VectorProcessor {
 		// ensures that will return right values if vector is the same as out
 		copy(vectorCache1, vector1);
 		copy(vectorCache2, vector2);
-		out[VECTOR_X] = mathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_Z]);
-		out[VECTOR_Y] = mathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_X]);
-		out[VECTOR_Z] = mathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Y]);
-		out[VECTOR_X] -= mathProcessor.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_Y]);
-		out[VECTOR_Y] -= mathProcessor.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Z]);
-		out[VECTOR_Z] -= mathProcessor.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_X]);
+		out[VECTOR_X] = mathLibrary.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_Z]);
+		out[VECTOR_Y] = mathLibrary.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_X]);
+		out[VECTOR_Z] = mathLibrary.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Y]);
+		out[VECTOR_X] -= mathLibrary.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_Y]);
+		out[VECTOR_Y] -= mathLibrary.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Z]);
+		out[VECTOR_Z] -= mathLibrary.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_X]);
 		return out;
 	}
 	
@@ -293,12 +294,10 @@ public class VectorProcessor {
 	 * @param out
 	 */
 	public int[] normalize(int[] vector, int[] out) {
-		int magnitude = magnitude(vector) >> MathProcessor.FP_BITS;
-		if (magnitude != 0) {
-			out[VECTOR_X] = vector[VECTOR_X] / magnitude;
-			out[VECTOR_Y] = vector[VECTOR_Y] / magnitude;
-			out[VECTOR_Z] = vector[VECTOR_Z] / magnitude;
-		}
+		int magnitude = magnitude(vector) + 1;
+		out[VECTOR_X] = mathLibrary.divide(vector[VECTOR_X], magnitude);
+		out[VECTOR_Y] = mathLibrary.divide(vector[VECTOR_Y], magnitude);
+		out[VECTOR_Z] = mathLibrary.divide(vector[VECTOR_Z], magnitude);
 		return out;
 	}
 	
@@ -328,13 +327,13 @@ public class VectorProcessor {
 	public int[] rotateX(int[] vector, int angle, int[] out) {
 		// ensures that will return right values if vector is the same as out
 		copy(vectorCache1, vector);
-		int sin = mathProcessor.sin(angle);
-		int cos = mathProcessor.cos(angle);
+		int sin = mathLibrary.sin(angle);
+		int cos = mathLibrary.cos(angle);
 		out[VECTOR_X] = vectorCache1[VECTOR_X];
-		out[VECTOR_Y] = mathProcessor.multiply(vectorCache1[VECTOR_Y], cos);
-		out[VECTOR_Y] -= mathProcessor.multiply(vectorCache1[VECTOR_Z], sin);
-		out[VECTOR_Z] = mathProcessor.multiply(vectorCache1[VECTOR_Z], cos);
-		out[VECTOR_Z] += mathProcessor.multiply(vectorCache1[VECTOR_Y], sin);
+		out[VECTOR_Y] = mathLibrary.multiply(vectorCache1[VECTOR_Y], cos);
+		out[VECTOR_Y] -= mathLibrary.multiply(vectorCache1[VECTOR_Z], sin);
+		out[VECTOR_Z] = mathLibrary.multiply(vectorCache1[VECTOR_Z], cos);
+		out[VECTOR_Z] += mathLibrary.multiply(vectorCache1[VECTOR_Y], sin);
 		return out;
 	}
 	
@@ -349,13 +348,13 @@ public class VectorProcessor {
 	public int[] rotateY(int[] vector, int angle, int[] out) {
 		// ensures that will return right values if vector is the same as out
 		copy(vectorCache1, vector);
-		int sin = mathProcessor.sin(-angle);
-		int cos = mathProcessor.cos(-angle);
-		out[VECTOR_X] = mathProcessor.multiply(vectorCache1[VECTOR_X], cos);
-		out[VECTOR_X] -= mathProcessor.multiply(vectorCache1[VECTOR_Z], sin);
+		int sin = mathLibrary.sin(-angle);
+		int cos = mathLibrary.cos(-angle);
+		out[VECTOR_X] = mathLibrary.multiply(vectorCache1[VECTOR_X], cos);
+		out[VECTOR_X] -= mathLibrary.multiply(vectorCache1[VECTOR_Z], sin);
 		out[VECTOR_Y] = vectorCache1[VECTOR_Y];
-		out[VECTOR_Z] = mathProcessor.multiply(vectorCache1[VECTOR_Z], cos);
-		out[VECTOR_Z] += mathProcessor.multiply(vectorCache1[VECTOR_X], sin);
+		out[VECTOR_Z] = mathLibrary.multiply(vectorCache1[VECTOR_Z], cos);
+		out[VECTOR_Z] += mathLibrary.multiply(vectorCache1[VECTOR_X], sin);
 		return out;
 	}
 	
@@ -370,12 +369,12 @@ public class VectorProcessor {
 	public int[] rotateZ(int[] vector, int angle, int[] out) {
 		// ensures that will return right values if vector is the same as out
 		copy(vectorCache1, vector);
-		int sin = mathProcessor.sin(-angle);
-		int cos = mathProcessor.cos(-angle);
-		out[VECTOR_X] = mathProcessor.multiply(vectorCache1[VECTOR_X], cos);
-		out[VECTOR_X] -= mathProcessor.multiply(vectorCache1[VECTOR_Y], sin);
-		out[VECTOR_Y] = mathProcessor.multiply(vectorCache1[VECTOR_Y], cos);
-		out[VECTOR_Y] += mathProcessor.multiply(vectorCache1[VECTOR_X], sin);
+		int sin = mathLibrary.sin(-angle);
+		int cos = mathLibrary.cos(-angle);
+		out[VECTOR_X] = mathLibrary.multiply(vectorCache1[VECTOR_X], cos);
+		out[VECTOR_X] -= mathLibrary.multiply(vectorCache1[VECTOR_Y], sin);
+		out[VECTOR_Y] = mathLibrary.multiply(vectorCache1[VECTOR_Y], cos);
+		out[VECTOR_Y] += mathLibrary.multiply(vectorCache1[VECTOR_X], sin);
 		out[VECTOR_Z] = vectorCache1[VECTOR_Z];
 		return out;
 	}

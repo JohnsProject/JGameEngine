@@ -2,16 +2,16 @@ package com.johnsproject.jpge2.processor;
 
 import org.junit.Test;
 
-import com.johnsproject.jpge2.processor.MathProcessor;
-import com.johnsproject.jpge2.processor.MatrixProcessor;
-import com.johnsproject.jpge2.processor.VectorProcessor;
+import com.johnsproject.jpge2.library.MathLibrary;
+import com.johnsproject.jpge2.library.MatrixLibrary;
+import com.johnsproject.jpge2.library.VectorLibrary;
 
 public class VectorProcessorTest {
 
 	@Test
 	public void multiplyMatrixTest() throws Exception {
-		MatrixProcessor matrixProcessor = new MatrixProcessor(new MathProcessor());
-		VectorProcessor vectorProcessor = new VectorProcessor(new MathProcessor());
+		MatrixLibrary matrixProcessor = new MatrixLibrary();
+		VectorLibrary vectorProcessor = new VectorLibrary();
 		int[] out = vectorProcessor.generate();
 		int[][] matrix = matrixProcessor.generate();
 		int[] vector = vectorProcessor.generate(6, 3, 2);
@@ -24,16 +24,16 @@ public class VectorProcessorTest {
 	
 	@Test
 	public void magnitudeTest() throws Exception {
-		VectorProcessor vectorProcessor = new VectorProcessor(new MathProcessor());
-		int[] vector = vectorProcessor.generate(6 << MathProcessor.FP_BITS, 3 << MathProcessor.FP_BITS, 2 << MathProcessor.FP_BITS);
-		assert(vectorProcessor.magnitude(vector) == 7 << MathProcessor.FP_BITS);
+		VectorLibrary vectorProcessor = new VectorLibrary();
+		int[] vector = vectorProcessor.generate(6 << MathLibrary.FP_BITS, 3 << MathLibrary.FP_BITS, 2 << MathLibrary.FP_BITS);
+		assert(vectorProcessor.magnitude(vector) == 7 << MathLibrary.FP_BITS);
 	}
 	
 	@Test
 	public void normalizeTest() throws Exception {
-		VectorProcessor vectorProcessor = new VectorProcessor(new MathProcessor());
+		VectorLibrary vectorProcessor = new VectorLibrary();
 		int[] out = vectorProcessor.generate();
-		int[] vector = vectorProcessor.generate(60 << MathProcessor.FP_BITS, 30 << MathProcessor.FP_BITS, 20 << MathProcessor.FP_BITS);
+		int[] vector = vectorProcessor.generate(60 << MathLibrary.FP_BITS, 30 << MathLibrary.FP_BITS, 20 << MathLibrary.FP_BITS);
 		vectorProcessor.normalize(vector, out);
 		assert(out[0] == 877);
 		assert(out[1] == 438);
@@ -42,10 +42,10 @@ public class VectorProcessorTest {
 	
 	@Test
 	public void rotateXTest() throws Exception {
-		VectorProcessor vectorProcessor = new VectorProcessor(new MathProcessor());
+		VectorLibrary vectorProcessor = new VectorLibrary();
 		int[] out = vectorProcessor.generate();
 		int[] vector = vectorProcessor.generate(100, 100, 100);
-		vectorProcessor.rotateX(vector, 30 << MathProcessor.FP_BITS, out);
+		vectorProcessor.rotateX(vector, 30 << MathLibrary.FP_BITS, out);
 		assert(out[0] == 100);
 		assert(out[1] == 37);
 		assert(out[2] == 137);

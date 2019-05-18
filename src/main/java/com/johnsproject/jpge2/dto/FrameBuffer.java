@@ -60,7 +60,11 @@ public class FrameBuffer {
 		return stencilBuffer;
 	}
 
-	public int[] getSize() {
-		return size;
+	public int getWidth() {
+		return size[0];
+	}
+	
+	public int getHeight() {
+		return size[1];
 	}
 }

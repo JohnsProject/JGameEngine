@@ -23,7 +23,7 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processor.VectorProcessor;
+import com.johnsproject.jpge2.library.VectorLibrary;
 
 public class Light extends SceneObject {
 	
@@ -39,7 +39,7 @@ public class Light extends SceneObject {
 		super(name, transform);
 		this.type = LightType.DIRECTIONAL;
 		this.strength = 100000;
-		this.direction = VectorProcessor.VECTOR_DOWN;
+		this.direction = VectorLibrary.VECTOR_DOWN;
 		this.spotSize = 60000;
 		this.spotSoftness = 800;
 	}

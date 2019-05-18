@@ -26,8 +26,8 @@ package com.johnsproject.jpge2.dto;
 public class Camera extends SceneObject {
 	
 	private CameraType type;
-	private int[] canvas;
-	private int[] frustum;
+	private final int[] canvas;
+	private final int[] frustum;
 
 	public Camera(String name, Transform transform) {
 		super(name, transform);

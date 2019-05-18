@@ -31,32 +31,32 @@ import com.johnsproject.jpge2.dto.CameraType;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Material;
+import com.johnsproject.jpge2.dto.Mesh;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.library.ColorLibrary;
+import com.johnsproject.jpge2.library.MathLibrary;
+import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.dto.LightType;
-import com.johnsproject.jpge2.processor.CentralProcessor;
-import com.johnsproject.jpge2.processor.ColorProcessor;
-import com.johnsproject.jpge2.processor.MathProcessor;
-import com.johnsproject.jpge2.processor.VectorProcessor;
 import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
 import com.johnsproject.jpge2.util.FileUtil;
 
 public class SceneImporter {
 	
-	private static final byte VECTOR_X = VectorProcessor.VECTOR_X;
-	private static final byte VECTOR_Y = VectorProcessor.VECTOR_Y;
-	private static final byte VECTOR_Z = VectorProcessor.VECTOR_Z;
+	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
+	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
+	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
 
-	private final MathProcessor mathProcessor;
-	private final VectorProcessor vectorProcessor;
-	private final ColorProcessor colorProcessor;
+	private final MathLibrary mathLibrary;
+	private final VectorLibrary vectorLibrary;
+	private final ColorLibrary colorLibrary;
 	
-	public SceneImporter(CentralProcessor centralProcessor) {
-		this.mathProcessor = centralProcessor.getMathProcessor();
-		this.vectorProcessor = centralProcessor.getVectorProcessor();
-		this.colorProcessor = centralProcessor.getColorProcessor();
+	public SceneImporter() {
+		this.mathLibrary = new MathLibrary();
+		this.vectorLibrary = new VectorLibrary();
+		this.colorLibrary = new ColorLibrary();
 	}
 	
 	public Scene load(String path) throws IOException {
@@ -98,7 +98,8 @@ public class SceneImporter {
 			Material[] materials = parseMaterials(modelData.split("material<"));
 			Vertex[] vertices = parseVertices(modelData.split("vertex<"), materials);
 			Face[] faces = parseFaces(modelData.split("face<"), vertices, materials);
-			models[i] = new Model(name, transform, vertices, faces, materials);
+			Mesh mesh = new Mesh(vertices, faces, materials);
+			models[i] = new Model(name, transform, mesh);
 		}
 		return models;
 	}
@@ -134,8 +135,8 @@ public class SceneImporter {
 			String[] colorData = lightData.split("color<")[1].split(">color")[0].split(",");
 			String[] shadowColorData = lightData.split("shadowColor<")[1].split(">shadowColor")[0].split(",");
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
-			int[] direction = vectorProcessor.generate();
-			vectorProcessor.rotateXYZ(VectorProcessor.VECTOR_DOWN, transform.getRotation(), direction);
+			int[] direction = vectorLibrary.generate();
+			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, transform.getRotation(), direction);
 			Light light = new Light(name, transform);
 			if (typeData.equals("SUN")) {
 				light.setType(LightType.DIRECTIONAL);
@@ -146,17 +147,17 @@ public class SceneImporter {
 			if (typeData.equals("SPOT")) {
 				light.setType(LightType.SPOT);
 			}
-			light.setStrength(mathProcessor.generate(getFloat(strengthData)));
+			light.setStrength(mathLibrary.generate(getFloat(strengthData)));
 			int red = (int)(getFloat(colorData[0]) * 256);
 			int green = (int)(getFloat(colorData[1]) * 256);
 			int blue = (int)(getFloat(colorData[2]) * 256);
-			light.setColor(colorProcessor.generate(red, green, blue));
+			light.setColor(colorLibrary.generate(red, green, blue));
 			red = (int)(getFloat(shadowColorData[0]) * 256);
 			green = (int)(getFloat(shadowColorData[1]) * 256);
 			blue = (int)(getFloat(shadowColorData[2]) * 256);
-			light.setShadowColor(colorProcessor.generate(red, green, blue));
-			light.setSpotSize(mathProcessor.generate(getFloat(spotData)));
-			light.setSpotSoftness(mathProcessor.generate(getFloat(blendData)));
+			light.setShadowColor(colorLibrary.generate(red, green, blue));
+			light.setSpotSize(mathLibrary.generate(getFloat(spotData)));
+			light.setSpotSoftness(mathLibrary.generate(getFloat(blendData)));
 			light.setDirection(direction);
 			lights[i] = light;
 		}
@@ -164,18 +165,18 @@ public class SceneImporter {
 	}
 
 	private Transform parseTransform(String[] transformData) {
-		int x = mathProcessor.generate((getFloat(transformData[VECTOR_X]) * 10));
-		int y = mathProcessor.generate((getFloat(transformData[VECTOR_Y]) * 10));
-		int z = mathProcessor.generate((getFloat(transformData[VECTOR_Z]) * 10));
-		int[] location = vectorProcessor.generate(-x, y, z);
-		x = mathProcessor.generate(getFloat(transformData[3 + VECTOR_X]));
-		y = mathProcessor.generate(getFloat(transformData[3 + VECTOR_Y]));
-		z = mathProcessor.generate(getFloat(transformData[3 + VECTOR_Z]));
-		int[] rotation = vectorProcessor.generate(x, y, z);
-		x = mathProcessor.generate(getFloat(transformData[6 + VECTOR_X]) * 10);
-		y = mathProcessor.generate(getFloat(transformData[6 + VECTOR_Y]) * 10);
-		z = mathProcessor.generate(getFloat(transformData[6 + VECTOR_Z]) * 10);
-		int[] scale = vectorProcessor.generate(x, y, z);
+		int x = mathLibrary.generate((getFloat(transformData[VECTOR_X]) * 10));
+		int y = mathLibrary.generate((getFloat(transformData[VECTOR_Y]) * 10));
+		int z = mathLibrary.generate((getFloat(transformData[VECTOR_Z]) * 10));
+		int[] location = vectorLibrary.generate(-x, y, z);
+		x = mathLibrary.generate(getFloat(transformData[3 + VECTOR_X]));
+		y = mathLibrary.generate(getFloat(transformData[3 + VECTOR_Y]));
+		z = mathLibrary.generate(getFloat(transformData[3 + VECTOR_Z]));
+		int[] rotation = vectorLibrary.generate(x, y, z);
+		x = mathLibrary.generate(getFloat(transformData[6 + VECTOR_X]) * 10);
+		y = mathLibrary.generate(getFloat(transformData[6 + VECTOR_Y]) * 10);
+		z = mathLibrary.generate(getFloat(transformData[6 + VECTOR_Z]) * 10);
+		int[] scale = vectorLibrary.generate(x, y, z);
 		return new Transform(location, rotation, scale);
 	}
 
@@ -183,14 +184,14 @@ public class SceneImporter {
 		Vertex[] vertices = new Vertex[verticesData.length - 1];
 		for (int i = 0; i < verticesData.length - 1; i++) {
 			String[] vertexData = verticesData[i + 1].split(">vertex")[0].split(",");
-			int x = mathProcessor.generate(getFloat(vertexData[VECTOR_X]));
-			int y = mathProcessor.generate(getFloat(vertexData[VECTOR_Y]));
-			int z = mathProcessor.generate(getFloat(vertexData[VECTOR_Z]));
-			int[] location = vectorProcessor.generate(x, y, z);
-			x = mathProcessor.generate(getFloat(vertexData[3 + VECTOR_X]));
-			y = mathProcessor.generate(getFloat(vertexData[3 + VECTOR_Y]));
-			z = mathProcessor.generate(getFloat(vertexData[3 + VECTOR_Z]));
-			int[] normal = vectorProcessor.generate(x, y, z);
+			int x = mathLibrary.generate(getFloat(vertexData[VECTOR_X]));
+			int y = mathLibrary.generate(getFloat(vertexData[VECTOR_Y]));
+			int z = mathLibrary.generate(getFloat(vertexData[VECTOR_Z]));
+			int[] location = vectorLibrary.generate(x, y, z);
+			x = mathLibrary.generate(getFloat(vertexData[3 + VECTOR_X]));
+			y = mathLibrary.generate(getFloat(vertexData[3 + VECTOR_Y]));
+			z = mathLibrary.generate(getFloat(vertexData[3 + VECTOR_Z]));
+			int[] normal = vectorLibrary.generate(x, y, z);
 			int material = getInt(vertexData[6]);
 			vertices[i] = new Vertex(i, location, normal, materials[material]);
 		}
@@ -204,19 +205,19 @@ public class SceneImporter {
 			int vertex1 = getInt(faceData[0]);
 			int vertex2 = getInt(faceData[1]);
 			int vertex3 = getInt(faceData[2]);
-			int x = mathProcessor.generate(getFloat(faceData[3 + VECTOR_X]));
-			int y = mathProcessor.generate(getFloat(faceData[3 + VECTOR_Y]));
-			int z = mathProcessor.generate(getFloat(faceData[3 + VECTOR_Z]));
-			int[] normal = vectorProcessor.generate(x, y, z);
-			x = mathProcessor.generate(getFloat(faceData[6 + VECTOR_X]));
-			y = mathProcessor.generate(getFloat(faceData[6 + VECTOR_Y]));
-			int[] uv1 = vectorProcessor.generate(x, y);
-			x = mathProcessor.generate(getFloat(faceData[8 + VECTOR_X]));
-			y = mathProcessor.generate(getFloat(faceData[8 + VECTOR_Y]));
-			int[] uv2 = vectorProcessor.generate(x, y);
-			x = mathProcessor.generate(getFloat(faceData[10 + VECTOR_X]));
-			y = mathProcessor.generate(getFloat(faceData[10 + VECTOR_Y]));
-			int[] uv3 = vectorProcessor.generate(x, y);
+			int x = mathLibrary.generate(getFloat(faceData[3 + VECTOR_X]));
+			int y = mathLibrary.generate(getFloat(faceData[3 + VECTOR_Y]));
+			int z = mathLibrary.generate(getFloat(faceData[3 + VECTOR_Z]));
+			int[] normal = vectorLibrary.generate(x, y, z);
+			x = mathLibrary.generate(getFloat(faceData[6 + VECTOR_X]));
+			y = mathLibrary.generate(getFloat(faceData[6 + VECTOR_Y]));
+			int[] uv1 = vectorLibrary.generate(x, y);
+			x = mathLibrary.generate(getFloat(faceData[8 + VECTOR_X]));
+			y = mathLibrary.generate(getFloat(faceData[8 + VECTOR_Y]));
+			int[] uv2 = vectorLibrary.generate(x, y);
+			x = mathLibrary.generate(getFloat(faceData[10 + VECTOR_X]));
+			y = mathLibrary.generate(getFloat(faceData[10 + VECTOR_Y]));
+			int[] uv3 = vectorLibrary.generate(x, y);
 			int material = getInt(faceData[12]);
 			faces[i] = new Face(i, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], normal, uv1, uv2, uv3);
 		}
@@ -232,10 +233,10 @@ public class SceneImporter {
 			int green = (int)(getFloat(materialData[2]) * 256);
 			int blue = (int)(getFloat(materialData[3]) * 256);
 			int alpha = (int)(getFloat(materialData[4]) * 256);
-			int diffuse = mathProcessor.generate(getFloat(materialData[5]));
-			int specular = mathProcessor.generate(getFloat(materialData[6]));
-			int shininess = mathProcessor.generate(getFloat(materialData[7]) / 10);
-			SpecularShaderProperties properties = new SpecularShaderProperties(colorProcessor.generate(alpha, red, green, blue), diffuse, specular, shininess, null);
+			int diffuse = mathLibrary.generate(getFloat(materialData[5]));
+			int specular = mathLibrary.generate(getFloat(materialData[6]));
+			int shininess = mathLibrary.generate(getFloat(materialData[7]) / 10);
+			SpecularShaderProperties properties = new SpecularShaderProperties(colorLibrary.generate(alpha, red, green, blue), diffuse, specular, shininess, null);
 			materials[i] = new Material(i, name, 0, properties);
 		}
 		return materials;

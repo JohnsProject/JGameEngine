@@ -27,8 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.johnsproject.jpge2.controller.CentralController;
-import com.johnsproject.jpge2.dto.Scene;
-import com.johnsproject.jpge2.processor.CentralProcessor;
 
 public class Engine {
 
@@ -41,29 +39,19 @@ public class Engine {
 	private Thread engineThread;
 	private List<EngineListener> engineListeners;
 	private CentralController controller;
-	private CentralProcessor processor;
 	private int maxUpdateSkip;
 	private int updateRate;
-	private Scene scene;
 	
 	private volatile boolean running;
 
 	private Engine() {
 		updateRate = 25;
 		maxUpdateSkip = 10;
-		scene = new Scene();
 		engineListeners = new ArrayList<EngineListener>();
 	}
 
 	public void start() {
-		this.processor = new CentralProcessor();
-		this.controller = new CentralController(this, processor);
-		startEngineLoop();
-	}
-	
-	public void start(CentralController centralController, CentralProcessor centralProcessor) {
-		this.controller = centralController;
-		this.processor = centralProcessor;
+		this.controller = new CentralController(this);
 		startEngineLoop();
 	}
 	
@@ -99,14 +87,14 @@ public class Engine {
 					for (int i = 0; i < engineListeners.size(); i++) {
 						engineListeners.get(i).update();
 					}
-					long sleepTime = nextUpateTick - current;
-					if (sleepTime >= 0) {
-						try {
-							Thread.sleep(sleepTime);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
+//					long sleepTime = nextUpateTick - current;
+//					if (sleepTime >= 0) {
+//						try {
+//							Thread.sleep(sleepTime);
+//						} catch (InterruptedException e) {
+//							e.printStackTrace();
+//						}
+//					}
 				}
 			}
 		});
@@ -127,10 +115,6 @@ public class Engine {
 		return controller;
 	}
 
-	public CentralProcessor getProcessor() {
-		return processor;
-	}
-	
 	public int getUpdateRate() {
 		return updateRate;
 	}
@@ -145,14 +129,6 @@ public class Engine {
 	
 	public void setMaxUpdateSkip(int maxUpdateSkip) {
 		this.maxUpdateSkip = maxUpdateSkip;
-	}
-	
-	public Scene getScene() {
-		return scene;
-	}
-
-	public void setScene(Scene scene) {
-		this.scene = scene;
 	}
 
 	private void sortListeners() {

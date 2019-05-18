@@ -14,7 +14,7 @@ import java.io.ObjectOutputStream;
 
 import javax.imageio.ImageIO;
 
-import com.johnsproject.jpge2.processor.ColorProcessor;
+import com.johnsproject.jpge2.library.ColorLibrary;
 
 public final class FileUtil {
 
@@ -117,7 +117,7 @@ public final class FileUtil {
 		try {
 			fileInputStream = new FileInputStream(path);
 			BufferedImage tmp = ImageIO.read(fileInputStream);
-			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), ColorProcessor.COLOR_TYPE);
+			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), ColorLibrary.COLOR_TYPE);
 			image.createGraphics().drawImage(tmp, 0, 0, null);
 			image.createGraphics().dispose();
 		} finally {
@@ -140,7 +140,7 @@ public final class FileUtil {
 		BufferedImage image = null;
 		try {
 			BufferedImage tmp = ImageIO.read(stream);
-			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), ColorProcessor.COLOR_TYPE);
+			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), ColorLibrary.COLOR_TYPE);
 			image.createGraphics().drawImage(tmp, 0, 0, null);
 			image.createGraphics().dispose();
 		} finally {}
@@ -170,7 +170,7 @@ public final class FileUtil {
 			}
 		}
 		Image tmp = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		BufferedImage resized = new BufferedImage(width, height, ColorProcessor.COLOR_TYPE);
+		BufferedImage resized = new BufferedImage(width, height, ColorLibrary.COLOR_TYPE);
 		resized.createGraphics().drawImage(tmp, 0, 0, null);
 		resized.createGraphics().dispose();
 		return resized;
@@ -192,7 +192,7 @@ public final class FileUtil {
 			image = ImageIO.read(stream);
 		} finally { }
 		Image tmp = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		BufferedImage resized = new BufferedImage(width, height, ColorProcessor.COLOR_TYPE);
+		BufferedImage resized = new BufferedImage(width, height, ColorLibrary.COLOR_TYPE);
 		resized.createGraphics().drawImage(tmp, 0, 0, null);
 		resized.createGraphics().dispose();
 		return resized;

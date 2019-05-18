@@ -5,7 +5,7 @@ import java.util.List;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Texture;
-import com.johnsproject.jpge2.processor.MathProcessor;
+import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 
 public class ForwardDataBuffer implements ShaderDataBuffer {
@@ -23,11 +23,11 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 	private int[][] spotLightMatrix;
 	private Texture spotShadowMap;
 	
-	private int constantAttenuation = MathProcessor.FP_ONE;
+	private int constantAttenuation = MathLibrary.FP_ONE;
 	private int linearAttenuation = 14000;
 	private int quadraticAttenuation = 90;
 	
-	private int lightRange = MathProcessor.FP_ONE * 1000;
+	private int lightRange = MathLibrary.FP_ONE * 1000;
 
 	public FrameBuffer getFrameBuffer() {
 		return frameBuffer;

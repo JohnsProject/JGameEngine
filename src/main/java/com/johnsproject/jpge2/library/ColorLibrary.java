@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jpge2.processor;
+package com.johnsproject.jpge2.library;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -33,7 +33,7 @@ import java.awt.image.BufferedImage;
  * @author John Ferraz Salomon
  *
  */
-public class ColorProcessor {
+public class ColorLibrary {
 
 	/**
 	 * Some default integer sRGB colors.
@@ -70,10 +70,10 @@ public class ColorProcessor {
 	private static final byte REDSHIFT = 16;
 	private static final byte ALPHASHIFT = 24;
 
-	private final MathProcessor mathProcessor;
+	private final MathLibrary mathLibrary;
 	
-	ColorProcessor(MathProcessor mathProcessor) {
-		this.mathProcessor = mathProcessor;
+	public ColorLibrary() {
+		this.mathLibrary = new MathLibrary();
 	}
 	
 	/**
@@ -88,10 +88,10 @@ public class ColorProcessor {
 	 */
 	public int generate(int a, int r, int g, int b) {
 		int color = 0;
-		color |= mathProcessor.clamp(a, 0, 255) << ALPHASHIFT;
-		color |= mathProcessor.clamp(r, 0, 255) << REDSHIFT;
-		color |= mathProcessor.clamp(g, 0, 255) << GREENSHIFT;
-		color |= mathProcessor.clamp(b, 0, 255);
+		color |= mathLibrary.clamp(a, 0, 255) << ALPHASHIFT;
+		color |= mathLibrary.clamp(r, 0, 255) << REDSHIFT;
+		color |= mathLibrary.clamp(g, 0, 255) << GREENSHIFT;
+		color |= mathLibrary.clamp(b, 0, 255);
 		return color;
 	}
 
@@ -107,9 +107,9 @@ public class ColorProcessor {
 	public int generate(int r, int g, int b) {
 		int color = 0;
 		color |= (255) << ALPHASHIFT;
-		color |= mathProcessor.clamp(r, 0, 255) << REDSHIFT;
-		color |= mathProcessor.clamp(g, 0, 255) << GREENSHIFT;
-		color |= mathProcessor.clamp(b, 0, 255);
+		color |= mathLibrary.clamp(r, 0, 255) << REDSHIFT;
+		color |= mathLibrary.clamp(g, 0, 255) << GREENSHIFT;
+		color |= mathLibrary.clamp(b, 0, 255);
 		return color;
 	}
 

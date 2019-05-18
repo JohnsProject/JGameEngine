@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jpge2.processor;
+package com.johnsproject.jpge2.library;
 
 /**
  * The MathProcessor class contains methods for performing fixed point math operations 
@@ -30,7 +30,7 @@ package com.johnsproject.jpge2.processor;
  * @author John Ferraz Salomon
  *
  */
-public class MathProcessor {
+public class MathLibrary {
 	
 	// sine lookup table containing sine values from 0-90 degrees
 	private static final short[] SIN_LUT = { 0, 18, 36, 54, 71, 89, 107, 125, 143, 160, 178, 195, 213, 230, 248, 265,
@@ -58,7 +58,7 @@ public class MathProcessor {
 	 */
 	public static final short FP_HALF = 1 << (FP_BITS - 1);
 	
-	public MathProcessor() {}
+	public MathLibrary() {}
 	
 	/**
 	 * Returns the fixed point representation of value.
@@ -334,7 +334,10 @@ public class MathProcessor {
 	 * @return fixed point result.
 	 */
 	public int multiply(int value1, int value2) {
-		return (int) ((((long) value1 * (long) value2) + FP_HALF) >> FP_BITS);
+		long a = value1;
+		long b = value2;
+		long result = a * b + FP_HALF;
+		return (int) (result >> FP_BITS);
 	}
 
 	/**
@@ -345,7 +348,10 @@ public class MathProcessor {
 	 * @return fixed point result.
 	 */
 	public long multiply(long value1, long value2) {
-		return (((value1 * value2) + FP_HALF) >> FP_BITS);
+		long a = value1;
+		long b = value2;
+		long result = a * b + FP_HALF;
+		return result >> FP_BITS;
 	}
 
 	/**
@@ -356,9 +362,10 @@ public class MathProcessor {
 	 * @return fixed point result.
 	 */
 	public int divide(int dividend, int divisor) {
-		if (divisor == 0)
-			return 0;
-		return (int) ((((long) dividend << FP_BITS) + FP_HALF) / divisor);
+		long result = (long)dividend << FP_BITS;
+		result += FP_HALF;
+		result /= divisor;
+		return (int) result;
 	}
 
 	/**
@@ -369,8 +376,9 @@ public class MathProcessor {
 	 * @return fixed point result.
 	 */
 	public long divide(long dividend, long divisor) {
-		if (divisor == 0)
-			return 0;
-		return ((dividend << FP_BITS) + FP_HALF) / divisor;
+		long result = (long)dividend << FP_BITS;
+		result += FP_HALF;
+		result /= divisor;
+		return result;
 	}
 }

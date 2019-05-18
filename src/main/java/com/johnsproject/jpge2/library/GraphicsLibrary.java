@@ -1,126 +1,103 @@
-/**
- * MIT License
- *
- * Copyright (c) 2018 John Salomon - John´s Project
- *  
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-package com.johnsproject.jpge2.processor;
+package com.johnsproject.jpge2.library;
 
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.shader.Shader;
 
-public class GraphicsProcessor {
-
-	private static final byte VECTOR_X = VectorProcessor.VECTOR_X;
-	private static final byte VECTOR_Y = VectorProcessor.VECTOR_Y;
-	private static final byte VECTOR_Z = VectorProcessor.VECTOR_Z;
-	private static final byte VECTOR_W = VectorProcessor.VECTOR_W;
-
-	private static final byte FP_BITS = MathProcessor.FP_BITS;
-	private static final int FP_ONE = MathProcessor.FP_ONE;
-
+public class GraphicsLibrary {
+	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
+	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
+	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
+	private static final byte VECTOR_W = VectorLibrary.VECTOR_W;
+	
+	private static final byte FP_BITS = MathLibrary.FP_BITS;
+	private static final int FP_ONE = MathLibrary.FP_ONE;
+	private static final int FP_HALF = MathLibrary.FP_HALF;
+	
 	private static final byte INTERPOLATE_BITS = 25;
 	private static final int INTERPOLATE_ONE = 1 << INTERPOLATE_BITS;
-
+	
 	private final int[] depthCache;
 	private final int[] barycentricCache;
 	private final int[] pixelChache;
-
-	private final MathProcessor mathProcessor;
-	private final MatrixProcessor matrixProcessor;
-	private final VectorProcessor vectorProcessor;
-
-	GraphicsProcessor(MathProcessor mathProcessor, MatrixProcessor matrixProcessor, VectorProcessor vectorProcessor) {
-		this.mathProcessor = mathProcessor;
-		this.matrixProcessor = matrixProcessor;
-		this.vectorProcessor = vectorProcessor;
-
-		this.depthCache = this.vectorProcessor.generate();
-		this.barycentricCache = this.vectorProcessor.generate();
-		this.pixelChache = this.vectorProcessor.generate();
+	
+	private final MathLibrary mathLibrary;
+	private final MatrixLibrary matrixLibrary;
+	private final VectorLibrary vectorLibrary;
+	
+	
+	public GraphicsLibrary() {
+		this.mathLibrary = new MathLibrary();
+		this.matrixLibrary = new MatrixLibrary();
+		this.vectorLibrary = new VectorLibrary();
+		
+		this.depthCache = vectorLibrary.generate();
+		this.barycentricCache = vectorLibrary.generate();
+		this.pixelChache = vectorLibrary.generate();
 	}
-
-	public int[][] getModelMatrix(Transform transform, int[][] out) {
+	
+	public int[][] modelMatrix(int[][] matrix, Transform transform) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-
-		matrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
-		matrixProcessor.rotateX(out, rotation[VECTOR_X], out);
-		matrixProcessor.rotateY(out, rotation[VECTOR_Y], out);
-		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
-		matrixProcessor.translate(out, location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z], out);
-		return out;
+		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		matrixLibrary.scale(matrix, scale, matrix);
+		matrixLibrary.rotateXYZ(matrix, rotation, matrix);
+		matrixLibrary.translate(matrix, location, matrix);
+		return matrix;
 	}
 
-	public int[][] getNormalMatrix(Transform transform, int[][] out) {
+	public int[][] normalMatrix(int[][] matrix, Transform transform) {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-
-		matrixProcessor.scale(out, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z], out);
-		matrixProcessor.rotateX(out, rotation[VECTOR_X], out);
-		matrixProcessor.rotateY(out, rotation[VECTOR_Y], out);
-		matrixProcessor.rotateZ(out, rotation[VECTOR_Z], out);
-		return out;
+		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		matrixLibrary.scale(matrix, scale, matrix);
+		matrixLibrary.rotateXYZ(matrix, rotation, matrix);
+		return matrix;
 	}
-
-	public int[][] getViewMatrix(Transform transform, int[][] out) {
+	
+	public int[][] viewMatrix(int[][] matrix, Transform transform) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
-
-		matrixProcessor.translate(out, -location[VECTOR_X], -location[VECTOR_Y], -location[VECTOR_Z], out);
-		matrixProcessor.rotateZ(out, -rotation[VECTOR_Z], out);
-		matrixProcessor.rotateY(out, -rotation[VECTOR_Y], out);
-		matrixProcessor.rotateX(out, -rotation[VECTOR_X], out);
-		return out;
+		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		vectorLibrary.invert(location, location);
+		vectorLibrary.invert(rotation, rotation);
+		matrixLibrary.translate(matrix, location, matrix);
+		matrixLibrary.rotateZYX(matrix, rotation, matrix);
+		vectorLibrary.invert(location, location);
+		vectorLibrary.invert(rotation, rotation);
+		return matrix;
 	}
 
-	public int[][] getOrthographicMatrix(int[] cameraCanvas, int[] cameraFrustum, int[][] out) {
-		int scaleFactor = (cameraCanvas[3] >> 6) + 1;
-		out[0][0] = (cameraFrustum[0] * scaleFactor * FP_BITS);
-		out[1][1] = (cameraFrustum[0] * scaleFactor * FP_BITS);
-		out[2][2] = -FP_BITS;
-		out[3][3] = -FP_ONE * FP_ONE;
-		return out;
+	public int[][] orthographicMatrix(int[][] matrix, int[] frustum) {
+		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		matrix[0][0] = frustum[0];
+		matrix[1][1] = frustum[0];
+		matrix[2][2] = -FP_BITS;
+		matrix[3][3] = -FP_ONE * FP_HALF;
+		return matrix;
 	}
 
-	public int[][] getPerspectiveMatrix(int[] cameraCanvas, int[] cameraFrustum, int[][] out) {
-		int scaleFactor = (cameraCanvas[3] >> 6) + 1;
-		out[0][0] = (cameraFrustum[0] * scaleFactor) << FP_BITS;
-		out[1][1] = (cameraFrustum[0] * scaleFactor) << FP_BITS;
-		out[2][2] = -FP_BITS;
-		out[2][3] = FP_ONE * FP_ONE;
-		return out;
-	}
-
+	public int[][] perspectiveMatrix(int[][] matrix, int[] frustum) {
+		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		matrix[0][0] = frustum[0];
+		matrix[1][1] = frustum[0];
+		matrix[2][2] = -FP_BITS;
+		matrix[2][3] = FP_ONE;
+		return matrix;
+	}	
+	
 	public int[] viewport(int[] location, int[] cameraCanvas, int[] out) {
-		int portX = cameraCanvas[VECTOR_X] + ((cameraCanvas[2] - cameraCanvas[VECTOR_X]) >> 1);
-		int portY = cameraCanvas[VECTOR_Y] + ((cameraCanvas[3] - cameraCanvas[VECTOR_Y]) >> 1);
-		out[VECTOR_X] = mathProcessor.divide(location[VECTOR_X], location[VECTOR_W]) + portX;
-		out[VECTOR_Y] = mathProcessor.divide(location[VECTOR_Y], location[VECTOR_W]) + portY;
+		int scaleFactor = (cameraCanvas[3] >> 6) + 1;
+		int halfX = cameraCanvas[VECTOR_X] + ((cameraCanvas[2] - cameraCanvas[VECTOR_X]) >> 1);
+		int halfY = cameraCanvas[VECTOR_Y] + ((cameraCanvas[3] - cameraCanvas[VECTOR_Y]) >> 1);
+		int w = Math.min(-1, location[VECTOR_W]);
+		out[VECTOR_X] = mathLibrary.divide(location[VECTOR_X] * scaleFactor, w) + halfX;
+		out[VECTOR_Y] = mathLibrary.divide(location[VECTOR_Y] * scaleFactor, w) + halfY;
 		return out;
 	}
 
 	public boolean isBackface(int[] location1, int[] location2, int[] location3) {
-		return (location2[VECTOR_X] - location1[VECTOR_X]) * (location3[VECTOR_Y] - location1[VECTOR_Y])
-				- (location3[VECTOR_X] - location1[VECTOR_X]) * (location2[VECTOR_Y] - location1[VECTOR_Y]) <= 0;
+		return barycentric(location1, location2, location3) <= 0;
 	}
 
 	public boolean isInsideFrustum(int[] location1, int[] location2, int[] location3, int[] cameraCanvas, int[] cameraFrustum) {
@@ -145,6 +122,14 @@ public class GraphicsProcessor {
 		boolean location3Inside = insideWidth & insideHeight & insideDepth;
 
 		return location1Inside | location2Inside | location3Inside;
+	}
+	
+	public int[] portCanvas(int[] cameraCanvas, int width, int height, int[] out) {
+		out[0] = (width * cameraCanvas[0]) / 100;
+		out[1] = (height * cameraCanvas[1]) / 100;
+		out[2] = (width * cameraCanvas[2]) / 100;
+		out[3] = (height * cameraCanvas[3]) / 100;
+		return out;
 	}
 
 	public void drawTriangle(int[] location1, int[] location2, int[] location3, int[] cameraCanvas, Shader shader) {
@@ -187,22 +172,27 @@ public class GraphicsProcessor {
 		int barycentric0_row = barycentric(location2, location3, pixelChache);
 		int barycentric1_row = barycentric(location3, location1, pixelChache);
 		int barycentric2_row = barycentric(location1, location2, pixelChache);
-
+		
 		for (pixelChache[VECTOR_Y] = minY; pixelChache[VECTOR_Y] < maxY; pixelChache[VECTOR_Y]++) {
 
+			boolean found = false;
 			barycentricCache[0] = barycentric0_row;
 			barycentricCache[1] = barycentric1_row;
 			barycentricCache[2] = barycentric2_row;
-
+			
 			for (pixelChache[VECTOR_X] = minX; pixelChache[VECTOR_X] < maxX; pixelChache[VECTOR_X]++) {
 				if ((barycentricCache[0] | barycentricCache[1] | barycentricCache[2]) > 0) {
 					pixelChache[VECTOR_Z] = interpolatDepth(depthCache, barycentricCache);
-					int[][] variables = shader.getVariables();
-					for (int i = 0; i < variables.length; i++) {
-						int[] variable = variables[i];
+					for (int i = 0; i < shader.getVariables().length; i++) {
+						int[] variable = shader.getVariables()[i];
 						variable[3] = interpolate(variable, pixelChache, depthCache, barycentricCache, oneByBarycentric);
 					}
-					shader.fragment(pixelChache, barycentricCache);
+					shader.fragment(pixelChache);
+					found = true;
+				} else {
+					if (found) {
+						break;
+					}
 				}
 
 				barycentricCache[0] += a12;
@@ -233,16 +223,8 @@ public class GraphicsProcessor {
 		 return (int)result;
 	}
 
-	public int barycentric(int[] vector1, int[] vector2, int[] vector3) {
+	private int barycentric(int[] vector1, int[] vector2, int[] vector3) {
 		return (vector2[VECTOR_X] - vector1[VECTOR_X]) * (vector3[VECTOR_Y] - vector1[VECTOR_Y])
 				- (vector3[VECTOR_X] - vector1[VECTOR_X]) * (vector2[VECTOR_Y] - vector1[VECTOR_Y]);
-	}
-	
-	public int[] portCanvas(int[] cameraCanvas, int[] frameBufferSize, int[] out) {
-		out[0] = (frameBufferSize[0] * cameraCanvas[0]) / 100;
-		out[1] = (frameBufferSize[1] * cameraCanvas[1]) / 100;
-		out[2] = (frameBufferSize[0] * cameraCanvas[2]) / 100;
-		out[3] = (frameBufferSize[1] * cameraCanvas[3]) / 100;
-		return out;
 	}
 }

@@ -6,53 +6,48 @@ import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Texture;
+import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.library.GraphicsLibrary;
+import com.johnsproject.jpge2.library.MatrixLibrary;
+import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.dto.LightType;
-import com.johnsproject.jpge2.processor.CentralProcessor;
-import com.johnsproject.jpge2.processor.GraphicsProcessor;
-import com.johnsproject.jpge2.processor.MathProcessor;
-import com.johnsproject.jpge2.processor.MatrixProcessor;
-import com.johnsproject.jpge2.processor.VectorProcessor;
 import com.johnsproject.jpge2.shader.Shader;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 
-public class SpotLightShadowShader extends Shader{
+public class SpotLightShadowShader extends Shader {
 
-	private static final byte VECTOR_X = VectorProcessor.VECTOR_X;
-	private static final byte VECTOR_Y = VectorProcessor.VECTOR_Y;
-	private static final byte VECTOR_Z = VectorProcessor.VECTOR_Z;
+	private static final byte SHADOW_BIAS = 50;
 	
-	private static final byte FP_BITS = MathProcessor.FP_BITS;
+	private final GraphicsLibrary graphicsLibrary;
+	private final MatrixLibrary matrixLibrary;
+	private final VectorLibrary vectorLibrary;
 
-	private final MatrixProcessor matrixProcessor;
-	private final VectorProcessor vectorProcessor;
-	private final GraphicsProcessor graphicsProcessor;
-
-	private final int[][] viewMatrix;
-	private final int[][] projectionMatrix;
+	private int[][] viewMatrix;
+	private int[][] projectionMatrix;
 	private final int[][] lightMatrix;
 	
-	private final int[] lightFrustum;
+	private int[] lightFrustum;
 	private final int[] portedCanvas;
-	
+
 	private final Texture shadowMap;
 
 	private List<Light> lights;
 	private ForwardDataBuffer shaderData;
 
-	public SpotLightShadowShader(CentralProcessor centralProcessor) {
-		super(centralProcessor, 0);
-		this.matrixProcessor = centralProcessor.getMatrixProcessor();
-		this.vectorProcessor = centralProcessor.getVectorProcessor();
-		this.graphicsProcessor = centralProcessor.getGraphicsProcessor();
+	public SpotLightShadowShader() {
+		super(0);
+		this.graphicsLibrary = new GraphicsLibrary();
+		this.matrixLibrary = new MatrixLibrary();
+		this.vectorLibrary = new VectorLibrary();
 
-		this.viewMatrix = matrixProcessor.generate();
-		this.projectionMatrix = matrixProcessor.generate();
-		this.lightMatrix = matrixProcessor.generate();
+		this.viewMatrix = matrixLibrary.generate();
+		this.projectionMatrix = matrixLibrary.generate();
+		this.lightMatrix = matrixLibrary.generate();
 		
-		this.lightFrustum = vectorProcessor.generate(30, 0, 10000);
-		this.portedCanvas = vectorProcessor.generate();
+		this.lightFrustum = vectorLibrary.generate(30, 0, 100000);
+		this.portedCanvas = vectorLibrary.generate();
 		this.shadowMap = new Texture(320, 320);
 	}
 	
@@ -82,7 +77,7 @@ public class SpotLightShadowShader extends Shader{
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
 			int[] lightPosition = light.getTransform().getLocation();
-			int dist = vectorProcessor.distance(cameraLocation, lightPosition);
+			int dist = vectorLibrary.distance(cameraLocation, lightPosition);
 			if ((light.getType() == LightType.SPOT) & (dist < distance) & (dist < shaderData.getLightRange())) {
 				distance = dist;
 				shaderData.setSpotLightIndex(i);
@@ -92,16 +87,17 @@ public class SpotLightShadowShader extends Shader{
 		if (shaderData.getSpotLightIndex() < 0)
 			return;
 		
-		graphicsProcessor.portCanvas(camera.getCanvas(), shadowMap.getSize(), portedCanvas);
+		graphicsLibrary.portCanvas(camera.getCanvas(), shadowMap.getWidth(), shadowMap.getHeight(), portedCanvas);
 		
 		lightFrustum[0] = 45 - (lights.get(shaderData.getSpotLightIndex()).getSpotSize() >> (FP_BITS + 1));
 		
-		matrixProcessor.copy(viewMatrix, MatrixProcessor.MATRIX_IDENTITY);
-		matrixProcessor.copy(projectionMatrix, MatrixProcessor.MATRIX_IDENTITY);
+		matrixLibrary.copy(viewMatrix, MatrixLibrary.MATRIX_IDENTITY);
+		matrixLibrary.copy(projectionMatrix, MatrixLibrary.MATRIX_IDENTITY);
 		
-		graphicsProcessor.getViewMatrix(lights.get(shaderData.getSpotLightIndex()).getTransform(), viewMatrix);
-		graphicsProcessor.getPerspectiveMatrix(portedCanvas, lightFrustum, projectionMatrix);
-		matrixProcessor.multiply(projectionMatrix, viewMatrix, lightMatrix);
+		Transform lightTransform = lights.get(shaderData.getSpotLightIndex()).getTransform();
+		graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+		graphicsLibrary.perspectiveMatrix(projectionMatrix, lightFrustum);
+		matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
 	}
 
 	@Override
@@ -109,8 +105,8 @@ public class SpotLightShadowShader extends Shader{
 		if (shaderData.getSpotLightIndex() < 0)
 			return;
 		int[] location = vertex.getLocation();
-		vectorProcessor.multiply(location, lightMatrix, location);
-		graphicsProcessor.viewport(location, portedCanvas, location);
+		vectorLibrary.multiply(location, lightMatrix, location);
+		graphicsLibrary.viewport(location, portedCanvas, location);
 	}
 
 	@Override
@@ -121,19 +117,19 @@ public class SpotLightShadowShader extends Shader{
 		int[] location2 = face.getVertex(1).getLocation();
 		int[] location3 = face.getVertex(2).getLocation();
 		
-		if (!graphicsProcessor.isBackface(location1, location2, location3)
-				&& graphicsProcessor.isInsideFrustum(location1, location2, location3, portedCanvas, lightFrustum)) {
-			graphicsProcessor.drawTriangle(location1, location2, location3, portedCanvas, this);
+		if (!graphicsLibrary.isBackface(location1, location2, location3)
+				&& graphicsLibrary.isInsideFrustum(location1, location2, location3, portedCanvas, lightFrustum)) {
+			graphicsLibrary.drawTriangle(location1, location2, location3, portedCanvas, this);
 		}
 	}
 
 	@Override
-	public void fragment(int[] location, int[] barycentric) {
+	public void fragment(int[] location) {
 //		int color = (location[VECTOR_Z] + 100) >> 3;
 //		color = colorProcessor.generate(color, color, color);
 //		frameBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z] - 1000, (byte) 0, color);
 		if (shadowMap.getPixel(location[VECTOR_X], location[VECTOR_Y]) > location[VECTOR_Z]) {
-			shadowMap.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z]);
+			shadowMap.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z] + SHADOW_BIAS);
 		}
 	}
 	

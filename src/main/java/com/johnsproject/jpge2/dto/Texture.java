@@ -52,8 +52,12 @@ public class Texture {
 		return pixelBuffer;
 	}
 	
-	public int[] getSize(){
-		return size;
+	public int getWidth() {
+		return size[0];
+	}
+	
+	public int getHeight() {
+		return size[1];
 	}
 	
 	public int getPixel(int x, int y) {
@@ -80,8 +84,8 @@ public class Texture {
 	}
 	
 	public void copy(Texture target) {
-		for (int i = 0; i < target.getSize()[0]; i++) {
-			for (int j = 0; j < target.getSize()[1]; j++) {
+		for (int i = 0; i < target.getWidth(); i++) {
+			for (int j = 0; j < target.getHeight(); j++) {
 				target.setPixel(i, j, getPixel(i, j));
 			}
 		}

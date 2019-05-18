@@ -28,30 +28,30 @@ import java.io.InputStream;
 
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Material;
+import com.johnsproject.jpge2.dto.Mesh;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
-import com.johnsproject.jpge2.processor.CentralProcessor;
-import com.johnsproject.jpge2.processor.ColorProcessor;
-import com.johnsproject.jpge2.processor.MathProcessor;
-import com.johnsproject.jpge2.processor.VectorProcessor;
+import com.johnsproject.jpge2.library.ColorLibrary;
+import com.johnsproject.jpge2.library.MathLibrary;
+import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
 import com.johnsproject.jpge2.util.FileUtil;
 
 public class SOMImporter {
 	
-	private static final byte VECTOR_X = VectorProcessor.VECTOR_X;
-	private static final byte VECTOR_Y = VectorProcessor.VECTOR_Y;
-	private static final byte VECTOR_Z = VectorProcessor.VECTOR_Z;
+	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
+	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
+	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
 	
-	private final MathProcessor mathProcessor;
-	private final VectorProcessor vectorProcessor;
-	private final ColorProcessor colorProcessor;
+	private final MathLibrary mathLibrary;
+	private final VectorLibrary vectorLibrary;
+	private final ColorLibrary colorLibrary;
 	
-	public SOMImporter(CentralProcessor centralProcessor) {
-		this.mathProcessor = centralProcessor.getMathProcessor();
-		this.vectorProcessor = centralProcessor.getVectorProcessor();
-		this.colorProcessor = centralProcessor.getColorProcessor();
+	public SOMImporter() {
+		this.mathLibrary = new MathLibrary();
+		this.vectorLibrary = new VectorLibrary();
+		this.colorLibrary = new ColorLibrary();
 	}
 	
 	public Model load(String path) throws IOException {
@@ -69,10 +69,12 @@ public class SOMImporter {
 		Material[] materials = parseMaterials(rawData);
 		Vertex[] vertices = parseVertices(rawData, materials);
 		Face[] faces = parseFaces(rawData, vertices, materials);
-		int[] location = vectorProcessor.generate();
-		int[] rotation = vectorProcessor.generate();
-		int[] scale = vectorProcessor.generate(10000, 10000, 10000);
-		Model result = new Model("Model", new Transform(location, rotation, scale), vertices, faces, materials);
+		int[] location = vectorLibrary.generate();
+		int[] rotation = vectorLibrary.generate();
+		int[] scale = vectorLibrary.generate(10000, 10000, 10000);
+		Transform transform = new Transform(location, rotation, scale);
+		Mesh mesh = new Mesh(vertices, faces, materials);
+		Model result = new Model("Model", transform, mesh);
 		System.gc();
 		return result;
 	}
@@ -84,14 +86,14 @@ public class SOMImporter {
 		String[] vNormalData = rawData.split("vNormal<")[1].split(">vNormal", 2)[0].split(",");
 		String[] vMaterialData = rawData.split("vMaterial<")[1].split(">vMaterial", 2)[0].split(",");
 		for (int i = 0; i < vertices.length * 3; i += 3) {
-			int[] location = vectorProcessor.generate();
-			location[VECTOR_X] = mathProcessor.generate(getFloat(vLocationData[i + VECTOR_X]));
-			location[VECTOR_Y] = mathProcessor.generate(getFloat(vLocationData[i + VECTOR_Y]));
-			location[VECTOR_Z] = mathProcessor.generate(getFloat(vLocationData[i + VECTOR_Z]));
-			int[] normal = vectorProcessor.generate();
-			normal[VECTOR_X] = mathProcessor.generate(getFloat(vNormalData[i + VECTOR_X]));
-			normal[VECTOR_Y] = mathProcessor.generate(getFloat(vNormalData[i + VECTOR_Y]));
-			normal[VECTOR_Z] = mathProcessor.generate(getFloat(vNormalData[i + VECTOR_Z]));
+			int[] location = vectorLibrary.generate();
+			location[VECTOR_X] = mathLibrary.generate(getFloat(vLocationData[i + VECTOR_X]));
+			location[VECTOR_Y] = mathLibrary.generate(getFloat(vLocationData[i + VECTOR_Y]));
+			location[VECTOR_Z] = mathLibrary.generate(getFloat(vLocationData[i + VECTOR_Z]));
+			int[] normal = vectorLibrary.generate();
+			normal[VECTOR_X] = mathLibrary.generate(getFloat(vNormalData[i + VECTOR_X]));
+			normal[VECTOR_Y] = mathLibrary.generate(getFloat(vNormalData[i + VECTOR_Y]));
+			normal[VECTOR_Z] = mathLibrary.generate(getFloat(vNormalData[i + VECTOR_Z]));
 			int material = getint(vMaterialData[i / 3]);
 			vertices[i / 3] = new Vertex(i / 3, location, normal, materials[material]);
 		}
@@ -114,19 +116,19 @@ public class SOMImporter {
 			int vertex2 = getint(fVertex2Data[i / 6]);
 			int vertex3 = getint(fVertex3Data[i / 6]);
 			int material = getint(fMaterialData[i / 6]);
-			int[] normal = vectorProcessor.generate();
-			normal[VECTOR_X] = mathProcessor.generate(getFloat(fNormalData[(i / 2) + VECTOR_X]));
-			normal[VECTOR_Y] = mathProcessor.generate(getFloat(fNormalData[(i / 2) + VECTOR_Y]));
-			normal[VECTOR_Z] = mathProcessor.generate(getFloat(fNormalData[(i / 2) + VECTOR_Z]));
-			int[] uv1 = vectorProcessor.generate();
-			uv1[VECTOR_X] = mathProcessor.generate(getFloat(fUV1Data[(i / 3) + VECTOR_X]));
-			uv1[VECTOR_Y] = mathProcessor.generate(getFloat(fUV1Data[(i / 3) + VECTOR_Y]));
-			int[] uv2 = vectorProcessor.generate();
-			uv2[VECTOR_X] = mathProcessor.generate(getFloat(fUV2Data[(i / 3) + VECTOR_X]));
-			uv2[VECTOR_Y] = mathProcessor.generate(getFloat(fUV2Data[(i / 3) + VECTOR_Y]));
-			int[] uv3 = vectorProcessor.generate();
-			uv3[VECTOR_X] = mathProcessor.generate(getFloat(fUV3Data[(i / 3) + VECTOR_X]));
-			uv3[VECTOR_Y] = mathProcessor.generate(getFloat(fUV3Data[(i / 3) + VECTOR_Y]));
+			int[] normal = vectorLibrary.generate();
+			normal[VECTOR_X] = mathLibrary.generate(getFloat(fNormalData[(i / 2) + VECTOR_X]));
+			normal[VECTOR_Y] = mathLibrary.generate(getFloat(fNormalData[(i / 2) + VECTOR_Y]));
+			normal[VECTOR_Z] = mathLibrary.generate(getFloat(fNormalData[(i / 2) + VECTOR_Z]));
+			int[] uv1 = vectorLibrary.generate();
+			uv1[VECTOR_X] = mathLibrary.generate(getFloat(fUV1Data[(i / 3) + VECTOR_X]));
+			uv1[VECTOR_Y] = mathLibrary.generate(getFloat(fUV1Data[(i / 3) + VECTOR_Y]));
+			int[] uv2 = vectorLibrary.generate();
+			uv2[VECTOR_X] = mathLibrary.generate(getFloat(fUV2Data[(i / 3) + VECTOR_X]));
+			uv2[VECTOR_Y] = mathLibrary.generate(getFloat(fUV2Data[(i / 3) + VECTOR_Y]));
+			int[] uv3 = vectorLibrary.generate();
+			uv3[VECTOR_X] = mathLibrary.generate(getFloat(fUV3Data[(i / 3) + VECTOR_X]));
+			uv3[VECTOR_Y] = mathLibrary.generate(getFloat(fUV3Data[(i / 3) + VECTOR_Y]));
 			faces[i / 6] = new Face(i / 6, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], normal, uv1, uv2, uv3);
 		}
 		return faces;
@@ -140,13 +142,13 @@ public class SOMImporter {
 		String[] mSpecularIntensityData = rawData.split("mSpecularIntensity<")[1].split(">mSpecularIntensity", 2)[0].split(",");
 		for (int i = 0; i < materials.length * 4; i+=4) {
 			// * 256 to get int rgb values
-			int r = mathProcessor.generate(getFloat(mDiffuseColorData[i]) * 256);
-			int	g = mathProcessor.generate(getFloat(mDiffuseColorData[i+1]) * 256);
-			int	b = mathProcessor.generate(getFloat(mDiffuseColorData[i+2]) * 256);
-			int	a = mathProcessor.generate(getFloat(mDiffuseColorData[i+3]) * 256);
-			int diffuseIntensity = mathProcessor.generate(getFloat(mDiffuseIntensityData[i / 4]));
-			int specularIntensity = mathProcessor.generate(getFloat(mSpecularIntensityData[i / 4]));
-			SpecularShaderProperties properties = new SpecularShaderProperties(colorProcessor.generate(a, r, g, b), diffuseIntensity, specularIntensity, 0, null);
+			int r = mathLibrary.generate(getFloat(mDiffuseColorData[i]) * 256);
+			int	g = mathLibrary.generate(getFloat(mDiffuseColorData[i+1]) * 256);
+			int	b = mathLibrary.generate(getFloat(mDiffuseColorData[i+2]) * 256);
+			int	a = mathLibrary.generate(getFloat(mDiffuseColorData[i+3]) * 256);
+			int diffuseIntensity = mathLibrary.generate(getFloat(mDiffuseIntensityData[i / 4]));
+			int specularIntensity = mathLibrary.generate(getFloat(mSpecularIntensityData[i / 4]));
+			SpecularShaderProperties properties = new SpecularShaderProperties(colorLibrary.generate(a, r, g, b), diffuseIntensity, specularIntensity, 0, null);
 			materials[i/4] = new Material(i/4, "", 0, properties);
 		}
 		return materials;
