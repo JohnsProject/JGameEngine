@@ -17,11 +17,7 @@ import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.shader.Shader;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
-import com.johnsproject.jpge2.shader.shaders.DirectionalLightShadowShader;
-import com.johnsproject.jpge2.shader.shaders.FlatSpecularShader;
 import com.johnsproject.jpge2.shader.shaders.GouraudSpecularShader;
-import com.johnsproject.jpge2.shader.shaders.PhongSpecularShader;
-import com.johnsproject.jpge2.shader.shaders.SpotLightShadowShader;
 
 public class GraphicsController implements EngineListener {
 	
@@ -66,9 +62,7 @@ public class GraphicsController implements EngineListener {
 		this.shaderDataBuffer = new ForwardDataBuffer();
 		this.shaders = new ArrayList<Shader>();
 		
-		addPreprocessingShader(new SpotLightShadowShader());
-		addPreprocessingShader(new DirectionalLightShadowShader());
-		addShader(new FlatSpecularShader());
+		addShader(new GouraudSpecularShader());
 	}
 	
 	public void start() { }

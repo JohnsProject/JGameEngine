@@ -51,6 +51,21 @@ public class SpotLightShadowShader extends Shader {
 		this.shadowMap = new Texture(320, 320);
 	}
 	
+	public SpotLightShadowShader(int width, int height) {
+		super(0);
+		this.graphicsLibrary = new GraphicsLibrary();
+		this.matrixLibrary = new MatrixLibrary();
+		this.vectorLibrary = new VectorLibrary();
+
+		this.viewMatrix = matrixLibrary.generate();
+		this.projectionMatrix = matrixLibrary.generate();
+		this.lightMatrix = matrixLibrary.generate();
+		
+		this.lightFrustum = vectorLibrary.generate(30, 0, 100000);
+		this.portedCanvas = vectorLibrary.generate();
+		this.shadowMap = new Texture(width, height);
+	}
+	
 	@Override
 	public void update(ShaderDataBuffer shaderDataBuffer) {
 		shaderData = (ForwardDataBuffer)shaderDataBuffer;

@@ -160,6 +160,7 @@ public class GraphicsLibrary {
 		int b20 = location1[VECTOR_X] - location3[VECTOR_X];
 
 		barycentricCache[3] = barycentric(location1, location2, location3);
+		barycentricCache[3] = barycentricCache[3] == 0 ? 1 : barycentricCache[3];
 		depthCache[0] = INTERPOLATE_ONE / location1[VECTOR_Z];
 		depthCache[1] = INTERPOLATE_ONE / location2[VECTOR_Z];
 		depthCache[2] = INTERPOLATE_ONE / location3[VECTOR_Z];
