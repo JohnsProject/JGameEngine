@@ -3,7 +3,6 @@ package com.johnsproject.jpge2.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.johnsproject.jpge2.EngineListener;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
@@ -11,6 +10,7 @@ import com.johnsproject.jpge2.dto.Mesh;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.event.EngineListener;
 import com.johnsproject.jpge2.library.GraphicsLibrary;
 import com.johnsproject.jpge2.library.MatrixLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;

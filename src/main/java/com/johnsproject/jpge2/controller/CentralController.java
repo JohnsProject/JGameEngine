@@ -11,6 +11,7 @@ public class CentralController {
 		inputController = new InputController();
 		graphicsController = new GraphicsController();
 		engine.addEngineListener(graphicsController);
+		engine.addEngineListener(inputController);
 	}
 
 	public GraphicsController getGraphicsController() {

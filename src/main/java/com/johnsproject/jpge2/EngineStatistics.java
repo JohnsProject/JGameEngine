@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.johnsproject.jpge2.controller.GraphicsController;
 import com.johnsproject.jpge2.dto.Model;
+import com.johnsproject.jpge2.event.EngineListener;
 
 public class EngineStatistics implements EngineListener{
 

@@ -31,6 +31,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 
 import com.johnsproject.jpge2.dto.FrameBuffer;
+import com.johnsproject.jpge2.event.EngineListener;
 
 public class EngineWindow extends Frame implements EngineListener {
 

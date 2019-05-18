@@ -37,11 +37,11 @@ import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.library.ColorLibrary;
+import com.johnsproject.jpge2.library.FileLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.dto.LightType;
 import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
-import com.johnsproject.jpge2.util.FileUtil;
 
 public class SceneImporter {
 	
@@ -60,12 +60,12 @@ public class SceneImporter {
 	}
 	
 	public Scene load(String path) throws IOException {
-		String content = FileUtil.readFile(path);
+		String content = new FileLibrary().readFile(path);
 		return loadFromRaw(content);
 	}
 
 	public Scene load(InputStream stream) throws IOException {
-		String content = FileUtil.readStream(stream);
+		String content = new FileLibrary().readStream(stream);
 		return loadFromRaw(content);
 	}
 

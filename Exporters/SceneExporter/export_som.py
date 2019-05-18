@@ -26,6 +26,9 @@ def write(filepath):
 			light.color.red = blenderLight.color[0]
 			light.color.green = blenderLight.color[1]
 			light.color.blue = blenderLight.color[2]
+			light.shadowColor.red = blenderLight.shadow_color[0]
+			light.shadowColor.green = blenderLight.shadow_color[1]
+			light.shadowColor.blue = blenderLight.shadow_color[2]
 			setTransform(light.transform, object)
 			scene.lights.append(light)
 			
@@ -142,6 +145,7 @@ def writeToFile(filepath, scene):
 		lights += ("	spot<" + ("%f" % light.spot) + ">spot\n")
 		lights += ("	blend<" + ("%f" % light.blend) + ">blend\n")
 		lights += ("	color<" + light.color.toString() + ">color\n")
+		lights += ("	shadowColor<" + light.shadowColor.toString() + ">shadowColor\n")
 		lights += ("	transform<" + light.transform.toString() + ">transform\n")
 		lights += ">light\n"
 	file.write(models)
@@ -179,6 +183,7 @@ class Light:
 		self.transform = Transform()
 		self.type = 0
 		self.color = Color()
+		self.shadowColor = Color()
 		self.strength = 0
 		self.spot = 0
 		self.blend = 0

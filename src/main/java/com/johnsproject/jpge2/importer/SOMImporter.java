@@ -33,10 +33,10 @@ import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.library.ColorLibrary;
+import com.johnsproject.jpge2.library.FileLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
-import com.johnsproject.jpge2.util.FileUtil;
 
 public class SOMImporter {
 	
@@ -55,12 +55,12 @@ public class SOMImporter {
 	}
 	
 	public Model load(String path) throws IOException {
-		String content = FileUtil.readFile(path);
+		String content = new FileLibrary().readFile(path);
 		return loadFromRaw(content);
 	}
 
 	public Model load(InputStream stream) throws IOException {
-		String content = FileUtil.readStream(stream);
+		String content = new FileLibrary().readStream(stream);
 		return loadFromRaw(content);
 	}
 
