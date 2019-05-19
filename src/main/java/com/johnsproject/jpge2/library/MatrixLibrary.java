@@ -5,7 +5,7 @@
  *  
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
+ * in the Software withresult restriction, including withresult limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
@@ -63,142 +63,142 @@ public class MatrixLibrary {
 	}
 
 	/**
-	 * Sets out equals the result of the addition of matrix1 and matrix2.
+	 * Sets result equals the result of the addition of matrix1 and matrix2.
 	 * 
 	 * @param matrix1
 	 * @param matrix2
-	 * @param out
+	 * @param result
 	 */
-	public int[][] add(int[][] matrix1, int[][] matrix2, int[][] out) {
-		// ensures that will return right values if matrix or matrix two is the same as out
+	public int[][] add(int[][] matrix1, int[][] matrix2, int[][] result) {
+		// ensures that will return right values if matrix or matrix two is the same as result
 		copy(matrixCache1, matrix1);
 		copy(matrixCache2, matrix2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				int result = matrixCache1[0][j] + matrixCache2[i][0];
-				result += matrixCache1[1][j] + matrixCache2[i][1];
-				result += matrixCache1[2][j] + matrixCache2[i][2];
-				result += matrixCache1[3][j] + matrixCache2[i][3];
-				out[i][j] = result;
+				int res = matrixCache1[0][j] + matrixCache2[i][0];
+				res += matrixCache1[1][j] + matrixCache2[i][1];
+				res += matrixCache1[2][j] + matrixCache2[i][2];
+				res += matrixCache1[3][j] + matrixCache2[i][3];
+				result[i][j] = res;
 			}
 		}
-		return out;
+		return result;
 	}
 
 	/**
-	 * Sets out equals the result of the subtraction of matrix1 and matrix2.
+	 * Sets result equals the result of the subtraction of matrix1 and matrix2.
 	 * 
 	 * @param matrix1
 	 * @param matrix2
-	 * @param out
+	 * @param result
 	 */
-	public int[][] subtract(int[][] matrix1, int[][] matrix2, int[][] out) {
-		// ensures that will return right values if matrix or matrix two is the same as out
+	public int[][] subtract(int[][] matrix1, int[][] matrix2, int[][] result) {
+		// ensures that will return right values if matrix or matrix two is the same as result
 		copy(matrixCache1, matrix1);
 		copy(matrixCache2, matrix2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				int result = matrixCache1[0][j] - matrixCache2[i][0];
-				result += matrixCache1[1][j] - matrixCache2[i][1];
-				result += matrixCache1[2][j] - matrixCache2[i][2];
-				result += matrixCache1[3][j] - matrixCache2[i][3];
-				out[i][j] = result;
+				int res = matrixCache1[0][j] - matrixCache2[i][0];
+				res += matrixCache1[1][j] - matrixCache2[i][1];
+				res += matrixCache1[2][j] - matrixCache2[i][2];
+				res += matrixCache1[3][j] - matrixCache2[i][3];
+				result[i][j] = res;
 			}
 		}
-		return out;
+		return result;
 	}
 
 	/**
-	 * Sets out equals the result of the multiplication of matrix1 and matrix2.
+	 * Sets result equals the result of the multiplication of matrix1 and matrix2.
 	 * 
 	 * @param matrix1
 	 * @param matrix2
-	 * @param out
+	 * @param result
 	 */
-	public int[][] multiply(int[][] matrix1, int[][] matrix2, int[][] out) {
-		// ensures that will return right values if matrix or matrix two is the same as out
+	public int[][] multiply(int[][] matrix1, int[][] matrix2, int[][] result) {
+		// ensures that will return right values if matrix or matrix two is the same as result
 		copy(matrixCache1, matrix1);
 		copy(matrixCache2, matrix2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				long result = (long) matrixCache1[0][j] * matrixCache2[i][0];
-				result += (long) matrixCache1[1][j] * matrixCache2[i][1];
-				result += (long) matrixCache1[2][j] * matrixCache2[i][2];
-				result += (long) matrixCache1[3][j] * matrixCache2[i][3];
-				out[i][j] = (int) (result >> FP_BITS);
+				long res = (long) matrixCache1[0][j] * matrixCache2[i][0];
+				res += (long) matrixCache1[1][j] * matrixCache2[i][1];
+				res += (long) matrixCache1[2][j] * matrixCache2[i][2];
+				res += (long) matrixCache1[3][j] * matrixCache2[i][3];
+				result[i][j] = (int) (res >> FP_BITS);
 			}
 		}
-		return out;
+		return result;
 	}
 
 	/**
-	 * Sets out equals the result of the division of matrix1 and matrix2.
+	 * Sets result equals the result of the division of matrix1 and matrix2.
 	 * 
 	 * @param matrix1
 	 * @param matrix2
-	 * @param out
+	 * @param result
 	 */
-	public int[][] divide(int[][] matrix1, int[][] matrix2, int[][] out) {
-		// ensures that will return right values if matrix or matrix two is the same as out
+	public int[][] divide(int[][] matrix1, int[][] matrix2, int[][] result) {
+		// ensures that will return right values if matrix or matrix two is the same as result
 		copy(matrixCache1, matrix1);
 		copy(matrixCache2, matrix2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				int result = mathLibrary.divide(matrixCache1[0][j], matrixCache2[i][0]);
-				result += mathLibrary.divide(matrixCache1[1][j], matrixCache2[i][1]);
-				result += mathLibrary.divide(matrixCache1[2][j], matrixCache2[i][2]);
-				result += mathLibrary.divide(matrixCache1[3][j], matrixCache2[i][3]);
-				out[i][j] = result;
+				int res = mathLibrary.divide(matrixCache1[0][j], matrixCache2[i][0]);
+				res += mathLibrary.divide(matrixCache1[1][j], matrixCache2[i][1]);
+				res += mathLibrary.divide(matrixCache1[2][j], matrixCache2[i][2]);
+				res += mathLibrary.divide(matrixCache1[3][j], matrixCache2[i][3]);
+				result[i][j] = res;
 			}
 		}
-		return out;
+		return result;
 	}
 
 	/**
-	 * Sets out equals the translated matrix.
+	 * Sets result equals the translated matrix.
 	 *
 	 * @param matrix
 	 * @param x
 	 * @param y
 	 * @param z
-	 * @param out
+	 * @param result
 	 */
-	public int[][] translate(int[][] matrix, int[] vector, int[][] out) {
+	public int[][] translate(int[][] matrix, int[] vector, int[][] result) {
 		copy(matrixCache1, MATRIX_IDENTITY);
 		matrixCache1[3][0] = vector[VECTOR_X];
 		matrixCache1[3][1] = vector[VECTOR_Y];
 		matrixCache1[3][2] = vector[VECTOR_Z];
-		multiply(matrixCache1, matrix, out);
-		return out;
+		multiply(matrixCache1, matrix, result);
+		return result;
 	}
 
 	/**
-	 * Sets out equals the scaled matrix.
+	 * Sets result equals the scaled matrix.
 	 *
 	 * @param matrix
 	 * @param x
 	 * @param y
 	 * @param z
-	 * @param out
+	 * @param result
 	 */
-	public int[][] scale(int[][] matrix, int[] vector, int[][] out) {
+	public int[][] scale(int[][] matrix, int[] vector, int[][] result) {
 		copy(matrixCache1, MATRIX_IDENTITY);
 		matrixCache1[0][0] = vector[VECTOR_X];
 		matrixCache1[1][1] = vector[VECTOR_Y];
 		matrixCache1[2][2] = vector[VECTOR_Z];
-		multiply(matrixCache1, matrix, out);
-		return out;
+		multiply(matrixCache1, matrix, result);
+		return result;
 	}
 
 	/**
-	 * Sets out equals the matrix rotated around (0, 0, 0) at x axis by the given
+	 * Sets result equals the matrix rotated around (0, 0, 0) at x axis by the given
 	 * angle.
 	 *
 	 * @param matrix
 	 * @param angle
-	 * @param out
+	 * @param result
 	 */
-	public int[][] rotateX(int[][] matrix, int angle, int[][] out) {
+	public int[][] rotateX(int[][] matrix, int angle, int[][] result) {
 		copy(matrixCache1, MATRIX_IDENTITY);
 		int cos = mathLibrary.cos(angle);
 		int sin = mathLibrary.sin(angle);
@@ -206,19 +206,19 @@ public class MatrixLibrary {
 		matrixCache1[1][2] = sin;
 		matrixCache1[2][1] = -sin;
 		matrixCache1[2][2] = cos;
-		multiply(matrixCache1, matrix, out);
-		return out;
+		multiply(matrixCache1, matrix, result);
+		return result;
 	}
 
 	/**
-	 * Sets out equals the matrix rotated around (0, 0, 0) at y axis by the given
+	 * Sets result equals the matrix rotated around (0, 0, 0) at y axis by the given
 	 * angle.
 	 *
 	 * @param matrix
 	 * @param angle
-	 * @param out
+	 * @param result
 	 */
-	public int[][] rotateY(int[][] matrix, int angle, int[][] out) {
+	public int[][] rotateY(int[][] matrix, int angle, int[][] result) {
 		copy(matrixCache1, MATRIX_IDENTITY);
 		int cos = mathLibrary.cos(-angle);
 		int sin = mathLibrary.sin(-angle);
@@ -226,19 +226,19 @@ public class MatrixLibrary {
 		matrixCache1[0][2] = -sin;
 		matrixCache1[2][0] = sin;
 		matrixCache1[2][2] = cos;
-		multiply(matrixCache1, matrix, out);
-		return out;
+		multiply(matrixCache1, matrix, result);
+		return result;
 	}
 
 	/**
-	 * Sets out equals the matrix rotated around (0, 0, 0) at z axis by the given
+	 * Sets result equals the matrix rotated around (0, 0, 0) at z axis by the given
 	 * angle.
 	 *
 	 * @param matrix
 	 * @param angle
-	 * @param out
+	 * @param result
 	 */
-	public int[][] rotateZ(int[][] matrix, int angle, int[][] out) {
+	public int[][] rotateZ(int[][] matrix, int angle, int[][] result) {
 		copy(matrixCache1, MATRIX_IDENTITY);
 		int cos = mathLibrary.cos(-angle);
 		int sin = mathLibrary.sin(-angle);
@@ -246,40 +246,40 @@ public class MatrixLibrary {
 		matrixCache1[0][1] = sin;
 		matrixCache1[1][0] = -sin;
 		matrixCache1[1][1] = cos;
-		multiply(matrixCache1, matrix, out);
-		return out;
+		multiply(matrixCache1, matrix, result);
+		return result;
 	}
 
 	/**
-	 * Sets out equals the matrix rotated around (0, 0, 0) at x, y and z axis by the
+	 * Sets result equals the matrix rotated around (0, 0, 0) at x, y and z axis by the
 	 * given angles.
 	 * 
 	 * @param vector
 	 * @param angles
-	 * @param out
+	 * @param result
 	 * @return
 	 */
-	public int[][] rotateXYZ(int[][] vector, int[] angles, int[][] out) {
-		rotateX(vector, angles[VECTOR_X], out);
-		rotateY(out, angles[VECTOR_Y], out);
-		rotateZ(out, angles[VECTOR_Z], out);
-		return out;
+	public int[][] rotateXYZ(int[][] vector, int[] angles, int[][] result) {
+		rotateX(vector, angles[VECTOR_X], result);
+		rotateY(result, angles[VECTOR_Y], result);
+		rotateZ(result, angles[VECTOR_Z], result);
+		return result;
 	}
 
 	/**
-	 * Sets out equals the matrix rotated around (0, 0, 0) at z, y and x axis by the
+	 * Sets result equals the matrix rotated around (0, 0, 0) at z, y and x axis by the
 	 * given angles.
 	 * 
 	 * @param vector
 	 * @param angles
-	 * @param out
+	 * @param result
 	 * @return
 	 */
-	public int[][] rotateZYX(int[][] vector, int[] angles, int[][] out) {
-		rotateZ(vector, angles[VECTOR_Z], out);
-		rotateY(out, angles[VECTOR_Y], out);
-		rotateX(out, angles[VECTOR_X], out);
-		return out;
+	public int[][] rotateZYX(int[][] vector, int[] angles, int[][] result) {
+		rotateZ(vector, angles[VECTOR_Z], result);
+		rotateY(result, angles[VECTOR_Y], result);
+		rotateX(result, angles[VECTOR_X], result);
+		return result;
 	}
 
 	/**

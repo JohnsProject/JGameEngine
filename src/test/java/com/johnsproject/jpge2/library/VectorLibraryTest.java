@@ -1,4 +1,4 @@
-package com.johnsproject.jpge2.processor;
+package com.johnsproject.jpge2.library;
 
 import org.junit.Test;
 
@@ -6,7 +6,7 @@ import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.MatrixLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 
-public class VectorProcessorTest {
+public class VectorLibraryTest {
 
 	@Test
 	public void multiplyMatrixTest() throws Exception {
@@ -39,17 +39,4 @@ public class VectorProcessorTest {
 		assert(out[1] == 438);
 		assert(out[2] == 292);
 	}
-	
-	@Test
-	public void rotateXTest() throws Exception {
-		VectorLibrary vectorProcessor = new VectorLibrary();
-		int[] out = vectorProcessor.generate();
-		int[] vector = vectorProcessor.generate(100, 100, 100);
-		vectorProcessor.rotateX(vector, 30 << MathLibrary.FP_BITS, out);
-		assert(out[0] == 100);
-		assert(out[1] == 37);
-		assert(out[2] == 137);
-		assert(out[3] == 1024);
-	}
-	
 }

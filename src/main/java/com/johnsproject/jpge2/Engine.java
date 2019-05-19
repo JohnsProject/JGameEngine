@@ -26,7 +26,6 @@ package com.johnsproject.jpge2;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.johnsproject.jpge2.controller.CentralController;
 import com.johnsproject.jpge2.event.EngineListener;
 
 public class Engine {
@@ -38,21 +37,19 @@ public class Engine {
 	}
 
 	private Thread engineThread;
-	private List<EngineListener> engineListeners;
-	private CentralController controller;
+	private final List<EngineListener> engineListeners;
 	private int maxUpdateSkip;
 	private int updateRate;
 	
 	private volatile boolean running;
 
 	private Engine() {
-		updateRate = 25;
+		updateRate = 30;
 		maxUpdateSkip = 10;
 		engineListeners = new ArrayList<EngineListener>();
 	}
 
 	public void start() {
-		this.controller = new CentralController(this);
 		startEngineLoop();
 	}
 	
@@ -88,14 +85,14 @@ public class Engine {
 					for (int i = 0; i < engineListeners.size(); i++) {
 						engineListeners.get(i).update();
 					}
-//					long sleepTime = nextUpateTick - current;
-//					if (sleepTime >= 0) {
-//						try {
-//							Thread.sleep(sleepTime);
-//						} catch (InterruptedException e) {
-//							e.printStackTrace();
-//						}
-//					}
+					long sleepTime = nextUpateTick - current;
+					if (sleepTime >= 0) {
+						try {
+							Thread.sleep(sleepTime);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
 				}
 			}
 		});
@@ -111,9 +108,9 @@ public class Engine {
 		engineListeners.remove(listener);
 		sortListeners();
 	}
-
-	public CentralController getController() {
-		return controller;
+	
+	public List<EngineListener> getEngineListeners() {
+		return engineListeners;
 	}
 
 	public int getUpdateRate() {

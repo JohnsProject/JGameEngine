@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.util.List;
 
 import com.johnsproject.jpge2.controller.GraphicsController;
+import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.event.EngineListener;
 
@@ -17,12 +18,13 @@ public class EngineStatistics implements EngineListener{
 	private static final int STATISTICS_HEIGHT = 115;
 	private static final Color STATISTICS_BACKROUND = new Color(230, 230, 230, 200);
 	
+	private final FrameBuffer frameBuffer;
 	private long lastUpdateTime; 
 	private long timeLastUpdate; 
 	private long elapsed, fps;
 	
-	public EngineStatistics() {
-		Engine.getInstance().addEngineListener(this);
+	public EngineStatistics(FrameBuffer frameBuffer) {
+		this.frameBuffer = frameBuffer;
 	}
 	
 	public void start() {
@@ -37,21 +39,33 @@ public class EngineStatistics implements EngineListener{
 			timeLastUpdate = currentTime;
 		}
 		lastUpdateTime = currentTime;
+		GraphicsController graphicsController = null;
+		List<EngineListener> engineListeners = Engine.getInstance().getEngineListeners(); 
+		for (int i = 0; i < engineListeners.size(); i++) {
+			EngineListener engineListener = engineListeners.get(i);
+			if(engineListener instanceof GraphicsController) {
+				graphicsController = (GraphicsController) engineListener;
+			}
+		}
 		long ramUsage = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) >> 20;
-		GraphicsController graphicsController = Engine.getInstance().getController().getGraphicsController();
-		int frameBufferWidth = graphicsController.getFrameBuffer().getWidth();
-		int frameBufferHeight = graphicsController.getFrameBuffer().getHeight();
 		int maxFPS = Engine.getInstance().getUpdateRate();
-		int shadersCount = graphicsController.getShaders().size();
-		List<Model> models = Engine.getInstance().getController().getGraphicsController().getScene().getModels();
+		int frameBufferWidth = 0;
+		int frameBufferHeight = 0;
+		int shadersCount = 0;
 		int verticesCount = 0;
 		int trianglesCount = 0;
-		for (int i = 0; i < models.size(); i++) {
-			Model model = models.get(i);
-			verticesCount += model.getMesh().getVertices().length;
-			trianglesCount += model.getMesh().getFaces().length;
+		if (graphicsController != null) {
+			frameBufferWidth = graphicsController.getFrameBuffer().getWidth();
+			frameBufferHeight = graphicsController.getFrameBuffer().getHeight();
+			shadersCount = graphicsController.getShaders().size();
+			List<Model> models = graphicsController.getScene().getModels();
+			for (int i = 0; i < models.size(); i++) {
+				Model model = models.get(i);
+				verticesCount += model.getMesh().getVertices().length;
+				trianglesCount += model.getMesh().getFaces().length;
+			}
 		}
-		Graphics2D g = graphicsController.getFrameBuffer().getImage().createGraphics();
+		Graphics2D g = frameBuffer.getImage().createGraphics();
 		g.setColor(STATISTICS_BACKROUND);
 		g.fillRect(STATISTICS_X, STATISTICS_Y, STATISTICS_WIDTH, STATISTICS_HEIGHT);
 		g.setColor(Color.black);

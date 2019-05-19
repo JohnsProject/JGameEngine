@@ -1,10 +1,10 @@
-package com.johnsproject.jpge2.processor;
+package com.johnsproject.jpge2.library;
 
 import org.junit.Test;
 
 import com.johnsproject.jpge2.library.MathLibrary;
 
-public class MathProcessorTest {
+public class MathLibraryTest {
 	
 	@Test
 	public void genLookupTableTest() throws Exception {
@@ -27,11 +27,11 @@ public class MathProcessorTest {
 
 	@Test
 	public void sintest() throws Exception {
-		MathLibrary mathProcessor = new MathLibrary();
+		MathLibrary mathLibrary = new MathLibrary();
 		for (int i = 0; i < 90; i++) {
 			int angle = i;
-			int precision = 1;
-			int isin = mathProcessor.sin(angle);
+			int precision = 10;
+			int isin = mathLibrary.sin(angle << MathLibrary.FP_BITS);
 			int sin = (int) Math.round(Math.sin(Math.toRadians(angle)) * MathLibrary.FP_ONE);
 			assert (isin >= sin - precision && isin <= sin + precision);
 		}
@@ -39,11 +39,11 @@ public class MathProcessorTest {
 
 	@Test
 	public void cosTest() throws Exception {
-		MathLibrary mathProcessor = new MathLibrary();
+		MathLibrary mathLibrary = new MathLibrary();
 		for (int i = 0; i < 90; i++) {
 			int angle = i;
-			int precision = 1;
-			int icos = mathProcessor.cos(angle);
+			int precision = 10;
+			int icos = mathLibrary.cos(angle << MathLibrary.FP_BITS);
 			int cos = (int) Math.round(Math.cos(Math.toRadians(angle)) * MathLibrary.FP_ONE);
 			assert (icos >= cos - precision && icos <= cos + precision);
 		}
@@ -51,11 +51,11 @@ public class MathProcessorTest {
 
 	@Test
 	public void tanTest() throws Exception {
-		MathLibrary mathProcessor = new MathLibrary();
+		MathLibrary mathLibrary = new MathLibrary();
 		for (int i = 0; i < 90; i++) {
 			int angle = i;
-			int precision = 411;
-			int itan = mathProcessor.tan(angle);
+			int precision = 1000;
+			int itan = mathLibrary.tan(angle << MathLibrary.FP_BITS);
 			int tan = (int) Math.round(Math.tan(Math.toRadians(angle)) * MathLibrary.FP_ONE);
 			assert (itan >= tan - precision && itan <= tan + precision);
 		}
@@ -63,20 +63,20 @@ public class MathProcessorTest {
 	
 	@Test
 	public void divideTest() throws Exception {
-		MathLibrary mathProcessor = new MathLibrary();
-		assert(mathProcessor.divide(10 << MathLibrary.FP_BITS, 2 << MathLibrary.FP_BITS) == 5 << MathLibrary.FP_BITS);
+		MathLibrary mathLibrary = new MathLibrary();
+		assert(mathLibrary.divide(10 << MathLibrary.FP_BITS, 2 << MathLibrary.FP_BITS) == 5 << MathLibrary.FP_BITS);
 	}
 	
 	@Test
 	public void powTest() throws Exception {
-		MathLibrary mathProcessor = new MathLibrary();
-		assert(mathProcessor.pow(5 << MathLibrary.FP_BITS, 2) == 25 << MathLibrary.FP_BITS);
+		MathLibrary mathLibrary = new MathLibrary();
+		assert(mathLibrary.pow(5 << MathLibrary.FP_BITS, 2) == 25 << MathLibrary.FP_BITS);
 	}
 	
 	@Test
 	public void sqrtTest() throws Exception {
-		MathLibrary mathProcessor = new MathLibrary();
-		assert(mathProcessor.sqrt(25 << MathLibrary.FP_BITS) == 5 << MathLibrary.FP_BITS);
+		MathLibrary mathLibrary = new MathLibrary();
+		assert(mathLibrary.sqrt(25 << MathLibrary.FP_BITS) == 5 << MathLibrary.FP_BITS);
 	}
 
 }

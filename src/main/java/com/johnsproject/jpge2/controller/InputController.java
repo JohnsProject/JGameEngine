@@ -28,7 +28,7 @@ public class InputController implements EngineListener {
 	private List<MouseMotionListener> motionListeners = new ArrayList<MouseMotionListener>();
 	private List<MouseWheelListener> wheelListeners = new ArrayList<MouseWheelListener>();
 	
-	InputController() {
+	public InputController() {
 		this.keyListeners = new ArrayList<EngineKeyListener>();
 		this.mouseListeners = new ArrayList<EngineMouseListener>();
 		this.wheelListeners = new ArrayList<MouseWheelListener>();

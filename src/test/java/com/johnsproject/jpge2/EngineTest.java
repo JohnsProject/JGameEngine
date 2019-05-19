@@ -1,13 +1,13 @@
 package com.johnsproject.jpge2;
 
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import com.johnsproject.jpge2.controller.GraphicsController;
+import com.johnsproject.jpge2.controller.InputController;
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Model;
@@ -31,13 +31,17 @@ import com.johnsproject.jpge2.shader.shaders.SpotLightShadowShader;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
-	private static final int WINDOW_W = 1024;
-	private static final int WINDOW_H = 768;
-	private static final int RENDER_W = 1024;
-	private static final int RENDER_H = 768;
+	private static final int WINDOW_W = 800;
+	private static final int WINDOW_H = 640;
+	private static final int RENDER_W = 640;
+	private static final int RENDER_H = 480;
+	
+	private final int[] cache;
+	private Transform cameraTransform;
 	
 	private VectorLibrary vectorLibrary;
 	private GraphicsController graphicsController;
+	private InputController inputController;
 	
 	public static void main(String[] args) {
 		new EngineTest();
@@ -51,65 +55,43 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 	
 	public void start() {
-		new EngineStatistics();
-		graphicsController = Engine.getInstance().getController().getGraphicsController();
 		BufferedImage image = new BufferedImage(RENDER_W, RENDER_H, ColorLibrary.COLOR_TYPE);
-		graphicsController.setFrameBuffer(new FrameBuffer(image));
-		EngineWindow window = new EngineWindow(graphicsController.getFrameBuffer());
-		window.setSize(WINDOW_W, WINDOW_H);
+		FrameBuffer frameBuffer = new FrameBuffer(image);
+		EngineWindow window = new EngineWindow(frameBuffer);
+		graphicsController = new GraphicsController(loadScene(), frameBuffer);
+		inputController = new InputController();
+		Engine.getInstance().addEngineListener(graphicsController);
+		Engine.getInstance().addEngineListener(inputController);
 		Engine.getInstance().addEngineListener(window);
+		Engine.getInstance().addEngineListener(new EngineStatistics(frameBuffer));
+		window.setSize(WINDOW_W, WINDOW_H);
+		inputController.addMouseMotionListener(this);
+		inputController.addEngineKeyListener(this);
+		cameraTransform = graphicsController.getScene().getCamera(0).getTransform();
 		graphicsController.removeShader(graphicsController.getShader(0));
 //		graphicsController.addPreprocessingShader(new DirectionalLightShadowShader());
 //		graphicsController.addPreprocessingShader(new SpotLightShadowShader());
 		graphicsController.addShader(new FlatSpecularShader());
-//		useSOM();
-		useScene();
-		Engine.getInstance().getController().getInputController().addMouseMotionListener(this);
-		Engine.getInstance().getController().getInputController().addEngineKeyListener(this);
-	}
-
-	void useSOM() {
-		try {
-			Model model = new SOMImporter().load("C:/Development/test.som");
-			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
-			((SpecularShaderProperties)model.getMesh().getMaterial(0).getProperties()).setTexture(texture);
-			graphicsController.getScene().addCamera(new Camera("Default Camera", new Transform(new int[3], new int[3], new int[3])));
-			graphicsController.getScene().getCameras().get(0).getTransform().translate(0, 0, MathLibrary.FP_ONE * 100);
-			graphicsController.getScene().addModel(model);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
-	void useScene() {
+	private Scene loadScene() {
 		try {
 			Scene scene = new SceneImporter().load("C:/Development/test.scene");
-//			Texture texture = new Texture(FileUtil.loadImage("C:\\Users\\schnu\\Downloads\\qwichvr1jf28-dungeon\\prison/Pris"));
-//			((SpecularShaderProperties)scene.getModel("Cube").getMesh().getMaterial(0).getProperties()).setTexture(texture);
-//			scene.getModels().get(0).getMaterial(0).setTexture(new Texture("C:/Development/JohnsProject.png"));
-			graphicsController.setScene(scene);
+			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
+//			((SpecularShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
+			return scene;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return new Scene();
 	}
 
 	public void update() {
 		
 	}
-
-	private final int[] cache;
 	
 	public void fixedUpdate() {
-//		if (move) {
-//			Transform transform = graphicsController.getScene().getCamera(0).getTransform();
-//			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, transform.getRotation(), cache);
-//			vectorLibrary.multiply(cache, 2 << MathLibrary.FP_BITS, cache);
-//			transform.translate(cache);
-//		}
-//		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
-//			Engine.getInstance().getScene().getModels().get(i).getTransform().rotate(0, 0, 1000);
-//			Engine.getInstance().getScene().getModels().get(i).getTransform().translate(VectorProcessor.VECTOR_RIGHT);
-//		}
+
 	}
 
 	public int getPriority() {
@@ -121,8 +103,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	public void mouseMoved(MouseEvent e) {
-		Transform transform = graphicsController.getScene().getCamera(0).getTransform();
-		int[] rotation = transform.getRotation();
+		int[] rotation = cameraTransform.getRotation();
 		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << 10;
 		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << 10;
 	}
@@ -132,23 +113,39 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	
-	boolean move = false;
 	public void keyPressed(KeyEvent e) {
-		move = true;
-//		Transform transform = graphicsController.getScene().getCamera(0).getTransform();
-//		vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, transform.getRotation(), cache);
-//		vectorLibrary.multiply(cache, 2 << MathLibrary.FP_BITS, cache);
-//		transform.translate(cache);
+		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
+			speed = 10;
+		}
 	}
 
 	public void keyReleased(KeyEvent e) {
-		 move = false;
+		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
+			speed = 2;
+		}
 	}
 
+	int speed = 2;
 	public void keyDown(KeyEvent e) {
-		Transform transform = graphicsController.getScene().getCamera(0).getTransform();
-		vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, transform.getRotation(), cache);
-		vectorLibrary.multiply(cache, 2 << MathLibrary.FP_BITS, cache);
-		transform.translate(cache);
+		if(e.getKeyCode() == KeyEvent.VK_W) {
+			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, cameraTransform.getRotation(), cache);
+			vectorLibrary.multiply(cache, speed << MathLibrary.FP_BITS, cache);
+			cameraTransform.translate(cache);
+		}
+		if(e.getKeyCode() == KeyEvent.VK_A) {
+			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_LEFT, cameraTransform.getRotation(), cache);
+			vectorLibrary.multiply(cache, speed << MathLibrary.FP_BITS, cache);
+			cameraTransform.translate(cache);
+		}
+		if(e.getKeyCode() == KeyEvent.VK_D) {
+			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_RIGHT, cameraTransform.getRotation(), cache);
+			vectorLibrary.multiply(cache, speed << MathLibrary.FP_BITS, cache);
+			cameraTransform.translate(cache);
+		}
+		if(e.getKeyCode() == KeyEvent.VK_S) {
+			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_UP, cameraTransform.getRotation(), cache);
+			vectorLibrary.multiply(cache, speed << MathLibrary.FP_BITS, cache);
+			cameraTransform.translate(cache);
+		}
 	}
 }

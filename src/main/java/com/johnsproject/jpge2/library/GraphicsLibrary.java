@@ -86,22 +86,22 @@ public class GraphicsLibrary {
 		return matrix;
 	}	
 	
-	public int[] viewport(int[] location, int[] cameraCanvas, int[] out) {
+	public int[] viewport(int[] location, int[] cameraCanvas, int[] result) {
 		int scaleFactor = (cameraCanvas[3] >> 6) + 1;
 		int halfX = cameraCanvas[VECTOR_X] + ((cameraCanvas[2] - cameraCanvas[VECTOR_X]) >> 1);
 		int halfY = cameraCanvas[VECTOR_Y] + ((cameraCanvas[3] - cameraCanvas[VECTOR_Y]) >> 1);
 		int w = Math.min(-1, location[VECTOR_W]);
-		out[VECTOR_X] = mathLibrary.divide(location[VECTOR_X] * scaleFactor, w) + halfX;
-		out[VECTOR_Y] = mathLibrary.divide(location[VECTOR_Y] * scaleFactor, w) + halfY;
-		return out;
+		result[VECTOR_X] = mathLibrary.divide(location[VECTOR_X] * scaleFactor, w) + halfX;
+		result[VECTOR_Y] = mathLibrary.divide(location[VECTOR_Y] * scaleFactor, w) + halfY;
+		return result;
 	}
 	
-	public int[] portCanvas(int[] cameraCanvas, int width, int height, int[] out) {
-		out[0] = (width * cameraCanvas[0]) / 100;
-		out[1] = (height * cameraCanvas[1]) / 100;
-		out[2] = (width * cameraCanvas[2]) / 100;
-		out[3] = (height * cameraCanvas[3]) / 100;
-		return out;
+	public int[] portCanvas(int[] cameraCanvas, int width, int height, int[] result) {
+		result[0] = (width * cameraCanvas[0]) / 100;
+		result[1] = (height * cameraCanvas[1]) / 100;
+		result[2] = (width * cameraCanvas[2]) / 100;
+		result[3] = (height * cameraCanvas[3]) / 100;
+		return result;
 	}
 
 	public void drawTriangle(int[] location1, int[] location2, int[] location3, int[] cameraCanvas, int[] cameraFrustum, Shader shader) {

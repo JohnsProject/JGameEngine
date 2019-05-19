@@ -139,12 +139,12 @@ public class FlatSpecularShader extends Shader {
 		vectorLibrary.add(faceLocation, location3, faceLocation);
 		vectorLibrary.divide(faceLocation, 3 << FP_BITS, faceLocation);
 		
-		if (shaderData.getDirectionalLightMatrix() != null) {
+		if (shaderData.getDirectionalLightIndex() > 0) {
 			vectorLibrary.multiply(faceLocation, shaderData.getDirectionalLightMatrix(), directionalLocation);
 			graphicsLibrary.viewport(directionalLocation, shaderData.getDirectionalLightCanvas(), directionalLocation);
 		}
 		
-		if (shaderData.getSpotLightMatrix() != null) {
+		if (shaderData.getSpotLightIndex() > 0) {
 			vectorLibrary.multiply(faceLocation, shaderData.getSpotLightMatrix(), spotLocation);
 			graphicsLibrary.viewport(spotLocation, shaderData.getSpotLightCanvas(), spotLocation);
 		}
@@ -201,14 +201,10 @@ public class FlatSpecularShader extends Shader {
 			currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
 			boolean inShadow = false;
 			if (i == shaderData.getDirectionalLightIndex()) {
-				if (shaderData.getDirectionalLightMatrix() != null) {
-					inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
-					lightFactor += currentFactor;
-				}
-			} else if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
-				if (shaderData.getSpotLightMatrix() != null) {
-					inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
-				}
+				inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
+				lightFactor += currentFactor;
+			} else if ((i == shaderData.getSpotLightIndex()) & (currentFactor > 10)) {
+				inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
 			}
 			if(inShadow) {
 				lightColor = colorLibrary.lerp(lightColor, light.getShadowColor(), 128);

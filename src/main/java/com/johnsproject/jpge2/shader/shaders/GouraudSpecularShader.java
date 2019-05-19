@@ -116,12 +116,12 @@ public class GouraudSpecularShader extends Shader {
 		int[] location = vertex.getLocation();
 		int[] normal = vertex.getNormal();
 
-		if (shaderData.getDirectionalLightMatrix() != null) {
+		if (shaderData.getDirectionalLightIndex() > 0) {
 			vectorLibrary.multiply(location, shaderData.getDirectionalLightMatrix(), directionalLocation);
 			graphicsLibrary.viewport(directionalLocation, shaderData.getDirectionalLightCanvas(), directionalLocation);
 		}
 		
-		if (shaderData.getSpotLightMatrix() != null) {
+		if (shaderData.getSpotLightIndex() > 0) {
 			vectorLibrary.multiply(location, shaderData.getSpotLightMatrix(), spotLocation);
 			graphicsLibrary.viewport(spotLocation, shaderData.getSpotLightCanvas(), spotLocation);
 		}
@@ -178,14 +178,10 @@ public class GouraudSpecularShader extends Shader {
 			currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
 			boolean inShadow = false;
 			if (i == shaderData.getDirectionalLightIndex()) {
-				if (shaderData.getDirectionalLightMatrix() != null) {
-					inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
-					lightFactor += currentFactor;
-				}
+				inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
+				lightFactor += currentFactor;
 			} else if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
-				if (shaderData.getSpotLightMatrix() != null) {
-					inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
-				}
+				inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
 			}
 			if(inShadow) {
 				lightColor = colorLibrary.lerp(lightColor, light.getShadowColor(), 128);

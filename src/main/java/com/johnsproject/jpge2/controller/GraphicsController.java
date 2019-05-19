@@ -45,7 +45,7 @@ public class GraphicsController implements EngineListener {
 	private int shadersCount;
 	private int postShadersCount;
 	
-	GraphicsController() {
+	public GraphicsController(Scene scene, FrameBuffer frameBuffer) {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
@@ -61,6 +61,8 @@ public class GraphicsController implements EngineListener {
 		
 		this.shaderDataBuffer = new ForwardDataBuffer();
 		this.shaders = new ArrayList<Shader>();
+		this.scene = scene;
+		this.frameBuffer = frameBuffer;
 		
 		addShader(new GouraudSpecularShader());
 	}

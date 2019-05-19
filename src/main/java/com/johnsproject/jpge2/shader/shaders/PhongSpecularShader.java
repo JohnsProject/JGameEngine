@@ -149,7 +149,7 @@ public class PhongSpecularShader extends Shader {
 		normalY[index] = normalizedNormal[VECTOR_Y];
 		normalZ[index] = normalizedNormal[VECTOR_Z];
 
-		if (shaderData.getDirectionalLightMatrix() != null) {
+		if (shaderData.getDirectionalLightIndex() > 0) {
 			vectorLibrary.multiply(location, shaderData.getDirectionalLightMatrix(), directionalLocation);
 			graphicsLibrary.viewport(directionalLocation, shaderData.getDirectionalLightCanvas(), directionalLocation);
 			directionalLocationX[index] = directionalLocation[VECTOR_X];
@@ -157,7 +157,7 @@ public class PhongSpecularShader extends Shader {
 			directionalLocationZ[index] = directionalLocation[VECTOR_Z];
 		}
 
-		if (shaderData.getSpotLightMatrix() != null) {
+		if (shaderData.getSpotLightIndex() > 0) {
 			vectorLibrary.multiply(location, shaderData.getSpotLightMatrix(), spotLocation);
 			graphicsLibrary.viewport(spotLocation, shaderData.getSpotLightCanvas(), spotLocation);
 			spotLocationX[index] = spotLocation[VECTOR_X];
@@ -270,14 +270,10 @@ public class PhongSpecularShader extends Shader {
 			currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
 			boolean inShadow = false;
 			if (i == shaderData.getDirectionalLightIndex()) {
-				if (shaderData.getDirectionalLightMatrix() != null) {
-					inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
-					lightFactor += currentFactor;
-				}
+				inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
+				lightFactor += currentFactor;
 			} else if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
-				if (shaderData.getSpotLightMatrix() != null) {
-					inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
-				}
+				inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
 			}
 			if (inShadow) {
 				lightColor = colorLibrary.lerp(lightColor, light.getShadowColor(), 128);
