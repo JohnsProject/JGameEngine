@@ -82,7 +82,7 @@ public class GraphicsController implements EngineListener {
 					Model model = scene.getModels().get(m);
 					Mesh mesh = model.getMesh();
 					graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
-					graphicsLibrary.modelMatrix(normalMatrix, model.getTransform());
+					graphicsLibrary.normalMatrix(normalMatrix, model.getTransform());
 					for (int f = 0; f < mesh.getFaces().length; f++) {
 						Face face = mesh.getFace(f);
 						if ((face.getMaterial().getShaderIndex() == s - preShadersCount)

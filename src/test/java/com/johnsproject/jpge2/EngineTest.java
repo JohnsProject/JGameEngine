@@ -68,7 +68,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		graphicsController.removeShader(graphicsController.getShader(0));
 		graphicsController.addPreprocessingShader(new DirectionalLightShadowShader());
 		graphicsController.addPreprocessingShader(new SpotLightShadowShader());
-		graphicsController.addShader(new FlatSpecularShader());
+		graphicsController.addShader(new PhongSpecularShader());
 	}
 	
 	private Scene loadScene() {
