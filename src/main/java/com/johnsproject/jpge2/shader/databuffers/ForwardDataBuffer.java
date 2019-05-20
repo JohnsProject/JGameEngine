@@ -14,12 +14,12 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 	private List<Light> lights;
 	
 	private int directionalLightIndex = -1;
-	private int[] directionalLightCanvas;
+	private int[] directionalLightFrustum;
 	private int[][] directionalLightMatrix;
 	private Texture directionalShadowMap;
 	
 	private int spotLightIndex = -1;
-	private int[] spotLightCanvas;
+	private int[] spotLightFrustum;
 	private int[][] spotLightMatrix;
 	private Texture spotShadowMap;
 	
@@ -93,20 +93,20 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 		this.spotShadowMap = spotShadowMap;
 	}
 	
-	public int[] getDirectionalLightCanvas() {
-		return directionalLightCanvas;
+	public int[] getDirectionalLightFrustum() {
+		return directionalLightFrustum;
 	}
 
-	public void setDirectionalLightCanvas(int[] directionalLightCanvas) {
-		this.directionalLightCanvas = directionalLightCanvas;
+	public void setDirectionalLightFrustum(int[] directionalLightFrusum) {
+		this.directionalLightFrustum = directionalLightFrusum;
 	}
 
-	public int[] getSpotLightCanvas() {
-		return spotLightCanvas;
+	public int[] getSpotLightFrustum() {
+		return spotLightFrustum;
 	}
 
-	public void setSpotLightCanvas(int[] spotLightCanvas) {
-		this.spotLightCanvas = spotLightCanvas;
+	public void setSpotLightFrustum(int[] spotLightFrustum) {
+		this.spotLightFrustum = spotLightFrustum;
 	}
 
 	public int getConstantAttenuation() {

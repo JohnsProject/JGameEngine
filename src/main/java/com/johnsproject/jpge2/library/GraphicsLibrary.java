@@ -1,5 +1,6 @@
 package com.johnsproject.jpge2.library;
 
+import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.shader.Shader;
 
@@ -9,7 +10,6 @@ public class GraphicsLibrary {
 	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
 	private static final byte VECTOR_W = VectorLibrary.VECTOR_W;
 	
-	private static final byte FP_BITS = MathLibrary.FP_BITS;
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	private static final int FP_HALF = MathLibrary.FP_HALF;
 	
@@ -70,47 +70,54 @@ public class GraphicsLibrary {
 
 	public int[][] orthographicMatrix(int[][] matrix, int[] frustum) {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		matrix[0][0] = frustum[0];
-		matrix[1][1] = frustum[0];
-		matrix[2][2] = -FP_BITS;
+		int scaleFactor = (frustum[Camera.FRUSTUM_NEAR]) / 16;
+		matrix[0][0] = scaleFactor;
+		matrix[1][1] = scaleFactor;
+		matrix[2][2] = -FP_ONE / 10;
 		matrix[3][3] = -FP_ONE * FP_HALF;
 		return matrix;
 	}
 
 	public int[][] perspectiveMatrix(int[][] matrix, int[] frustum) {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		matrix[0][0] = frustum[0];
-		matrix[1][1] = frustum[0];
-		matrix[2][2] = -FP_BITS;
+		int scaleFactor = (frustum[Camera.FRUSTUM_NEAR]) / 16;
+		matrix[0][0] = scaleFactor;
+		matrix[1][1] = scaleFactor;
+		matrix[2][2] = -FP_ONE / 10;
 		matrix[2][3] = FP_ONE;
+		matrix[3][3] = 0;
 		return matrix;
 	}	
 	
-	public int[] viewport(int[] location, int[] cameraCanvas, int[] result) {
-		int scaleFactor = (cameraCanvas[3] >> 6) + 1;
-		int halfX = cameraCanvas[VECTOR_X] + ((cameraCanvas[2] - cameraCanvas[VECTOR_X]) >> 1);
-		int halfY = cameraCanvas[VECTOR_Y] + ((cameraCanvas[3] - cameraCanvas[VECTOR_Y]) >> 1);
+	public int[] viewport(int[] location, int[] cameraFrustum, int[] result) {
+		int scaleFactor = ((cameraFrustum[Camera.FRUSTUM_BOTTOM] - cameraFrustum[Camera.FRUSTUM_TOP]) >> 6) + 1;
+		int halfX = cameraFrustum[Camera.FRUSTUM_LEFT] + ((cameraFrustum[Camera.FRUSTUM_RIGHT] - cameraFrustum[Camera.FRUSTUM_LEFT]) >> 1);
+		int halfY = cameraFrustum[Camera.FRUSTUM_TOP] + ((cameraFrustum[Camera.FRUSTUM_BOTTOM] - cameraFrustum[Camera.FRUSTUM_TOP]) >> 1);
 		int w = Math.min(-1, location[VECTOR_W]);
 		result[VECTOR_X] = mathLibrary.divide(location[VECTOR_X] * scaleFactor, w) + halfX;
 		result[VECTOR_Y] = mathLibrary.divide(location[VECTOR_Y] * scaleFactor, w) + halfY;
 		return result;
 	}
 	
-	public int[] portCanvas(int[] cameraCanvas, int width, int height, int[] result) {
-		result[0] = (width * cameraCanvas[0]) / 100;
-		result[1] = (height * cameraCanvas[1]) / 100;
-		result[2] = (width * cameraCanvas[2]) / 100;
-		result[3] = (height * cameraCanvas[3]) / 100;
+	public int[] portFrustum(int[] cameraFrustum, int width, int height, int[] result) {
+		result[Camera.FRUSTUM_LEFT] = mathLibrary.multiply(width, cameraFrustum[Camera.FRUSTUM_LEFT]);
+		result[Camera.FRUSTUM_RIGHT] = mathLibrary.multiply(width, cameraFrustum[Camera.FRUSTUM_RIGHT]);
+		result[Camera.FRUSTUM_TOP] = mathLibrary.multiply(height, cameraFrustum[Camera.FRUSTUM_TOP]);
+		result[Camera.FRUSTUM_BOTTOM] = mathLibrary.multiply(height, cameraFrustum[Camera.FRUSTUM_BOTTOM]);
+		result[Camera.FRUSTUM_NEAR] = cameraFrustum[Camera.FRUSTUM_NEAR];
+		result[Camera.FRUSTUM_FAR] = cameraFrustum[Camera.FRUSTUM_FAR];
 		return result;
 	}
 
-	public void drawTriangle(int[] location1, int[] location2, int[] location3, int[] cameraCanvas, int[] cameraFrustum, Shader shader) {
+	public void drawTriangle(int[] location1, int[] location2, int[] location3, int[] cameraFrustum, Shader shader) {
 		int triangleSize = barycentric(location1, location2, location3);
 		if(triangleSize < 0) // backface culling
-			return;		
-		boolean insideDepth1 = (location1[VECTOR_Z] > cameraFrustum[1]) & (location1[VECTOR_Z] < cameraFrustum[2]);
-		boolean insideDepth2 = (location2[VECTOR_Z] > cameraFrustum[1]) & (location2[VECTOR_Z] < cameraFrustum[2]);
-		boolean insideDepth3 = (location3[VECTOR_Z] > cameraFrustum[1]) & (location3[VECTOR_Z] < cameraFrustum[2]);
+			return;
+		int near = cameraFrustum[Camera.FRUSTUM_NEAR];
+		int far = cameraFrustum[Camera.FRUSTUM_FAR] / 10;
+		boolean insideDepth1 = (location1[VECTOR_Z] > near) & (location1[VECTOR_Z] < far);
+		boolean insideDepth2 = (location2[VECTOR_Z] > near) & (location2[VECTOR_Z] < far);
+		boolean insideDepth3 = (location3[VECTOR_Z] > near) & (location3[VECTOR_Z] < far);
 		if (!insideDepth1 & !insideDepth2 & !insideDepth3)
 			return;
 		// compute boundig box of faces
@@ -121,10 +128,10 @@ public class GraphicsLibrary {
 		int maxY = Math.max(location1[VECTOR_Y], Math.max(location2[VECTOR_Y], location3[VECTOR_Y]));
 
 		// clip against screen limits
-		minX = Math.max(minX, cameraCanvas[VECTOR_X]);
-		minY = Math.max(minY, cameraCanvas[VECTOR_Y]);
-		maxX = Math.min(maxX, cameraCanvas[2]);
-		maxY = Math.min(maxY, cameraCanvas[3]);
+		minX = Math.max(minX, cameraFrustum[Camera.FRUSTUM_LEFT]);
+		minY = Math.max(minY, cameraFrustum[Camera.FRUSTUM_TOP]);
+		maxX = Math.min(maxX, cameraFrustum[Camera.FRUSTUM_RIGHT]);
+		maxY = Math.min(maxY, cameraFrustum[Camera.FRUSTUM_BOTTOM]);
 		
 		location1[VECTOR_Z] = Math.max(1, location1[VECTOR_Z]);
 		location2[VECTOR_Z] = Math.max(1, location2[VECTOR_Z]);

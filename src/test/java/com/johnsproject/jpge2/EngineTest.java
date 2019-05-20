@@ -8,15 +8,12 @@ import java.io.IOException;
 
 import com.johnsproject.jpge2.controller.GraphicsController;
 import com.johnsproject.jpge2.controller.InputController;
-import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.FrameBuffer;
-import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.event.EngineKeyListener;
 import com.johnsproject.jpge2.event.EngineListener;
-import com.johnsproject.jpge2.importer.SOMImporter;
 import com.johnsproject.jpge2.importer.SceneImporter;
 import com.johnsproject.jpge2.library.ColorLibrary;
 import com.johnsproject.jpge2.library.FileLibrary;
@@ -69,8 +66,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		inputController.addEngineKeyListener(this);
 		cameraTransform = graphicsController.getScene().getCamera(0).getTransform();
 		graphicsController.removeShader(graphicsController.getShader(0));
-//		graphicsController.addPreprocessingShader(new DirectionalLightShadowShader());
-//		graphicsController.addPreprocessingShader(new SpotLightShadowShader());
+		graphicsController.addPreprocessingShader(new DirectionalLightShadowShader());
+		graphicsController.addPreprocessingShader(new SpotLightShadowShader());
 		graphicsController.addShader(new FlatSpecularShader());
 	}
 	
@@ -78,7 +75,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		try {
 			Scene scene = new SceneImporter().load("C:/Development/test.scene");
 			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
-//			((SpecularShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
+			((SpecularShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
 			return scene;
 		} catch (IOException e) {
 			e.printStackTrace();

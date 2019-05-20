@@ -33,7 +33,7 @@ public class GouraudSpecularShader extends Shader {
 	private final int[] lightDirection;
 	private final int[] lightLocation;
 	private final int[] viewDirection;
-	private final int[] portedCanvas;
+	private final int[] portedFrustum;
 	
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
@@ -76,7 +76,7 @@ public class GouraudSpecularShader extends Shader {
 		this.lightDirection = vectorLibrary.generate();
 		this.lightLocation = vectorLibrary.generate();
 		this.viewDirection = vectorLibrary.generate();
-		this.portedCanvas = vectorLibrary.generate();
+		this.portedFrustum = new int[6];
 
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -98,14 +98,14 @@ public class GouraudSpecularShader extends Shader {
 	public void setup(Camera camera) {
 		this.camera = camera;
 		graphicsLibrary.viewMatrix(viewMatrix, camera.getTransform());
-		graphicsLibrary.portCanvas(camera.getCanvas(), frameBuffer.getWidth(), frameBuffer.getHeight(), portedCanvas);
+		graphicsLibrary.portFrustum(camera.getFrustum(), frameBuffer.getWidth(), frameBuffer.getHeight(), portedFrustum);
 		switch (camera.getType()) {
 		case ORTHOGRAPHIC:
-			graphicsLibrary.orthographicMatrix(projectionMatrix, camera.getFrustum());
+			graphicsLibrary.orthographicMatrix(projectionMatrix, portedFrustum);
 			break;
 
 		case PERSPECTIVE:
-			graphicsLibrary.perspectiveMatrix(projectionMatrix, camera.getFrustum());
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
 			break;
 		}
 	}
@@ -116,14 +116,14 @@ public class GouraudSpecularShader extends Shader {
 		int[] location = vertex.getLocation();
 		int[] normal = vertex.getNormal();
 
-		if (shaderData.getDirectionalLightIndex() > 0) {
+		if (shaderData.getDirectionalLightIndex() != -1) {
 			vectorLibrary.multiply(location, shaderData.getDirectionalLightMatrix(), directionalLocation);
-			graphicsLibrary.viewport(directionalLocation, shaderData.getDirectionalLightCanvas(), directionalLocation);
+			graphicsLibrary.viewport(directionalLocation, shaderData.getDirectionalLightFrustum(), directionalLocation);
 		}
 		
-		if (shaderData.getSpotLightIndex() > 0) {
+		if (shaderData.getSpotLightIndex() != -1) {
 			vectorLibrary.multiply(location, shaderData.getSpotLightMatrix(), spotLocation);
-			graphicsLibrary.viewport(spotLocation, shaderData.getSpotLightCanvas(), spotLocation);
+			graphicsLibrary.viewport(spotLocation, shaderData.getSpotLightFrustum(), spotLocation);
 		}
 		
 		int lightColor = ColorLibrary.WHITE;
@@ -196,7 +196,7 @@ public class GouraudSpecularShader extends Shader {
 		lightColorB[index] = colorLibrary.getBlue(lightColor);
 		vectorLibrary.multiply(location, viewMatrix, location);
 		vectorLibrary.multiply(location, projectionMatrix, location);
-		graphicsLibrary.viewport(location, portedCanvas, location);
+		graphicsLibrary.viewport(location, portedFrustum, location);
 	}
 
 	@Override
@@ -219,7 +219,7 @@ public class GouraudSpecularShader extends Shader {
 			uvY[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
 			uvY[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
 		}
-		graphicsLibrary.drawTriangle(location1, location2, location3, portedCanvas, camera.getFrustum(), this);
+		graphicsLibrary.drawTriangle(location1, location2, location3, portedFrustum, this);
 	}
 
 	@Override

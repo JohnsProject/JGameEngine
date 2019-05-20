@@ -23,20 +23,29 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.library.MathLibrary;
+
 public class Camera extends SceneObject {
 	
+	public static final byte FRUSTUM_LEFT = 0;
+	public static final byte FRUSTUM_RIGHT = 1;
+	public static final byte FRUSTUM_TOP = 2;
+	public static final byte FRUSTUM_BOTTOM = 3;
+	public static final byte FRUSTUM_NEAR = 4;
+	public static final byte FRUSTUM_FAR = 5;
+	
 	private CameraType type;
-	private final int[] canvas;
 	private final int[] frustum;
 
 	public Camera(String name, Transform transform) {
 		super(name, transform);
-		this.canvas = new int[] {0, 0, 100, 100};
-		this.frustum = new int[] {60, 100, 10000, 0};
-	}
-
-	public int[] getCanvas() {
-		return canvas;
+		this.frustum = new int[6];
+		frustum[FRUSTUM_LEFT] = 0;
+		frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;
+		frustum[FRUSTUM_TOP] = 0;
+		frustum[FRUSTUM_BOTTOM] = MathLibrary.FP_ONE;
+		frustum[FRUSTUM_NEAR] = MathLibrary.FP_ONE;
+		frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 1000;
 	}
 
 	public int[] getFrustum() {

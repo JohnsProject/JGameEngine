@@ -37,7 +37,7 @@ public class PhongSpecularShader extends Shader {
 	private final int[] lightLocation;
 	private final int[] lightDirection;
 	private final int[] viewDirection;
-	private final int[] portedCanvas;
+	private final int[] portedFrustum;
 
 	private final int[] viewDirectionX;
 	private final int[] viewDirectionY;
@@ -107,7 +107,7 @@ public class PhongSpecularShader extends Shader {
 		this.lightLocation = vectorLibrary.generate();
 		this.lightDirection = vectorLibrary.generate();
 		this.viewDirection = vectorLibrary.generate();
-		this.portedCanvas = vectorLibrary.generate();
+		this.portedFrustum = new int[6];
 	}
 
 	@Override
@@ -123,14 +123,14 @@ public class PhongSpecularShader extends Shader {
 	public void setup(Camera camera) {
 		this.camera = camera;
 		graphicsLibrary.viewMatrix(viewMatrix, camera.getTransform());
-		graphicsLibrary.portCanvas(camera.getCanvas(), frameBuffer.getWidth(), frameBuffer.getHeight(), portedCanvas);
+		graphicsLibrary.portFrustum(camera.getFrustum(), frameBuffer.getWidth(), frameBuffer.getHeight(), portedFrustum);
 		switch (camera.getType()) {
 		case ORTHOGRAPHIC:
-			graphicsLibrary.orthographicMatrix(projectionMatrix, camera.getFrustum());
+			graphicsLibrary.orthographicMatrix(projectionMatrix, portedFrustum);
 			break;
 
 		case PERSPECTIVE:
-			graphicsLibrary.perspectiveMatrix(projectionMatrix, camera.getFrustum());
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
 			break;
 		}
 	}
@@ -149,17 +149,17 @@ public class PhongSpecularShader extends Shader {
 		normalY[index] = normalizedNormal[VECTOR_Y];
 		normalZ[index] = normalizedNormal[VECTOR_Z];
 
-		if (shaderData.getDirectionalLightIndex() > 0) {
+		if (shaderData.getDirectionalLightIndex() != -1) {
 			vectorLibrary.multiply(location, shaderData.getDirectionalLightMatrix(), directionalLocation);
-			graphicsLibrary.viewport(directionalLocation, shaderData.getDirectionalLightCanvas(), directionalLocation);
+			graphicsLibrary.viewport(directionalLocation, shaderData.getDirectionalLightFrustum(), directionalLocation);
 			directionalLocationX[index] = directionalLocation[VECTOR_X];
 			directionalLocationY[index] = directionalLocation[VECTOR_Y];
 			directionalLocationZ[index] = directionalLocation[VECTOR_Z];
 		}
 
-		if (shaderData.getSpotLightIndex() > 0) {
+		if (shaderData.getSpotLightIndex() != -1) {
 			vectorLibrary.multiply(location, shaderData.getSpotLightMatrix(), spotLocation);
-			graphicsLibrary.viewport(spotLocation, shaderData.getSpotLightCanvas(), spotLocation);
+			graphicsLibrary.viewport(spotLocation, shaderData.getSpotLightFrustum(), spotLocation);
 			spotLocationX[index] = spotLocation[VECTOR_X];
 			spotLocationY[index] = spotLocation[VECTOR_Y];
 			spotLocationZ[index] = spotLocation[VECTOR_Z];
@@ -173,7 +173,7 @@ public class PhongSpecularShader extends Shader {
 
 		vectorLibrary.multiply(location, viewMatrix, location);
 		vectorLibrary.multiply(location, projectionMatrix, location);
-		graphicsLibrary.viewport(location, portedCanvas, location);
+		graphicsLibrary.viewport(location, portedFrustum, location);
 	}
 
 	@Override
@@ -196,7 +196,7 @@ public class PhongSpecularShader extends Shader {
 			uvY[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
 			uvY[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
 		}
-		graphicsLibrary.drawTriangle(location1, location2, location3, portedCanvas, camera.getFrustum(), this);
+		graphicsLibrary.drawTriangle(location1, location2, location3, portedFrustum, this);
 	}
 
 	@Override
@@ -332,9 +332,9 @@ public class PhongSpecularShader extends Shader {
 		x = mathLibrary.clamp(x, 0, shadowMap.getWidth() - 1);
 		y = mathLibrary.clamp(y, 0, shadowMap.getHeight() - 1);
 		int depth = shadowMap.getPixel(x, y);
-		// int color = (depth + 100) >> 5;
-		// color = colorLibrary.generate(color, color, color);
-		// frameBuffer.setPixel(x, y, depth - 1000, (byte) 0, color);
+//		int color = (depth + 100) >> 5;
+//		color = colorLibrary.generate(color, color, color);
+//		frameBuffer.getColorBuffer().setPixel(x, y, color);
 		return depth < lightSpaceLocation[VECTOR_Z];
 	}
 }
