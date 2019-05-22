@@ -178,12 +178,12 @@ public class FlatSpecularShader extends Shader {
 				// other light values
 				vectorLibrary.normalize(lightLocation, lightLocation);
 				currentFactor = getLightFactor(normalizedNormal, lightLocation, viewDirection, shaderProperties);
-				currentFactor = (currentFactor << 8) / attenuation;
+				currentFactor = mathLibrary.divide(currentFactor, attenuation);
 				break;
 			case SPOT:				
-				vectorLibrary.invert(light.getDirection(), lightDirection);
 				if (vectorLibrary.distance(cameraLocation, lightPosition) > shaderData.getLightRange())
 					continue;
+				vectorLibrary.invert(light.getDirection(), lightDirection);
 				vectorLibrary.subtract(lightPosition, faceLocation, lightLocation);
 				// attenuation
 				attenuation = getAttenuation(lightLocation);
@@ -194,10 +194,12 @@ public class FlatSpecularShader extends Shader {
 					int intensity = -mathLibrary.divide(phi - theta, light.getSpotSoftness() + 1);
 					intensity = mathLibrary.clamp(intensity, 1, FP_ONE);
 					currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
-					currentFactor = (currentFactor * intensity) / attenuation;
+					currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
+					currentFactor = mathLibrary.divide(currentFactor, attenuation);
 				}
 				break;
 			}
+			currentFactor = mathLibrary.multiply(currentFactor, 256);
 			currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
 			boolean inShadow = false;
 			if (i == shaderData.getDirectionalLightIndex()) {
@@ -266,17 +268,16 @@ public class FlatSpecularShader extends Shader {
 		specularFactor = mathLibrary.pow(specularFactor, properties.getShininess() >> FP_BITS);
 		specularFactor = mathLibrary.multiply(specularFactor, properties.getSpecularIntensity());
 		// putting it all together...
-		return (diffuseFactor + specularFactor << 8) >> FP_BITS;
+		return diffuseFactor + specularFactor;
 	}
 	
 	private int getAttenuation(int[] lightLocation) {
 		// attenuation
-		long distance = vectorLibrary.magnitude(lightLocation);
+		int distance = vectorLibrary.magnitude(lightLocation);
 		int attenuation = shaderData.getConstantAttenuation();
 		attenuation += mathLibrary.multiply(distance, shaderData.getLinearAttenuation());
 		attenuation += mathLibrary.multiply(mathLibrary.multiply(distance, distance), shaderData.getQuadraticAttenuation());
-		attenuation >>= FP_BITS;
-		return (attenuation << 8) >> FP_BITS;
+		return (attenuation >> FP_BITS) + 1;
 	}
 	
 	private boolean inShadow(int[] lightSpaceLocation, Texture shadowMap) {

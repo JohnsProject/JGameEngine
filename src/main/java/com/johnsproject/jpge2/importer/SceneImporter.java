@@ -147,17 +147,17 @@ public class SceneImporter {
 			if (typeData.equals("SPOT")) {
 				light.setType(LightType.SPOT);
 			}
-			light.setStrength(mathLibrary.generate(getFloat(strengthData)));
-			int red = (int)(getFloat(colorData[0]) * 256);
-			int green = (int)(getFloat(colorData[1]) * 256);
-			int blue = (int)(getFloat(colorData[2]) * 256);
+			light.setStrength(mathLibrary.generate(Float.parseFloat(strengthData)));
+			int red = (int)(Float.parseFloat(colorData[0]) * 256);
+			int green = (int)(Float.parseFloat(colorData[1]) * 256);
+			int blue = (int)(Float.parseFloat(colorData[2]) * 256);
 			light.setColor(colorLibrary.generate(red, green, blue));
-			red = (int)(getFloat(shadowColorData[0]) * 256);
-			green = (int)(getFloat(shadowColorData[1]) * 256);
-			blue = (int)(getFloat(shadowColorData[2]) * 256);
+			red = (int)(Float.parseFloat(shadowColorData[0]) * 256);
+			green = (int)(Float.parseFloat(shadowColorData[1]) * 256);
+			blue = (int)(Float.parseFloat(shadowColorData[2]) * 256);
 			light.setShadowColor(colorLibrary.generate(red, green, blue));
-			light.setSpotSize(mathLibrary.generate(getFloat(spotData)));
-			light.setSpotSoftness(mathLibrary.generate(getFloat(blendData)));
+			light.setSpotSize(mathLibrary.generate(Float.parseFloat(spotData)));
+			light.setSpotSoftness(mathLibrary.generate(Float.parseFloat(blendData)));
 			light.setDirection(direction);
 			lights[i] = light;
 		}
@@ -165,17 +165,17 @@ public class SceneImporter {
 	}
 
 	private Transform parseTransform(String[] transformData) {
-		int x = mathLibrary.generate((getFloat(transformData[VECTOR_X]) * 10));
-		int y = mathLibrary.generate((getFloat(transformData[VECTOR_Y]) * 10));
-		int z = mathLibrary.generate((getFloat(transformData[VECTOR_Z]) * 10));
+		int x = mathLibrary.generate(Float.parseFloat(transformData[VECTOR_X]) * 10);
+		int y = mathLibrary.generate(Float.parseFloat(transformData[VECTOR_Y]) * 10);
+		int z = mathLibrary.generate(Float.parseFloat(transformData[VECTOR_Z]) * 10);
 		int[] location = vectorLibrary.generate(-x, y, z);
-		x = mathLibrary.generate(getFloat(transformData[3 + VECTOR_X]));
-		y = mathLibrary.generate(getFloat(transformData[3 + VECTOR_Y]));
-		z = mathLibrary.generate(getFloat(transformData[3 + VECTOR_Z]));
+		x = mathLibrary.generate(Float.parseFloat(transformData[3 + VECTOR_X]));
+		y = mathLibrary.generate(Float.parseFloat(transformData[3 + VECTOR_Y]));
+		z = mathLibrary.generate(Float.parseFloat(transformData[3 + VECTOR_Z]));
 		int[] rotation = vectorLibrary.generate(x, y, z);
-		x = mathLibrary.generate(getFloat(transformData[6 + VECTOR_X]) * 10);
-		y = mathLibrary.generate(getFloat(transformData[6 + VECTOR_Y]) * 10);
-		z = mathLibrary.generate(getFloat(transformData[6 + VECTOR_Z]) * 10);
+		x = mathLibrary.generate(Float.parseFloat(transformData[6 + VECTOR_X]) * 10);
+		y = mathLibrary.generate(Float.parseFloat(transformData[6 + VECTOR_Y]) * 10);
+		z = mathLibrary.generate(Float.parseFloat(transformData[6 + VECTOR_Z]) * 10);
 		int[] scale = vectorLibrary.generate(x, y, z);
 		return new Transform(location, rotation, scale);
 	}
@@ -184,15 +184,15 @@ public class SceneImporter {
 		Vertex[] vertices = new Vertex[verticesData.length - 1];
 		for (int i = 0; i < verticesData.length - 1; i++) {
 			String[] vertexData = verticesData[i + 1].split(">vertex")[0].split(",");
-			int x = mathLibrary.generate(getFloat(vertexData[VECTOR_X]));
-			int y = mathLibrary.generate(getFloat(vertexData[VECTOR_Y]));
-			int z = mathLibrary.generate(getFloat(vertexData[VECTOR_Z]));
+			int x = mathLibrary.generate(Float.parseFloat(vertexData[VECTOR_X]));
+			int y = mathLibrary.generate(Float.parseFloat(vertexData[VECTOR_Y]));
+			int z = mathLibrary.generate(Float.parseFloat(vertexData[VECTOR_Z]));
 			int[] location = vectorLibrary.generate(x, y, z);
-			x = mathLibrary.generate(getFloat(vertexData[3 + VECTOR_X]));
-			y = mathLibrary.generate(getFloat(vertexData[3 + VECTOR_Y]));
-			z = mathLibrary.generate(getFloat(vertexData[3 + VECTOR_Z]));
+			x = mathLibrary.generate(Float.parseFloat(vertexData[3 + VECTOR_X]));
+			y = mathLibrary.generate(Float.parseFloat(vertexData[3 + VECTOR_Y]));
+			z = mathLibrary.generate(Float.parseFloat(vertexData[3 + VECTOR_Z]));
 			int[] normal = vectorLibrary.generate(x, y, z);
-			int material = getInt(vertexData[6]);
+			int material = Integer.parseInt(vertexData[6]);
 			vertices[i] = new Vertex(i, location, normal, materials[material]);
 		}
 		return vertices;
@@ -202,23 +202,23 @@ public class SceneImporter {
 		Face[] faces = new Face[facesData.length - 1];
 		for (int i = 0; i < facesData.length - 1; i++) {
 			String[] faceData = facesData[i + 1].split(">face")[0].split(",");
-			int vertex1 = getInt(faceData[0]);
-			int vertex2 = getInt(faceData[1]);
-			int vertex3 = getInt(faceData[2]);
-			int x = mathLibrary.generate(getFloat(faceData[3 + VECTOR_X]));
-			int y = mathLibrary.generate(getFloat(faceData[3 + VECTOR_Y]));
-			int z = mathLibrary.generate(getFloat(faceData[3 + VECTOR_Z]));
+			int vertex1 = Integer.parseInt(faceData[0]);
+			int vertex2 = Integer.parseInt(faceData[1]);
+			int vertex3 = Integer.parseInt(faceData[2]);
+			int x = mathLibrary.generate(Float.parseFloat(faceData[3 + VECTOR_X]));
+			int y = mathLibrary.generate(Float.parseFloat(faceData[3 + VECTOR_Y]));
+			int z = mathLibrary.generate(Float.parseFloat(faceData[3 + VECTOR_Z]));
 			int[] normal = vectorLibrary.generate(x, y, z);
-			x = mathLibrary.generate(getFloat(faceData[6 + VECTOR_X]));
-			y = mathLibrary.generate(getFloat(faceData[6 + VECTOR_Y]));
+			x = mathLibrary.generate(Float.parseFloat(faceData[6 + VECTOR_X]));
+			y = mathLibrary.generate(Float.parseFloat(faceData[6 + VECTOR_Y]));
 			int[] uv1 = vectorLibrary.generate(x, y);
-			x = mathLibrary.generate(getFloat(faceData[8 + VECTOR_X]));
-			y = mathLibrary.generate(getFloat(faceData[8 + VECTOR_Y]));
+			x = mathLibrary.generate(Float.parseFloat(faceData[8 + VECTOR_X]));
+			y = mathLibrary.generate(Float.parseFloat(faceData[8 + VECTOR_Y]));
 			int[] uv2 = vectorLibrary.generate(x, y);
-			x = mathLibrary.generate(getFloat(faceData[10 + VECTOR_X]));
-			y = mathLibrary.generate(getFloat(faceData[10 + VECTOR_Y]));
+			x = mathLibrary.generate(Float.parseFloat(faceData[10 + VECTOR_X]));
+			y = mathLibrary.generate(Float.parseFloat(faceData[10 + VECTOR_Y]));
 			int[] uv3 = vectorLibrary.generate(x, y);
-			int material = getInt(faceData[12]);
+			int material = Integer.parseInt(faceData[12]);
 			faces[i] = new Face(i, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], normal, uv1, uv2, uv3);
 		}
 		return faces;
@@ -229,24 +229,16 @@ public class SceneImporter {
 		for (int i = 0; i < materialsData.length - 1; i++) {
 			String[] materialData = materialsData[i + 1].split(">material")[0].split(",");
 			String name = materialData[0];
-			int red = (int)(getFloat(materialData[1]) * 256);
-			int green = (int)(getFloat(materialData[2]) * 256);
-			int blue = (int)(getFloat(materialData[3]) * 256);
-			int alpha = (int)(getFloat(materialData[4]) * 256);
-			int diffuse = mathLibrary.generate(getFloat(materialData[5]));
-			int specular = mathLibrary.generate(getFloat(materialData[6]));
-			int shininess = mathLibrary.generate(getFloat(materialData[7]) / 10);
+			int red = (int)(Float.parseFloat(materialData[1]) * 256);
+			int green = (int)(Float.parseFloat(materialData[2]) * 256);
+			int blue = (int)(Float.parseFloat(materialData[3]) * 256);
+			int alpha = (int)(Float.parseFloat(materialData[4]) * 256);
+			int diffuse = mathLibrary.generate(Float.parseFloat(materialData[5]));
+			int specular = mathLibrary.generate(Float.parseFloat(materialData[6]));
+			int shininess = mathLibrary.generate(Float.parseFloat(materialData[7]) / 10);
 			SpecularShaderProperties properties = new SpecularShaderProperties(colorLibrary.generate(alpha, red, green, blue), diffuse, specular, shininess, null);
 			materials[i] = new Material(i, name, 0, properties);
 		}
 		return materials;
-	}
-
-	private int getInt(String string) {
-		return Integer.parseInt(string);
-	}
-
-	private float getFloat(String string) {
-		return Float.parseFloat(string);
 	}
 }

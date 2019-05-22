@@ -25,7 +25,6 @@ package com.johnsproject.jpge2.library;
 
 public class MatrixLibrary {
 
-	private static final byte FP_BITS = MathLibrary.FP_BITS;
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	
 	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
@@ -121,11 +120,11 @@ public class MatrixLibrary {
 		copy(matrixCache2, matrix2);
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				long res = (long) matrixCache1[0][j] * matrixCache2[i][0];
-				res += (long) matrixCache1[1][j] * matrixCache2[i][1];
-				res += (long) matrixCache1[2][j] * matrixCache2[i][2];
-				res += (long) matrixCache1[3][j] * matrixCache2[i][3];
-				result[i][j] = (int) (res >> FP_BITS);
+				int res = mathLibrary.multiply(matrixCache1[0][j], matrixCache2[i][0]);
+				res += mathLibrary.multiply(matrixCache1[1][j], matrixCache2[i][1]);
+				res += mathLibrary.multiply(matrixCache1[2][j], matrixCache2[i][2]);
+				res += mathLibrary.multiply(matrixCache1[3][j], matrixCache2[i][3]);
+				result[i][j] = res;
 			}
 		}
 		return result;

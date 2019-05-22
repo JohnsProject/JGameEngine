@@ -25,7 +25,6 @@ package com.johnsproject.jpge2.library;
 
 public class VectorLibrary {
 
-	private static final byte FP_BITS = MathLibrary.FP_BITS;
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	
 	public static final byte VECTOR_X = 0;
@@ -223,10 +222,10 @@ public class VectorLibrary {
 		// ensures that will return right values if vector is the same as result
 		copy(vectorCache1, vector);
 		for (int i = 0; i < 4; i++) {
-			long res = (long)matrix[0][i] * vectorCache1[VECTOR_X];
-			res += (long)matrix[1][i] * vectorCache1[VECTOR_Y];
-			res += (long)matrix[2][i] * vectorCache1[VECTOR_Z];
-			result[i] = (int)((res >> FP_BITS) + matrix[3][i]);
+			int res = mathLibrary.multiply(matrix[0][i], vectorCache1[VECTOR_X]);
+			res += mathLibrary.multiply(matrix[1][i], vectorCache1[VECTOR_Y]);
+			res += mathLibrary.multiply(matrix[2][i], vectorCache1[VECTOR_Z]);
+			result[i] = res + matrix[3][i];
 		}
 		return result;
 	}
@@ -249,10 +248,10 @@ public class VectorLibrary {
 	 * @return
 	 */
 	public int dotProduct(int[] vector1, int[] vector2) {
-		long x = (long)vector1[VECTOR_X] * vector2[VECTOR_X];
-		long y = (long)vector1[VECTOR_Y] * vector2[VECTOR_Y];
-		long z = (long)vector1[VECTOR_Z] * vector2[VECTOR_Z];
-		return (int)((x + y + z) >> FP_BITS);
+		int x = mathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
+		int y = mathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		int z = mathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+		return (int)((x + y + z));
 	}
 	
 	/**

@@ -24,13 +24,13 @@ public class DirectionalLightShadowShader extends Shader {
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
 
-	private int[][] viewMatrix;
-	private int[][] projectionMatrix;
+	private final int[][] viewMatrix;
+	private final int[][] projectionMatrix;
 	private final int[][] lightMatrix;
 	
-	private int[] lightFrustum;
+	private final int[] lightFrustum;
 	private final int[] portedFrustum;
-
+	
 	private final Texture shadowMap;
 	
 	private List<Light> lights;

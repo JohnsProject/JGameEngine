@@ -24,8 +24,8 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 	private Texture spotShadowMap;
 	
 	private int constantAttenuation = MathLibrary.FP_ONE;
-	private int linearAttenuation = 14000;
-	private int quadraticAttenuation = 90;
+	private int linearAttenuation = (MathLibrary.FP_ONE * 14) / 10;
+	private int quadraticAttenuation = (MathLibrary.FP_ONE * 7) / 10;
 	
 	private int lightRange = MathLibrary.FP_ONE * 1000;
 

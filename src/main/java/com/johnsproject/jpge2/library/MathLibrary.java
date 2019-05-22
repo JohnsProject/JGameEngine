@@ -56,7 +56,7 @@ public class MathLibrary {
 	/**
 	 * It is the same as the fixed point '0.5'.
 	 */
-	public static final short FP_HALF = 1 << (FP_BITS - 1);
+	public static final short FP_HALF = FP_ONE >> 1;
 	
 	public MathLibrary() {}
 	
@@ -161,19 +161,6 @@ public class MathLibrary {
 	}
 
 	/**
-	 * Returns the given value in the range min-max.
-	 * 
-	 * @param value
-	 * @param min
-	 * @param max
-	 * @return
-	 */
-	public long normalize(long value, long min, long max) {
-		long range = max - min;
-		return (min + ((((value - min) % range) + range) % range));
-	}
-
-	/**
 	 * Returns the given value from min to max. if value < min return min. if value
 	 * > max return max.
 	 * 
@@ -183,19 +170,6 @@ public class MathLibrary {
 	 * @return
 	 */
 	public int clamp(int value, int min, int max) {
-		return Math.min(max, Math.max(value, min));
-	}
-
-	/**
-	 * Returns the given value from min to max. if value < min return min. if value
-	 * > max return max.
-	 * 
-	 * @param value
-	 * @param min
-	 * @param max
-	 * @return
-	 */
-	public long clamp(long value, long min, long max) {
 		return Math.min(max, Math.max(value, min));
 	}
 
@@ -253,40 +227,7 @@ public class MathLibrary {
 		}
 		return g << FP_BITS;
 	}
-
-	/**
-	 * Returns the square root of the given number. If number < 0 the method returns
-	 * 0.
-	 * 
-	 * @param number fixed point number.
-	 * @return fixed point result.
-	 */
-	public long sqrt(long number) {
-		number >>= FP_BITS;
-		long c = 0x8000;
-		long g = 0x8000;
-
-		if (g * g > number) {
-			g ^= c;
-		}
-		c >>= 1;
-		if (c == 0) {
-			return g << FP_BITS;
-		}
-		g |= c;
-		for (int i = 0; i < 15; i++) {
-			if (g * g > number) {
-				g ^= c;
-			}
-			c >>= 1;
-			if (c == 0) {
-				return g << FP_BITS;
-			}
-			g |= c;
-		}
-		return g << FP_BITS;
-	}
-
+	
 	/**
 	 * Returns the power of the given number.
 	 * 
@@ -299,29 +240,10 @@ public class MathLibrary {
 		long result = FP_ONE;
 		while (exp != 0) {
 			if ((exp & 1) == 1) {
-				result = multiply(result, lBase);
+				result = (result * lBase + FP_HALF) >> FP_BITS;
 			}
 			exp >>= 1;
-			lBase = multiply(lBase, lBase);
-		}
-		return (int) result;
-	}
-
-	/**
-	 * Returns the power of the given number.
-	 * 
-	 * @param base fixed point number.
-	 * @param exp not fixed point number.
-	 * @return fixed point result.
-	 */
-	public long pow(long base, long exp) {
-		long result = FP_ONE;
-		while (exp != 0) {
-			if ((exp & 1) == 1) {
-				result = multiply(result, base);
-			}
-			exp >>= 1;
-			base = multiply(base, base);
+			lBase = (lBase * lBase + FP_HALF) >> FP_BITS;
 		}
 		return (int) result;
 	}
@@ -341,20 +263,6 @@ public class MathLibrary {
 	}
 
 	/**
-	 * Returns the product of the multiplication of value1 and value2.
-	 * 
-	 * @param value1 fixed point number.
-	 * @param value2 fixed point number.
-	 * @return fixed point result.
-	 */
-	public long multiply(long value1, long value2) {
-		long a = value1;
-		long b = value2;
-		long result = a * b + FP_HALF;
-		return result >> FP_BITS;
-	}
-
-	/**
 	 * Returns the quotient of the division.
 	 * 
 	 * @param dividend fixed point number.
@@ -366,19 +274,5 @@ public class MathLibrary {
 		result += FP_HALF;
 		result /= divisor;
 		return (int) result;
-	}
-
-	/**
-	 * Returns the quotient of the division.
-	 * 
-	 * @param dividend fixed point number.
-	 * @param divisor not fixed point number.
-	 * @return fixed point result.
-	 */
-	public long divide(long dividend, long divisor) {
-		long result = (long)dividend << FP_BITS;
-		result += FP_HALF;
-		result /= divisor;
-		return result;
 	}
 }
