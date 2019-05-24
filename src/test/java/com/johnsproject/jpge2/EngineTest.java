@@ -68,7 +68,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		graphicsController.removeShader(graphicsController.getShader(0));
 		graphicsController.addPreprocessingShader(new DirectionalLightShadowShader());
 		graphicsController.addPreprocessingShader(new SpotLightShadowShader());
-		graphicsController.addShader(new FlatSpecularShader());
+		graphicsController.addShader(new GouraudSpecularShader());
 	}
 	
 	private Scene loadScene() {
@@ -100,9 +100,9 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	public void mouseMoved(MouseEvent e) {
-		int[] rotation = cameraTransform.getRotation();
-		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
-		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
+//		int[] rotation = cameraTransform.getRotation();
+//		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
+//		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
 	}
 
 	public void keyTyped(KeyEvent e) {

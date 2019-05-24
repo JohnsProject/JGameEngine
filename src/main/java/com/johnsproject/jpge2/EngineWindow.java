@@ -81,7 +81,7 @@ public class EngineWindow extends Frame implements EngineListener {
 		private BufferStrategy bufferStrategy;
 		
 		private void setup() {
-			if (this.getBufferStrategy() == null) {
+			if (bufferStrategy == null) {
 				this.createBufferStrategy(2);
 			}
 			bufferStrategy = this.getBufferStrategy();

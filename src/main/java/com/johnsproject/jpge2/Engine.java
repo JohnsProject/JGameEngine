@@ -85,12 +85,14 @@ public class Engine {
 					for (int i = 0; i < engineListeners.size(); i++) {
 						engineListeners.get(i).update();
 					}
-					long sleepTime = nextUpateTick - current;
-					if (sleepTime >= 0) {
-						try {
-							Thread.sleep(sleepTime);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+					if(loops == 1) {
+						long sleepTime = nextUpateTick - current;
+						if (sleepTime > 0) {
+							try {
+								Thread.sleep(sleepTime);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
 						}
 					}
 				}
