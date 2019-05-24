@@ -39,9 +39,6 @@ public class PhongSpecularShader extends Shader {
 	private final int[] viewDirection;
 	private final int[] portedFrustum;
 
-	private final int[] viewDirectionX;
-	private final int[] viewDirectionY;
-	private final int[] viewDirectionZ;
 	private final int[] locationX;
 	private final int[] locationY;
 	private final int[] locationZ;
@@ -69,7 +66,7 @@ public class PhongSpecularShader extends Shader {
 	private SpecularShaderProperties shaderProperties;
 
 	public PhongSpecularShader() {
-		super(19);
+		super(16);
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.mathLibrary = new MathLibrary();
 		this.matrixLibrary = new MatrixLibrary();
@@ -82,25 +79,22 @@ public class PhongSpecularShader extends Shader {
 		this.uvX = getVariable(0);
 		this.uvY = getVariable(1);
 		
-		this.viewDirectionX = getVariable(2);
-		this.viewDirectionY = getVariable(3);
-		this.viewDirectionZ = getVariable(4);
-		this.locationX = getVariable(5);
-		this.locationY = getVariable(6);
-		this.locationZ = getVariable(7);
-		this.normalX = getVariable(8);
-		this.normalY = getVariable(9);
-		this.normalZ = getVariable(10);
+		this.locationX = getVariable(2);
+		this.locationY = getVariable(3);
+		this.locationZ = getVariable(4);
+		this.normalX = getVariable(5);
+		this.normalY = getVariable(6);
+		this.normalZ = getVariable(7);
 
-		this.directionalLocation = getVariable(11);
-		this.directionalLocationX = getVariable(12);
-		this.directionalLocationY = getVariable(13);
-		this.directionalLocationZ = getVariable(14);
+		this.directionalLocation = getVariable(8);
+		this.directionalLocationX = getVariable(9);
+		this.directionalLocationY = getVariable(10);
+		this.directionalLocationZ = getVariable(11);
 
-		this.spotLocation = getVariable(15);
-		this.spotLocationX = getVariable(16);
-		this.spotLocationY = getVariable(17);
-		this.spotLocationZ = getVariable(18);
+		this.spotLocation = getVariable(12);
+		this.spotLocationX = getVariable(13);
+		this.spotLocationY = getVariable(14);
+		this.spotLocationZ = getVariable(15);
 
 		this.fragmentLocation = vectorLibrary.generate();
 		this.normalizedNormal = vectorLibrary.generate();
@@ -165,12 +159,6 @@ public class PhongSpecularShader extends Shader {
 			spotLocationZ[index] = spotLocation[VECTOR_Z];
 		}
 
-		vectorLibrary.subtract(camera.getTransform().getLocation(), location, viewDirection);
-		vectorLibrary.normalize(viewDirection, viewDirection);
-		viewDirectionX[index] = viewDirection[VECTOR_X];
-		viewDirectionY[index] = viewDirection[VECTOR_Y];
-		viewDirectionZ[index] = viewDirection[VECTOR_Z];
-
 		vectorLibrary.multiply(location, viewMatrix, location);
 		vectorLibrary.multiply(location, projectionMatrix, location);
 		graphicsLibrary.viewport(location, portedFrustum, location);
@@ -208,10 +196,6 @@ public class PhongSpecularShader extends Shader {
 		spotLocation[VECTOR_X] = spotLocationX[3];
 		spotLocation[VECTOR_Y] = spotLocationY[3];
 		spotLocation[VECTOR_Z] = spotLocationZ[3];
-
-		viewDirection[VECTOR_X] = viewDirectionX[3];
-		viewDirection[VECTOR_Y] = viewDirectionY[3];
-		viewDirection[VECTOR_Z] = viewDirectionZ[3];
 		
 		fragmentLocation[VECTOR_X] = locationX[3];
 		fragmentLocation[VECTOR_Y] = locationY[3];
@@ -225,7 +209,8 @@ public class PhongSpecularShader extends Shader {
 		int lightFactor = 0;
 
 		int[] cameraLocation = camera.getTransform().getLocation();
-
+		vectorLibrary.subtract(cameraLocation, fragmentLocation, viewDirection);
+		vectorLibrary.normalize(viewDirection, viewDirection);
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
 			int currentFactor = 0;
@@ -274,7 +259,8 @@ public class PhongSpecularShader extends Shader {
 			if (i == shaderData.getDirectionalLightIndex()) {
 				inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
 				lightFactor += currentFactor;
-			} else if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
+			} 
+			if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
 				inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
 			}
 			if (inShadow) {

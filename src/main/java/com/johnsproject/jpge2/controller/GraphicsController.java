@@ -63,7 +63,6 @@ public class GraphicsController implements EngineListener {
 		this.shaders = new ArrayList<Shader>();
 		this.scene = scene;
 		this.frameBuffer = frameBuffer;
-		
 		addShader(new GouraudSpecularShader());
 	}
 	

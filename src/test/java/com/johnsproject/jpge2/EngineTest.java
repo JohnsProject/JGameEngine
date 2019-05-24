@@ -28,10 +28,10 @@ import com.johnsproject.jpge2.shader.shaders.SpotLightShadowShader;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
-	private static final int WINDOW_W = 800;
-	private static final int WINDOW_H = 640;
-	private static final int RENDER_W = 640;
-	private static final int RENDER_H = 480;
+	private static final int WINDOW_W = 1024;
+	private static final int WINDOW_H = 720;
+	private static final int RENDER_W = 1024;
+	private static final int RENDER_H = 720;
 	
 	private final int[] cache;
 	private Transform cameraTransform;
@@ -68,7 +68,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		graphicsController.removeShader(graphicsController.getShader(0));
 		graphicsController.addPreprocessingShader(new DirectionalLightShadowShader());
 		graphicsController.addPreprocessingShader(new SpotLightShadowShader());
-		graphicsController.addShader(new GouraudSpecularShader());
+		graphicsController.addShader(new FlatSpecularShader());
 	}
 	
 	private Scene loadScene() {

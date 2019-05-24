@@ -205,7 +205,8 @@ public class FlatSpecularShader extends Shader {
 			if (i == shaderData.getDirectionalLightIndex()) {
 				inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
 				lightFactor += currentFactor;
-			} else if ((i == shaderData.getSpotLightIndex()) & (currentFactor > 10)) {
+			}
+			if ((i == shaderData.getSpotLightIndex()) & (currentFactor > 10)) {
 				inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
 			}
 			if(inShadow) {
