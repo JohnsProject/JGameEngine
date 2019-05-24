@@ -113,6 +113,28 @@ public class GraphicsLibrary {
 	}
 
 	public void drawTriangle(int[] location1, int[] location2, int[] location3, int[] cameraFrustum, Shader shader) {
+		int triangleSize = barycentric(location1, location2, location3);
+		if (triangleSize < 0) // backface culling
+			return;
+		int left = cameraFrustum[Camera.FRUSTUM_LEFT] + 1;
+		int right = cameraFrustum[Camera.FRUSTUM_RIGHT] - 1;
+		int top = cameraFrustum[Camera.FRUSTUM_TOP] + 1;
+		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1;
+		int near = cameraFrustum[Camera.FRUSTUM_NEAR];
+		int far = (cameraFrustum[Camera.FRUSTUM_FAR] / 10);
+		boolean insideWidth1 = (location1[VECTOR_X] > left) & (location1[VECTOR_X] < right);
+		boolean insideWidth2 = (location2[VECTOR_X] > left) & (location2[VECTOR_X] < right);
+		boolean insideWidth3 = (location3[VECTOR_X] > left) & (location3[VECTOR_X] < right);
+		boolean insideHeight1 = (location1[VECTOR_Y] > top) & (location1[VECTOR_Y] < bottom);
+		boolean insideHeight2 = (location2[VECTOR_Y] > top) & (location2[VECTOR_Y] < bottom);
+		boolean insideHeight3 = (location3[VECTOR_Y] > top) & (location3[VECTOR_Y] < bottom);
+		boolean insideDepth1 = (location1[VECTOR_Z] > near) & (location1[VECTOR_Z] < far);
+		boolean insideDepth2 = (location2[VECTOR_Z] > near) & (location2[VECTOR_Z] < far);
+		boolean insideDepth3 = (location3[VECTOR_Z] > near) & (location3[VECTOR_Z] < far);
+		if ((!insideDepth1 & !insideDepth2 & !insideDepth3) 
+				| (!insideHeight1 & !insideHeight2 & !insideHeight3)
+					| (!insideWidth1 & !insideWidth2 & !insideWidth3))
+					return;
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
 			vectorLibrary.swap(location1, location2);
 		}
@@ -124,12 +146,11 @@ public class GraphicsLibrary {
 		}
 		
         if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
-            drawBottomTriangle(location1, location2, location3, shader);
+            drawBottomTriangle(location1, location2, location3, cameraFrustum, shader);
         }
         else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-            drawTopTriangle(location1, location2, location3, shader);
-        } 
-        else {
+            drawTopTriangle(location1, location2, location3, cameraFrustum, shader);
+        } else {
             int x = location1[VECTOR_X];
             long dividend = ((long)location2[VECTOR_Y] - location1[VECTOR_Y]) << RASTERIZE_BITS;
             long divisor = location3[VECTOR_Y] - location1[VECTOR_Y];
@@ -144,39 +165,43 @@ public class GraphicsLibrary {
             barycentricCache[VECTOR_X] = x;
             barycentricCache[VECTOR_Y] = y;
             barycentricCache[VECTOR_Z] = z;
-            drawBottomTriangle(location1, location2, barycentricCache, shader);
-            drawTopTriangle(location2, barycentricCache, location3, shader);
+            drawBottomTriangle(location1, location2, barycentricCache, cameraFrustum, shader);
+            drawTopTriangle(location2, barycentricCache, location3, cameraFrustum, shader);
         }
 	}
 	
-	private void drawBottomTriangle(int[] location1, int[] location2, int[] location3, Shader shader) {
+	private void drawBottomTriangle(int[] location1, int[] location2, int[] location3, int[] cameraFrustum, Shader shader) {
 		int xShifted = location1[VECTOR_X] << RASTERIZE_BITS;
 		int y2y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		int y3y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
+		y2y1 = y2y1 == 0 ? 1 : y2y1;
+		y3y1 = y3y1 == 0 ? 1 : y3y1;
         int dx1 = (int)((((long)location2[VECTOR_X] - location1[VECTOR_X]) << RASTERIZE_BITS) / y2y1);
         int dx2 = (int)((((long)location3[VECTOR_X] - location1[VECTOR_X]) << RASTERIZE_BITS) / y3y1);
         int dz1 = (int)((((long)location2[VECTOR_Z] - location1[VECTOR_Z]) << RASTERIZE_BITS) / y2y1);
         int dz2 = (int)((((long)location3[VECTOR_Z] - location1[VECTOR_Z]) << RASTERIZE_BITS) / y3y1);
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
+        	dxdx = dxdx == 0 ? 1 : dxdx;
         	int dz = (int)((((long)dz2 - dz1) << RASTERIZE_BITS) / dxdx);
         	int x1 = xShifted;
             int x2 = xShifted + RASTERIZE_HALF;
             int z = location1[VECTOR_Z] << RASTERIZE_BITS;
 	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-	        	drawScanline(x1, x2, y, z, dz, shader);
+	        	drawScanline(x1, x2, y, z, dz, cameraFrustum, shader);
 	            x1 += dx1;
 	            x2 += dx2;
 	            z += dz1;
 	        }
         } else {
         	int dxdx = dx1 - dx2;
+        	dxdx = dxdx == 0 ? 1 : dxdx;
         	int dz = (int)((((long)dz1 - dz2) << RASTERIZE_BITS) / dxdx);
         	int x1 = xShifted + RASTERIZE_HALF;
             int x2 = xShifted;
             int z = location1[VECTOR_Z] << RASTERIZE_BITS;
         	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-	        	drawScanline(x1, x2, y, z, dz, shader);
+        		drawScanline(x1, x2, y, z, dz, cameraFrustum, shader);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
@@ -184,34 +209,38 @@ public class GraphicsLibrary {
         }
     }
     
-	private void drawTopTriangle(int[] location1, int[] location2, int[] location3, Shader shader) {
+	private void drawTopTriangle(int[] location1, int[] location2, int[] location3, int[] cameraFrustum, Shader shader) {
 		int xShifted = location3[VECTOR_X] << RASTERIZE_BITS;
 		int y3y1 = location3[VECTOR_Y] - location1[VECTOR_Y];
 		int y3y2 = location3[VECTOR_Y] - location2[VECTOR_Y];
+		y3y1 = y3y1 == 0 ? 1 : y3y1;
+		y3y2 = y3y2 == 0 ? 1 : y3y2;
 		int dx1 = (int)((((long)location3[VECTOR_X] - location1[VECTOR_X]) << RASTERIZE_BITS) / y3y1);
 		int dx2 = (int)((((long)location3[VECTOR_X] - location2[VECTOR_X]) << RASTERIZE_BITS) / y3y2);
 		int dz1 = (int)((((long)location3[VECTOR_Z] - location1[VECTOR_Z]) << RASTERIZE_BITS) / y3y1);
 		int dz2 = (int)((((long)location3[VECTOR_Z] - location2[VECTOR_Z]) << RASTERIZE_BITS) / y3y2);
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
+			dxdx = dxdx == 0 ? 1 : dxdx;
 			int dz = (int)((((long)dz1 - dz2) << RASTERIZE_BITS) / dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted + RASTERIZE_HALF;
 			int z = location3[VECTOR_Z] << RASTERIZE_BITS;
 	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, dz, shader);
+	        	drawScanline(x1, x2, y, z, dz, cameraFrustum, shader);
 	            x1 -= dx1;
 	            x2 -= dx2;
 	            z -= dz1;
 	        }
 		} else {
 			int dxdx = dx2 - dx1;
+			dxdx = dxdx == 0 ? 1 : dxdx;
 			int dz = (int)((((long)dz2 - dz1) << RASTERIZE_BITS) / dxdx);
 			int x1 = xShifted + RASTERIZE_HALF;
 			int x2 = xShifted;
 			int z = location3[VECTOR_Z] << RASTERIZE_BITS;
 	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, dz, shader);
+	        	drawScanline(x1, x2, y, z, dz, cameraFrustum, shader);
 	            x1 -= dx2;
 	            x2 -= dx1;
 	            z -= dz2;
@@ -219,14 +248,17 @@ public class GraphicsLibrary {
 		}
     }
 	
-	private void drawScanline(int x1, int x2, int y, int z, int dz, Shader shader) {
+	private void drawScanline(int x1, int x2, int y, int z, int dz, int[] cameraFrustum, Shader shader) {
+		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
 		x1 >>= RASTERIZE_BITS;
 		x2 >>= RASTERIZE_BITS;
-		for (; x1 < x2; x1++) {
-			pixelCache[VECTOR_X] = x1;
-			pixelCache[VECTOR_Y] = y;
-			pixelCache[VECTOR_Z] = z >> RASTERIZE_BITS;
-			shader.fragment(pixelCache);
+		for (; x1 <= x2; x1++) {
+				if (yInside & (x1 > cameraFrustum[Camera.FRUSTUM_LEFT] + 1) & (x1 < cameraFrustum[Camera.FRUSTUM_RIGHT] - 1)) {
+					pixelCache[VECTOR_X] = x1;
+					pixelCache[VECTOR_Y] = y;
+					pixelCache[VECTOR_Z] = z >> RASTERIZE_BITS;
+					shader.fragment(pixelCache);
+				}
 			z += dz;
 		}
 	}
@@ -331,8 +363,8 @@ public class GraphicsLibrary {
 //		return (int) result;
 //	}
 //
-//	private int barycentric(int[] vector1, int[] vector2, int[] vector3) {
-//		return (vector2[VECTOR_X] - vector1[VECTOR_X]) * (vector3[VECTOR_Y] - vector1[VECTOR_Y])
-//				- (vector3[VECTOR_X] - vector1[VECTOR_X]) * (vector2[VECTOR_Y] - vector1[VECTOR_Y]);
-//	}
+	private int barycentric(int[] vector1, int[] vector2, int[] vector3) {
+		return (vector2[VECTOR_X] - vector1[VECTOR_X]) * (vector3[VECTOR_Y] - vector1[VECTOR_Y])
+				- (vector3[VECTOR_X] - vector1[VECTOR_X]) * (vector2[VECTOR_Y] - vector1[VECTOR_Y]);
+	}
 }
