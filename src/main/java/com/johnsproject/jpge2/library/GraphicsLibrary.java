@@ -131,7 +131,7 @@ public class GraphicsLibrary {
 		boolean insideDepth1 = (location1[VECTOR_Z] > near) & (location1[VECTOR_Z] < far);
 		boolean insideDepth2 = (location2[VECTOR_Z] > near) & (location2[VECTOR_Z] < far);
 		boolean insideDepth3 = (location3[VECTOR_Z] > near) & (location3[VECTOR_Z] < far);
-		if ((!insideDepth1 & !insideDepth2 & !insideDepth3) 
+		if ((!insideDepth1 | !insideDepth2 | !insideDepth3) 
 				| (!insideHeight1 & !insideHeight2 & !insideHeight3)
 					| (!insideWidth1 & !insideWidth2 & !insideWidth3))
 					return;
@@ -144,7 +144,6 @@ public class GraphicsLibrary {
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
 			vectorLibrary.swap(location1, location2);
 		}
-		
         if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
             drawBottomTriangle(location1, location2, location3, cameraFrustum, shader);
         }

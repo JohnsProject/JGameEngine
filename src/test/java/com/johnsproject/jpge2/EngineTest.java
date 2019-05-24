@@ -28,10 +28,10 @@ import com.johnsproject.jpge2.shader.shaders.SpotLightShadowShader;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
-	private static final int WINDOW_W = 1024;
-	private static final int WINDOW_H = 720;
-	private static final int RENDER_W = 1024;
-	private static final int RENDER_H = 720;
+	private static final int WINDOW_W = 1480;
+	private static final int WINDOW_H = 800;
+	private static final int RENDER_W = 1480;
+	private static final int RENDER_H = 800;
 	
 	private final int[] cache;
 	private Transform cameraTransform;
@@ -75,7 +75,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		try {
 			Scene scene = new SceneImporter().load("C:/Development/test.scene");
 			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
-			((SpecularShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
+//			((SpecularShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
 			return scene;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -100,9 +100,9 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	public void mouseMoved(MouseEvent e) {
-//		int[] rotation = cameraTransform.getRotation();
-//		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
-//		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
+		int[] rotation = cameraTransform.getRotation();
+		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
+		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
 	}
 
 	public void keyTyped(KeyEvent e) {
