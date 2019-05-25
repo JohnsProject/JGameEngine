@@ -41,7 +41,6 @@ public class GouraudSpecularShader extends Shader {
 	private final int[] directionalLocation;	
 	private final int[] spotLocation;
 	
-	private final int[] lightFactors;
 	private final int[] lightColorR;
 	private final int[] lightColorG;
 	private final int[] lightColorB;
@@ -67,7 +66,6 @@ public class GouraudSpecularShader extends Shader {
 		this.uvX = getVariable(0);
 		this.uvY = getVariable(1);
 		
-		this.lightFactors = getVariable(2);
 		this.lightColorR = getVariable(3);
 		this.lightColorG = getVariable(4);
 		this.lightColorB = getVariable(5);
@@ -126,9 +124,7 @@ public class GouraudSpecularShader extends Shader {
 			graphicsLibrary.viewport(spotLocation, shaderData.getSpotLightFrustum(), spotLocation);
 		}
 		
-		int lightColor = ColorLibrary.WHITE;
-		int lightFactor = 50;
-
+		int lightColor = ColorLibrary.BLACK;
 		int[] cameraLocation = camera.getTransform().getLocation();	
 		vectorLibrary.subtract(cameraLocation, location, viewDirection);
 		// normalize values
@@ -176,12 +172,11 @@ public class GouraudSpecularShader extends Shader {
 				}
 				break;
 			}
-			currentFactor = mathLibrary.multiply(currentFactor, 256);
 			currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
+			currentFactor = mathLibrary.multiply(currentFactor, 255);
 			boolean inShadow = false;
 			if (i == shaderData.getDirectionalLightIndex()) {
 				inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
-				lightFactor += currentFactor;
 			}
 			if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
 				inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
@@ -190,10 +185,8 @@ public class GouraudSpecularShader extends Shader {
 				lightColor = colorLibrary.lerp(lightColor, light.getShadowColor(), 128);
 			} else {
 				lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
-				lightFactor += currentFactor;
 			}
 		}
-		lightFactors[index] = lightFactor;
 		lightColorR[index] = colorLibrary.getRed(lightColor);
 		lightColorG[index] = colorLibrary.getGreen(lightColor);
 		lightColorB[index] = colorLibrary.getBlue(lightColor);
@@ -232,11 +225,9 @@ public class GouraudSpecularShader extends Shader {
 			int texel = texture.getPixel(uvX[3], uvY[3]);
 			if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;
-			modelColor = colorLibrary.lerp(ColorLibrary.BLACK, texel, lightFactors[3]);
-			modelColor = colorLibrary.multiplyColor(modelColor, lightColor);
+			modelColor = colorLibrary.multiplyColor(texel, lightColor);
 		} else {
-			modelColor = colorLibrary.lerp(ColorLibrary.BLACK, color, lightFactors[3]);
-			modelColor = colorLibrary.multiplyColor(modelColor, lightColor);
+			modelColor = colorLibrary.multiplyColor(color, lightColor);
 		}
 		Texture colorBuffer = frameBuffer.getColorBuffer();
 		Texture depthBuffer = frameBuffer.getDepthBuffer();

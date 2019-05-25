@@ -65,8 +65,8 @@ public class FlatSpecularShader extends Shader {
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
 	
+	private int color;
 	private int lightColor;
-	private int lightFactor;
 	private int modelColor;
 	private Texture texture;
 	
@@ -149,9 +149,7 @@ public class FlatSpecularShader extends Shader {
 			graphicsLibrary.viewport(spotLocation, shaderData.getSpotLightFrustum(), spotLocation);
 		}
 		
-		lightColor = ColorLibrary.WHITE;
-		lightFactor = 50;
-		
+		lightColor = ColorLibrary.BLACK;		
 		int[] cameraLocation = camera.getTransform().getLocation();		
 		vectorLibrary.subtract(cameraLocation, faceLocation, viewDirection);
 		// normalize values
@@ -199,12 +197,11 @@ public class FlatSpecularShader extends Shader {
 				}
 				break;
 			}
-			currentFactor = mathLibrary.multiply(currentFactor, 256);
 			currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
+			currentFactor = mathLibrary.multiply(currentFactor, 255);
 			boolean inShadow = false;
 			if (i == shaderData.getDirectionalLightIndex()) {
 				inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
-				lightFactor += currentFactor;
 			}
 			if ((i == shaderData.getSpotLightIndex()) & (currentFactor > 10)) {
 				inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
@@ -213,11 +210,9 @@ public class FlatSpecularShader extends Shader {
 				lightColor = colorLibrary.lerp(lightColor, light.getShadowColor(), 128);
 			} else {
 				lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
-				lightFactor += currentFactor;
 			}
 		}
-		modelColor = colorLibrary.lerp(ColorLibrary.BLACK, shaderProperties.getDiffuseColor(), lightFactor);
-		modelColor = colorLibrary.multiplyColor(modelColor, lightColor);
+		color = shaderProperties.getDiffuseColor();
 		for (int i = 0; i < face.getVertices().length; i++) {
 			int[] vertexLocation = face.getVertices()[i].getLocation();
 			vectorLibrary.multiply(vertexLocation, viewMatrix, vertexLocation);
@@ -245,8 +240,9 @@ public class FlatSpecularShader extends Shader {
 			int texel = texture.getPixel(uvX[3], uvY[3]);
 			if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;
-			modelColor = colorLibrary.lerp(ColorLibrary.BLACK, texel, lightFactor);
-			modelColor = colorLibrary.multiplyColor(modelColor, lightColor);
+			modelColor = colorLibrary.multiplyColor(texel, lightColor);
+		} else {
+			modelColor = colorLibrary.multiplyColor(color, lightColor);
 		}
 		Texture colorBuffer = frameBuffer.getColorBuffer();
 		Texture depthBuffer = frameBuffer.getDepthBuffer();

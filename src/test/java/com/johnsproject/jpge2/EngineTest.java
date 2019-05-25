@@ -23,15 +23,14 @@ import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
 import com.johnsproject.jpge2.shader.shaders.DirectionalLightShadowShader;
 import com.johnsproject.jpge2.shader.shaders.FlatSpecularShader;
 import com.johnsproject.jpge2.shader.shaders.GouraudSpecularShader;
-import com.johnsproject.jpge2.shader.shaders.PhongSpecularShader;
 import com.johnsproject.jpge2.shader.shaders.SpotLightShadowShader;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
-	private static final int WINDOW_W = 1480;
-	private static final int WINDOW_H = 800;
-	private static final int RENDER_W = 1480;
-	private static final int RENDER_H = 800;
+	private static final int WINDOW_W = 1024;
+	private static final int WINDOW_H = 720;
+	private static final int RENDER_W = 1024;
+	private static final int RENDER_H = 720;
 	
 	private final int[] cache;
 	private Transform cameraTransform;
@@ -75,7 +74,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		try {
 			Scene scene = new SceneImporter().load("C:/Development/test.scene");
 			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
-//			((SpecularShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
+			((SpecularShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
 			return scene;
 		} catch (IOException e) {
 			e.printStackTrace();
