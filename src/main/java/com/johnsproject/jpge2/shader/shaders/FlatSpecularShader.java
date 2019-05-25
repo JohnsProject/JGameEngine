@@ -39,7 +39,7 @@ import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.shader.Shader;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
-import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
+import com.johnsproject.jpge2.shader.ShaderProperties;
 
 public class FlatSpecularShader extends Shader {
 	
@@ -48,9 +48,6 @@ public class FlatSpecularShader extends Shader {
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
 	private final ColorLibrary colorLibrary;
-	
-	private final int[] uvX;
-	private final int[] uvY;
 
 	private final int[] normalizedNormal;
 	private final int[] lightLocation;
@@ -74,18 +71,14 @@ public class FlatSpecularShader extends Shader {
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
 	private ForwardDataBuffer shaderData;
-	private SpecularShaderProperties shaderProperties;
+	private ShaderProperties shaderProperties;
 	
 	public FlatSpecularShader() {
-		super(2);
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.mathLibrary = new MathLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
 		this.colorLibrary = new ColorLibrary();
-		
-		this.uvX = getVariable(0);
-		this.uvY = getVariable(1);
 
 		this.normalizedNormal = vectorLibrary.generate();
 		this.lightLocation = vectorLibrary.generate();
@@ -130,7 +123,7 @@ public class FlatSpecularShader extends Shader {
 
 	@Override
 	public void geometry(Face face) {
-		this.shaderProperties = (SpecularShaderProperties)face.getMaterial().getProperties();
+		this.shaderProperties = (ShaderProperties)face.getMaterial().getProperties();
 		int[] normal = face.getNormal();
 		int[] location1 = face.getVertex(0).getLocation();
 		int[] location2 = face.getVertex(1).getLocation();
@@ -224,20 +217,23 @@ public class FlatSpecularShader extends Shader {
 		if (texture != null) {
 			int width = texture.getWidth() - 1;
 			int height = texture.getHeight() - 1;
-			uvX[0] = mathLibrary.multiply(face.getUV1()[VECTOR_X], width);
-			uvX[1] = mathLibrary.multiply(face.getUV2()[VECTOR_X], width);
-			uvX[2] = mathLibrary.multiply(face.getUV3()[VECTOR_X], width);
-			uvY[0] = mathLibrary.multiply(face.getUV1()[VECTOR_Y], height);
-			uvY[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
-			uvY[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
+			triangle.getU()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_X], width);
+			triangle.getU()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_X], width);
+			triangle.getU()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_X], width);
+			triangle.getV()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_Y], height);
+			triangle.getV()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
+			triangle.getV()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
 		}
-		graphicsLibrary.drawTriangle(location1, location2, location3, portedFrustum, this);
+		vectorLibrary.copy(triangle.getLocation1(), face.getVertex(0).getLocation());
+		vectorLibrary.copy(triangle.getLocation2(), face.getVertex(1).getLocation());
+		vectorLibrary.copy(triangle.getLocation3(), face.getVertex(2).getLocation());
+		graphicsLibrary.drawTriangle(triangle, portedFrustum, this);
 	}
 
 	@Override
 	public void fragment(int[] location) {
 		if (texture != null) {
-			int texel = texture.getPixel(uvX[3], uvY[3]);
+			int texel = texture.getPixel(triangle.getU()[3], triangle.getV()[3]);
 			if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;
 			modelColor = colorLibrary.multiplyColor(texel, lightColor);
@@ -252,7 +248,7 @@ public class FlatSpecularShader extends Shader {
 		}
 	}
 
-	private int getLightFactor(int[] normal, int[] lightDirection, int[] viewDirection, SpecularShaderProperties properties) {
+	private int getLightFactor(int[] normal, int[] lightDirection, int[] viewDirection, ShaderProperties properties) {
 		// diffuse
 		int dotProduct = vectorLibrary.dotProduct(normal, lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);

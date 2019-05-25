@@ -61,10 +61,18 @@ public class Texture {
 	}
 	
 	public int getPixel(int x, int y) {
+		x = x > 0 ? x : 0;
+		x = x < size[0] ? x : size[0] - 1;
+		y = y > 0 ? y : 0;
+		y = y < size[1] ? y : size[1] - 1;
 		return pixelBuffer[x + (y * size[0])];
 	}
 	
 	public void setPixel(int x, int y, int value) {
+		x = x > 0 ? x : 0;
+		x = x < size[0] ? x : size[0] - 1;
+		y = y > 0 ? y : 0;
+		y = y < size[1] ? y : size[1] - 1;
 		pixelBuffer[x + (y * size[0])] = value;
 	}
 	

@@ -19,7 +19,7 @@ import com.johnsproject.jpge2.library.ColorLibrary;
 import com.johnsproject.jpge2.library.FileLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
-import com.johnsproject.jpge2.shader.properties.SpecularShaderProperties;
+import com.johnsproject.jpge2.shader.ShaderProperties;
 import com.johnsproject.jpge2.shader.shaders.DirectionalLightShadowShader;
 import com.johnsproject.jpge2.shader.shaders.FlatSpecularShader;
 import com.johnsproject.jpge2.shader.shaders.GouraudSpecularShader;
@@ -74,7 +74,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		try {
 			Scene scene = new SceneImporter().load("C:/Development/test.scene");
 			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
-			((SpecularShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
+			((ShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
 			return scene;
 		} catch (IOException e) {
 			e.printStackTrace();

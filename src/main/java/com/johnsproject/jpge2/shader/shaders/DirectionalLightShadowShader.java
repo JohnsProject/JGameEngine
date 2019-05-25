@@ -37,7 +37,6 @@ public class DirectionalLightShadowShader extends Shader {
 	private ForwardDataBuffer shaderData;
 
 	public DirectionalLightShadowShader() {
-		super(0);
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
@@ -59,7 +58,6 @@ public class DirectionalLightShadowShader extends Shader {
 	}
 	
 	public DirectionalLightShadowShader(int width, int height) {
-		super(0);
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
@@ -133,10 +131,10 @@ public class DirectionalLightShadowShader extends Shader {
 	public void geometry(Face face) {
 		if (shaderData.getDirectionalLightIndex() < 0)
 			return;
-		int[] location1 = face.getVertex(0).getLocation();
-		int[] location2 = face.getVertex(1).getLocation();
-		int[] location3 = face.getVertex(2).getLocation();
-		graphicsLibrary.drawTriangle(location1, location2, location3, portedFrustum, this);
+		vectorLibrary.copy(triangle.getLocation1(), face.getVertex(0).getLocation());
+		vectorLibrary.copy(triangle.getLocation2(), face.getVertex(1).getLocation());
+		vectorLibrary.copy(triangle.getLocation3(), face.getVertex(2).getLocation());
+		graphicsLibrary.drawTriangle(triangle, portedFrustum, this);
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.johnsproject.jpge2.shader;
 
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
+import com.johnsproject.jpge2.dto.Triangle;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
@@ -17,10 +18,10 @@ public abstract class Shader {
 	protected static final int FP_ONE = MathLibrary.FP_ONE;
 	protected static final int FP_HALF = MathLibrary.FP_HALF;
 	
-	private final int[][] variables;
+	protected final Triangle triangle;
 	
-	public Shader(int variablesCount) {
-		this.variables = new int[variablesCount][4];
+	public Shader() {
+		this.triangle = new Triangle();
 	}
 	
 	public abstract void update(ShaderDataBuffer shaderDataBuffer);
@@ -32,12 +33,8 @@ public abstract class Shader {
 	public abstract void geometry(Face face);
 
 	public abstract void fragment(int[] location);
-	
-	public int[] getVariable(int index) {
-		return variables[index];
-	}
-	
-	public int[][] getVariables() {
-		return variables;
+
+	public Triangle getTriangle() {
+		return triangle;
 	}
 }
