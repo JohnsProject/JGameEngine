@@ -15,6 +15,10 @@ public class GraphicsLibrary {
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	private static final int FP_HALF = MathLibrary.FP_HALF;
 	
+	private static final int PERSPECTIVE_BITS = 25;
+	private static final int PERSPECTIVE_ONE = 1 << PERSPECTIVE_BITS;
+	private static final int PERSPECTIVE_HALF = PERSPECTIVE_ONE >> 1;
+	
 	private final int[] vectorCache;
 	private final int[] pixelCache;
 
@@ -138,6 +142,24 @@ public class GraphicsLibrary {
 				| (!insideHeight1 & !insideHeight2 & !insideHeight3)
 					| (!insideWidth1 & !insideWidth2 & !insideWidth3))
 					return;
+		location1[VECTOR_Z] = PERSPECTIVE_ONE / location1[VECTOR_Z];
+		location2[VECTOR_Z] = PERSPECTIVE_ONE / location2[VECTOR_Z];
+		location3[VECTOR_Z] = PERSPECTIVE_ONE / location3[VECTOR_Z];
+		uvX[0] = (int)(((long)uvX[0] * (long)location1[VECTOR_Z]) >> FP_BITS);
+		uvX[1] = (int)(((long)uvX[1] * (long)location2[VECTOR_Z]) >> FP_BITS);
+		uvX[2] = (int)(((long)uvX[2] * (long)location3[VECTOR_Z]) >> FP_BITS);
+		uvY[0] = (int)(((long)uvY[0] * (long)location1[VECTOR_Z]) >> FP_BITS);
+		uvY[1] = (int)(((long)uvY[1] * (long)location2[VECTOR_Z]) >> FP_BITS);
+		uvY[2] = (int)(((long)uvY[2] * (long)location3[VECTOR_Z]) >> FP_BITS);
+		red[0] = (int)(((long)red[0] * (long)location1[VECTOR_Z]) >> FP_BITS);
+		red[1] = (int)(((long)red[1] * (long)location2[VECTOR_Z]) >> FP_BITS);
+		red[2] = (int)(((long)red[2] * (long)location3[VECTOR_Z]) >> FP_BITS);
+		green[0] = (int)(((long)green[0] * (long)location1[VECTOR_Z]) >> FP_BITS);
+		green[1] = (int)(((long)green[1] * (long)location2[VECTOR_Z]) >> FP_BITS);
+		green[2] = (int)(((long)green[2] * (long)location3[VECTOR_Z]) >> FP_BITS);
+		blue[0] = (int)(((long)blue[0] * (long)location1[VECTOR_Z]) >> FP_BITS);
+		blue[1] = (int)(((long)blue[1] * (long)location2[VECTOR_Z]) >> FP_BITS);
+		blue[2] = (int)(((long)blue[2] * (long)location3[VECTOR_Z]) >> FP_BITS);
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
 			vectorLibrary.swap(location1, location2);
 			int tmp = uvX[0]; uvX[0] = uvX[1]; uvX[1] = tmp;
@@ -406,11 +428,12 @@ public class GraphicsLibrary {
 				pixelCache[VECTOR_X] = x1;
 				pixelCache[VECTOR_Y] = y;
 				pixelCache[VECTOR_Z] = z >> FP_BITS;
-				triangle.getU()[3] = u >> FP_BITS;
-				triangle.getV()[3] = v >> FP_BITS;
-				triangle.getRed()[3] = r >> FP_BITS;
-				triangle.getGreen()[3] = g >> FP_BITS;
-				triangle.getBlue()[3] = b >> FP_BITS;
+				pixelCache[VECTOR_Z] = PERSPECTIVE_ONE / pixelCache[VECTOR_Z];
+				triangle.getU()[3] = (int)(((long)u * (long)pixelCache[VECTOR_Z]) >> PERSPECTIVE_BITS);
+				triangle.getV()[3] = (int)(((long)v * (long)pixelCache[VECTOR_Z]) >> PERSPECTIVE_BITS);
+				triangle.getRed()[3] = (int)(((long)r * (long)pixelCache[VECTOR_Z]) >> PERSPECTIVE_BITS);
+				triangle.getGreen()[3] = (int)(((long)g * (long)pixelCache[VECTOR_Z]) >> PERSPECTIVE_BITS);
+				triangle.getBlue()[3] = (int)(((long)b * (long)pixelCache[VECTOR_Z]) >> PERSPECTIVE_BITS);
 				shader.fragment(pixelCache);
 			}
 			z += dz;

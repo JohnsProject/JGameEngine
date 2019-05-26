@@ -18,7 +18,7 @@ import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 
 public class DirectionalLightShadowShader extends Shader {
 
-	private static final short SHADOW_BIAS = 500;
+	private static final short SHADOW_BIAS = 5000;
 	
 	private final GraphicsLibrary graphicsLibrary;
 	private final MatrixLibrary matrixLibrary;
@@ -54,7 +54,7 @@ public class DirectionalLightShadowShader extends Shader {
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[6];
 		
-		this.shadowMap = new Texture(320, 320);
+		this.shadowMap = new Texture(128, 128);
 	}
 	
 	public DirectionalLightShadowShader(int width, int height) {
