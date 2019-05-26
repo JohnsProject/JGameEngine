@@ -444,7 +444,7 @@ public class GraphicsLibrary {
 		}
 	}
 	
-	public int multiply(int value1, int value2) {
+	private int multiply(int value1, int value2) {
 		long a = value1;
 		long b = value2;
 		long result = a * b + PERSPECTIVE_HALF;

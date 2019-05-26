@@ -18,7 +18,7 @@ import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 
 public class SpotLightShadowShader extends Shader {
 
-	private static final short SHADOW_BIAS = 5000;
+	private static final short SHADOW_BIAS = 500;
 	
 	private final GraphicsLibrary graphicsLibrary;
 	private final MatrixLibrary matrixLibrary;
