@@ -271,7 +271,6 @@ public class MathLibrary {
 	 */
 	public int divide(int dividend, int divisor) {
 		long result = (long)dividend << FP_BITS;
-		result += FP_HALF;
 		result /= divisor;
 		return (int) result;
 	}
