@@ -121,7 +121,7 @@ public class GraphicsLibrary {
 		int[] green = triangle.getGreen();
 		int[] blue = triangle.getBlue();
 		int triangleSize = shoelace(location1, location2, location3);
-		if (triangleSize < 0) // backface culling
+		if (triangleSize > 0) // backface culling
 			return;
 		int left = cameraFrustum[Camera.FRUSTUM_LEFT] + 1;
 		int right = cameraFrustum[Camera.FRUSTUM_RIGHT] - 1;
