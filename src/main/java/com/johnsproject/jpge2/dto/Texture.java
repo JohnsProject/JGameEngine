@@ -28,8 +28,8 @@ import java.awt.image.DataBufferInt;
 
 public class Texture {
 	
-	private int[] pixelBuffer;
-	private int[] size;
+	private final int[] pixelBuffer;
+	private final int[] size;
 	
 	public Texture (BufferedImage bufferedImage){
 		int width = bufferedImage.getWidth();

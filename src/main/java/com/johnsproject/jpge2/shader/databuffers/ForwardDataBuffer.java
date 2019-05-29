@@ -13,6 +13,8 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 	private FrameBuffer frameBuffer;
 	private List<Light> lights;
 	
+	private boolean skyboxActive = false;
+	
 	private int directionalLightIndex = -1;
 	private int[] directionalLightFrustum;
 	private int[][] directionalLightMatrix;
@@ -139,5 +141,13 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 
 	public void setLightRange(int lightRange) {
 		this.lightRange = lightRange;
+	}
+
+	public boolean isSkyboxActive() {
+		return skyboxActive;
+	}
+
+	public void setSkyboxActive(boolean skyboxActive) {
+		this.skyboxActive = skyboxActive;
 	}
 }

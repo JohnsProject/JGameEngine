@@ -33,6 +33,7 @@ public class Camera extends SceneObject {
 	public static final byte FRUSTUM_BOTTOM = 3;
 	public static final byte FRUSTUM_NEAR = 4;
 	public static final byte FRUSTUM_FAR = 5;
+	public static final byte FRUSTUM_SIZE = 6;
 	
 	private CameraType type;
 	private final int[] frustum;

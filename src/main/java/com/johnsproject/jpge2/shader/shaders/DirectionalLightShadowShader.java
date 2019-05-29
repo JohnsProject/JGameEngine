@@ -8,22 +8,32 @@ import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.LightType;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
+import com.johnsproject.jpge2.dto.Triangle;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.library.GraphicsLibrary;
+import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.MatrixLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.shader.Shader;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 
-public class DirectionalLightShadowShader extends Shader {
+public class DirectionalLightShadowShader implements Shader {
 
+	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
+	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
+	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
+	
+	private static final int FP_ONE = MathLibrary.FP_ONE;
+	
 	private static final short SHADOW_BIAS = 500;
 	
 	private final GraphicsLibrary graphicsLibrary;
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
 
+	private final Triangle triangle;
+	
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
 	private final int[][] lightMatrix;
@@ -40,19 +50,20 @@ public class DirectionalLightShadowShader extends Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
+		this.triangle = new Triangle();
 
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
 		this.lightMatrix = matrixLibrary.generate();
 		
-		this.lightFrustum = new int[6];
+		this.lightFrustum = new int[Camera.FRUSTUM_SIZE];
 		lightFrustum[Camera.FRUSTUM_LEFT] = 0;
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE * 2;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
-		this.portedFrustum = new int[6];
+		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		
 		this.shadowMap = new Texture(128, 128);
 	}
@@ -61,23 +72,23 @@ public class DirectionalLightShadowShader extends Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-
+		this.triangle = new Triangle();
+		
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
 		this.lightMatrix = matrixLibrary.generate();
 		
-		this.lightFrustum = new int[6];
+		this.lightFrustum = new int[Camera.FRUSTUM_SIZE];
 		lightFrustum[Camera.FRUSTUM_LEFT] = 0;
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE * 2;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
-		this.portedFrustum = new int[6];
+		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.shadowMap = new Texture(width, height);
 	}
 	
-	@Override
 	public void update(ShaderDataBuffer shaderDataBuffer) {
 		this.shaderData = (ForwardDataBuffer)shaderDataBuffer;
 		
@@ -88,8 +99,7 @@ public class DirectionalLightShadowShader extends Shader {
 			shaderData.setDirectionalShadowMap(shadowMap);
 		}
 	}
-
-	@Override
+	
 	public void setup(Camera camera) {
 		// reset shadow map
 		shadowMap.fill(Integer.MAX_VALUE);		
@@ -118,7 +128,6 @@ public class DirectionalLightShadowShader extends Shader {
 		matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
 	}
 
-	@Override
 	public void vertex(int index, Vertex vertex) {
 		if (shaderData.getDirectionalLightIndex() < 0)
 			return;
@@ -126,18 +135,16 @@ public class DirectionalLightShadowShader extends Shader {
 		vectorLibrary.multiply(location, lightMatrix, location);
 		graphicsLibrary.viewport(location, portedFrustum, location);
 	}
-
-	@Override
+	
 	public void geometry(Face face) {
 		if (shaderData.getDirectionalLightIndex() < 0)
 			return;
 		vectorLibrary.copy(triangle.getLocation1(), face.getVertex(0).getLocation());
 		vectorLibrary.copy(triangle.getLocation2(), face.getVertex(1).getLocation());
 		vectorLibrary.copy(triangle.getLocation3(), face.getVertex(2).getLocation());
-		graphicsLibrary.drawTriangle(triangle, portedFrustum, this);
+		graphicsLibrary.drawFlatTriangle(triangle, portedFrustum, this);
 	}
 
-	@Override
 	public void fragment(int[] location) {
 		if (shadowMap.getPixel(location[VECTOR_X], location[VECTOR_Y]) > location[VECTOR_Z]) {
 			shadowMap.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z] + SHADOW_BIAS);

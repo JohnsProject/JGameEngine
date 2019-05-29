@@ -28,11 +28,11 @@ import java.awt.image.DataBufferInt;
 
 public class FrameBuffer {
 
-	private int[] size;
-	private BufferedImage image;
-	private Texture colorBuffer;
-	private Texture depthBuffer;
-	private Texture stencilBuffer;
+	private final int[] size;
+	private final BufferedImage image;
+	private final Texture colorBuffer;
+	private final Texture depthBuffer;
+	private final Texture stencilBuffer;
 
 	public FrameBuffer(BufferedImage image) {
 		this.size = new int[] {image.getWidth(), image.getHeight(), 0, 0};

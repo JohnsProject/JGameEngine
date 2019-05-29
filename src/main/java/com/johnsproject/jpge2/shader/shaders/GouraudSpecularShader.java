@@ -7,6 +7,7 @@ import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Texture;
+import com.johnsproject.jpge2.dto.Triangle;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.library.ColorLibrary;
 import com.johnsproject.jpge2.library.GraphicsLibrary;
@@ -18,8 +19,15 @@ import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 import com.johnsproject.jpge2.shader.ShaderProperties;
 
-public class GouraudSpecularShader extends Shader {
+public class GouraudSpecularShader implements Shader {
 
+	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
+	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
+	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
+	
+	private static final byte FP_BITS = MathLibrary.FP_BITS;
+	private static final int FP_ONE = MathLibrary.FP_ONE;
+	
 	private final GraphicsLibrary graphicsLibrary;
 	private final MathLibrary mathLibrary;
 	private final MatrixLibrary matrixLibrary;
@@ -38,6 +46,8 @@ public class GouraudSpecularShader extends Shader {
 	private final int[] directionalLocation;	
 	private final int[] spotLocation;
 	
+	private final Triangle triangle;
+	
 	private int color;
 	private int modelColor;
 	private Texture texture;
@@ -54,12 +64,13 @@ public class GouraudSpecularShader extends Shader {
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
 		this.colorLibrary = new ColorLibrary();
+		this.triangle = new Triangle();
 
 		this.normalizedNormal = vectorLibrary.generate();
 		this.lightDirection = vectorLibrary.generate();
 		this.lightLocation = vectorLibrary.generate();
 		this.viewDirection = vectorLibrary.generate();
-		this.portedFrustum = new int[6];
+		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -68,16 +79,16 @@ public class GouraudSpecularShader extends Shader {
 		this.spotLocation = vectorLibrary.generate();
 	}
 	
-	@Override
 	public void update(ShaderDataBuffer shaderDataBuffer) {
 		this.shaderData = (ForwardDataBuffer)shaderDataBuffer;
 		this.lights = shaderData.getLights();
 		this.frameBuffer = shaderData.getFrameBuffer();
-		frameBuffer.getColorBuffer().fill(0);
-		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
+		if (!shaderData.isSkyboxActive()) {
+			frameBuffer.getColorBuffer().fill(0);
+			frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
+		}
 	}
 
-	@Override
 	public void setup(Camera camera) {
 		this.camera = camera;
 		graphicsLibrary.viewMatrix(viewMatrix, camera.getTransform());
@@ -93,7 +104,6 @@ public class GouraudSpecularShader extends Shader {
 		}
 	}
 
-	@Override
 	public void vertex(int index, Vertex vertex) {
 		this.shaderProperties = (ShaderProperties)vertex.getMaterial().getProperties();
 		int[] location = vertex.getLocation();
@@ -180,7 +190,6 @@ public class GouraudSpecularShader extends Shader {
 		graphicsLibrary.viewport(location, portedFrustum, location);
 	}
 
-	@Override
 	public void geometry(Face face) {
 		color = shaderProperties.getDiffuseColor();
 
@@ -199,10 +208,9 @@ public class GouraudSpecularShader extends Shader {
 		vectorLibrary.copy(triangle.getLocation1(), face.getVertex(0).getLocation());
 		vectorLibrary.copy(triangle.getLocation2(), face.getVertex(1).getLocation());
 		vectorLibrary.copy(triangle.getLocation3(), face.getVertex(2).getLocation());
-		graphicsLibrary.drawTriangle(triangle, portedFrustum, this);
+		graphicsLibrary.drawTexturedGouraudTriangle(triangle, portedFrustum, this);
 	}
 
-	@Override
 	public void fragment(int[] location) {
 		int lightColor = colorLibrary.generate(triangle.getRed()[3], triangle.getGreen()[3], triangle.getBlue()[3]);
 		if (texture != null) {

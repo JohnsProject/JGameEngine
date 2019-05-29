@@ -20,10 +20,8 @@ import com.johnsproject.jpge2.library.FileLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.shader.ShaderProperties;
-import com.johnsproject.jpge2.shader.shaders.DirectionalLightShadowShader;
 import com.johnsproject.jpge2.shader.shaders.FlatSpecularShader;
 import com.johnsproject.jpge2.shader.shaders.GouraudSpecularShader;
-import com.johnsproject.jpge2.shader.shaders.SpotLightShadowShader;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
@@ -65,8 +63,6 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		inputController.addEngineKeyListener(this);
 		cameraTransform = graphicsController.getScene().getCamera(0).getTransform();
 		graphicsController.removeShader(graphicsController.getShader(0));
-		graphicsController.addPreprocessingShader(new DirectionalLightShadowShader());
-		graphicsController.addPreprocessingShader(new SpotLightShadowShader());
 		graphicsController.addShader(new GouraudSpecularShader());
 	}
 	
@@ -99,9 +95,9 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	public void mouseMoved(MouseEvent e) {
-		int[] rotation = cameraTransform.getRotation();
-		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
-		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
+//		int[] rotation = cameraTransform.getRotation();
+//		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
+//		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
 	}
 
 	public void keyTyped(KeyEvent e) {
