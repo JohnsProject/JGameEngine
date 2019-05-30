@@ -17,7 +17,7 @@ import com.johnsproject.jpge2.shader.Shader;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 import com.johnsproject.jpge2.shader.ShaderProperties;
-import com.johnsproject.jpge2.shader.TexturedGouraudTriangle;
+import com.johnsproject.jpge2.shader.PerspectiveGouraudTriangle;
 
 public class GouraudSpecularShader implements Shader {
 
@@ -45,6 +45,7 @@ public class GouraudSpecularShader implements Shader {
 	private final int[] lightLocation;
 	private final int[] viewDirection;
 	private final int[] portedFrustum;
+	private final int[] colors;
 	
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
@@ -52,7 +53,7 @@ public class GouraudSpecularShader implements Shader {
 	private final int[] directionalLocation;	
 	private final int[] spotLocation;
 	
-	private final TexturedGouraudTriangle triangle;
+	private final PerspectiveGouraudTriangle triangle;
 	
 	private int color;
 	private int modelColor;
@@ -70,12 +71,13 @@ public class GouraudSpecularShader implements Shader {
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
 		this.colorLibrary = new ColorLibrary();
-		this.triangle = new TexturedGouraudTriangle();
+		this.triangle = new PerspectiveGouraudTriangle(this);
 
 		this.normalizedNormal = vectorLibrary.generate();
 		this.lightDirection = vectorLibrary.generate();
 		this.lightLocation = vectorLibrary.generate();
 		this.viewDirection = vectorLibrary.generate();
+		this.colors = vectorLibrary.generate();
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 
 		this.viewMatrix = matrixLibrary.generate();
@@ -186,9 +188,7 @@ public class GouraudSpecularShader implements Shader {
 				lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
 			}
 		}
-		triangle.getRed()[index] = colorLibrary.getRed(lightColor);
-		triangle.getGreen()[index] = colorLibrary.getGreen(lightColor);
-		triangle.getBlue()[index] = colorLibrary.getBlue(lightColor);
+		colors[index] = lightColor;
 		vectorLibrary.multiply(location, viewMatrix, location);
 		vectorLibrary.multiply(location, projectionMatrix, location);
 		graphicsLibrary.viewport(location, portedFrustum, location);
@@ -196,29 +196,16 @@ public class GouraudSpecularShader implements Shader {
 
 	public void geometry(Face face) {
 		color = shaderProperties.getDiffuseColor();
-
 		texture = shaderProperties.getTexture();
-		// set uv values that will be interpolated and fit uv into texture resolution
-		if (texture != null) {
-			int width = texture.getWidth() - 1;
-			int height = texture.getHeight() - 1;
-			triangle.getU()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_X], width);
-			triangle.getU()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_X], width);
-			triangle.getU()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_X], width);
-			triangle.getV()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_Y], height);
-			triangle.getV()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
-			triangle.getV()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
-		}
-		vectorLibrary.copy(triangle.getLocation1(), face.getVertex(0).getLocation());
-		vectorLibrary.copy(triangle.getLocation2(), face.getVertex(1).getLocation());
-		vectorLibrary.copy(triangle.getLocation3(), face.getVertex(2).getLocation());
-		graphicsLibrary.drawTriangle(triangle, portedFrustum, this);
+		graphicsLibrary.drawTriangle(triangle, face, texture, colors, portedFrustum);
 	}
 
 	public void fragment(int[] location) {
 		int lightColor = colorLibrary.generate(triangle.getRed()[3], triangle.getGreen()[3], triangle.getBlue()[3]);
 		if (texture != null) {
-			int texel = texture.getPixel(triangle.getU()[3], triangle.getV()[3]);
+			int u = triangle.getU()[3];
+			int v = triangle.getV()[3];
+			int texel = texture.getPixel(u, v);
 			if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;
 			modelColor = colorLibrary.multiplyColor(texel, lightColor);
@@ -227,9 +214,12 @@ public class GouraudSpecularShader implements Shader {
 		}
 		Texture colorBuffer = frameBuffer.getColorBuffer();
 		Texture depthBuffer = frameBuffer.getDepthBuffer();
-		if (depthBuffer.getPixel(location[VECTOR_X], location[VECTOR_Y]) > location[VECTOR_Z]) {
-			depthBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z]);
-			colorBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], modelColor);
+		int x = location[VECTOR_X];
+		int y = location[VECTOR_Y];
+		int z = location[VECTOR_Z];
+		if (depthBuffer.getPixel(x, y) > z) {
+			depthBuffer.setPixel(x, y, z);
+			colorBuffer.setPixel(x, y, modelColor);
 		}
 	}
 

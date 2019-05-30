@@ -52,7 +52,7 @@ public class SpotLightShadowShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new FlatTriangle();
+		this.triangle = new FlatTriangle(this);
 
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -73,7 +73,7 @@ public class SpotLightShadowShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new FlatTriangle();
+		this.triangle = new FlatTriangle(this);
 
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -93,7 +93,7 @@ public class SpotLightShadowShader implements Shader {
 	public void update(ShaderDataBuffer shaderDataBuffer) {
 		shaderData = (ForwardDataBuffer)shaderDataBuffer;
 		this.lights = shaderData.getLights();
-		if (shaderData.getSpotLightMatrix() == null) {
+		if (shaderData.getSpotLightIndex() == -1) {
 			shaderData.setSpotLightFrustum(portedFrustum);
 			shaderData.setSpotLightMatrix(lightMatrix);
 			shaderData.setSpotShadowMap(shadowMap);
@@ -138,18 +138,18 @@ public class SpotLightShadowShader implements Shader {
 	public void geometry(Face face) {
 		if (shaderData.getSpotLightIndex() < 0)
 			return;
-		vectorLibrary.copy(triangle.getLocation1(), face.getVertex(0).getLocation());
-		vectorLibrary.copy(triangle.getLocation2(), face.getVertex(1).getLocation());
-		vectorLibrary.copy(triangle.getLocation3(), face.getVertex(2).getLocation());
-		graphicsLibrary.drawTriangle(triangle, portedFrustum, this);
+		graphicsLibrary.drawTriangle(triangle, face, portedFrustum);
 	}
 
 	public void fragment(int[] location) {
 //		int color = (location[VECTOR_Z] + 100) >> 3;
 //		color = colorProcessor.generate(color, color, color);
 //		frameBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z] - 1000, (byte) 0, color);
-		if (shadowMap.getPixel(location[VECTOR_X], location[VECTOR_Y]) > location[VECTOR_Z]) {
-			shadowMap.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z] + SHADOW_BIAS);
+		int x = location[VECTOR_X];
+		int y = location[VECTOR_Y];
+		int z = location[VECTOR_Z];
+		if (shadowMap.getPixel(x, y) > z) {
+			shadowMap.setPixel(x, y, z + SHADOW_BIAS);
 		}
 	}	
 }

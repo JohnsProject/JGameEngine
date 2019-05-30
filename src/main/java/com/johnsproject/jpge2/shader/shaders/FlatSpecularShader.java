@@ -40,7 +40,7 @@ import com.johnsproject.jpge2.shader.Shader;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 import com.johnsproject.jpge2.shader.ShaderProperties;
-import com.johnsproject.jpge2.shader.TexturedFlatTriangle;
+import com.johnsproject.jpge2.shader.PerspectiveFlatTriangle;
 
 public class FlatSpecularShader implements Shader {
 	
@@ -76,7 +76,7 @@ public class FlatSpecularShader implements Shader {
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
 	
-	private final TexturedFlatTriangle triangle;
+	private final PerspectiveFlatTriangle triangle;
 	
 	private int color;
 	private int lightColor;
@@ -95,7 +95,7 @@ public class FlatSpecularShader implements Shader {
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
 		this.colorLibrary = new ColorLibrary();
-		this.triangle = new TexturedFlatTriangle();
+		this.triangle = new PerspectiveFlatTriangle(this);
 		
 		this.normalizedNormal = vectorLibrary.generate();
 		this.lightLocation = vectorLibrary.generate();
@@ -226,26 +226,14 @@ public class FlatSpecularShader implements Shader {
 			graphicsLibrary.viewport(vertexLocation, portedFrustum, vertexLocation);
 		}
 		texture = shaderProperties.getTexture();
-		// set uv values that will be interpolated and fit uv into texture resolution
-		if (texture != null) {
-			int width = texture.getWidth() - 1;
-			int height = texture.getHeight() - 1;
-			triangle.getU()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_X], width);
-			triangle.getU()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_X], width);
-			triangle.getU()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_X], width);
-			triangle.getV()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_Y], height);
-			triangle.getV()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
-			triangle.getV()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
-		}
-		vectorLibrary.copy(triangle.getLocation1(), face.getVertex(0).getLocation());
-		vectorLibrary.copy(triangle.getLocation2(), face.getVertex(1).getLocation());
-		vectorLibrary.copy(triangle.getLocation3(), face.getVertex(2).getLocation());
-		graphicsLibrary.drawTriangle(triangle, portedFrustum, this);
+		graphicsLibrary.drawTriangle(triangle, face, texture, portedFrustum);
 	}
 
 	public void fragment(int[] location) {
 		if (texture != null) {
-			int texel = texture.getPixel(triangle.getU()[3], triangle.getV()[3]);
+			int u = triangle.getU()[3];
+			int v = triangle.getV()[3];
+			int texel = texture.getPixel(u, v);
 			if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;
 			modelColor = colorLibrary.multiplyColor(texel, lightColor);
@@ -254,9 +242,12 @@ public class FlatSpecularShader implements Shader {
 		}
 		Texture colorBuffer = frameBuffer.getColorBuffer();
 		Texture depthBuffer = frameBuffer.getDepthBuffer();
-		if (depthBuffer.getPixel(location[VECTOR_X], location[VECTOR_Y]) > location[VECTOR_Z]) {
-			depthBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], location[VECTOR_Z]);
-			colorBuffer.setPixel(location[VECTOR_X], location[VECTOR_Y], modelColor);
+		int x = location[VECTOR_X];
+		int y = location[VECTOR_Y];
+		int z = location[VECTOR_Z];
+		if (depthBuffer.getPixel(x, y) > z) {
+			depthBuffer.setPixel(x, y, z);
+			colorBuffer.setPixel(x, y, modelColor);
 		}
 	}
 

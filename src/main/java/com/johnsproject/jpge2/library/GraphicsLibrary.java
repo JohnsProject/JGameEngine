@@ -1,41 +1,36 @@
 package com.johnsproject.jpge2.library;
 
 import com.johnsproject.jpge2.dto.Camera;
+import com.johnsproject.jpge2.dto.Face;
+import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
+import com.johnsproject.jpge2.shader.AffineFlatTriangle;
+import com.johnsproject.jpge2.shader.AffineGouraudTriangle;
 import com.johnsproject.jpge2.shader.FlatTriangle;
 import com.johnsproject.jpge2.shader.GouraudTriangle;
-import com.johnsproject.jpge2.shader.Shader;
-import com.johnsproject.jpge2.shader.TexturedFlatTriangle;
-import com.johnsproject.jpge2.shader.TexturedGouraudTriangle;
+import com.johnsproject.jpge2.shader.PerspectiveFlatTriangle;
+import com.johnsproject.jpge2.shader.PerspectiveGouraudTriangle;
 
 public class GraphicsLibrary {
+	
 	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
 	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
 	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
 	private static final byte VECTOR_W = VectorLibrary.VECTOR_W;
 
-	private static final int FP_BITS = MathLibrary.FP_BITS;
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	private static final int FP_HALF = MathLibrary.FP_HALF;
-	
-	private static final int PERSPECTIVE_BITS = 25;
-	private static final int PERSPECTIVE_ONE = 1 << PERSPECTIVE_BITS;
-	private static final int PERSPECTIVE_HALF = PERSPECTIVE_ONE >> 1;
-	
-	private final int[] vectorCache;
-	private final int[] pixelCache;
 
 	private final MathLibrary mathLibrary;
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
-
+	private final ColorLibrary colorLibrary;
+	
 	public GraphicsLibrary() {
 		this.mathLibrary = new MathLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-
-		this.vectorCache = vectorLibrary.generate();
-		this.pixelCache = vectorLibrary.generate();
+		this.colorLibrary = new ColorLibrary();
 	}
 
 	public int[][] modelMatrix(int[][] matrix, Transform transform) {
@@ -77,7 +72,7 @@ public class GraphicsLibrary {
 		matrix[0][0] = scaleFactor;
 		matrix[1][1] = scaleFactor;
 		matrix[2][2] = -FP_ONE / 10;
-		matrix[3][3] = -FP_ONE * FP_HALF;
+		matrix[3][3] = FP_ONE * -FP_HALF;
 		return matrix;
 	}
 
@@ -114,13 +109,62 @@ public class GraphicsLibrary {
 		return result;
 	}
 	
-	public void drawTriangle(FlatTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
+	public void drawTriangle(FlatTriangle triangle, Face face, int[] cameraFrustum) {
+		if (clip(face, cameraFrustum))
+			return;
+		copyLocations(triangle, face);
+		triangle.drawTriangle(cameraFrustum);
+	}
+	
+	public void drawTriangle(GouraudTriangle triangle, Face face, int[] colors, int[] cameraFrustum) {
+		if (clip(face, cameraFrustum))
+			return;
+		copyColors(triangle, colors);
+		copyLocations(triangle, face);
+		triangle.drawTriangle(cameraFrustum);
+	}
+	
+	public void drawTriangle(AffineFlatTriangle triangle, Face face, Texture texture, int[] cameraFrustum) {
+		if (clip(face, cameraFrustum))
+			return;
+		copyUVs(triangle, face, texture);
+		copyLocations(triangle, face);
+		triangle.drawTriangle(cameraFrustum);
+	}
+	
+	public void drawTriangle(PerspectiveFlatTriangle triangle, Face face, Texture texture, int[] cameraFrustum) {
+		if (clip(face, cameraFrustum))
+			return;
+		copyUVs(triangle, face, texture);
+		copyLocations(triangle, face);
+		triangle.drawTriangle(cameraFrustum);
+	}
+	
+	public void drawTriangle(AffineGouraudTriangle triangle, Face face, Texture texture, int[] colors, int[] cameraFrustum) {
+		if (clip(face, cameraFrustum))
+			return;
+		copyUVs(triangle, face, texture);
+		copyColors(triangle, colors);
+		copyLocations(triangle, face);
+		triangle.drawTriangle(cameraFrustum);
+	}
+	
+	public void drawTriangle(PerspectiveGouraudTriangle triangle, Face face, Texture texture, int[] colors, int[] cameraFrustum) {
+		if (clip(face, cameraFrustum))
+			return;
+		copyUVs(triangle, face, texture);
+		copyColors(triangle, colors);
+		copyLocations(triangle, face);
+		triangle.drawTriangle(cameraFrustum);
+	}
+	
+	private boolean clip(Face face, int[] cameraFrustum) {
+		int[] location1 = face.getVertex(0).getLocation();
+		int[] location2 = face.getVertex(1).getLocation();
+		int[] location3 = face.getVertex(2).getLocation();
 		int triangleSize = shoelace(location1, location2, location3);
 		if (triangleSize > 0) // backface culling
-			return;
+			return true;
 		int left = cameraFrustum[Camera.FRUSTUM_LEFT] + 1;
 		int right = cameraFrustum[Camera.FRUSTUM_RIGHT] - 1;
 		int top = cameraFrustum[Camera.FRUSTUM_TOP] + 1;
@@ -138,982 +182,58 @@ public class GraphicsLibrary {
 		boolean insideDepth3 = (location3[VECTOR_Z] > near) & (location3[VECTOR_Z] < far);
 		if ((!insideDepth1 | !insideDepth2 | !insideDepth3) 
 				| (!insideHeight1 & !insideHeight2 & !insideHeight3)
-					| (!insideWidth1 & !insideWidth2 & !insideWidth3))
-					return;
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
+					| (!insideWidth1 & !insideWidth2 & !insideWidth3)) {
+					return true;
 		}
-		if (location2[VECTOR_Y] > location3[VECTOR_Y]) {
-			vectorLibrary.swap(location2, location3);
-		}
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
-		}
-        if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
-        	drawBottomTriangle(triangle, cameraFrustum, shader);
-        } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-        	drawTopTriangle(triangle, cameraFrustum, shader);
-        } else {
-            int x = location1[VECTOR_X];
-            int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
-            int multiplier = location3[VECTOR_X] - location1[VECTOR_X];
-            x += mathLibrary.multiply(dy, multiplier);
-            int y = location2[VECTOR_Y];
-            int z = location1[VECTOR_Z];
-            multiplier = location3[VECTOR_Z] - location1[VECTOR_Z];
-            z += mathLibrary.multiply(dy, multiplier);
-            vectorCache[VECTOR_X] = x;
-            vectorCache[VECTOR_Y] = y;
-            vectorCache[VECTOR_Z] = z;
-            vectorLibrary.swap(vectorCache, location3);
-            drawBottomTriangle(triangle, cameraFrustum, shader);
-            vectorLibrary.swap(vectorCache, location3);
-            vectorLibrary.swap(location1, location2);
-            vectorLibrary.swap(location2, vectorCache);
-            drawTopTriangle(triangle, cameraFrustum, shader);
-        }
+		return false;
 	}
 	
-	private void drawBottomTriangle(FlatTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
-		int xShifted = location1[VECTOR_X] << FP_BITS;
-		int y2y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		y2y1 = y2y1 == 0 ? 1 : y2y1;
-		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y2y1);
-        int dx2 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-        int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y2y1);
-        int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-        if(dx1 < dx2) {
-        	int dxdx = dx2 - dx1;
-        	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = mathLibrary.divide(dz2 - dz1, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
-	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-	        	drawScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
-	            x1 += dx1;
-	            x2 += dx2;
-	            z += dz1;
-	        }
-        } else {
-        	int dxdx = dx1 - dx2;
-        	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = mathLibrary.divide(dz1 - dz2, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
-        	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-        		drawScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
-	            x1 += dx2;
-	            x2 += dx1;
-	            z += dz2;
-	        }
-        }
-    }
-    
-	private void drawTopTriangle(FlatTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
-		int xShifted = location3[VECTOR_X] << FP_BITS;
-		int y3y1 = location3[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y2 = location3[VECTOR_Y] - location2[VECTOR_Y];
-		y3y1 = y3y1 == 0 ? 1 : y3y1;
-		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-		int dx2 = mathLibrary.divide(location3[VECTOR_X] - location2[VECTOR_X], y3y2);
-		int dz1 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-		int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location2[VECTOR_Z], y3y2);
-		if (dx1 > dx2) {
-			int dxdx = dx1 - dx2;
-			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = mathLibrary.divide(dz1 - dz2, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
-	            x1 -= dx1;
-	            x2 -= dx2;
-	            z -= dz1;
-	        }
-		} else {
-			int dxdx = dx2 - dx1;
-			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = mathLibrary.divide(dz2 - dz1, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
-	            x1 -= dx2;
-	            x2 -= dx1;
-	            z -= dz2;
-	        }
-		}
-    }
-	
-	private void drawScanline(int x1, int x2, int y, int z, int dz, FlatTriangle triangle, int[] cameraFrustum, Shader shader) {
-		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
-		x1 >>= FP_BITS;
-		x2 >>= FP_BITS;
-		for (; x1 <= x2; x1++) {
-			if (yInside & (x1 > cameraFrustum[Camera.FRUSTUM_LEFT] + 1) & (x1 < cameraFrustum[Camera.FRUSTUM_RIGHT] - 1)) {
-				pixelCache[VECTOR_X] = x1;
-				pixelCache[VECTOR_Y] = y;
-				pixelCache[VECTOR_Z] = z >> FP_BITS;
-				shader.fragment(pixelCache);
-			}
-			z += dz;
-		}
-	}
-	
-	public void drawTriangle(TexturedFlatTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
-		int[] uvX = triangle.getU();
-		int[] uvY = triangle.getV();
-		int triangleSize = shoelace(location1, location2, location3);
-		if (triangleSize > 0) // backface culling
-			return;
-		int left = cameraFrustum[Camera.FRUSTUM_LEFT] + 1;
-		int right = cameraFrustum[Camera.FRUSTUM_RIGHT] - 1;
-		int top = cameraFrustum[Camera.FRUSTUM_TOP] + 1;
-		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1;
-		int near = cameraFrustum[Camera.FRUSTUM_NEAR];
-		int far = (cameraFrustum[Camera.FRUSTUM_FAR] / 10);
-		boolean insideWidth1 = (location1[VECTOR_X] > left) & (location1[VECTOR_X] < right);
-		boolean insideWidth2 = (location2[VECTOR_X] > left) & (location2[VECTOR_X] < right);
-		boolean insideWidth3 = (location3[VECTOR_X] > left) & (location3[VECTOR_X] < right);
-		boolean insideHeight1 = (location1[VECTOR_Y] > top) & (location1[VECTOR_Y] < bottom);
-		boolean insideHeight2 = (location2[VECTOR_Y] > top) & (location2[VECTOR_Y] < bottom);
-		boolean insideHeight3 = (location3[VECTOR_Y] > top) & (location3[VECTOR_Y] < bottom);
-		boolean insideDepth1 = (location1[VECTOR_Z] > near) & (location1[VECTOR_Z] < far);
-		boolean insideDepth2 = (location2[VECTOR_Z] > near) & (location2[VECTOR_Z] < far);
-		boolean insideDepth3 = (location3[VECTOR_Z] > near) & (location3[VECTOR_Z] < far);
-		if ((!insideDepth1 | !insideDepth2 | !insideDepth3) 
-				| (!insideHeight1 & !insideHeight2 & !insideHeight3)
-					| (!insideWidth1 & !insideWidth2 & !insideWidth3))
-					return;
-		location1[VECTOR_Z] = PERSPECTIVE_ONE / location1[VECTOR_Z];
-		location2[VECTOR_Z] = PERSPECTIVE_ONE / location2[VECTOR_Z];
-		location3[VECTOR_Z] = PERSPECTIVE_ONE / location3[VECTOR_Z];
-		uvX[0] = mathLibrary.multiply(uvX[0], location1[VECTOR_Z]);
-		uvX[1] = mathLibrary.multiply(uvX[1], location2[VECTOR_Z]);
-		uvX[2] = mathLibrary.multiply(uvX[2], location3[VECTOR_Z]);
-		uvY[0] = mathLibrary.multiply(uvY[0], location1[VECTOR_Z]);
-		uvY[1] = mathLibrary.multiply(uvY[1], location2[VECTOR_Z]);
-		uvY[2] = mathLibrary.multiply(uvY[2], location3[VECTOR_Z]);
-		int tmp = 0;
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
-			tmp = uvX[0]; uvX[0] = uvX[1]; uvX[1] = tmp;
-			tmp = uvY[0]; uvY[0] = uvY[1]; uvY[1] = tmp;
-		}
-		if (location2[VECTOR_Y] > location3[VECTOR_Y]) {
-			vectorLibrary.swap(location2, location3);
-			tmp = uvX[2]; uvX[2] = uvX[1]; uvX[1] = tmp;
-			tmp = uvY[2]; uvY[2] = uvY[1]; uvY[1] = tmp;
-		}
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
-			tmp = uvX[0]; uvX[0] = uvX[1]; uvX[1] = tmp;
-			tmp = uvY[0]; uvY[0] = uvY[1]; uvY[1] = tmp;
-		}
-        if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
-        	drawBottomTriangle(triangle, cameraFrustum, shader);
-        } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-            drawTopTriangle(triangle, cameraFrustum, shader);
-        } else {
-            int x = location1[VECTOR_X];
-            int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
-            int multiplier = location3[VECTOR_X] - location1[VECTOR_X];
-            x += mathLibrary.multiply(dy, multiplier);
-            int y = location2[VECTOR_Y];
-            int z = location1[VECTOR_Z];
-            multiplier = location3[VECTOR_Z] - location1[VECTOR_Z];
-            z += mathLibrary.multiply(dy, multiplier);
-            int uvx = uvX[0];
-            multiplier = uvX[2] - uvX[0];
-            uvx += mathLibrary.multiply(dy, multiplier);
-            int uvy = uvY[0];
-            multiplier = uvY[2] - uvY[0];
-            uvy += mathLibrary.multiply(dy, multiplier);
-            vectorCache[VECTOR_X] = x;
-            vectorCache[VECTOR_Y] = y;
-            vectorCache[VECTOR_Z] = z;
-            vectorLibrary.swap(vectorCache, location3);
-            tmp = uvX[2]; uvX[2] = uvx; uvx = tmp;
-            tmp = uvY[2]; uvY[2] = uvy; uvy = tmp;
-            drawBottomTriangle(triangle, cameraFrustum, shader);
-            vectorLibrary.swap(vectorCache, location3);
-            vectorLibrary.swap(location1, location2);
-            vectorLibrary.swap(location2, vectorCache);
-            tmp = uvX[2]; uvX[2] = uvx; uvx = tmp;
-            tmp = uvX[0]; uvX[0] = uvX[1]; uvX[1] = tmp;
-            tmp = uvX[1]; uvX[1] = uvx; uvx = tmp;
-            tmp = uvY[2]; uvY[2] = uvy; uvy = tmp;
-            tmp = uvY[0]; uvY[0] = uvY[1]; uvY[1] = tmp;
-            tmp = uvY[1]; uvY[1] = uvy; uvy = tmp;
-            drawTopTriangle(triangle, cameraFrustum, shader);
-        }
-	}
-	
-	private void drawBottomTriangle(TexturedFlatTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
-		int[] uvX = triangle.getU();
-		int[] uvY = triangle.getV();
-		int xShifted = location1[VECTOR_X] << FP_BITS;
-		int y2y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		y2y1 = y2y1 == 0 ? 1 : y2y1;
-		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y2y1);
-        int dx2 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-        int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y2y1);
-        int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-        int du1 = mathLibrary.divide(uvX[1] - uvX[0], y2y1);
-        int du2 = mathLibrary.divide(uvX[2] - uvX[0], y3y1);
-        int dv1 = mathLibrary.divide(uvY[1] - uvY[0], y2y1);
-        int dv2 = mathLibrary.divide(uvY[2] - uvY[0], y3y1);
-        if(dx1 < dx2) {
-        	int dxdx = dx2 - dx1;
-        	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = mathLibrary.divide(dz2 - dz1, dxdx);
-        	int du = mathLibrary.divide(du2 - du1, dxdx);
-        	int dv = mathLibrary.divide(dv2 - dv1, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
-            int u = uvX[0] << FP_BITS;
-            int v = uvY[0] << FP_BITS;
-	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
-	            x1 += dx1;
-	            x2 += dx2;
-	            z += dz1;
-	            u += du1;
-	            v += dv1;
-	        }
-        } else {
-        	int dxdx = dx1 - dx2;
-        	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = mathLibrary.divide(dz1 - dz2, dxdx);
-        	int du = mathLibrary.divide(du1 - du2, dxdx);
-        	int dv = mathLibrary.divide(dv1 - dv2, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
-            int u = uvX[0] << FP_BITS;
-            int v = uvY[0] << FP_BITS;
-        	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-        		drawScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
-	            x1 += dx2;
-	            x2 += dx1;
-	            z += dz2;
-	            u += du2;
-	            v += dv2;
-	        }
-        }
-    }
-    
-	private void drawTopTriangle(TexturedFlatTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
-		int[] uvX = triangle.getU();
-		int[] uvY = triangle.getV();
-		int xShifted = location3[VECTOR_X] << FP_BITS;
-		int y3y1 = location3[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y2 = location3[VECTOR_Y] - location2[VECTOR_Y];
-		y3y1 = y3y1 == 0 ? 1 : y3y1;
-		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-		int dx2 = mathLibrary.divide(location3[VECTOR_X] - location2[VECTOR_X], y3y2);
-		int dz1 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-		int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location2[VECTOR_Z], y3y2);
-		int du1 = mathLibrary.divide(uvX[2] - uvX[0], y3y1);
-		int du2 = mathLibrary.divide(uvX[2] - uvX[1], y3y2);
-		int dv1 = mathLibrary.divide(uvY[2] - uvY[0], y3y1);
-		int dv2 = mathLibrary.divide(uvY[2] - uvY[1], y3y2);
-		if (dx1 > dx2) {
-			int dxdx = dx1 - dx2;
-			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = mathLibrary.divide(dz1 - dz2, dxdx);
-			int du = mathLibrary.divide(du1 - du2, dxdx);
-			int dv = mathLibrary.divide(dv1 - dv2, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
-			int u = uvX[2] << FP_BITS;
-			int v = uvY[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
-	            x1 -= dx1;
-	            x2 -= dx2;
-	            z -= dz1;
-	            u -= du1;
-	            v -= dv1;
-	        }
-		} else {
-			int dxdx = dx2 - dx1;
-			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = mathLibrary.divide(dz2 - dz1, dxdx);
-			int du = mathLibrary.divide(du2 - du1, dxdx);
-			int dv = mathLibrary.divide(dv2 - dv1, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
-			int u = uvX[2] << FP_BITS;
-			int v = uvY[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
-	            x1 -= dx2;
-	            x2 -= dx1;
-	            z -= dz2;
-	            u -= du2;
-	            v -= dv2;
-	        }
-		}
-    }
-	
-	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int dz, int du, int dv, TexturedFlatTriangle triangle, int[] cameraFrustum, Shader shader) {
-		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
-		x1 >>= FP_BITS;
-		x2 >>= FP_BITS;
-		for (; x1 <= x2; x1++) {
-			if (yInside & (x1 > cameraFrustum[Camera.FRUSTUM_LEFT] + 1) & (x1 < cameraFrustum[Camera.FRUSTUM_RIGHT] - 1)) {
-				pixelCache[VECTOR_X] = x1;
-				pixelCache[VECTOR_Y] = y;
-				pixelCache[VECTOR_Z] = z >> FP_BITS;
-				pixelCache[VECTOR_Z] = PERSPECTIVE_ONE / pixelCache[VECTOR_Z];
-				triangle.getU()[3] = multiply(u, pixelCache[VECTOR_Z]);
-				triangle.getV()[3] = multiply(v, pixelCache[VECTOR_Z]);
-				shader.fragment(pixelCache);
-			}
-			z += dz;
-			u += du;
-			v += dv;
-		}
-	}
-	
-	public void drawTriangle(GouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
-		int[] red = triangle.getRed();
-		int[] green = triangle.getGreen();
-		int[] blue = triangle.getBlue();
-		int triangleSize = shoelace(location1, location2, location3);
-		if (triangleSize > 0) // backface culling
-			return;
-		int left = cameraFrustum[Camera.FRUSTUM_LEFT] + 1;
-		int right = cameraFrustum[Camera.FRUSTUM_RIGHT] - 1;
-		int top = cameraFrustum[Camera.FRUSTUM_TOP] + 1;
-		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1;
-		int near = cameraFrustum[Camera.FRUSTUM_NEAR];
-		int far = (cameraFrustum[Camera.FRUSTUM_FAR] / 10);
-		boolean insideWidth1 = (location1[VECTOR_X] > left) & (location1[VECTOR_X] < right);
-		boolean insideWidth2 = (location2[VECTOR_X] > left) & (location2[VECTOR_X] < right);
-		boolean insideWidth3 = (location3[VECTOR_X] > left) & (location3[VECTOR_X] < right);
-		boolean insideHeight1 = (location1[VECTOR_Y] > top) & (location1[VECTOR_Y] < bottom);
-		boolean insideHeight2 = (location2[VECTOR_Y] > top) & (location2[VECTOR_Y] < bottom);
-		boolean insideHeight3 = (location3[VECTOR_Y] > top) & (location3[VECTOR_Y] < bottom);
-		boolean insideDepth1 = (location1[VECTOR_Z] > near) & (location1[VECTOR_Z] < far);
-		boolean insideDepth2 = (location2[VECTOR_Z] > near) & (location2[VECTOR_Z] < far);
-		boolean insideDepth3 = (location3[VECTOR_Z] > near) & (location3[VECTOR_Z] < far);
-		if ((!insideDepth1 | !insideDepth2 | !insideDepth3) 
-				| (!insideHeight1 & !insideHeight2 & !insideHeight3)
-					| (!insideWidth1 & !insideWidth2 & !insideWidth3))
-					return;
-		location1[VECTOR_Z] = PERSPECTIVE_ONE / location1[VECTOR_Z];
-		location2[VECTOR_Z] = PERSPECTIVE_ONE / location2[VECTOR_Z];
-		location3[VECTOR_Z] = PERSPECTIVE_ONE / location3[VECTOR_Z];
-		red[0] = mathLibrary.multiply(red[0], location1[VECTOR_Z]);
-		red[1] = mathLibrary.multiply(red[1], location2[VECTOR_Z]);
-		red[2] = mathLibrary.multiply(red[2], location3[VECTOR_Z]);
-		green[0] = mathLibrary.multiply(green[0], location1[VECTOR_Z]);
-		green[1] = mathLibrary.multiply(green[1], location2[VECTOR_Z]);
-		green[2] = mathLibrary.multiply(green[2], location3[VECTOR_Z]);
-		blue[0] = mathLibrary.multiply(blue[0], location1[VECTOR_Z]);
-		blue[1] = mathLibrary.multiply(blue[1], location2[VECTOR_Z]);
-		blue[2] = mathLibrary.multiply(blue[2], location3[VECTOR_Z]);
-		int tmp = 0;
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
-			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
-		}
-		if (location2[VECTOR_Y] > location3[VECTOR_Y]) {
-			vectorLibrary.swap(location2, location3);
-			tmp = red[2]; red[2] = red[1]; red[1] = tmp;
-			tmp = green[2]; green[2] = green[1]; green[1] = tmp;
-			tmp = blue[2]; blue[2] = blue[1]; blue[1] = tmp;
-		}
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
-			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
-		}
-        if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
-        	drawBottomTriangle(triangle, cameraFrustum, shader);
-        } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-        	drawTopTriangle(triangle, cameraFrustum, shader);
-        } else {
-            int x = location1[VECTOR_X];
-            int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
-            int multiplier = location3[VECTOR_X] - location1[VECTOR_X];
-            x += mathLibrary.multiply(dy, multiplier);
-            int y = location2[VECTOR_Y];
-            int z = location1[VECTOR_Z];
-            multiplier = location3[VECTOR_Z] - location1[VECTOR_Z];
-            z += mathLibrary.multiply(dy, multiplier);
-            int r = red[0];
-            multiplier = red[2] - red[0];
-            r += mathLibrary.multiply(dy, multiplier);
-            int g = green[0];
-            multiplier = green[2] - green[0];
-            g += mathLibrary.multiply(dy, multiplier);
-            int b = blue[0];
-            multiplier = blue[2] - blue[0];
-            b += mathLibrary.multiply(dy, multiplier);
-            vectorCache[VECTOR_X] = x;
-            vectorCache[VECTOR_Y] = y;
-            vectorCache[VECTOR_Z] = z;
-            vectorLibrary.swap(vectorCache, location3);
-            tmp = red[2]; red[2] = r; r = tmp;
-            tmp = green[2]; green[2] = g; g = tmp;
-            tmp = blue[2]; blue[2] = b; b = tmp;
-            drawBottomTriangle(triangle, cameraFrustum, shader);
-            vectorLibrary.swap(vectorCache, location3);
-            vectorLibrary.swap(location1, location2);
-            vectorLibrary.swap(location2, vectorCache);
-            tmp = red[2]; red[2] = r; r = tmp;
-            tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-            tmp = red[1]; red[1] = r; r = tmp;
-            tmp = green[2]; green[2] = g; g = tmp;
-            tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-            tmp = green[1]; green[1] = g; g = tmp;
-            tmp = blue[2]; blue[2] = b; b = tmp;
-            tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
-            tmp = blue[1]; blue[1] = b; b = tmp;
-            drawTopTriangle(triangle, cameraFrustum, shader);
-        }
-	}
-	
-	private void drawBottomTriangle(GouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
-		int[] red = triangle.getRed();
-		int[] green = triangle.getGreen();
-		int[] blue = triangle.getBlue();
-		int xShifted = location1[VECTOR_X] << FP_BITS;
-		int y2y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		y2y1 = y2y1 == 0 ? 1 : y2y1;
-		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y2y1);
-        int dx2 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-        int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y2y1);
-        int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-        int dr1 = mathLibrary.divide(red[1] - red[0], y2y1);
-        int dr2 = mathLibrary.divide(red[2] - red[0], y3y1);
-        int dg1 = mathLibrary.divide(green[1] - green[0], y2y1);
-        int dg2 = mathLibrary.divide(green[2] - green[0], y3y1);
-        int db1 = mathLibrary.divide(blue[1] - blue[0], y2y1);
-        int db2 = mathLibrary.divide(blue[2] - blue[0], y3y1);
-        if(dx1 < dx2) {
-        	int dxdx = dx2 - dx1;
-        	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = mathLibrary.divide(dz2 - dz1, dxdx);
-        	int dr = mathLibrary.divide(dr2 - dr1, dxdx);
-        	int dg = mathLibrary.divide(dg2 - dg1, dxdx);
-        	int db = mathLibrary.divide(db2 - db1, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
-            int r = red[0] << FP_BITS;
-            int g = green[0] << FP_BITS;
-            int b = blue[0] << FP_BITS;
-	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
-	            x1 += dx1;
-	            x2 += dx2;
-	            z += dz1;
-	            r += dr1;
-	            g += dg1;
-	            b += db1;
-	        }
-        } else {
-        	int dxdx = dx1 - dx2;
-        	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = mathLibrary.divide(dz1 - dz2, dxdx);
-        	int dr = mathLibrary.divide(dr1 - dr2, dxdx);
-        	int dg = mathLibrary.divide(dg1 - dg2, dxdx);
-        	int db = mathLibrary.divide(db1 - db2, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
-            int r = red[0] << FP_BITS;
-            int g = green[0] << FP_BITS;
-            int b = blue[0] << FP_BITS;
-        	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-        		drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
-	            x1 += dx2;
-	            x2 += dx1;
-	            z += dz2;
-	            r += dr2;
-	            g += dg2;
-	            b += db2;
-	        }
-        }
-    }
-    
-	private void drawTopTriangle(GouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
-		int[] red = triangle.getRed();
-		int[] green = triangle.getGreen();
-		int[] blue = triangle.getBlue();
-		int xShifted = location3[VECTOR_X] << FP_BITS;
-		int y3y1 = location3[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y2 = location3[VECTOR_Y] - location2[VECTOR_Y];
-		y3y1 = y3y1 == 0 ? 1 : y3y1;
-		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-		int dx2 = mathLibrary.divide(location3[VECTOR_X] - location2[VECTOR_X], y3y2);
-		int dz1 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-		int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location2[VECTOR_Z], y3y2);
-		int dr1 = mathLibrary.divide(red[2] - red[0], y3y1);
-		int dr2 = mathLibrary.divide(red[2] - red[1], y3y2);
-		int dg1 = mathLibrary.divide(green[2] - green[0], y3y1);
-		int dg2 = mathLibrary.divide(green[2] - green[1], y3y2);
-		int db1 = mathLibrary.divide(blue[2] - blue[0], y3y1);
-		int db2 = mathLibrary.divide(blue[2] - blue[1], y3y2);
-		if (dx1 > dx2) {
-			int dxdx = dx1 - dx2;
-			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = mathLibrary.divide(dz1 - dz2, dxdx);
-			int dr = mathLibrary.divide(dr1 - dr2, dxdx);
-			int dg = mathLibrary.divide(dg1 - dg2, dxdx);
-			int db = mathLibrary.divide(db1 - db2, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
-			int r = red[2] << FP_BITS;
-			int g = green[2] << FP_BITS;
-			int b = blue[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
-	            x1 -= dx1;
-	            x2 -= dx2;
-	            z -= dz1;
-	            r -= dr1;
-	            g -= dg1;
-	            b -= db1;
-	        }
-		} else {
-			int dxdx = dx2 - dx1;
-			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = mathLibrary.divide(dz2 - dz1, dxdx);
-			int dr = mathLibrary.divide(dr2 - dr1, dxdx);
-			int dg = mathLibrary.divide(dg2 - dg1, dxdx);
-			int db = mathLibrary.divide(db2 - db1, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
-			int r = red[2] << FP_BITS;
-			int g = green[2] << FP_BITS;
-			int b = blue[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
-	            x1 -= dx2;
-	            x2 -= dx1;
-	            z -= dz2;
-	            r -= dr2;
-	            g -= dg2;
-	            b -= db2;
-	        }
-		}
-    }
-	
-	private void drawScanline(int x1, int x2, int y, int z, int r, int g, int b, int dz, int dr, int dg, int db, GouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
-		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
-		x1 >>= FP_BITS;
-		x2 >>= FP_BITS;
-		for (; x1 <= x2; x1++) {
-			if (yInside & (x1 > cameraFrustum[Camera.FRUSTUM_LEFT] + 1) & (x1 < cameraFrustum[Camera.FRUSTUM_RIGHT] - 1)) {
-				pixelCache[VECTOR_X] = x1;
-				pixelCache[VECTOR_Y] = y;
-				pixelCache[VECTOR_Z] = z >> FP_BITS;
-				pixelCache[VECTOR_Z] = PERSPECTIVE_ONE / pixelCache[VECTOR_Z];
-				triangle.getRed()[3] = multiply(r, pixelCache[VECTOR_Z]);
-				triangle.getGreen()[3] = multiply(g, pixelCache[VECTOR_Z]);
-				triangle.getBlue()[3] = multiply(b, pixelCache[VECTOR_Z]);
-				shader.fragment(pixelCache);
-			}
-			z += dz;
-			r += dr;
-			g += dg;
-			b += db;
-		}
-	}
-
-	public void drawTriangle(TexturedGouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
-		int[] uvX = triangle.getU();
-		int[] uvY = triangle.getV();
-		int[] red = triangle.getRed();
-		int[] green = triangle.getGreen();
-		int[] blue = triangle.getBlue();
-		int triangleSize = shoelace(location1, location2, location3);
-		if (triangleSize > 0) // backface culling
-			return;
-		int left = cameraFrustum[Camera.FRUSTUM_LEFT] + 1;
-		int right = cameraFrustum[Camera.FRUSTUM_RIGHT] - 1;
-		int top = cameraFrustum[Camera.FRUSTUM_TOP] + 1;
-		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1;
-		int near = cameraFrustum[Camera.FRUSTUM_NEAR];
-		int far = (cameraFrustum[Camera.FRUSTUM_FAR] / 10);
-		boolean insideWidth1 = (location1[VECTOR_X] > left) & (location1[VECTOR_X] < right);
-		boolean insideWidth2 = (location2[VECTOR_X] > left) & (location2[VECTOR_X] < right);
-		boolean insideWidth3 = (location3[VECTOR_X] > left) & (location3[VECTOR_X] < right);
-		boolean insideHeight1 = (location1[VECTOR_Y] > top) & (location1[VECTOR_Y] < bottom);
-		boolean insideHeight2 = (location2[VECTOR_Y] > top) & (location2[VECTOR_Y] < bottom);
-		boolean insideHeight3 = (location3[VECTOR_Y] > top) & (location3[VECTOR_Y] < bottom);
-		boolean insideDepth1 = (location1[VECTOR_Z] > near) & (location1[VECTOR_Z] < far);
-		boolean insideDepth2 = (location2[VECTOR_Z] > near) & (location2[VECTOR_Z] < far);
-		boolean insideDepth3 = (location3[VECTOR_Z] > near) & (location3[VECTOR_Z] < far);
-		if ((!insideDepth1 | !insideDepth2 | !insideDepth3) 
-				| (!insideHeight1 & !insideHeight2 & !insideHeight3)
-					| (!insideWidth1 & !insideWidth2 & !insideWidth3))
-					return;
-		location1[VECTOR_Z] = PERSPECTIVE_ONE / location1[VECTOR_Z];
-		location2[VECTOR_Z] = PERSPECTIVE_ONE / location2[VECTOR_Z];
-		location3[VECTOR_Z] = PERSPECTIVE_ONE / location3[VECTOR_Z];
-		uvX[0] = mathLibrary.multiply(uvX[0], location1[VECTOR_Z]);
-		uvX[1] = mathLibrary.multiply(uvX[1], location2[VECTOR_Z]);
-		uvX[2] = mathLibrary.multiply(uvX[2], location3[VECTOR_Z]);
-		uvY[0] = mathLibrary.multiply(uvY[0], location1[VECTOR_Z]);
-		uvY[1] = mathLibrary.multiply(uvY[1], location2[VECTOR_Z]);
-		uvY[2] = mathLibrary.multiply(uvY[2], location3[VECTOR_Z]);
-		red[0] = mathLibrary.multiply(red[0], location1[VECTOR_Z]);
-		red[1] = mathLibrary.multiply(red[1], location2[VECTOR_Z]);
-		red[2] = mathLibrary.multiply(red[2], location3[VECTOR_Z]);
-		green[0] = mathLibrary.multiply(green[0], location1[VECTOR_Z]);
-		green[1] = mathLibrary.multiply(green[1], location2[VECTOR_Z]);
-		green[2] = mathLibrary.multiply(green[2], location3[VECTOR_Z]);
-		blue[0] = mathLibrary.multiply(blue[0], location1[VECTOR_Z]);
-		blue[1] = mathLibrary.multiply(blue[1], location2[VECTOR_Z]);
-		blue[2] = mathLibrary.multiply(blue[2], location3[VECTOR_Z]);
-		int tmp = 0;
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
-			tmp = uvX[0]; uvX[0] = uvX[1]; uvX[1] = tmp;
-			tmp = uvY[0]; uvY[0] = uvY[1]; uvY[1] = tmp;
-			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
-		}
-		if (location2[VECTOR_Y] > location3[VECTOR_Y]) {
-			vectorLibrary.swap(location2, location3);
-			tmp = uvX[2]; uvX[2] = uvX[1]; uvX[1] = tmp;
-			tmp = uvY[2]; uvY[2] = uvY[1]; uvY[1] = tmp;
-			tmp = red[2]; red[2] = red[1]; red[1] = tmp;
-			tmp = green[2]; green[2] = green[1]; green[1] = tmp;
-			tmp = blue[2]; blue[2] = blue[1]; blue[1] = tmp;
-		}
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
-			tmp = uvX[0]; uvX[0] = uvX[1]; uvX[1] = tmp;
-			tmp = uvY[0]; uvY[0] = uvY[1]; uvY[1] = tmp;
-			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
-		}
-        if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
-            drawBottomTriangle(triangle, cameraFrustum, shader);
-        } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-            drawTopTriangle(triangle, cameraFrustum, shader);
-        } else {
-            int x = location1[VECTOR_X];
-            int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
-            int multiplier = location3[VECTOR_X] - location1[VECTOR_X];
-            x += mathLibrary.multiply(dy, multiplier);
-            int y = location2[VECTOR_Y];
-            int z = location1[VECTOR_Z];
-            multiplier = location3[VECTOR_Z] - location1[VECTOR_Z];
-            z += mathLibrary.multiply(dy, multiplier);
-            int uvx = uvX[0];
-            multiplier = uvX[2] - uvX[0];
-            uvx += mathLibrary.multiply(dy, multiplier);
-            int uvy = uvY[0];
-            multiplier = uvY[2] - uvY[0];
-            uvy += mathLibrary.multiply(dy, multiplier);
-            int r = red[0];
-            multiplier = red[2] - red[0];
-            r += mathLibrary.multiply(dy, multiplier);
-            int g = green[0];
-            multiplier = green[2] - green[0];
-            g += mathLibrary.multiply(dy, multiplier);
-            int b = blue[0];
-            multiplier = blue[2] - blue[0];
-            b += mathLibrary.multiply(dy, multiplier);
-            vectorCache[VECTOR_X] = x;
-            vectorCache[VECTOR_Y] = y;
-            vectorCache[VECTOR_Z] = z;
-            vectorLibrary.swap(vectorCache, location3);
-            tmp = uvX[2]; uvX[2] = uvx; uvx = tmp;
-            tmp = uvY[2]; uvY[2] = uvy; uvy = tmp;
-            tmp = red[2]; red[2] = r; r = tmp;
-            tmp = green[2]; green[2] = g; g = tmp;
-            tmp = blue[2]; blue[2] = b; b = tmp;
-            drawBottomTriangle(triangle, cameraFrustum, shader);
-            vectorLibrary.swap(vectorCache, location3);
-            vectorLibrary.swap(location1, location2);
-            vectorLibrary.swap(location2, vectorCache);
-            tmp = uvX[2]; uvX[2] = uvx; uvx = tmp;
-            tmp = uvX[0]; uvX[0] = uvX[1]; uvX[1] = tmp;
-            tmp = uvX[1]; uvX[1] = uvx; uvx = tmp;
-            tmp = uvY[2]; uvY[2] = uvy; uvy = tmp;
-            tmp = uvY[0]; uvY[0] = uvY[1]; uvY[1] = tmp;
-            tmp = uvY[1]; uvY[1] = uvy; uvy = tmp;
-            tmp = red[2]; red[2] = r; r = tmp;
-            tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-            tmp = red[1]; red[1] = r; r = tmp;
-            tmp = green[2]; green[2] = g; g = tmp;
-            tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-            tmp = green[1]; green[1] = g; g = tmp;
-            tmp = blue[2]; blue[2] = b; b = tmp;
-            tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
-            tmp = blue[1]; blue[1] = b; b = tmp;
-            drawTopTriangle(triangle, cameraFrustum, shader);
-        }
-	}
-	
-	private void drawBottomTriangle(TexturedGouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
-		int[] uvX = triangle.getU();
-		int[] uvY = triangle.getV();
-		int[] red = triangle.getRed();
-		int[] green = triangle.getGreen();
-		int[] blue = triangle.getBlue();
-		int xShifted = location1[VECTOR_X] << FP_BITS;
-		int y2y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		y2y1 = y2y1 == 0 ? 1 : y2y1;
-		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y2y1);
-        int dx2 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-        int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y2y1);
-        int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-        int du1 = mathLibrary.divide(uvX[1] - uvX[0], y2y1);
-        int du2 = mathLibrary.divide(uvX[2] - uvX[0], y3y1);
-        int dv1 = mathLibrary.divide(uvY[1] - uvY[0], y2y1);
-        int dv2 = mathLibrary.divide(uvY[2] - uvY[0], y3y1);
-        int dr1 = mathLibrary.divide(red[1] - red[0], y2y1);
-        int dr2 = mathLibrary.divide(red[2] - red[0], y3y1);
-        int dg1 = mathLibrary.divide(green[1] - green[0], y2y1);
-        int dg2 = mathLibrary.divide(green[2] - green[0], y3y1);
-        int db1 = mathLibrary.divide(blue[1] - blue[0], y2y1);
-        int db2 = mathLibrary.divide(blue[2] - blue[0], y3y1);
-        if(dx1 < dx2) {
-        	int dxdx = dx2 - dx1;
-        	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = mathLibrary.divide(dz2 - dz1, dxdx);
-        	int du = mathLibrary.divide(du2 - du1, dxdx);
-        	int dv = mathLibrary.divide(dv2 - dv1, dxdx);
-        	int dr = mathLibrary.divide(dr2 - dr1, dxdx);
-        	int dg = mathLibrary.divide(dg2 - dg1, dxdx);
-        	int db = mathLibrary.divide(db2 - db1, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
-            int u = uvX[0] << FP_BITS;
-            int v = uvY[0] << FP_BITS;
-            int r = red[0] << FP_BITS;
-            int g = green[0] << FP_BITS;
-            int b = blue[0] << FP_BITS;
-	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
-	            x1 += dx1;
-	            x2 += dx2;
-	            z += dz1;
-	            u += du1;
-	            v += dv1;
-	            r += dr1;
-	            g += dg1;
-	            b += db1;
-	        }
-        } else {
-        	int dxdx = dx1 - dx2;
-        	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = mathLibrary.divide(dz1 - dz2, dxdx);
-        	int du = mathLibrary.divide(du1 - du2, dxdx);
-        	int dv = mathLibrary.divide(dv1 - dv2, dxdx);
-        	int dr = mathLibrary.divide(dr1 - dr2, dxdx);
-        	int dg = mathLibrary.divide(dg1 - dg2, dxdx);
-        	int db = mathLibrary.divide(db1 - db2, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
-            int u = uvX[0] << FP_BITS;
-            int v = uvY[0] << FP_BITS;
-            int r = red[0] << FP_BITS;
-            int g = green[0] << FP_BITS;
-            int b = blue[0] << FP_BITS;
-        	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-        		drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
-	            x1 += dx2;
-	            x2 += dx1;
-	            z += dz2;
-	            u += du2;
-	            v += dv2;
-	            r += dr2;
-	            g += dg2;
-	            b += db2;
-	        }
-        }
-    }
-    
-	private void drawTopTriangle(TexturedGouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
-		int[] location1 = triangle.getLocation1();
-		int[] location2 = triangle.getLocation2();
-		int[] location3 = triangle.getLocation3();
-		int[] uvX = triangle.getU();
-		int[] uvY = triangle.getV();
-		int[] red = triangle.getRed();
-		int[] green = triangle.getGreen();
-		int[] blue = triangle.getBlue();
-		int xShifted = location3[VECTOR_X] << FP_BITS;
-		int y3y1 = location3[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y2 = location3[VECTOR_Y] - location2[VECTOR_Y];
-		y3y1 = y3y1 == 0 ? 1 : y3y1;
-		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-		int dx2 = mathLibrary.divide(location3[VECTOR_X] - location2[VECTOR_X], y3y2);
-		int dz1 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-		int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location2[VECTOR_Z], y3y2);
-		int du1 = mathLibrary.divide(uvX[2] - uvX[0], y3y1);
-		int du2 = mathLibrary.divide(uvX[2] - uvX[1], y3y2);
-		int dv1 = mathLibrary.divide(uvY[2] - uvY[0], y3y1);
-		int dv2 = mathLibrary.divide(uvY[2] - uvY[1], y3y2);
-		int dr1 = mathLibrary.divide(red[2] - red[0], y3y1);
-		int dr2 = mathLibrary.divide(red[2] - red[1], y3y2);
-		int dg1 = mathLibrary.divide(green[2] - green[0], y3y1);
-		int dg2 = mathLibrary.divide(green[2] - green[1], y3y2);
-		int db1 = mathLibrary.divide(blue[2] - blue[0], y3y1);
-		int db2 = mathLibrary.divide(blue[2] - blue[1], y3y2);
-		if (dx1 > dx2) {
-			int dxdx = dx1 - dx2;
-			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = mathLibrary.divide(dz1 - dz2, dxdx);
-			int du = mathLibrary.divide(du1 - du2, dxdx);
-			int dv = mathLibrary.divide(dv1 - dv2, dxdx);
-			int dr = mathLibrary.divide(dr1 - dr2, dxdx);
-			int dg = mathLibrary.divide(dg1 - dg2, dxdx);
-			int db = mathLibrary.divide(db1 - db2, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
-			int u = uvX[2] << FP_BITS;
-			int v = uvY[2] << FP_BITS;
-			int r = red[2] << FP_BITS;
-			int g = green[2] << FP_BITS;
-			int b = blue[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
-	            x1 -= dx1;
-	            x2 -= dx2;
-	            z -= dz1;
-	            u -= du1;
-	            v -= dv1;
-	            r -= dr1;
-	            g -= dg1;
-	            b -= db1;
-	        }
-		} else {
-			int dxdx = dx2 - dx1;
-			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = mathLibrary.divide(dz2 - dz1, dxdx);
-			int du = mathLibrary.divide(du2 - du1, dxdx);
-			int dv = mathLibrary.divide(dv2 - dv1, dxdx);
-			int dr = mathLibrary.divide(dr2 - dr1, dxdx);
-			int dg = mathLibrary.divide(dg2 - dg1, dxdx);
-			int db = mathLibrary.divide(db2 - db1, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
-			int u = uvX[2] << FP_BITS;
-			int v = uvY[2] << FP_BITS;
-			int r = red[2] << FP_BITS;
-			int g = green[2] << FP_BITS;
-			int b = blue[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
-	            x1 -= dx2;
-	            x2 -= dx1;
-	            z -= dz2;
-	            u -= du2;
-	            v -= dv2;
-	            r -= dr2;
-	            g -= dg2;
-	            b -= db2;
-	        }
-		}
-    }
-	
-	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int r, int g, int b, int dz, int du, int dv, int dr, int dg, int db, TexturedGouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
-		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
-		x1 >>= FP_BITS;
-		x2 >>= FP_BITS;
-		for (; x1 <= x2; x1++) {
-			if (yInside & (x1 > cameraFrustum[Camera.FRUSTUM_LEFT] + 1) & (x1 < cameraFrustum[Camera.FRUSTUM_RIGHT] - 1)) {
-				pixelCache[VECTOR_X] = x1;
-				pixelCache[VECTOR_Y] = y;
-				pixelCache[VECTOR_Z] = z >> FP_BITS;
-				pixelCache[VECTOR_Z] = PERSPECTIVE_ONE / pixelCache[VECTOR_Z];
-				triangle.getU()[3] = multiply(u, pixelCache[VECTOR_Z]);
-				triangle.getV()[3] = multiply(v, pixelCache[VECTOR_Z]);
-				triangle.getRed()[3] = multiply(r, pixelCache[VECTOR_Z]);
-				triangle.getGreen()[3] = multiply(g, pixelCache[VECTOR_Z]);
-				triangle.getBlue()[3] = multiply(b, pixelCache[VECTOR_Z]);
-				shader.fragment(pixelCache);
-			}
-			z += dz;
-			u += du;
-			v += dv;
-			r += dr;
-			g += dg;
-			b += db;
-		}
-	}
-	
-	private int multiply(int value1, int value2) {
-		long a = value1;
-		long b = value2;
-		long result = a * b + PERSPECTIVE_HALF;
-		return (int) (result >> PERSPECTIVE_BITS);
-	}
-	
-	private int shoelace(int[] vector1, int[] vector2, int[] vector3) {
+	private final int shoelace(int[] vector1, int[] vector2, int[] vector3) {
 		return (vector2[VECTOR_X] - vector1[VECTOR_X]) * (vector3[VECTOR_Y] - vector1[VECTOR_Y])
 				- (vector3[VECTOR_X] - vector1[VECTOR_X]) * (vector2[VECTOR_Y] - vector1[VECTOR_Y]);
+	}
+	
+	private void copyUVs(AffineFlatTriangle triangle, Face face, Texture texture) {
+		if (texture != null) {
+			int width = texture.getWidth() - 1;
+			int height = texture.getHeight() - 1;
+			triangle.getU()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_X], width);
+			triangle.getU()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_X], width);
+			triangle.getU()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_X], width);
+			triangle.getV()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_Y], height);
+			triangle.getV()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
+			triangle.getV()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
+		}
+	}
+	
+	private void copyUVs(AffineGouraudTriangle triangle, Face face, Texture texture) {
+		if (texture != null) {
+			int width = texture.getWidth() - 1;
+			int height = texture.getHeight() - 1;
+			triangle.getU()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_X], width);
+			triangle.getU()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_X], width);
+			triangle.getU()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_X], width);
+			triangle.getV()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_Y], height);
+			triangle.getV()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
+			triangle.getV()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
+		}
+	}
+	
+	private void copyColors(GouraudTriangle triangle, int[] colors) {
+		triangle.getRed()[0] = colorLibrary.getRed(colors[0]);
+		triangle.getGreen()[0] = colorLibrary.getGreen(colors[0]);
+		triangle.getBlue()[0] = colorLibrary.getBlue(colors[0]);
+		triangle.getRed()[1] = colorLibrary.getRed(colors[1]);
+		triangle.getGreen()[1] = colorLibrary.getGreen(colors[1]);
+		triangle.getBlue()[1] = colorLibrary.getBlue(colors[1]);
+		triangle.getRed()[2] = colorLibrary.getRed(colors[2]);
+		triangle.getGreen()[2] = colorLibrary.getGreen(colors[2]);
+		triangle.getBlue()[2] = colorLibrary.getBlue(colors[2]);
+	}
+	
+	private void copyLocations(FlatTriangle triangle, Face face) {
+		vectorLibrary.copy(triangle.getLocation1(), face.getVertex(0).getLocation());
+		vectorLibrary.copy(triangle.getLocation2(), face.getVertex(1).getLocation());
+		vectorLibrary.copy(triangle.getLocation3(), face.getVertex(2).getLocation());
 	}
 }
