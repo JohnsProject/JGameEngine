@@ -152,4 +152,11 @@ public class DirectionalLightShadowShader implements Shader {
 			shadowMap.setPixel(x, y, z + SHADOW_BIAS);
 		}
 	}
+
+	public void close() {
+		shaderData.setDirectionalLightIndex(-1);
+		shaderData.setDirectionalLightFrustum(null);
+		shaderData.setDirectionalLightMatrix(null);
+		shaderData.setDirectionalShadowMap(null);
+	}
 }

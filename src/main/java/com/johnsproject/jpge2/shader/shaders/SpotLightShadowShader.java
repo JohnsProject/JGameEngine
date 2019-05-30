@@ -151,5 +151,12 @@ public class SpotLightShadowShader implements Shader {
 		if (shadowMap.getPixel(x, y) > z) {
 			shadowMap.setPixel(x, y, z + SHADOW_BIAS);
 		}
+	}
+
+	public void close() {
+		shaderData.setSpotLightIndex(-1);
+		shaderData.setSpotLightFrustum(null);
+		shaderData.setSpotLightMatrix(null);
+		shaderData.setSpotShadowMap(null);
 	}	
 }

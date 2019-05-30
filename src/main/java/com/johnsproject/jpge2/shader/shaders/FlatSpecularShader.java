@@ -284,4 +284,8 @@ public class FlatSpecularShader implements Shader {
 		int depth = shadowMap.getPixel(x, y);
 		return depth < lightSpaceLocation[VECTOR_Z];
 	}
+
+	public void close() {
+		
+	}
 }

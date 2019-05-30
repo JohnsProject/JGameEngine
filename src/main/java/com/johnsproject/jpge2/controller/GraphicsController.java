@@ -194,18 +194,21 @@ public class GraphicsController implements EngineListener {
 	
 	public void removePreprocessingShader(Shader shader) {
 		preShadersCount--;
+		shader.close();
 		shaders.remove(shader);
 		sortShaders(0);
 	}
 	
 	public void removeShader(Shader shader) {
 		shadersCount--;
+		shader.close();
 		shaders.remove(shader);
 		sortShaders(1);
 	}
 	
 	public void removePostprocessingShader(Shader shader) {
 		postShadersCount--;
+		shader.close();
 		shaders.remove(shader);
 		sortShaders(2);
 	}

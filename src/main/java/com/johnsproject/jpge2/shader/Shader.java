@@ -15,4 +15,7 @@ public interface Shader {
 	public void geometry(Face face);
 
 	public void fragment(int[] location);
+	
+	public void close();
+	
 }
