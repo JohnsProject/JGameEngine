@@ -7,7 +7,6 @@ import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.Texture;
-import com.johnsproject.jpge2.dto.Triangle;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.library.ColorLibrary;
 import com.johnsproject.jpge2.library.GraphicsLibrary;
@@ -18,9 +17,16 @@ import com.johnsproject.jpge2.shader.Shader;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 import com.johnsproject.jpge2.shader.ShaderProperties;
+import com.johnsproject.jpge2.shader.TexturedGouraudTriangle;
 
 public class GouraudSpecularShader implements Shader {
 
+	private static final int INITIAL_ATTENUATION = MathLibrary.FP_ONE;
+	private static final int LINEAR_ATTENUATION = (MathLibrary.FP_ONE * 14) / 10;
+	private static final int QUADRATIC_ATTENUATION = (MathLibrary.FP_ONE * 7) / 10;
+	
+	private static final int LIGHT_RANGE = MathLibrary.FP_ONE * 1000;
+	
 	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
 	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
 	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
@@ -46,7 +52,7 @@ public class GouraudSpecularShader implements Shader {
 	private final int[] directionalLocation;	
 	private final int[] spotLocation;
 	
-	private final Triangle triangle;
+	private final TexturedGouraudTriangle triangle;
 	
 	private int color;
 	private int modelColor;
@@ -64,7 +70,7 @@ public class GouraudSpecularShader implements Shader {
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
 		this.colorLibrary = new ColorLibrary();
-		this.triangle = new Triangle();
+		this.triangle = new TexturedGouraudTriangle();
 
 		this.normalizedNormal = vectorLibrary.generate();
 		this.lightDirection = vectorLibrary.generate();
@@ -83,10 +89,8 @@ public class GouraudSpecularShader implements Shader {
 		this.shaderData = (ForwardDataBuffer)shaderDataBuffer;
 		this.lights = shaderData.getLights();
 		this.frameBuffer = shaderData.getFrameBuffer();
-		if (!shaderData.isSkyboxActive()) {
-			frameBuffer.getColorBuffer().fill(0);
-			frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
-		}
+		frameBuffer.getColorBuffer().fill(0);
+		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
 	}
 
 	public void setup(Camera camera) {
@@ -132,13 +136,13 @@ public class GouraudSpecularShader implements Shader {
 			int[] lightPosition = light.getTransform().getLocation();
 			switch (light.getType()) {
 			case DIRECTIONAL:
-				if (vectorLibrary.distance(cameraLocation, lightPosition) > shaderData.getLightRange())
+				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
 					continue;
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
 				break;
 			case POINT:
-				if (vectorLibrary.distance(cameraLocation, lightPosition) > shaderData.getLightRange())
+				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
 					continue;
 				vectorLibrary.subtract(lightPosition, location, lightLocation);
 				// attenuation
@@ -149,7 +153,7 @@ public class GouraudSpecularShader implements Shader {
 				currentFactor = mathLibrary.divide(currentFactor, attenuation);
 				break;
 			case SPOT:				
-				if (vectorLibrary.distance(cameraLocation, lightPosition) > shaderData.getLightRange())
+				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
 					continue;
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				vectorLibrary.subtract(lightPosition, location, lightLocation);
@@ -208,7 +212,7 @@ public class GouraudSpecularShader implements Shader {
 		vectorLibrary.copy(triangle.getLocation1(), face.getVertex(0).getLocation());
 		vectorLibrary.copy(triangle.getLocation2(), face.getVertex(1).getLocation());
 		vectorLibrary.copy(triangle.getLocation3(), face.getVertex(2).getLocation());
-		graphicsLibrary.drawTexturedGouraudTriangle(triangle, portedFrustum, this);
+		graphicsLibrary.drawTriangle(triangle, portedFrustum, this);
 	}
 
 	public void fragment(int[] location) {
@@ -248,9 +252,9 @@ public class GouraudSpecularShader implements Shader {
 	private int getAttenuation(int[] lightLocation) {
 		// attenuation
 		int distance = vectorLibrary.magnitude(lightLocation);
-		int attenuation = shaderData.getConstantAttenuation();
-		attenuation += mathLibrary.multiply(distance, shaderData.getLinearAttenuation());
-		attenuation += mathLibrary.multiply(mathLibrary.multiply(distance, distance), shaderData.getQuadraticAttenuation());
+		int attenuation = INITIAL_ATTENUATION;
+		attenuation += mathLibrary.multiply(distance, LINEAR_ATTENUATION);
+		attenuation += mathLibrary.multiply(mathLibrary.multiply(distance, distance), QUADRATIC_ATTENUATION);
 		return (attenuation >> FP_BITS) + 1;
 	}
 	

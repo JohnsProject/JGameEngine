@@ -2,8 +2,11 @@ package com.johnsproject.jpge2.library;
 
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Transform;
-import com.johnsproject.jpge2.dto.Triangle;
+import com.johnsproject.jpge2.shader.FlatTriangle;
+import com.johnsproject.jpge2.shader.GouraudTriangle;
 import com.johnsproject.jpge2.shader.Shader;
+import com.johnsproject.jpge2.shader.TexturedFlatTriangle;
+import com.johnsproject.jpge2.shader.TexturedGouraudTriangle;
 
 public class GraphicsLibrary {
 	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
@@ -111,7 +114,7 @@ public class GraphicsLibrary {
 		return result;
 	}
 	
-	public void drawFlatTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	public void drawTriangle(FlatTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -147,9 +150,9 @@ public class GraphicsLibrary {
 			vectorLibrary.swap(location1, location2);
 		}
         if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
-        	drawFlatBottomTriangle(triangle, cameraFrustum, shader);
+        	drawBottomTriangle(triangle, cameraFrustum, shader);
         } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-        	drawFlatTopTriangle(triangle, cameraFrustum, shader);
+        	drawTopTriangle(triangle, cameraFrustum, shader);
         } else {
             int x = location1[VECTOR_X];
             int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
@@ -163,15 +166,15 @@ public class GraphicsLibrary {
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
             vectorLibrary.swap(vectorCache, location3);
-            drawFlatBottomTriangle(triangle, cameraFrustum, shader);
+            drawBottomTriangle(triangle, cameraFrustum, shader);
             vectorLibrary.swap(vectorCache, location3);
             vectorLibrary.swap(location1, location2);
             vectorLibrary.swap(location2, vectorCache);
-            drawFlatTopTriangle(triangle, cameraFrustum, shader);
+            drawTopTriangle(triangle, cameraFrustum, shader);
         }
 	}
 	
-	private void drawFlatBottomTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawBottomTriangle(FlatTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -192,7 +195,7 @@ public class GraphicsLibrary {
             int x2 = xShifted;
             int z = location1[VECTOR_Z] << FP_BITS;
 	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-	        	drawFlatScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
 	            x1 += dx1;
 	            x2 += dx2;
 	            z += dz1;
@@ -205,7 +208,7 @@ public class GraphicsLibrary {
             int x2 = xShifted;
             int z = location1[VECTOR_Z] << FP_BITS;
         	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-        		drawFlatScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
+        		drawScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
@@ -213,7 +216,7 @@ public class GraphicsLibrary {
         }
     }
     
-	private void drawFlatTopTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawTopTriangle(FlatTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -234,7 +237,7 @@ public class GraphicsLibrary {
 			int x2 = xShifted;
 			int z = location3[VECTOR_Z] << FP_BITS;
 	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawFlatScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
 	            x1 -= dx1;
 	            x2 -= dx2;
 	            z -= dz1;
@@ -247,7 +250,7 @@ public class GraphicsLibrary {
 			int x2 = xShifted;
 			int z = location3[VECTOR_Z] << FP_BITS;
 	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawFlatScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, dz, triangle, cameraFrustum, shader);
 	            x1 -= dx2;
 	            x2 -= dx1;
 	            z -= dz2;
@@ -255,7 +258,7 @@ public class GraphicsLibrary {
 		}
     }
 	
-	private void drawFlatScanline(int x1, int x2, int y, int z, int dz, Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawScanline(int x1, int x2, int y, int z, int dz, FlatTriangle triangle, int[] cameraFrustum, Shader shader) {
 		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
 		x1 >>= FP_BITS;
 		x2 >>= FP_BITS;
@@ -270,7 +273,7 @@ public class GraphicsLibrary {
 		}
 	}
 	
-	public void drawTexturedFlatTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	public void drawTriangle(TexturedFlatTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -324,9 +327,9 @@ public class GraphicsLibrary {
 			tmp = uvY[0]; uvY[0] = uvY[1]; uvY[1] = tmp;
 		}
         if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
-        	drawTexturedFlatBottomTriangle(triangle, cameraFrustum, shader);
+        	drawBottomTriangle(triangle, cameraFrustum, shader);
         } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-            drawTexturedFlatTopTriangle(triangle, cameraFrustum, shader);
+            drawTopTriangle(triangle, cameraFrustum, shader);
         } else {
             int x = location1[VECTOR_X];
             int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
@@ -348,7 +351,7 @@ public class GraphicsLibrary {
             vectorLibrary.swap(vectorCache, location3);
             tmp = uvX[2]; uvX[2] = uvx; uvx = tmp;
             tmp = uvY[2]; uvY[2] = uvy; uvy = tmp;
-            drawTexturedFlatBottomTriangle(triangle, cameraFrustum, shader);
+            drawBottomTriangle(triangle, cameraFrustum, shader);
             vectorLibrary.swap(vectorCache, location3);
             vectorLibrary.swap(location1, location2);
             vectorLibrary.swap(location2, vectorCache);
@@ -358,11 +361,11 @@ public class GraphicsLibrary {
             tmp = uvY[2]; uvY[2] = uvy; uvy = tmp;
             tmp = uvY[0]; uvY[0] = uvY[1]; uvY[1] = tmp;
             tmp = uvY[1]; uvY[1] = uvy; uvy = tmp;
-            drawTexturedFlatTopTriangle(triangle, cameraFrustum, shader);
+            drawTopTriangle(triangle, cameraFrustum, shader);
         }
 	}
 	
-	private void drawTexturedFlatBottomTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawBottomTriangle(TexturedFlatTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -393,7 +396,7 @@ public class GraphicsLibrary {
             int u = uvX[0] << FP_BITS;
             int v = uvY[0] << FP_BITS;
 	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-	        	drawTexturedFlatScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
 	            x1 += dx1;
 	            x2 += dx2;
 	            z += dz1;
@@ -412,7 +415,7 @@ public class GraphicsLibrary {
             int u = uvX[0] << FP_BITS;
             int v = uvY[0] << FP_BITS;
         	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-        		drawTexturedFlatScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
+        		drawScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
@@ -422,7 +425,7 @@ public class GraphicsLibrary {
         }
     }
     
-	private void drawTexturedFlatTopTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawTopTriangle(TexturedFlatTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -453,7 +456,7 @@ public class GraphicsLibrary {
 			int u = uvX[2] << FP_BITS;
 			int v = uvY[2] << FP_BITS;
 	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawTexturedFlatScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
 	            x1 -= dx1;
 	            x2 -= dx2;
 	            z -= dz1;
@@ -472,7 +475,7 @@ public class GraphicsLibrary {
 			int u = uvX[2] << FP_BITS;
 			int v = uvY[2] << FP_BITS;
 	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawTexturedFlatScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, triangle, cameraFrustum, shader);
 	            x1 -= dx2;
 	            x2 -= dx1;
 	            z -= dz2;
@@ -482,7 +485,7 @@ public class GraphicsLibrary {
 		}
     }
 	
-	private void drawTexturedFlatScanline(int x1, int x2, int y, int z, int u, int v, int dz, int du, int dv, Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int dz, int du, int dv, TexturedFlatTriangle triangle, int[] cameraFrustum, Shader shader) {
 		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
 		x1 >>= FP_BITS;
 		x2 >>= FP_BITS;
@@ -502,7 +505,7 @@ public class GraphicsLibrary {
 		}
 	}
 	
-	public void drawGouraudTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	public void drawTriangle(GouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -563,9 +566,9 @@ public class GraphicsLibrary {
 			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
 		}
         if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
-        	drawGouraudBottomTriangle(triangle, cameraFrustum, shader);
+        	drawBottomTriangle(triangle, cameraFrustum, shader);
         } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-        	drawGouraudTopTriangle(triangle, cameraFrustum, shader);
+        	drawTopTriangle(triangle, cameraFrustum, shader);
         } else {
             int x = location1[VECTOR_X];
             int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
@@ -591,7 +594,7 @@ public class GraphicsLibrary {
             tmp = red[2]; red[2] = r; r = tmp;
             tmp = green[2]; green[2] = g; g = tmp;
             tmp = blue[2]; blue[2] = b; b = tmp;
-            drawGouraudBottomTriangle(triangle, cameraFrustum, shader);
+            drawBottomTriangle(triangle, cameraFrustum, shader);
             vectorLibrary.swap(vectorCache, location3);
             vectorLibrary.swap(location1, location2);
             vectorLibrary.swap(location2, vectorCache);
@@ -604,11 +607,11 @@ public class GraphicsLibrary {
             tmp = blue[2]; blue[2] = b; b = tmp;
             tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
             tmp = blue[1]; blue[1] = b; b = tmp;
-            drawGouraudTopTriangle(triangle, cameraFrustum, shader);
+            drawTopTriangle(triangle, cameraFrustum, shader);
         }
 	}
 	
-	private void drawGouraudBottomTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawBottomTriangle(GouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -644,7 +647,7 @@ public class GraphicsLibrary {
             int g = green[0] << FP_BITS;
             int b = blue[0] << FP_BITS;
 	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-	        	drawGouraudScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
 	            x1 += dx1;
 	            x2 += dx2;
 	            z += dz1;
@@ -666,7 +669,7 @@ public class GraphicsLibrary {
             int g = green[0] << FP_BITS;
             int b = blue[0] << FP_BITS;
         	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-        		drawGouraudScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
+        		drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
@@ -677,7 +680,7 @@ public class GraphicsLibrary {
         }
     }
     
-	private void drawGouraudTopTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawTopTriangle(GouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -713,7 +716,7 @@ public class GraphicsLibrary {
 			int g = green[2] << FP_BITS;
 			int b = blue[2] << FP_BITS;
 	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawGouraudScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
 	            x1 -= dx1;
 	            x2 -= dx2;
 	            z -= dz1;
@@ -735,7 +738,7 @@ public class GraphicsLibrary {
 			int g = green[2] << FP_BITS;
 			int b = blue[2] << FP_BITS;
 	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawGouraudScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, triangle, cameraFrustum, shader);
 	            x1 -= dx2;
 	            x2 -= dx1;
 	            z -= dz2;
@@ -746,7 +749,7 @@ public class GraphicsLibrary {
 		}
     }
 	
-	private void drawGouraudScanline(int x1, int x2, int y, int z, int r, int g, int b, int dz, int dr, int dg, int db, Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawScanline(int x1, int x2, int y, int z, int r, int g, int b, int dz, int dr, int dg, int db, GouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
 		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
 		x1 >>= FP_BITS;
 		x2 >>= FP_BITS;
@@ -768,7 +771,7 @@ public class GraphicsLibrary {
 		}
 	}
 
-	public void drawTexturedGouraudTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	public void drawTriangle(TexturedGouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -843,9 +846,9 @@ public class GraphicsLibrary {
 			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
 		}
         if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
-            drawTexturedGouraudBottomTriangle(triangle, cameraFrustum, shader);
+            drawBottomTriangle(triangle, cameraFrustum, shader);
         } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-            drawTexturedGouraudTopTriangle(triangle, cameraFrustum, shader);
+            drawTopTriangle(triangle, cameraFrustum, shader);
         } else {
             int x = location1[VECTOR_X];
             int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
@@ -879,7 +882,7 @@ public class GraphicsLibrary {
             tmp = red[2]; red[2] = r; r = tmp;
             tmp = green[2]; green[2] = g; g = tmp;
             tmp = blue[2]; blue[2] = b; b = tmp;
-            drawTexturedGouraudBottomTriangle(triangle, cameraFrustum, shader);
+            drawBottomTriangle(triangle, cameraFrustum, shader);
             vectorLibrary.swap(vectorCache, location3);
             vectorLibrary.swap(location1, location2);
             vectorLibrary.swap(location2, vectorCache);
@@ -898,11 +901,11 @@ public class GraphicsLibrary {
             tmp = blue[2]; blue[2] = b; b = tmp;
             tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
             tmp = blue[1]; blue[1] = b; b = tmp;
-            drawTexturedGouraudTopTriangle(triangle, cameraFrustum, shader);
+            drawTopTriangle(triangle, cameraFrustum, shader);
         }
 	}
 	
-	private void drawTexturedGouraudBottomTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawBottomTriangle(TexturedGouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -948,7 +951,7 @@ public class GraphicsLibrary {
             int g = green[0] << FP_BITS;
             int b = blue[0] << FP_BITS;
 	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-	        	drawTexturedGouraudScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
 	            x1 += dx1;
 	            x2 += dx2;
 	            z += dz1;
@@ -976,7 +979,7 @@ public class GraphicsLibrary {
             int g = green[0] << FP_BITS;
             int b = blue[0] << FP_BITS;
         	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
-        		drawTexturedGouraudScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
+        		drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
@@ -989,7 +992,7 @@ public class GraphicsLibrary {
         }
     }
     
-	private void drawTexturedGouraudTopTriangle(Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawTopTriangle(TexturedGouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
 		int[] location1 = triangle.getLocation1();
 		int[] location2 = triangle.getLocation2();
 		int[] location3 = triangle.getLocation3();
@@ -1035,7 +1038,7 @@ public class GraphicsLibrary {
 			int g = green[2] << FP_BITS;
 			int b = blue[2] << FP_BITS;
 	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawTexturedGouraudScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
 	            x1 -= dx1;
 	            x2 -= dx2;
 	            z -= dz1;
@@ -1063,7 +1066,7 @@ public class GraphicsLibrary {
 			int g = green[2] << FP_BITS;
 			int b = blue[2] << FP_BITS;
 	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
-	        	drawTexturedGouraudScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
+	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, triangle, cameraFrustum, shader);
 	            x1 -= dx2;
 	            x2 -= dx1;
 	            z -= dz2;
@@ -1076,7 +1079,7 @@ public class GraphicsLibrary {
 		}
     }
 	
-	private void drawTexturedGouraudScanline(int x1, int x2, int y, int z, int u, int v, int r, int g, int b, int dz, int du, int dv, int dr, int dg, int db, Triangle triangle, int[] cameraFrustum, Shader shader) {
+	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int r, int g, int b, int dz, int du, int dv, int dr, int dg, int db, TexturedGouraudTriangle triangle, int[] cameraFrustum, Shader shader) {
 		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
 		x1 >>= FP_BITS;
 		x2 >>= FP_BITS;

@@ -8,18 +8,20 @@ import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.LightType;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
-import com.johnsproject.jpge2.dto.Triangle;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.library.GraphicsLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.MatrixLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
+import com.johnsproject.jpge2.shader.FlatTriangle;
 import com.johnsproject.jpge2.shader.Shader;
 import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 
 public class DirectionalLightShadowShader implements Shader {
 
+	private static final int LIGHT_RANGE = MathLibrary.FP_ONE * 1000;
+	
 	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
 	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
 	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
@@ -32,7 +34,7 @@ public class DirectionalLightShadowShader implements Shader {
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
 
-	private final Triangle triangle;
+	private final FlatTriangle triangle;
 	
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
@@ -50,7 +52,7 @@ public class DirectionalLightShadowShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new Triangle();
+		this.triangle = new FlatTriangle();
 
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -72,7 +74,7 @@ public class DirectionalLightShadowShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new Triangle();
+		this.triangle = new FlatTriangle();
 		
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -111,7 +113,7 @@ public class DirectionalLightShadowShader implements Shader {
 			Light light = lights.get(i);
 			int[] lightPosition = light.getTransform().getLocation();
 			int dist = vectorLibrary.distance(cameraLocation, lightPosition);
-			if ((light.getType() == LightType.DIRECTIONAL) & (dist < distance) & (dist < shaderData.getLightRange())) {
+			if ((light.getType() == LightType.DIRECTIONAL) & (dist < distance) & (dist < LIGHT_RANGE)) {
 				distance = dist;
 				shaderData.setDirectionalLightIndex(i);
 			}
@@ -142,7 +144,7 @@ public class DirectionalLightShadowShader implements Shader {
 		vectorLibrary.copy(triangle.getLocation1(), face.getVertex(0).getLocation());
 		vectorLibrary.copy(triangle.getLocation2(), face.getVertex(1).getLocation());
 		vectorLibrary.copy(triangle.getLocation3(), face.getVertex(2).getLocation());
-		graphicsLibrary.drawFlatTriangle(triangle, portedFrustum, this);
+		graphicsLibrary.drawTriangle(triangle, portedFrustum, this);
 	}
 
 	public void fragment(int[] location) {
