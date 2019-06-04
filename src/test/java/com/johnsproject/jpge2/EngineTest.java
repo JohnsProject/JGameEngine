@@ -42,10 +42,10 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 	
 	EngineTest() {
-		Engine.getInstance().start();
-		Engine.getInstance().addEngineListener(this);
 		this.vectorLibrary = new VectorLibrary();
 		cache = vectorLibrary.generate();
+		Engine.getInstance().addEngineListener(this);
+		Engine.getInstance().start();
 	}
 	
 	public void start() {
@@ -54,14 +54,14 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		EngineWindow window = new EngineWindow(frameBuffer);
 		graphicsController = new GraphicsController(loadScene(), frameBuffer);
 		inputController = new InputController();
-		Engine.getInstance().addEngineListener(graphicsController);
-		Engine.getInstance().addEngineListener(inputController);
-		Engine.getInstance().addEngineListener(window);
-		Engine.getInstance().addEngineListener(new EngineStatistics(frameBuffer));
 		window.setSize(WINDOW_W, WINDOW_H);
 		inputController.addMouseMotionListener(this);
 		inputController.addEngineKeyListener(this);
 		cameraTransform = graphicsController.getScene().getCamera(0).getTransform();
+		Engine.getInstance().addEngineListener(graphicsController);
+		Engine.getInstance().addEngineListener(inputController);
+		Engine.getInstance().addEngineListener(window);
+		Engine.getInstance().addEngineListener(new EngineStatistics(frameBuffer));
 //		graphicsController.removeShader(graphicsController.getShader(0));
 //		graphicsController.addShader(new FlatSpecularShader());
 	}
@@ -83,7 +83,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 	
 	public void fixedUpdate() {
-
+		
 	}
 
 	public int getPriority() {

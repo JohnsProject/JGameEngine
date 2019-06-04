@@ -66,8 +66,7 @@ public class DirectionalLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE * 2;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
-		
-		this.shadowMap = new Texture(128, 128);
+		this.shadowMap = new Texture(64, 64);
 	}
 	
 	public DirectionalLightShadowShader(int width, int height) {
@@ -100,6 +99,7 @@ public class DirectionalLightShadowShader implements Shader {
 			shaderData.setDirectionalLightMatrix(lightMatrix);
 			shaderData.setDirectionalShadowMap(shadowMap);
 		}
+		graphicsLibrary.portFrustum(lightFrustum, shadowMap.getWidth(), shadowMap.getHeight(), portedFrustum);
 	}
 	
 	public void setup(Camera camera) {
@@ -121,9 +121,6 @@ public class DirectionalLightShadowShader implements Shader {
 		
 		if (shaderData.getDirectionalLightIndex() < 0)
 			return;
-		
-		graphicsLibrary.portFrustum(lightFrustum, shadowMap.getWidth(), shadowMap.getHeight(), portedFrustum);
-		
 		Transform lightTransform = lights.get(shaderData.getDirectionalLightIndex()).getTransform();
 		graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
 		graphicsLibrary.orthographicMatrix(projectionMatrix, portedFrustum);

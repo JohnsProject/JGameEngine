@@ -28,28 +28,28 @@ import java.awt.image.DataBufferInt;
 
 public class Texture {
 	
-	private final int[] pixelBuffer;
+	private final int[] pixel;
 	private final int[] size;
 	
 	public Texture (BufferedImage bufferedImage){
 		int width = bufferedImage.getWidth();
 		int height = bufferedImage.getHeight();
 		this.size = new int[] {width, height, width * height, 0};
-		this.pixelBuffer = ((DataBufferInt)bufferedImage.getRaster().getDataBuffer()).getData();;
+		this.pixel = ((DataBufferInt)bufferedImage.getRaster().getDataBuffer()).getData();;
 	}
 	
 	public Texture (int width, int height, int[] pixelBuffer){
 		this.size = new int[] {width, height, width * height, 0};
-		this.pixelBuffer = pixelBuffer;
+		this.pixel = pixelBuffer;
 	}
 	
 	public Texture (int width, int height){
 		this.size = new int[] {width, height, width * height, 0};
-		this.pixelBuffer = new int[size[2]];
+		this.pixel = new int[size[2]];
 	}
 	
-	public int[] getPixelBuffer() {
-		return pixelBuffer;
+	public int[] getPixel() {
+		return pixel;
 	}
 	
 	public int getWidth() {
@@ -65,7 +65,7 @@ public class Texture {
 		x = x < size[0] ? x : size[0] - 1;
 		y = y > 0 ? y : 0;
 		y = y < size[1] ? y : size[1] - 1;
-		return pixelBuffer[x + (y * size[0])];
+		return pixel[x + (y * size[0])];
 	}
 	
 	public void setPixel(int x, int y, int value) {
@@ -73,29 +73,13 @@ public class Texture {
 		x = x < size[0] ? x : size[0] - 1;
 		y = y > 0 ? y : 0;
 		y = y < size[1] ? y : size[1] - 1;
-		pixelBuffer[x + (y * size[0])] = value;
+		pixel[x + (y * size[0])] = value;
 	}
 	
 	public void fill(int value) {
-		int[] pixelBuffer = getPixelBuffer();
+		int[] pixelBuffer = getPixel();
 		for (int i = 0; i < pixelBuffer.length; i++) {
 			pixelBuffer[i] = value;
-		}
-	}
-	
-	public void fillUntil(int value, int width, int height) {
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
-				setPixel(i, j, value);
-			}
-		}
-	}
-	
-	public void copy(Texture target) {
-		for (int i = 0; i < target.getWidth(); i++) {
-			for (int j = 0; j < target.getHeight(); j++) {
-				target.setPixel(i, j, getPixel(i, j));
-			}
 		}
 	}
 }

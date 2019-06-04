@@ -21,6 +21,11 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 	private int[] spotLightFrustum;
 	private int[][] spotLightMatrix;
 	private Texture spotShadowMap;
+	
+	private int pointLightIndex = -1;
+	private int[] pointLightFrustum;
+	private int[][][] pointLightMatrices;
+	private Texture[] pointShadowMaps;
 
 	public FrameBuffer getFrameBuffer() {
 		return frameBuffer;
@@ -100,5 +105,37 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 
 	public void setSpotLightFrustum(int[] spotLightFrustum) {
 		this.spotLightFrustum = spotLightFrustum;
+	}
+
+	public int getPointLightIndex() {
+		return pointLightIndex;
+	}
+
+	public void setPointLightIndex(int pointLightIndex) {
+		this.pointLightIndex = pointLightIndex;
+	}
+
+	public int[] getPointLightFrustum() {
+		return pointLightFrustum;
+	}
+
+	public void setPointLightFrustum(int[] pointLightFrustum) {
+		this.pointLightFrustum = pointLightFrustum;
+	}
+
+	public int[][][] getPointLightMatrices() {
+		return pointLightMatrices;
+	}
+
+	public void setPointLightMatrices(int[][][] pointLightMatrices) {
+		this.pointLightMatrices = pointLightMatrices;
+	}
+
+	public Texture[] getPointShadowMaps() {
+		return pointShadowMaps;
+	}
+
+	public void setPointShadowMaps(Texture[] pointShadowMaps) {
+		this.pointShadowMaps = pointShadowMaps;
 	}
 }

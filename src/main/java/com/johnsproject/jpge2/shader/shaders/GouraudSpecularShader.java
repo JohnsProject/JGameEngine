@@ -50,8 +50,7 @@ public class GouraudSpecularShader implements Shader {
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
 
-	private final int[] directionalLocation;	
-	private final int[] spotLocation;
+	private final int[] lightSpaceLocation;
 	
 	private final PerspectiveGouraudTriangle triangle;
 	
@@ -83,8 +82,7 @@ public class GouraudSpecularShader implements Shader {
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
 		
-		this.directionalLocation = vectorLibrary.generate();
-		this.spotLocation = vectorLibrary.generate();
+		this.lightSpaceLocation = vectorLibrary.generate();
 	}
 	
 	public void update(ShaderDataBuffer shaderDataBuffer) {
@@ -114,17 +112,6 @@ public class GouraudSpecularShader implements Shader {
 		this.shaderProperties = (ShaderProperties)vertex.getMaterial().getProperties();
 		int[] location = vertex.getLocation();
 		int[] normal = vertex.getNormal();
-
-		if (shaderData.getDirectionalLightIndex() != -1) {
-			vectorLibrary.multiply(location, shaderData.getDirectionalLightMatrix(), directionalLocation);
-			graphicsLibrary.viewport(directionalLocation, shaderData.getDirectionalLightFrustum(), directionalLocation);
-		}
-		
-		if (shaderData.getSpotLightIndex() != -1) {
-			vectorLibrary.multiply(location, shaderData.getSpotLightMatrix(), spotLocation);
-			graphicsLibrary.viewport(spotLocation, shaderData.getSpotLightFrustum(), spotLocation);
-		}
-		
 		int lightColor = ColorLibrary.BLACK;
 		int[] cameraLocation = camera.getTransform().getLocation();	
 		vectorLibrary.subtract(cameraLocation, location, viewDirection);
@@ -177,10 +164,21 @@ public class GouraudSpecularShader implements Shader {
 			currentFactor = mathLibrary.multiply(currentFactor, 255);
 			boolean inShadow = false;
 			if (i == shaderData.getDirectionalLightIndex()) {
-				inShadow = inShadow(directionalLocation, shaderData.getDirectionalShadowMap());
+				vectorLibrary.multiply(location, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
+				graphicsLibrary.viewport(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
+				inShadow = inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap());
 			}
 			if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
-				inShadow = inShadow(spotLocation, shaderData.getSpotShadowMap());
+				vectorLibrary.multiply(location, shaderData.getSpotLightMatrix(), lightSpaceLocation);
+				graphicsLibrary.viewport(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
+				inShadow = inShadow(lightSpaceLocation, shaderData.getSpotShadowMap());
+			}
+			if ((i == shaderData.getPointLightIndex()) && (currentFactor > 10)) {
+				for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
+					vectorLibrary.multiply(location, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
+					graphicsLibrary.viewport(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
+					inShadow = inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j]);
+				}
 			}
 			if(inShadow) {
 				lightColor = colorLibrary.lerp(lightColor, light.getShadowColor(), 128);
@@ -251,10 +249,13 @@ public class GouraudSpecularShader implements Shader {
 	private boolean inShadow(int[] lightSpaceLocation, Texture shadowMap) {
 		int x = lightSpaceLocation[VECTOR_X];
 		int y = lightSpaceLocation[VECTOR_Y];
-		x = mathLibrary.clamp(x, 0, shadowMap.getWidth() - 1);
-		y = mathLibrary.clamp(y, 0, shadowMap.getHeight() - 1);
-		int depth = shadowMap.getPixel(x, y);
-		return depth < lightSpaceLocation[VECTOR_Z];
+		int depth1 = shadowMap.getPixel(x, y);
+		int depth2 = shadowMap.getPixel(x+1, y);
+		int depth3 = shadowMap.getPixel(x-1, y);
+//		int color = (lightSpaceLocation[VECTOR_Z] + 100) >> 3;
+//		color = new ColorLibrary().generate(color, color, color);
+//		frameBuffer.getColorBuffer().setPixel(lightSpaceLocation[VECTOR_X], lightSpaceLocation[VECTOR_Y], color);
+		return (depth1 < lightSpaceLocation[VECTOR_Z]) | (depth2 < lightSpaceLocation[VECTOR_Z]) | (depth3 < lightSpaceLocation[VECTOR_Z]);
 	}
 
 	public void close() {

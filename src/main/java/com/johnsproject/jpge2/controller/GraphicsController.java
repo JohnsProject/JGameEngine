@@ -19,6 +19,7 @@ import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 import com.johnsproject.jpge2.shader.shaders.DirectionalLightShadowShader;
 import com.johnsproject.jpge2.shader.shaders.GouraudSpecularShader;
+import com.johnsproject.jpge2.shader.shaders.PointLightShadowShader;
 import com.johnsproject.jpge2.shader.shaders.SpotLightShadowShader;
 
 public class GraphicsController implements EngineListener {
@@ -67,6 +68,7 @@ public class GraphicsController implements EngineListener {
 		this.frameBuffer = frameBuffer;
 		addPreprocessingShader(new DirectionalLightShadowShader());
 		addPreprocessingShader(new SpotLightShadowShader());
+		addPreprocessingShader(new PointLightShadowShader());
 		addShader(new GouraudSpecularShader());
 	}
 	
@@ -166,11 +168,11 @@ public class GraphicsController implements EngineListener {
 	}
 	
 	public Shader getShader(int index) {
-		return shaders.get(preShadersCount + index);
+		return shaders.get(preShadersCount + index - 1);
 	}
 	
 	public Shader getPostprocessingShader(int index) {
-		return shaders.get(preShadersCount + shadersCount + index);
+		return shaders.get(preShadersCount + shadersCount + index - 1);
 	}
 	
 	public void addPreprocessingShader(Shader shader) {
