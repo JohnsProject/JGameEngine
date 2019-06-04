@@ -73,7 +73,7 @@ public class PointLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 2;
+		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 10;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.shadowMaps = new Texture[6];
@@ -101,7 +101,7 @@ public class PointLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 2;
+		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 10;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.shadowMaps = new Texture[6];
@@ -140,7 +140,7 @@ public class PointLightShadowShader implements Shader {
 				shaderData.setPointLightIndex(i);
 			}
 		}
-		if (shaderData.getPointLightIndex() < 0)
+		if (shaderData.getPointLightIndex() == -1)
 			return;		
 		int[][] lightMatrix = lightMatrices[0];
 		graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
@@ -179,8 +179,8 @@ public class PointLightShadowShader implements Shader {
 	}
 
 	public void geometry(Face face) {
-		if (shaderData.getPointLightIndex() < 0)
-			return;
+		if (shaderData.getPointLightIndex() == -1)
+			return;	
 		backup(face);
 		for (int i = 0; i < lightMatrices.length; i++) {
 			currentShadowMap = shadowMaps[i];

@@ -148,6 +148,7 @@ public class FlatSpecularShader implements Shader {
 		// normalize values
 		vectorLibrary.normalize(normal, normalizedNormal);
 		vectorLibrary.normalize(viewDirection, viewDirection);
+		boolean inShadow = false;
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
 			int currentFactor = 0;
@@ -159,6 +160,11 @@ public class FlatSpecularShader implements Shader {
 					continue;
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
+				if (i == shaderData.getDirectionalLightIndex()) {
+					vectorLibrary.multiply(faceLocation, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
+					graphicsLibrary.viewport(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
+					inShadow = inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap());
+				}
 				break;
 			case POINT:
 				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
@@ -170,6 +176,13 @@ public class FlatSpecularShader implements Shader {
 				vectorLibrary.normalize(lightLocation, lightLocation);
 				currentFactor = getLightFactor(normalizedNormal, lightLocation, viewDirection, shaderProperties);
 				currentFactor = mathLibrary.divide(currentFactor, attenuation);
+				if ((i == shaderData.getPointLightIndex()) && (currentFactor > 100)) {
+					for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
+						vectorLibrary.multiply(faceLocation, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
+						graphicsLibrary.viewport(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
+						inShadow = inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j]);
+					}
+				}
 				break;
 			case SPOT:				
 				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
@@ -187,29 +200,16 @@ public class FlatSpecularShader implements Shader {
 					currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
 					currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
+					if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
+						vectorLibrary.multiply(faceLocation, shaderData.getSpotLightMatrix(), lightSpaceLocation);
+						graphicsLibrary.viewport(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
+						inShadow = inShadow(lightSpaceLocation, shaderData.getSpotShadowMap());
+					}
 				}
 				break;
 			}
 			currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
 			currentFactor = mathLibrary.multiply(currentFactor, 255);
-			boolean inShadow = false;
-			if (i == shaderData.getDirectionalLightIndex()) {
-				vectorLibrary.multiply(faceLocation, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
-				graphicsLibrary.viewport(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
-				inShadow = inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap());
-			}
-			if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
-				vectorLibrary.multiply(faceLocation, shaderData.getSpotLightMatrix(), lightSpaceLocation);
-				graphicsLibrary.viewport(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
-				inShadow = inShadow(lightSpaceLocation, shaderData.getSpotShadowMap());
-			}
-			if ((i == shaderData.getPointLightIndex()) && (currentFactor > 10)) {
-				for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
-					vectorLibrary.multiply(faceLocation, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
-					graphicsLibrary.viewport(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
-					inShadow = inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j]);
-				}
-			}
 			if(inShadow) {
 				lightColor = colorLibrary.lerp(lightColor, light.getShadowColor(), 128);
 			} else {

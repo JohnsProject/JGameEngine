@@ -123,12 +123,18 @@ public class GouraudSpecularShader implements Shader {
 			int currentFactor = 0;
 			int attenuation = 0;
 			int[] lightPosition = light.getTransform().getLocation();
+			boolean inShadow = false;
 			switch (light.getType()) {
 			case DIRECTIONAL:
 				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
 					continue;
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
+				if (i == shaderData.getDirectionalLightIndex()) {
+					vectorLibrary.multiply(location, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
+					graphicsLibrary.viewport(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
+					inShadow = inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap());
+				}
 				break;
 			case POINT:
 				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
@@ -140,6 +146,13 @@ public class GouraudSpecularShader implements Shader {
 				vectorLibrary.normalize(lightLocation, lightLocation);
 				currentFactor = getLightFactor(normalizedNormal, lightLocation, viewDirection, shaderProperties);
 				currentFactor = mathLibrary.divide(currentFactor, attenuation);
+				if ((i == shaderData.getPointLightIndex()) && (currentFactor > 100)) {
+					for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
+						vectorLibrary.multiply(location, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
+						graphicsLibrary.viewport(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
+						inShadow = inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j]);
+					}
+				}
 				break;
 			case SPOT:				
 				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
@@ -157,29 +170,16 @@ public class GouraudSpecularShader implements Shader {
 					currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
 					currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
+					if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
+						vectorLibrary.multiply(location, shaderData.getSpotLightMatrix(), lightSpaceLocation);
+						graphicsLibrary.viewport(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
+						inShadow = inShadow(lightSpaceLocation, shaderData.getSpotShadowMap());
+					}
 				}
 				break;
 			}
 			currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
 			currentFactor = mathLibrary.multiply(currentFactor, 255);
-			boolean inShadow = false;
-			if (i == shaderData.getDirectionalLightIndex()) {
-				vectorLibrary.multiply(location, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
-				graphicsLibrary.viewport(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
-				inShadow = inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap());
-			}
-			if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
-				vectorLibrary.multiply(location, shaderData.getSpotLightMatrix(), lightSpaceLocation);
-				graphicsLibrary.viewport(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
-				inShadow = inShadow(lightSpaceLocation, shaderData.getSpotShadowMap());
-			}
-			if ((i == shaderData.getPointLightIndex()) && (currentFactor > 10)) {
-				for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
-					vectorLibrary.multiply(location, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
-					graphicsLibrary.viewport(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
-					inShadow = inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j]);
-				}
-			}
 			if(inShadow) {
 				lightColor = colorLibrary.lerp(lightColor, light.getShadowColor(), 128);
 			} else {

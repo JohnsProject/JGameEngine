@@ -63,7 +63,7 @@ public class DirectionalLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE * 2;
+		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.shadowMap = new Texture(64, 64);
@@ -84,7 +84,7 @@ public class DirectionalLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE * 2;
+		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.shadowMap = new Texture(width, height);
@@ -107,11 +107,13 @@ public class DirectionalLightShadowShader implements Shader {
 		shadowMap.fill(Integer.MAX_VALUE);		
 		shaderData.setDirectionalLightIndex(-1);
 		
+		Transform lightTransform = lights.get(0).getTransform();
 		int[] cameraLocation = camera.getTransform().getLocation();		
 		int distance = Integer.MAX_VALUE;
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
-			int[] lightPosition = light.getTransform().getLocation();
+			lightTransform = light.getTransform();
+			int[] lightPosition = lightTransform.getLocation();
 			int dist = vectorLibrary.distance(cameraLocation, lightPosition);
 			if ((light.getType() == LightType.DIRECTIONAL) & (dist < distance) & (dist < LIGHT_RANGE)) {
 				distance = dist;
@@ -119,16 +121,15 @@ public class DirectionalLightShadowShader implements Shader {
 			}
 		}
 		
-		if (shaderData.getDirectionalLightIndex() < 0)
+		if (shaderData.getDirectionalLightIndex() == -1)
 			return;
-		Transform lightTransform = lights.get(shaderData.getDirectionalLightIndex()).getTransform();
 		graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
 		graphicsLibrary.orthographicMatrix(projectionMatrix, portedFrustum);
 		matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
 	}
 
 	public void vertex(int index, Vertex vertex) {
-		if (shaderData.getDirectionalLightIndex() < 0)
+		if (shaderData.getDirectionalLightIndex() == -1)
 			return;
 		int[] location = vertex.getLocation();
 		vectorLibrary.multiply(location, lightMatrix, location);
@@ -136,7 +137,7 @@ public class DirectionalLightShadowShader implements Shader {
 	}
 	
 	public void geometry(Face face) {
-		if (shaderData.getDirectionalLightIndex() < 0)
+		if (shaderData.getDirectionalLightIndex() == -1)
 			return;
 		graphicsLibrary.drawTriangle(triangle, face, portedFrustum);
 	}
