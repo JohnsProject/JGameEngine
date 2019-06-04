@@ -149,7 +149,8 @@ public class SpotLightShadowShader implements Shader {
 		}
 	}
 
-	public void close() {
+	public void terminate(ShaderDataBuffer shaderDataBuffer) {
+		shaderData = (ForwardDataBuffer)shaderDataBuffer;
 		shaderData.setSpotLightIndex(-1);
 		shaderData.setSpotLightFrustum(null);
 		shaderData.setSpotLightMatrix(null);

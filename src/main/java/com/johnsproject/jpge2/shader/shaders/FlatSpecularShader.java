@@ -281,7 +281,7 @@ public class FlatSpecularShader implements Shader {
 		return depth < lightSpaceLocation[VECTOR_Z];
 	}
 
-	public void close() {
+	public void terminate(ShaderDataBuffer shaderDataBuffer) {
 		
 	}
 }

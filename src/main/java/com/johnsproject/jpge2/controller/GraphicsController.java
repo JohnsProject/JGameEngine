@@ -168,11 +168,11 @@ public class GraphicsController implements EngineListener {
 	}
 	
 	public Shader getShader(int index) {
-		return shaders.get(preShadersCount + index - 1);
+		return shaders.get(preShadersCount + index);
 	}
 	
 	public Shader getPostprocessingShader(int index) {
-		return shaders.get(preShadersCount + shadersCount + index - 1);
+		return shaders.get(preShadersCount + shadersCount + index);
 	}
 	
 	public void addPreprocessingShader(Shader shader) {
@@ -196,21 +196,21 @@ public class GraphicsController implements EngineListener {
 	
 	public void removePreprocessingShader(Shader shader) {
 		preShadersCount--;
-		shader.close();
+		shader.terminate(shaderDataBuffer);
 		shaders.remove(shader);
 		sortShaders(0);
 	}
 	
 	public void removeShader(Shader shader) {
 		shadersCount--;
-		shader.close();
+		shader.terminate(shaderDataBuffer);
 		shaders.remove(shader);
 		sortShaders(1);
 	}
 	
 	public void removePostprocessingShader(Shader shader) {
 		postShadersCount--;
-		shader.close();
+		shader.terminate(shaderDataBuffer);
 		shaders.remove(shader);
 		sortShaders(2);
 	}

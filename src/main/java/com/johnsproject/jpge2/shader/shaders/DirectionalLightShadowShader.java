@@ -91,9 +91,8 @@ public class DirectionalLightShadowShader implements Shader {
 	}
 	
 	public void update(ShaderDataBuffer shaderDataBuffer) {
-		this.shaderData = (ForwardDataBuffer)shaderDataBuffer;
-		
-		this.lights = shaderData.getLights();
+		shaderData = (ForwardDataBuffer)shaderDataBuffer;
+		lights = shaderData.getLights();
 		if (shaderData.getDirectionalLightIndex() == -1) {
 			shaderData.setDirectionalLightFrustum(portedFrustum);
 			shaderData.setDirectionalLightMatrix(lightMatrix);
@@ -151,7 +150,8 @@ public class DirectionalLightShadowShader implements Shader {
 		}
 	}
 
-	public void close() {
+	public void terminate(ShaderDataBuffer shaderDataBuffer) {
+		shaderData = (ForwardDataBuffer)shaderDataBuffer;
 		shaderData.setDirectionalLightIndex(-1);
 		shaderData.setDirectionalLightFrustum(null);
 		shaderData.setDirectionalLightMatrix(null);

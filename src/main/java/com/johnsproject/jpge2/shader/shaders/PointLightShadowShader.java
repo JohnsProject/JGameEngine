@@ -215,7 +215,8 @@ public class PointLightShadowShader implements Shader {
 		vectorLibrary.copy(face.getVertex(2).getLocation(), location2Cache);
 	}
 
-	public void close() {
+	public void terminate(ShaderDataBuffer shaderDataBuffer) {
+		shaderData = (ForwardDataBuffer)shaderDataBuffer;
 		shaderData.setPointLightIndex(-1);
 		shaderData.setPointLightFrustum(null);
 		shaderData.setPointLightMatrices(null);

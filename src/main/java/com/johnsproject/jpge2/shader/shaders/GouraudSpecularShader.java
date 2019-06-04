@@ -258,7 +258,7 @@ public class GouraudSpecularShader implements Shader {
 		return (depth1 < lightSpaceLocation[VECTOR_Z]) | (depth2 < lightSpaceLocation[VECTOR_Z]) | (depth3 < lightSpaceLocation[VECTOR_Z]);
 	}
 
-	public void close() {
+	public void terminate(ShaderDataBuffer shaderDataBuffer) {
 		
 	}
 }

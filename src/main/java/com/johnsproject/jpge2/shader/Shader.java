@@ -16,6 +16,6 @@ public interface Shader {
 
 	public void fragment(int[] location);
 	
-	public void close();
+	public void terminate(ShaderDataBuffer shaderDataBuffer);
 	
 }
