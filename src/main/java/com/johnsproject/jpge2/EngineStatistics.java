@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
 
-import com.johnsproject.jpge2.controller.GraphicsController;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.event.EngineListener;
@@ -39,12 +38,12 @@ public class EngineStatistics implements EngineListener{
 			timeLastUpdate = currentTime;
 		}
 		lastUpdateTime = currentTime;
-		GraphicsController graphicsController = null;
+		GraphicsEngine graphicsEnigne = null;
 		List<EngineListener> engineListeners = Engine.getInstance().getEngineListeners(); 
 		for (int i = 0; i < engineListeners.size(); i++) {
 			EngineListener engineListener = engineListeners.get(i);
-			if(engineListener instanceof GraphicsController) {
-				graphicsController = (GraphicsController) engineListener;
+			if(engineListener instanceof GraphicsEngine) {
+				graphicsEnigne = (GraphicsEngine) engineListener;
 			}
 		}
 		long ramUsage = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) >> 20;
@@ -54,11 +53,11 @@ public class EngineStatistics implements EngineListener{
 		int shadersCount = 0;
 		int verticesCount = 0;
 		int trianglesCount = 0;
-		if (graphicsController != null) {
-			frameBufferWidth = graphicsController.getFrameBuffer().getWidth();
-			frameBufferHeight = graphicsController.getFrameBuffer().getHeight();
-			shadersCount = graphicsController.getShaders().size();
-			List<Model> models = graphicsController.getScene().getModels();
+		if (graphicsEnigne != null) {
+			frameBufferWidth = graphicsEnigne.getFrameBuffer().getWidth();
+			frameBufferHeight = graphicsEnigne.getFrameBuffer().getHeight();
+			shadersCount = graphicsEnigne.getShaders().size();
+			List<Model> models = graphicsEnigne.getScene().getModels();
 			for (int i = 0; i < models.size(); i++) {
 				Model model = models.get(i);
 				verticesCount += model.getMesh().getVertices().length;

@@ -1,4 +1,4 @@
-package com.johnsproject.jpge2.controller;
+package com.johnsproject.jpge2;
 
 import java.awt.AWTEvent;
 import java.awt.Component;
@@ -17,7 +17,7 @@ import com.johnsproject.jpge2.event.EngineKeyListener;
 import com.johnsproject.jpge2.event.EngineListener;
 import com.johnsproject.jpge2.event.EngineMouseListener;
 
-public class InputController implements EngineListener {
+public class InputEngine implements EngineListener {
 
 	private Point mouseLocation = new Point();
 	private Point mouseLocationOnScreen = new Point();
@@ -28,7 +28,7 @@ public class InputController implements EngineListener {
 	private List<MouseMotionListener> motionListeners = new ArrayList<MouseMotionListener>();
 	private List<MouseWheelListener> wheelListeners = new ArrayList<MouseWheelListener>();
 	
-	public InputController() {
+	public InputEngine() {
 		this.keyListeners = new ArrayList<EngineKeyListener>();
 		this.mouseListeners = new ArrayList<EngineMouseListener>();
 		this.wheelListeners = new ArrayList<MouseWheelListener>();

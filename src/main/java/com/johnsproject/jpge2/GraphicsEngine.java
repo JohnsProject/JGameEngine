@@ -1,4 +1,4 @@
-package com.johnsproject.jpge2.controller;
+package com.johnsproject.jpge2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ import com.johnsproject.jpge2.shader.shaders.GouraudSpecularShader;
 import com.johnsproject.jpge2.shader.shaders.PointLightShadowShader;
 import com.johnsproject.jpge2.shader.shaders.SpotLightShadowShader;
 
-public class GraphicsController implements EngineListener {
+public class GraphicsEngine implements EngineListener {
 	
 	private final int[] location0Cache;
 	private final int[] location1Cache;
@@ -48,7 +48,7 @@ public class GraphicsController implements EngineListener {
 	private int shadersCount;
 	private int postShadersCount;
 	
-	public GraphicsController(Scene scene, FrameBuffer frameBuffer) {
+	public GraphicsEngine(Scene scene, FrameBuffer frameBuffer) {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();

@@ -26,6 +26,8 @@ package com.johnsproject.jpge2.dto;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
+import com.johnsproject.jpge2.library.ColorLibrary;
+
 public class FrameBuffer {
 
 	private final int[] size;
@@ -42,6 +44,16 @@ public class FrameBuffer {
 		this.colorBuffer = new Texture(size[0], size[1], pixelBuffer);
 		this.depthBuffer = new Texture(size[0], size[1]);
 		this.stencilBuffer = new Texture(size[0], size[1]);
+	}
+	
+	public FrameBuffer(int width, int height) {
+		this.size = new int[] {width, height, 0, 0};
+		this.size[2] = width * height;
+		this.image = new BufferedImage(width, height, ColorLibrary.COLOR_TYPE);
+		int[] pixelBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+		this.colorBuffer = new Texture(width, height, pixelBuffer);
+		this.depthBuffer = new Texture(width, height);
+		this.stencilBuffer = new Texture(width, height);
 	}
 
 	public BufferedImage getImage() {

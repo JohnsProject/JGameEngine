@@ -3,11 +3,8 @@ package com.johnsproject.jpge2;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import com.johnsproject.jpge2.controller.GraphicsController;
-import com.johnsproject.jpge2.controller.InputController;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.Texture;
@@ -15,7 +12,6 @@ import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.event.EngineKeyListener;
 import com.johnsproject.jpge2.event.EngineListener;
 import com.johnsproject.jpge2.importer.SceneImporter;
-import com.johnsproject.jpge2.library.ColorLibrary;
 import com.johnsproject.jpge2.library.FileLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
@@ -34,8 +30,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	private Transform cameraTransform;
 	
 	private VectorLibrary vectorLibrary;
-	private GraphicsController graphicsController;
-	private InputController inputController;
+	private GraphicsEngine graphicsEngine;
+	private InputEngine inputEngine;
 	
 	public static void main(String[] args) {
 		new EngineTest();
@@ -49,19 +45,19 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 	
 	public void start() {
-		BufferedImage image = new BufferedImage(RENDER_W, RENDER_H, ColorLibrary.COLOR_TYPE);
-		FrameBuffer frameBuffer = new FrameBuffer(image);
+		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
 		EngineWindow window = new EngineWindow(frameBuffer);
-		graphicsController = new GraphicsController(loadScene(), frameBuffer);
-		inputController = new InputController();
+		EngineStatistics stats = new EngineStatistics(frameBuffer);
+		graphicsEngine = new GraphicsEngine(loadScene(), frameBuffer);
+		inputEngine = new InputEngine();
 		window.setSize(WINDOW_W, WINDOW_H);
-		inputController.addMouseMotionListener(this);
-		inputController.addEngineKeyListener(this);
-		cameraTransform = graphicsController.getScene().getCamera(0).getTransform();
-		Engine.getInstance().addEngineListener(graphicsController);
-		Engine.getInstance().addEngineListener(inputController);
+		inputEngine.addMouseMotionListener(this);
+		inputEngine.addEngineKeyListener(this);
+		cameraTransform = graphicsEngine.getScene().getCamera(0).getTransform();
+		Engine.getInstance().addEngineListener(graphicsEngine);
+		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(window);
-		Engine.getInstance().addEngineListener(new EngineStatistics(frameBuffer));
+		Engine.getInstance().addEngineListener(stats);
 //		graphicsController.removeShader(graphicsController.getShader(0));
 //		graphicsController.addShader(new FlatSpecularShader());
 	}
