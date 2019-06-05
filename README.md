@@ -6,7 +6,7 @@ It only uses Java AWT, as the 3D part is done by software rendering.
 ## Features
 * Scanline triangle rasterization 
 * Flat and gouraud shaded triangles
-* Perspective correct or affine texture mapping
+* Perspective correct and affine texture mapping
 * Point, Directional and Spot lights
 * Shaders
 * Gouraud and flat shaders
