@@ -23,42 +23,24 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processing.VectorProcessor;
-
 public class SceneObject {
-	
-	private static final int vx = VectorProcessor.VECTOR_X;
-	private static final int vy = VectorProcessor.VECTOR_Y;
-	private static final int vz = VectorProcessor.VECTOR_Z;
-	
-	private String name;
-	private Transform transform;
-	private boolean changed;
-	private boolean active;
+		
+	protected String name;
+	protected Transform transform;
+	protected boolean active;
 	
 	public SceneObject(String name, Transform transform) {
 		this.name = name;
 		this.transform = transform;
-		this.changed = true;
 		this.active = true;
 	}
 
 	public Transform getTransform() {
-		changed = true;
 		return this.transform;
 	}
 
 	public String getName() {
-		changed = true;
 		return name;
-	}
-
-	public boolean hasChanged() {
-		return changed;
-	}
-
-	public void setChanged(boolean changed) {
-		this.changed = changed;
 	}
 
 	public boolean isActive() {

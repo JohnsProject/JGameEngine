@@ -25,71 +25,61 @@ package com.johnsproject.jpge2.dto;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.io.IOException;
-import java.io.InputStream;
-
-import com.johnsproject.jpge2.processing.FileProcessor;
-import com.johnsproject.jpge2.processing.MathProcessor;
 
 public class Texture {
 	
-	private int[] image;
-	private int width, height;
+	private final int[] pixel;
+	private final int[] size;
 	
-	public Texture() {}
+	public Texture (BufferedImage bufferedImage){
+		int width = bufferedImage.getWidth();
+		int height = bufferedImage.getHeight();
+		this.size = new int[] {width, height, width * height, 0};
+		this.pixel = ((DataBufferInt)bufferedImage.getRaster().getDataBuffer()).getData();;
+	}
+	
+	public Texture (int width, int height, int[] pixelBuffer){
+		this.size = new int[] {width, height, width * height, 0};
+		this.pixel = pixelBuffer;
+	}
 	
 	public Texture (int width, int height){
-		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
-		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		this.width = img.getWidth();
-		this.height = img.getHeight();
+		this.size = new int[] {width, height, width * height, 0};
+		this.pixel = new int[size[2]];
 	}
 	
-	public Texture (String path) throws IOException{
-		BufferedImage img = FileProcessor.loadImage(path);
-		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		this.width = img.getWidth();
-		this.height = img.getHeight();
+	public int[] getPixel() {
+		return pixel;
 	}
 	
-	public Texture (String path, int width, int height) throws IOException{
-		BufferedImage img = FileProcessor.loadImage(path, width, height);
-		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		this.width = img.getWidth();
-		this.height = img.getHeight();
+	public int getWidth() {
+		return size[0];
 	}
 	
-	public Texture (InputStream stream) throws IOException{
-		BufferedImage img = FileProcessor.loadImage(stream);
-		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		this.width = img.getWidth();
-		this.height = img.getHeight();
+	public int getHeight() {
+		return size[1];
 	}
 	
-	public Texture (InputStream stream, int width, int height) throws IOException{
-		BufferedImage img = FileProcessor.loadImage(stream, width, height);
-		this.image = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		this.width = img.getWidth();
-		this.height = img.getHeight();
+	public int getPixel(int x, int y) {
+		x = x > 0 ? x : 0;
+		x = x < size[0] ? x : size[0] - 1;
+		y = y > 0 ? y : 0;
+		y = y < size[1] ? y : size[1] - 1;
+		return pixel[x + (y * size[0])];
 	}
 	
-	public void setPixel(int x, int y, int color){
-		image[MathProcessor.clamp((x + (y*width)), 0, image.length-1)] = color;
+	public void setPixel(int x, int y, int value) {
+		x = x > 0 ? x : 0;
+		x = x < size[0] ? x : size[0] - 1;
+		y = y > 0 ? y : 0;
+		y = y < size[1] ? y : size[1] - 1;
+		pixel[x + (y * size[0])] = value;
 	}
 	
-	public int getPixel(int x, int y){
-		return image[MathProcessor.clamp((x + (y*width)), 0, image.length-1)];
-	}
-	
-	public int[] getPixels() {
-		return image;
-	}
-	
-	public int getWidth(){
-		return width;
-	}
-	
-	public int getHeight(){
-		return height;
+	public void fill(int value) {
+		int[] pixelBuffer = getPixel();
+		for (int i = 0; i < pixelBuffer.length; i++) {
+			pixelBuffer[i] = value;
+		}
 	}
 }

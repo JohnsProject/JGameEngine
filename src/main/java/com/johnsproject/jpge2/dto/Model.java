@@ -23,60 +23,16 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processing.Shader;
-
 public class Model extends SceneObject {
 	
-	private Vertex[] vertexes;
-	private Face[] faces;
-	private Material[] materials;
-	private Shader shader;
+	private Mesh mesh;
 	
-	public Model (String name, Transform transform, Vertex[] vertexes, Face[] faces, Material[] materials) {
+	public Model (String name, Transform transform, Mesh mesh) {
 		super(name, transform);
-		this.vertexes = vertexes;
-		for (int i = 0; i < vertexes.length; i++) {
-			if (vertexes[i] != null)
-				vertexes[i].setModel(this);
-		}
-		this.faces = faces;
-		for (int i = 0; i < faces.length; i++) {
-			if (faces[i] != null)
-				faces[i].setModel(this);
-		}
-		this.materials = materials;
-		this.shader = new Shader();
-	}
-	
-	public Vertex[] getVertexes(){
-		return vertexes;
-	}
-	
-	public Vertex getVertex(int index){
-		return vertexes[index];
-	}
-	
-	public Face[] getFaces() {
-		return faces;
-	}
-	
-	public Face getFace(int index) {
-		return faces[index];
-	}
-	
-	public Material[] getMaterials() {
-		return materials;
-	}
-	
-	public Material getMaterial(int index) {
-		return materials[index];
+		this.mesh = mesh;
 	}
 
-	public Shader getShader() {
-		return shader;
-	}
-
-	public void setShader(Shader shader) {
-		this.shader = shader;
+	public Mesh getMesh() {
+		return mesh;
 	}
 }

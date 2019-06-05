@@ -23,37 +23,39 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.shader.ShaderProperties;
+
 public class Material {
 
-	private int index = 0;
-	private int color = 0;
-//	private int ambientColor;
-	private Texture texture = null;
+	private int index;
+	private String name;
+	private int shaderIndex;
+	private ShaderProperties properties;
 	
-	public Material(int index, int color, Texture texture){
+	public Material(int index, String name, int shaderIndex, ShaderProperties shaderProperties) {
 		this.index = index;
-		this.color = color;
-//		this.ambientColor = ColorUtils.convert(20, 20, 20);
-		this.texture = texture;
+		this.name = "";
+		setShader(shaderIndex, shaderProperties);
 	}
 
 	public int getIndex() {
 		return index;
 	}
-
-	public int getColor() {
-		return color;
-	}
-
-	public void setColor(int color) {
-		this.color = color;
+	
+	public String getName() {
+		return name;
 	}
 	
-	public Texture getTexture() {
-		return texture;
+	public int getShaderIndex() {
+		return shaderIndex;
 	}
 
-	public void setTexture(Texture texture) {
-		this.texture = texture;
+	public ShaderProperties getProperties() {
+		return properties;
+	}
+
+	public void setShader(int shaderIndex, ShaderProperties shaderProperties) {
+		this.shaderIndex = shaderIndex;
+		this.properties = shaderProperties;
 	}
 }

@@ -23,22 +23,33 @@
  */
 package com.johnsproject.jpge2.dto;
 
-public class Light extends SceneObject{
+import com.johnsproject.jpge2.library.MathLibrary;
+import com.johnsproject.jpge2.library.VectorLibrary;
+
+public class Light extends SceneObject {
 	
-	private int type = 0;
-	private int strength = 100;
-	private int color = 0;
+	private LightType type;
+	private int strength;
+	private int color;
+	private int shadowColor;
+	private int[] direction;
+	private int spotSize;
+	private int spotSoftness;
 	
 	public Light(String name, Transform transform) {
 		super(name, transform);
-		this.color = 0;
+		this.type = LightType.DIRECTIONAL;
+		this.strength = 100 * MathLibrary.FP_ONE;
+		this.direction = VectorLibrary.VECTOR_DOWN;
+		this.spotSize = 60 * MathLibrary.FP_ONE;
+		this.spotSoftness = 800;
 	}
 
-	public int getType() {
+	public LightType getType() {
 		return type;
 	}
 
-	public void setType(int type) {
+	public void setType(LightType type) {
 		this.type = type;
 	}
 
@@ -56,5 +67,37 @@ public class Light extends SceneObject{
 
 	public void setColor(int color) {
 		this.color = color;
+	}
+
+	public int getShadowColor() {
+		return shadowColor;
+	}
+
+	public void setShadowColor(int shadowColor) {
+		this.shadowColor = shadowColor;
+	}
+
+	public int[] getDirection() {
+		return direction;
+	}
+
+	public void setDirection(int[] direction) {
+		this.direction = direction;
+	}
+
+	public int getSpotSize() {
+		return spotSize;
+	}
+
+	public void setSpotSize(int spotSize) {
+		this.spotSize = spotSize;
+	}
+
+	public int getSpotSoftness() {
+		return spotSoftness;
+	}
+
+	public void setSpotSoftness(int spotSoftness) {
+		this.spotSoftness = spotSoftness;
 	}
 }

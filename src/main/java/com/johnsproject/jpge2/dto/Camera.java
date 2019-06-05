@@ -23,30 +23,41 @@
  */
 package com.johnsproject.jpge2.dto;
 
+import com.johnsproject.jpge2.library.MathLibrary;
+
 public class Camera extends SceneObject {
 	
-	private int[] screenPosition;
-	private int[] screenSize;
+	public static final byte FRUSTUM_LEFT = 0;
+	public static final byte FRUSTUM_RIGHT = 1;
+	public static final byte FRUSTUM_TOP = 2;
+	public static final byte FRUSTUM_BOTTOM = 3;
+	public static final byte FRUSTUM_NEAR = 4;
+	public static final byte FRUSTUM_FAR = 5;
+	public static final byte FRUSTUM_SIZE = 6;
+	
+	private CameraType type;
+	private final int[] frustum;
 
-	public Camera(String name, Transform transform, int[] screenPosition, int[] screenSize) {
+	public Camera(String name, Transform transform) {
 		super(name, transform);
-		this.screenPosition = screenPosition;
-		this.screenSize = screenSize;
+		this.frustum = new int[6];
+		frustum[FRUSTUM_LEFT] = 0;
+		frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;
+		frustum[FRUSTUM_TOP] = 0;
+		frustum[FRUSTUM_BOTTOM] = MathLibrary.FP_ONE;
+		frustum[FRUSTUM_NEAR] = MathLibrary.FP_ONE;
+		frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 1000;
 	}
 
-	public int[] getScreenPosition() {
-		return screenPosition;
+	public int[] getFrustum() {
+		return frustum;
 	}
 
-	public void setScreenPosition(int[] screenPosition) {
-		this.screenPosition = screenPosition;
+	public CameraType getType() {
+		return type;
 	}
 
-	public int[] getScreenSize() {
-		return screenSize;
+	public void setType(CameraType type) {
+		this.type = type;
 	}
-
-	public void setScreenSize(int[] screenSize) {
-		this.screenSize = screenSize;
-	}	
 }

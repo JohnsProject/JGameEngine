@@ -23,29 +23,23 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.processing.VectorProcessor;
-
 public class Face {
-	
-	private static final int vx = VectorProcessor.VECTOR_X;
-	private static final int vy = VectorProcessor.VECTOR_Y;
-	private static final int vz = VectorProcessor.VECTOR_Z;
-	
+		
 	private int index;
-	private int vertex1;
-	private int vertex2;
-	private int vertex3;
+	private Vertex[] vertices;
+	private int[] normal;
 	private int[] uv1;
 	private int[] uv2;
 	private int[] uv3;
-	private int material;
-	private Model model;	
+	private Material material;
 
-	public Face(int index, int vertex1, int vertex2, int vertex3, int material, int[] uv1, int[] uv2, int[] uv3) {
+	public Face(int index, Vertex vertex1, Vertex vertex2, Vertex vertex3, Material material, int[] normal, int[] uv1, int[] uv2, int[] uv3) {
 		this.index = index;
-		this.vertex1 = vertex1;
-		this.vertex2 = vertex2;
-		this.vertex3 = vertex3;
+		this.vertices = new Vertex[3];
+		this.vertices[0] = vertex1;
+		this.vertices[1] = vertex2;
+		this.vertices[2] = vertex3;
+		this.normal = normal;
 		this.uv1 = uv1;
 		this.uv2 = uv2;
 		this.uv3 = uv3;
@@ -56,26 +50,18 @@ public class Face {
 		return index;
 	}
 
-	public Model getModel() {
-		return model;
+	public Vertex getVertex(int index) {
+		return vertices[index];
+	}
+	
+	public Vertex[] getVertices() {
+		return vertices;
 	}
 
-	public void setModel(Model model) {
-		this.model = model;
+	public int[] getNormal() {
+		return normal;
 	}
-
-	public Vertex getVertex1() {
-		return model.getVertex(vertex1);
-	}
-
-	public Vertex getVertex2() {
-		return model.getVertex(vertex2);
-	}
-
-	public Vertex getVertex3() {
-		return model.getVertex(vertex3);
-	}
-
+	
 	public int[] getUV1() {
 		return uv1;
 	}
@@ -89,6 +75,6 @@ public class Face {
 	}
 
 	public Material getMaterial() {
-		return model.getMaterial(material);
+		return material;
 	}
 }

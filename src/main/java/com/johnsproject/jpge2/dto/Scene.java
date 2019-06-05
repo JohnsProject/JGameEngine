@@ -28,9 +28,15 @@ import java.util.List;
 
 public class Scene {
 	
-	private final List<Model> models = new ArrayList<Model>();
-	private final List<Camera> cameras = new ArrayList<Camera>();
-	private final List<Light> lights = new ArrayList<Light>();
+	private final List<Model> models;
+	private final List<Camera> cameras;
+	private final List<Light> lights;
+	
+	public Scene() {
+		models = new ArrayList<Model>();
+		cameras = new ArrayList<Camera>();
+		lights = new ArrayList<Light>();
+	}
 	
 	public void addModel(Model model){
 		models.add(model);
@@ -39,9 +45,23 @@ public class Scene {
 	public void removeModel(Model model){
 		models.remove(model);
 	}
-
+	
 	public List<Model> getModels() {
 		return models;
+	}
+	
+	public Model getModel(int index) {
+		return models.get(index);
+	}
+	
+	public Model getModel(String name) {
+		for (int i = 0; i < models.size(); i++) {
+			Model model = models.get(i);
+			if (model.getName().equals(name)) {
+				return model;
+			}
+		}
+		return models.get(0);
 	}
 	
 	public void addLight(Light light){
@@ -56,6 +76,20 @@ public class Scene {
 		return lights;
 	}
 	
+	public Light getLight(int index) {
+		return lights.get(index);
+	}
+	
+	public Light getLight(String name) {
+		for (int i = 0; i < lights.size(); i++) {
+			Light light = lights.get(i);
+			if (light.getName().equals(name)) {
+				return light;
+			}
+		}
+		return lights.get(0);
+	}
+	
 	public void addCamera(Camera camera){
 		cameras.add(camera);
 	}
@@ -66,5 +100,19 @@ public class Scene {
 
 	public List<Camera> getCameras() {
 		return cameras;
+	}
+	
+	public Camera getCamera(int index) {
+		return cameras.get(index);
+	}
+	
+	public Camera getCamera(String name) {
+		for (int i = 0; i < cameras.size(); i++) {
+			Camera camera = cameras.get(i);
+			if (camera.getName().equals(name)) {
+				return camera;
+			}
+		}
+		return cameras.get(0);
 	}
 }
