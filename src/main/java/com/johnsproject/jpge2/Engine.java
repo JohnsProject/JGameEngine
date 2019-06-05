@@ -40,7 +40,6 @@ public class Engine {
 	private final List<EngineListener> engineListeners;
 	private int maxUpdateSkip;
 	private int updateRate;
-	
 	private volatile boolean running;
 
 	private Engine() {
