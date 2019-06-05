@@ -87,9 +87,9 @@ public class SOMImporter {
 		String[] vMaterialData = rawData.split("vMaterial<")[1].split(">vMaterial", 2)[0].split(",");
 		for (int i = 0; i < vertices.length * 3; i += 3) {
 			int[] location = vectorLibrary.generate();
-			location[VECTOR_X] = mathLibrary.generate(getFloat(vLocationData[i + VECTOR_X]));
-			location[VECTOR_Y] = mathLibrary.generate(getFloat(vLocationData[i + VECTOR_Y]));
-			location[VECTOR_Z] = mathLibrary.generate(getFloat(vLocationData[i + VECTOR_Z]));
+			location[VECTOR_X] = -mathLibrary.generate(getFloat(vLocationData[i + VECTOR_X]));
+			location[VECTOR_Y] = -mathLibrary.generate(getFloat(vLocationData[i + VECTOR_Y]));
+			location[VECTOR_Z] = -mathLibrary.generate(getFloat(vLocationData[i + VECTOR_Z]));
 			int[] normal = vectorLibrary.generate();
 			normal[VECTOR_X] = mathLibrary.generate(getFloat(vNormalData[i + VECTOR_X]));
 			normal[VECTOR_Y] = mathLibrary.generate(getFloat(vNormalData[i + VECTOR_Y]));
