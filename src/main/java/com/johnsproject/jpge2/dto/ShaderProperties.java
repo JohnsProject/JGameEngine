@@ -1,6 +1,4 @@
-package com.johnsproject.jpge2.shader;
-
-import com.johnsproject.jpge2.dto.Texture;
+package com.johnsproject.jpge2.dto;
 
 public class ShaderProperties {
 
@@ -10,8 +8,7 @@ public class ShaderProperties {
 	private int shininess;
 	private Texture texture;
 
-	public ShaderProperties(int diffuseColor, int diffuseIntensity, int specularIntensity, int shininess,
-			Texture texture) {
+	public ShaderProperties(int diffuseColor, int diffuseIntensity, int specularIntensity, int shininess, Texture texture) {
 		this.diffuseIntensity = diffuseIntensity;
 		this.diffuseColor = diffuseColor;
 		this.specularIntensity = specularIntensity;

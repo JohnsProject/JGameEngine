@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Scene;
+import com.johnsproject.jpge2.dto.ShaderProperties;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.event.EngineKeyListener;
@@ -16,7 +17,6 @@ import com.johnsproject.jpge2.importer.SceneImporter;
 import com.johnsproject.jpge2.library.FileLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
-import com.johnsproject.jpge2.shader.ShaderProperties;
 import com.johnsproject.jpge2.shader.shaders.FlatSpecularShader;
 import com.johnsproject.jpge2.shader.shaders.GouraudSpecularShader;
 
@@ -24,8 +24,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 
 	private static final int WINDOW_W = 1024;
 	private static final int WINDOW_H = 768;
-	private static final int RENDER_W = 1024;
-	private static final int RENDER_H = 768;
+	private static final int RENDER_W = 480;
+	private static final int RENDER_H = 320;
 	
 	private final int[] cache;
 	private Transform cameraTransform;
@@ -59,8 +59,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
-//		graphicsController.removeShader(graphicsController.getShader(0));
-//		graphicsController.addShader(new FlatSpecularShader());
+//		graphicsEngine.removeShader(graphicsEngine.getShader(0));
+//		graphicsEngine.addShader(new FlatSpecularShader());
 	}
 	
 	private Scene loadScene() {

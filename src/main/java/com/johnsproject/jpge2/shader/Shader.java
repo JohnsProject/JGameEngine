@@ -2,6 +2,7 @@ package com.johnsproject.jpge2.shader;
 
 import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
+import com.johnsproject.jpge2.dto.ShaderDataBuffer;
 import com.johnsproject.jpge2.dto.Vertex;
 
 public interface Shader {

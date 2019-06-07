@@ -1,16 +1,9 @@
 package com.johnsproject.jpge2.shader.databuffers;
 
-import java.util.List;
-
-import com.johnsproject.jpge2.dto.FrameBuffer;
-import com.johnsproject.jpge2.dto.Light;
+import com.johnsproject.jpge2.dto.ShaderDataBuffer;
 import com.johnsproject.jpge2.dto.Texture;
-import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 
-public class ForwardDataBuffer implements ShaderDataBuffer {
-	
-	private FrameBuffer frameBuffer;
-	private List<Light> lights;
+public class ForwardDataBuffer extends ShaderDataBuffer {
 	
 	private int directionalLightIndex = -1;
 	private int[] directionalLightFrustum;
@@ -26,22 +19,6 @@ public class ForwardDataBuffer implements ShaderDataBuffer {
 	private int[] pointLightFrustum;
 	private int[][][] pointLightMatrices;
 	private Texture[] pointShadowMaps;
-
-	public FrameBuffer getFrameBuffer() {
-		return frameBuffer;
-	}
-
-	public void setFrameBuffer(FrameBuffer frameBuffer) {
-		this.frameBuffer = frameBuffer;
-	}
-
-	public List<Light> getLights() {
-		return lights;
-	}
-
-	public void setLights(List<Light> lights) {
-		this.lights = lights;
-	}
 
 	public int getDirectionalLightIndex() {
 		return directionalLightIndex;

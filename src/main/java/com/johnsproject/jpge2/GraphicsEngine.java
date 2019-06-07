@@ -9,13 +9,13 @@ import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Mesh;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
+import com.johnsproject.jpge2.dto.ShaderDataBuffer;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.event.EngineListener;
 import com.johnsproject.jpge2.library.GraphicsLibrary;
 import com.johnsproject.jpge2.library.MatrixLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.shader.Shader;
-import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 import com.johnsproject.jpge2.shader.shaders.DirectionalLightShadowShader;
 import com.johnsproject.jpge2.shader.shaders.GouraudSpecularShader;
@@ -66,9 +66,9 @@ public class GraphicsEngine implements EngineListener {
 		this.shaders = new ArrayList<Shader>();
 		this.scene = scene;
 		this.frameBuffer = frameBuffer;
-		addPreprocessingShader(new DirectionalLightShadowShader());
-		addPreprocessingShader(new SpotLightShadowShader());
-		addPreprocessingShader(new PointLightShadowShader());
+//		addPreprocessingShader(new DirectionalLightShadowShader());
+//		addPreprocessingShader(new SpotLightShadowShader());
+//		addPreprocessingShader(new PointLightShadowShader());
 		addShader(new GouraudSpecularShader());
 	}
 	

@@ -6,6 +6,8 @@ import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
+import com.johnsproject.jpge2.dto.ShaderDataBuffer;
+import com.johnsproject.jpge2.dto.ShaderProperties;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.library.ColorLibrary;
@@ -14,9 +16,7 @@ import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.MatrixLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.shader.Shader;
-import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
-import com.johnsproject.jpge2.shader.ShaderProperties;
 import com.johnsproject.jpge2.shader.PerspectiveGouraudTriangle;
 
 public class GouraudSpecularShader implements Shader {
@@ -108,6 +108,7 @@ public class GouraudSpecularShader implements Shader {
 		}
 	}
 
+	// VertexShaderInput and Output and only loop through all vertices once
 	public void vertex(int index, Vertex vertex) {
 		this.shaderProperties = (ShaderProperties)vertex.getMaterial().getProperties();
 		int[] location = vertex.getLocation();
@@ -195,7 +196,11 @@ public class GouraudSpecularShader implements Shader {
 	public void geometry(Face face) {
 		color = shaderProperties.getDiffuseColor();
 		texture = shaderProperties.getTexture();
-		graphicsLibrary.drawTriangle(triangle, face, texture, colors, portedFrustum);
+		if (texture == null) {
+			graphicsLibrary.drawTriangle(triangle, face, colors, portedFrustum);
+		} else {
+			graphicsLibrary.drawTriangle(triangle, face, texture, colors, portedFrustum);
+		}
 	}
 
 	public void fragment(int[] location) {

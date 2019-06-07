@@ -6,6 +6,7 @@ import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.LightType;
+import com.johnsproject.jpge2.dto.ShaderDataBuffer;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
@@ -15,7 +16,6 @@ import com.johnsproject.jpge2.library.MatrixLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.shader.FlatTriangle;
 import com.johnsproject.jpge2.shader.Shader;
-import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 
 public class PointLightShadowShader implements Shader {
@@ -127,52 +127,53 @@ public class PointLightShadowShader implements Shader {
 			shadowMaps[i].fill(Integer.MAX_VALUE);
 		}
 		shaderData.setPointLightIndex(-1);
-		
-		int[] cameraLocation = camera.getTransform().getLocation();		
-		int distance = Integer.MAX_VALUE;
-		for (int i = 0; i < lights.size(); i++) {
-			Light light = lights.get(i);
-			lightTransform = light.getTransform();
-			int[] lightPosition = lightTransform.getLocation();
-			int dist = vectorLibrary.distance(cameraLocation, lightPosition);
-			if ((light.getType() == LightType.POINT) & (dist < distance) & (dist < LIGHT_RANGE)) {
-				distance = dist;
-				shaderData.setPointLightIndex(i);
+		if(lights.size() > 0) {
+			int[] cameraLocation = camera.getTransform().getLocation();		
+			int distance = Integer.MAX_VALUE;
+			for (int i = 0; i < lights.size(); i++) {
+				Light light = lights.get(i);
+				lightTransform = light.getTransform();
+				int[] lightPosition = lightTransform.getLocation();
+				int dist = vectorLibrary.distance(cameraLocation, lightPosition);
+				if ((light.getType() == LightType.POINT) & (dist < distance) & (dist < LIGHT_RANGE)) {
+					distance = dist;
+					shaderData.setPointLightIndex(i);
+				}
 			}
+			if (shaderData.getPointLightIndex() == -1)
+				return;		
+			int[][] lightMatrix = lightMatrices[0];
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			lightTransform.rotate(0, 0, 90);
+			lightMatrix = lightMatrices[1];
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			lightTransform.rotate(0, 0, 90);
+			lightMatrix = lightMatrices[2];
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			lightTransform.rotate(0, 0, 90);
+			lightMatrix = lightMatrices[3];
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			lightTransform.rotate(0, 0, -270);
+			lightTransform.rotate(90, 0, 0);
+			lightMatrix = lightMatrices[4];
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			lightTransform.rotate(-180, 0, 0);
+			lightMatrix = lightMatrices[5];
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			lightTransform.rotate(90, 0, 0);
 		}
-		if (shaderData.getPointLightIndex() == -1)
-			return;		
-		int[][] lightMatrix = lightMatrices[0];
-		graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-		graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-		matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
-		lightTransform.rotate(0, 0, 90);
-		lightMatrix = lightMatrices[1];
-		graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-		graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-		matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
-		lightTransform.rotate(0, 0, 90);
-		lightMatrix = lightMatrices[2];
-		graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-		graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-		matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
-		lightTransform.rotate(0, 0, 90);
-		lightMatrix = lightMatrices[3];
-		graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-		graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-		matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
-		lightTransform.rotate(0, 0, -270);
-		lightTransform.rotate(90, 0, 0);
-		lightMatrix = lightMatrices[4];
-		graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-		graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-		matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
-		lightTransform.rotate(-180, 0, 0);
-		lightMatrix = lightMatrices[5];
-		graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-		graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-		matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
-		lightTransform.rotate(90, 0, 0);
 	}
 	
 	public void vertex(int index, Vertex vertex) {

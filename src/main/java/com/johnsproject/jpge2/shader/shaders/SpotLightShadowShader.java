@@ -13,9 +13,9 @@ import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.MatrixLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.dto.LightType;
+import com.johnsproject.jpge2.dto.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.FlatTriangle;
 import com.johnsproject.jpge2.shader.Shader;
-import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
 
 public class SpotLightShadowShader implements Shader {
@@ -105,25 +105,26 @@ public class SpotLightShadowShader implements Shader {
 		// reset shadow map
 		shadowMap.fill(Integer.MAX_VALUE);
 		shaderData.setSpotLightIndex(-1);
-		
-		Transform lightTransform = lights.get(0).getTransform();
-		int[] cameraLocation = camera.getTransform().getLocation();		
-		int distance = Integer.MAX_VALUE;
-		for (int i = 0; i < lights.size(); i++) {
-			Light light = lights.get(i);
-			lightTransform = light.getTransform();
-			int[] lightPosition = lightTransform.getLocation();
-			int dist = vectorLibrary.distance(cameraLocation, lightPosition);
-			if ((light.getType() == LightType.SPOT) & (dist < distance) & (dist < LIGHT_RANGE)) {
-				distance = dist;
-				shaderData.setSpotLightIndex(i);
+		if(lights.size() > 0) {
+			Transform lightTransform = lights.get(0).getTransform();
+			int[] cameraLocation = camera.getTransform().getLocation();		
+			int distance = Integer.MAX_VALUE;
+			for (int i = 0; i < lights.size(); i++) {
+				Light light = lights.get(i);
+				lightTransform = light.getTransform();
+				int[] lightPosition = lightTransform.getLocation();
+				int dist = vectorLibrary.distance(cameraLocation, lightPosition);
+				if ((light.getType() == LightType.SPOT) & (dist < distance) & (dist < LIGHT_RANGE)) {
+					distance = dist;
+					shaderData.setSpotLightIndex(i);
+				}
 			}
+			if (shaderData.getSpotLightIndex() == -1)
+				return;
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
 		}
-		if (shaderData.getSpotLightIndex() == -1)
-			return;
-		graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-		graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-		matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
 	}
 	
 	public void vertex(int index, Vertex vertex) {

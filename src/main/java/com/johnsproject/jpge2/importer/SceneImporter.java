@@ -34,6 +34,7 @@ import com.johnsproject.jpge2.dto.Material;
 import com.johnsproject.jpge2.dto.Mesh;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
+import com.johnsproject.jpge2.dto.ShaderProperties;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.library.ColorLibrary;
@@ -41,7 +42,6 @@ import com.johnsproject.jpge2.library.FileLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.dto.LightType;
-import com.johnsproject.jpge2.shader.ShaderProperties;
 
 public class SceneImporter {
 	

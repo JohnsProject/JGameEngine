@@ -48,7 +48,7 @@ public class EngineWindow extends Frame implements EngineListener {
 		this.setLayout(null);
 		this.setResizable(false);
 		this.setVisible(true);
-		this.setTitle("JPGE2");
+		this.setTitle("JGameEngine");
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
 				System.exit(0);

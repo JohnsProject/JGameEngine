@@ -29,6 +29,8 @@ import com.johnsproject.jpge2.dto.Camera;
 import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
 import com.johnsproject.jpge2.dto.Light;
+import com.johnsproject.jpge2.dto.ShaderDataBuffer;
+import com.johnsproject.jpge2.dto.ShaderProperties;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Vertex;
 import com.johnsproject.jpge2.library.ColorLibrary;
@@ -37,9 +39,7 @@ import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.MatrixLibrary;
 import com.johnsproject.jpge2.library.VectorLibrary;
 import com.johnsproject.jpge2.shader.Shader;
-import com.johnsproject.jpge2.shader.ShaderDataBuffer;
 import com.johnsproject.jpge2.shader.databuffers.ForwardDataBuffer;
-import com.johnsproject.jpge2.shader.ShaderProperties;
 import com.johnsproject.jpge2.shader.PerspectiveFlatTriangle;
 
 public class FlatSpecularShader implements Shader {
@@ -224,7 +224,11 @@ public class FlatSpecularShader implements Shader {
 			graphicsLibrary.viewport(vertexLocation, portedFrustum, vertexLocation);
 		}
 		texture = shaderProperties.getTexture();
-		graphicsLibrary.drawTriangle(triangle, face, texture, portedFrustum);
+		if (texture == null) {
+			graphicsLibrary.drawTriangle(triangle, face, portedFrustum);
+		} else {
+			graphicsLibrary.drawTriangle(triangle, face, texture, portedFrustum);
+		}
 	}
 
 	public void fragment(int[] location) {

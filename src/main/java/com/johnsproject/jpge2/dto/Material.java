@@ -23,8 +23,6 @@
  */
 package com.johnsproject.jpge2.dto;
 
-import com.johnsproject.jpge2.shader.ShaderProperties;
-
 public class Material {
 
 	private int index;
