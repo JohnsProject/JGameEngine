@@ -28,9 +28,7 @@ public class Face {
 	private final int index;
 	private final Vertex[] vertices;
 	private final int[] normal;
-	private final int[] uv1;
-	private final int[] uv2;
-	private final int[] uv3;
+	private final int[][] uvs;
 	private final Material material;
 	private GeometryDataBuffer dataBuffer;
 
@@ -41,9 +39,10 @@ public class Face {
 		this.vertices[1] = vertex2;
 		this.vertices[2] = vertex3;
 		this.normal = normal;
-		this.uv1 = uv1;
-		this.uv2 = uv2;
-		this.uv3 = uv3;
+		this.uvs = new int[3][4];
+		this.uvs[0] = uv1;
+		this.uvs[1] = uv2;
+		this.uvs[2] = uv3;
 		this.material = material;
 		this.dataBuffer = new GeometryDataBuffer(this);
 	}
@@ -64,16 +63,12 @@ public class Face {
 		return normal;
 	}
 	
-	public int[] getUV1() {
-		return uv1;
+	public int[] getUV(int index) {
+		return uvs[index];
 	}
 
-	public int[] getUV2() {
-		return uv2;
-	}
-
-	public int[] getUV3() {
-		return uv3;
+	public int[][] getUVs() {
+		return uvs;
 	}
 
 	public Material getMaterial() {
