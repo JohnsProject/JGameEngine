@@ -26,13 +26,13 @@ package com.johnsproject.jpge2.shader.shaders;
 import java.util.List;
 
 import com.johnsproject.jpge2.dto.Camera;
-import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
+import com.johnsproject.jpge2.dto.GeometryDataBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.ShaderDataBuffer;
 import com.johnsproject.jpge2.dto.ShaderProperties;
 import com.johnsproject.jpge2.dto.Texture;
-import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.dto.VertexDataBuffer;
 import com.johnsproject.jpge2.library.ColorLibrary;
 import com.johnsproject.jpge2.library.GraphicsLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
@@ -69,7 +69,7 @@ public class FlatSpecularShader implements Shader {
 	private final int[] viewDirection;
 	private final int[] faceLocation;
 	private final int[] portedFrustum;
-	
+	private final int[][] vertexLocations;
 	private final int[] lightSpaceLocation;
 	
 	private final int[][] viewMatrix;
@@ -101,6 +101,7 @@ public class FlatSpecularShader implements Shader {
 		this.lightDirection = vectorLibrary.generate();
 		this.viewDirection = vectorLibrary.generate();
 		this.faceLocation = vectorLibrary.generate();
+		this.vertexLocations = new int[3][4];
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
@@ -131,14 +132,14 @@ public class FlatSpecularShader implements Shader {
 		}
 	}
 
-	public void vertex(int index, Vertex vertex) {	}
+	public void vertex(VertexDataBuffer dataBuffer) {	}
 
-	public void geometry(Face face) {
-		this.shaderProperties = (ShaderProperties)face.getMaterial().getProperties();
-		int[] normal = face.getNormal();
-		int[] location1 = face.getVertex(0).getLocation();
-		int[] location2 = face.getVertex(1).getLocation();
-		int[] location3 = face.getVertex(2).getLocation();
+	public void geometry(GeometryDataBuffer dataBuffer) {
+		this.shaderProperties = (ShaderProperties)dataBuffer.getMaterial().getProperties();
+		int[] normal = dataBuffer.getNormal();
+		int[] location1 = dataBuffer.getVertexDataBuffer(0).getLocation();
+		int[] location2 = dataBuffer.getVertexDataBuffer(1).getLocation();
+		int[] location3 = dataBuffer.getVertexDataBuffer(2).getLocation();
 		vectorLibrary.add(location1, location2, faceLocation);
 		vectorLibrary.add(faceLocation, location3, faceLocation);
 		vectorLibrary.divide(faceLocation, 3 << FP_BITS, faceLocation);		
@@ -217,17 +218,22 @@ public class FlatSpecularShader implements Shader {
 			}
 		}
 		color = shaderProperties.getDiffuseColor();
-		for (int i = 0; i < face.getVertices().length; i++) {
-			int[] vertexLocation = face.getVertices()[i].getLocation();
+		for (int i = 0; i < dataBuffer.getVertexDataBuffers().length; i++) {
+			int[] vertexLocation = dataBuffer.getVertexDataBuffer(i).getLocation();
+			vectorLibrary.copy(vertexLocations[i], vertexLocation);
 			vectorLibrary.multiply(vertexLocation, viewMatrix, vertexLocation);
 			vectorLibrary.multiply(vertexLocation, projectionMatrix, vertexLocation);
 			graphicsLibrary.viewport(vertexLocation, portedFrustum, vertexLocation);
 		}
 		texture = shaderProperties.getTexture();
 		if (texture == null) {
-			graphicsLibrary.drawTriangle(triangle, face, portedFrustum);
+			graphicsLibrary.drawFlatTriangle(triangle, dataBuffer, portedFrustum);
 		} else {
-			graphicsLibrary.drawTriangle(triangle, face, texture, portedFrustum);
+			graphicsLibrary.drawPerspectiveFlatTriangle(triangle, dataBuffer, texture, portedFrustum);
+		}
+		for (int i = 0; i < dataBuffer.getVertexDataBuffers().length; i++) {
+			int[] vertexLocation = dataBuffer.getVertexDataBuffer(i).getLocation();
+			vectorLibrary.copy(vertexLocation, vertexLocations[i]);
 		}
 	}
 

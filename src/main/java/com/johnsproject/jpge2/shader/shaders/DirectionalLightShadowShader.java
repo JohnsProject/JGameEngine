@@ -3,13 +3,13 @@ package com.johnsproject.jpge2.shader.shaders;
 import java.util.List;
 
 import com.johnsproject.jpge2.dto.Camera;
-import com.johnsproject.jpge2.dto.Face;
+import com.johnsproject.jpge2.dto.GeometryDataBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.LightType;
 import com.johnsproject.jpge2.dto.ShaderDataBuffer;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
-import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.dto.VertexDataBuffer;
 import com.johnsproject.jpge2.library.GraphicsLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.MatrixLibrary;
@@ -99,11 +99,10 @@ public class DirectionalLightShadowShader implements Shader {
 			shaderData.setDirectionalShadowMap(shadowMap);
 		}
 		graphicsLibrary.portFrustum(lightFrustum, shadowMap.getWidth(), shadowMap.getHeight(), portedFrustum);
+		shadowMap.fill(Integer.MAX_VALUE);
 	}
 	
 	public void setup(Camera camera) {
-		// reset shadow map
-		shadowMap.fill(Integer.MAX_VALUE);		
 		shaderData.setDirectionalLightIndex(-1);
 		if(lights.size() > 0) {
 			Transform lightTransform = lights.get(0).getTransform();
@@ -128,18 +127,18 @@ public class DirectionalLightShadowShader implements Shader {
 		}
 	}
 
-	public void vertex(int index, Vertex vertex) {
+	public void vertex(VertexDataBuffer dataBuffer) {
 		if (shaderData.getDirectionalLightIndex() == -1)
 			return;
-		int[] location = vertex.getLocation();
+		int[] location = dataBuffer.getLocation();
 		vectorLibrary.multiply(location, lightMatrix, location);
 		graphicsLibrary.viewport(location, portedFrustum, location);
 	}
 	
-	public void geometry(Face face) {
+	public void geometry(GeometryDataBuffer dataBuffer) {
 		if (shaderData.getDirectionalLightIndex() == -1)
 			return;
-		graphicsLibrary.drawTriangle(triangle, face, portedFrustum);
+		graphicsLibrary.drawFlatTriangle(triangle, dataBuffer, portedFrustum);
 	}
 
 	public void fragment(int[] location) {

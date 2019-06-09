@@ -3,13 +3,13 @@ package com.johnsproject.jpge2.shader.shaders;
 import java.util.List;
 
 import com.johnsproject.jpge2.dto.Camera;
-import com.johnsproject.jpge2.dto.Face;
+import com.johnsproject.jpge2.dto.GeometryDataBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.LightType;
 import com.johnsproject.jpge2.dto.ShaderDataBuffer;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
-import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.dto.VertexDataBuffer;
 import com.johnsproject.jpge2.library.GraphicsLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
 import com.johnsproject.jpge2.library.MatrixLibrary;
@@ -119,13 +119,12 @@ public class PointLightShadowShader implements Shader {
 			shaderData.setPointShadowMaps(shadowMaps);
 		}
 		graphicsLibrary.portFrustum(lightFrustum, shadowMaps[0].getWidth(), shadowMaps[0].getHeight(), portedFrustum);
-	}
-
-	public void setup(Camera camera) {
-		// reset shadow maps
 		for (int i = 0; i < shadowMaps.length; i++) {
 			shadowMaps[i].fill(Integer.MAX_VALUE);
 		}
+	}
+
+	public void setup(Camera camera) {
 		shaderData.setPointLightIndex(-1);
 		if(lights.size() > 0) {
 			int[] cameraLocation = camera.getTransform().getLocation();		
@@ -176,22 +175,22 @@ public class PointLightShadowShader implements Shader {
 		}
 	}
 	
-	public void vertex(int index, Vertex vertex) {
+	public void vertex(VertexDataBuffer dataBuffer) {
 	}
 
-	public void geometry(Face face) {
+	public void geometry(GeometryDataBuffer dataBuffer) {
 		if (shaderData.getPointLightIndex() == -1)
 			return;	
-		backup(face);
+		backup(dataBuffer);
 		for (int i = 0; i < lightMatrices.length; i++) {
 			currentShadowMap = shadowMaps[i];
-			for (int j = 0; j < face.getVertices().length; j++) {
-				int[] vertexLocation = face.getVertices()[j].getLocation();
+			for (int j = 0; j < dataBuffer.getVertexDataBuffers().length; j++) {
+				int[] vertexLocation = dataBuffer.getVertexDataBuffer(j).getLocation();
 				vectorLibrary.multiply(vertexLocation, lightMatrices[i], vertexLocation);
 				graphicsLibrary.viewport(vertexLocation, portedFrustum, vertexLocation);
 			}
-			graphicsLibrary.drawTriangle(triangle, face, portedFrustum);
-			restore(face);
+			graphicsLibrary.drawFlatTriangle(triangle, dataBuffer, portedFrustum);
+			restore(dataBuffer);
 		}
 	}
 
@@ -204,16 +203,16 @@ public class PointLightShadowShader implements Shader {
 		}
 	}
 	
-	private void backup(Face face) {
-		vectorLibrary.copy(location0Cache, face.getVertex(0).getLocation());
-		vectorLibrary.copy(location1Cache, face.getVertex(1).getLocation());
-		vectorLibrary.copy(location2Cache, face.getVertex(2).getLocation());
+	private void backup(GeometryDataBuffer dataBuffer) {
+		vectorLibrary.copy(location0Cache, dataBuffer.getVertexDataBuffer(0).getLocation());
+		vectorLibrary.copy(location1Cache, dataBuffer.getVertexDataBuffer(1).getLocation());
+		vectorLibrary.copy(location2Cache, dataBuffer.getVertexDataBuffer(2).getLocation());
 	}
 	
-	private void restore(Face face) {
-		vectorLibrary.copy(face.getVertex(0).getLocation(), location0Cache);
-		vectorLibrary.copy(face.getVertex(1).getLocation(), location1Cache);
-		vectorLibrary.copy(face.getVertex(2).getLocation(), location2Cache);
+	private void restore(GeometryDataBuffer dataBuffer) {
+		vectorLibrary.copy(dataBuffer.getVertexDataBuffer(0).getLocation(), location0Cache);
+		vectorLibrary.copy(dataBuffer.getVertexDataBuffer(1).getLocation(), location1Cache);
+		vectorLibrary.copy(dataBuffer.getVertexDataBuffer(2).getLocation(), location2Cache);
 	}
 
 	public void terminate(ShaderDataBuffer shaderDataBuffer) {

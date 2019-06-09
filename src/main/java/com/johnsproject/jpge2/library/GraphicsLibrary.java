@@ -1,7 +1,7 @@
 package com.johnsproject.jpge2.library;
 
 import com.johnsproject.jpge2.dto.Camera;
-import com.johnsproject.jpge2.dto.Face;
+import com.johnsproject.jpge2.dto.GeometryDataBuffer;
 import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.shader.AffineFlatTriangle;
@@ -109,59 +109,59 @@ public class GraphicsLibrary {
 		return result;
 	}
 	
-	public void drawTriangle(FlatTriangle triangle, Face face, int[] cameraFrustum) {
-		if (clip(face, cameraFrustum))
+	public void drawFlatTriangle(FlatTriangle triangle, GeometryDataBuffer dataBuffer, int[] cameraFrustum) {
+		if (clip(dataBuffer, cameraFrustum))
 			return;
-		copyLocations(triangle, face);
+		copyLocations(triangle, dataBuffer);
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
-	public void drawTriangle(GouraudTriangle triangle, Face face, int[] colors, int[] cameraFrustum) {
-		if (clip(face, cameraFrustum))
+	public void drawGouraudTriangle(GouraudTriangle triangle, GeometryDataBuffer dataBuffer, int[] cameraFrustum) {
+		if (clip(dataBuffer, cameraFrustum))
 			return;
-		copyColors(triangle, colors);
-		copyLocations(triangle, face);
+		copyColors(triangle, dataBuffer);
+		copyLocations(triangle, dataBuffer);
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
-	public void drawTriangle(AffineFlatTriangle triangle, Face face, Texture texture, int[] cameraFrustum) {
-		if (clip(face, cameraFrustum))
+	public void drawAffineFlatTriangle(AffineFlatTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
+		if (clip(dataBuffer, cameraFrustum))
 			return;
-		copyUVs(triangle, face, texture);
-		copyLocations(triangle, face);
+		copyUVs(triangle, dataBuffer, texture);
+		copyLocations(triangle, dataBuffer);
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
-	public void drawTriangle(PerspectiveFlatTriangle triangle, Face face, Texture texture, int[] cameraFrustum) {
-		if (clip(face, cameraFrustum))
+	public void drawPerspectiveFlatTriangle(PerspectiveFlatTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
+		if (clip(dataBuffer, cameraFrustum))
 			return;
-		copyUVs(triangle, face, texture);
-		copyLocations(triangle, face);
+		copyUVs(triangle, dataBuffer, texture);
+		copyLocations(triangle, dataBuffer);
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
-	public void drawTriangle(AffineGouraudTriangle triangle, Face face, Texture texture, int[] colors, int[] cameraFrustum) {
-		if (clip(face, cameraFrustum))
+	public void drawAffineGouraudTriangle(AffineGouraudTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
+		if (clip(dataBuffer, cameraFrustum))
 			return;
-		copyUVs(triangle, face, texture);
-		copyColors(triangle, colors);
-		copyLocations(triangle, face);
+		copyUVs(triangle, dataBuffer, texture);
+		copyColors(triangle, dataBuffer);
+		copyLocations(triangle, dataBuffer);
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
-	public void drawTriangle(PerspectiveGouraudTriangle triangle, Face face, Texture texture, int[] colors, int[] cameraFrustum) {
-		if (clip(face, cameraFrustum))
+	public void drawPerspectiveGouraudTriangle(PerspectiveGouraudTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
+		if (clip(dataBuffer, cameraFrustum))
 			return;
-		copyUVs(triangle, face, texture);
-		copyColors(triangle, colors);
-		copyLocations(triangle, face);
+		copyUVs(triangle, dataBuffer, texture);
+		copyColors(triangle, dataBuffer);
+		copyLocations(triangle, dataBuffer);
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
-	private boolean clip(Face face, int[] cameraFrustum) {
-		int[] location1 = face.getVertex(0).getLocation();
-		int[] location2 = face.getVertex(1).getLocation();
-		int[] location3 = face.getVertex(2).getLocation();
+	private boolean clip(GeometryDataBuffer dataBuffer, int[] cameraFrustum) {
+		int[] location1 = dataBuffer.getVertexDataBuffer(0).getLocation();
+		int[] location2 = dataBuffer.getVertexDataBuffer(1).getLocation();
+		int[] location3 = dataBuffer.getVertexDataBuffer(2).getLocation();
 		int triangleSize = shoelace(location1, location2, location3);
 		if (triangleSize > 0) // backface culling
 			return true;
@@ -193,47 +193,47 @@ public class GraphicsLibrary {
 				- (vector3[VECTOR_X] - vector1[VECTOR_X]) * (vector2[VECTOR_Y] - vector1[VECTOR_Y]);
 	}
 	
-	private void copyUVs(AffineFlatTriangle triangle, Face face, Texture texture) {
+	private void copyUVs(AffineFlatTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture) {
 		if (texture != null) {
 			int width = texture.getWidth() - 1;
 			int height = texture.getHeight() - 1;
-			triangle.getU()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_X], width);
-			triangle.getU()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_X], width);
-			triangle.getU()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_X], width);
-			triangle.getV()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_Y], height);
-			triangle.getV()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
-			triangle.getV()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
+			triangle.getU()[0] = mathLibrary.multiply(dataBuffer.getUV1()[VECTOR_X], width);
+			triangle.getU()[1] = mathLibrary.multiply(dataBuffer.getUV2()[VECTOR_X], width);
+			triangle.getU()[2] = mathLibrary.multiply(dataBuffer.getUV3()[VECTOR_X], width);
+			triangle.getV()[0] = mathLibrary.multiply(dataBuffer.getUV1()[VECTOR_Y], height);
+			triangle.getV()[1] = mathLibrary.multiply(dataBuffer.getUV2()[VECTOR_Y], height);
+			triangle.getV()[2] = mathLibrary.multiply(dataBuffer.getUV3()[VECTOR_Y], height);
 		}
 	}
 	
-	private void copyUVs(AffineGouraudTriangle triangle, Face face, Texture texture) {
+	private void copyUVs(AffineGouraudTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture) {
 		if (texture != null) {
 			int width = texture.getWidth() - 1;
 			int height = texture.getHeight() - 1;
-			triangle.getU()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_X], width);
-			triangle.getU()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_X], width);
-			triangle.getU()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_X], width);
-			triangle.getV()[0] = mathLibrary.multiply(face.getUV1()[VECTOR_Y], height);
-			triangle.getV()[1] = mathLibrary.multiply(face.getUV2()[VECTOR_Y], height);
-			triangle.getV()[2] = mathLibrary.multiply(face.getUV3()[VECTOR_Y], height);
+			triangle.getU()[0] = mathLibrary.multiply(dataBuffer.getUV1()[VECTOR_X], width);
+			triangle.getU()[1] = mathLibrary.multiply(dataBuffer.getUV2()[VECTOR_X], width);
+			triangle.getU()[2] = mathLibrary.multiply(dataBuffer.getUV3()[VECTOR_X], width);
+			triangle.getV()[0] = mathLibrary.multiply(dataBuffer.getUV1()[VECTOR_Y], height);
+			triangle.getV()[1] = mathLibrary.multiply(dataBuffer.getUV2()[VECTOR_Y], height);
+			triangle.getV()[2] = mathLibrary.multiply(dataBuffer.getUV3()[VECTOR_Y], height);
 		}
 	}
 	
-	private void copyColors(GouraudTriangle triangle, int[] colors) {
-		triangle.getRed()[0] = colorLibrary.getRed(colors[0]);
-		triangle.getGreen()[0] = colorLibrary.getGreen(colors[0]);
-		triangle.getBlue()[0] = colorLibrary.getBlue(colors[0]);
-		triangle.getRed()[1] = colorLibrary.getRed(colors[1]);
-		triangle.getGreen()[1] = colorLibrary.getGreen(colors[1]);
-		triangle.getBlue()[1] = colorLibrary.getBlue(colors[1]);
-		triangle.getRed()[2] = colorLibrary.getRed(colors[2]);
-		triangle.getGreen()[2] = colorLibrary.getGreen(colors[2]);
-		triangle.getBlue()[2] = colorLibrary.getBlue(colors[2]);
+	private void copyColors(GouraudTriangle triangle, GeometryDataBuffer dataBuffer) {
+		triangle.getRed()[0] = colorLibrary.getRed(dataBuffer.getVertexDataBuffer(0).getLightColor());
+		triangle.getGreen()[0] = colorLibrary.getGreen(dataBuffer.getVertexDataBuffer(0).getLightColor());
+		triangle.getBlue()[0] = colorLibrary.getBlue(dataBuffer.getVertexDataBuffer(0).getLightColor());
+		triangle.getRed()[1] = colorLibrary.getRed(dataBuffer.getVertexDataBuffer(1).getLightColor());
+		triangle.getGreen()[1] = colorLibrary.getGreen(dataBuffer.getVertexDataBuffer(1).getLightColor());
+		triangle.getBlue()[1] = colorLibrary.getBlue(dataBuffer.getVertexDataBuffer(1).getLightColor());
+		triangle.getRed()[2] = colorLibrary.getRed(dataBuffer.getVertexDataBuffer(2).getLightColor());
+		triangle.getGreen()[2] = colorLibrary.getGreen(dataBuffer.getVertexDataBuffer(2).getLightColor());
+		triangle.getBlue()[2] = colorLibrary.getBlue(dataBuffer.getVertexDataBuffer(2).getLightColor());
 	}
 	
-	private void copyLocations(FlatTriangle triangle, Face face) {
-		vectorLibrary.copy(triangle.getLocation1(), face.getVertex(0).getLocation());
-		vectorLibrary.copy(triangle.getLocation2(), face.getVertex(1).getLocation());
-		vectorLibrary.copy(triangle.getLocation3(), face.getVertex(2).getLocation());
+	private void copyLocations(FlatTriangle triangle, GeometryDataBuffer dataBuffer) {
+		vectorLibrary.copy(triangle.getLocation1(), dataBuffer.getVertexDataBuffer(0).getLocation());
+		vectorLibrary.copy(triangle.getLocation2(), dataBuffer.getVertexDataBuffer(1).getLocation());
+		vectorLibrary.copy(triangle.getLocation3(), dataBuffer.getVertexDataBuffer(2).getLocation());
 	}
 }

@@ -25,16 +25,18 @@ package com.johnsproject.jpge2.dto;
 
 public class Vertex {
 	
-	private int index;
-	private int[] location;
-	private int[] normal;
-	private Material material;
+	private final int index;
+	private final int[] location;
+	private final int[] normal;
+	private final Material material;
+	private VertexDataBuffer dataBuffer;
 	
 	public Vertex(int index, int[] location, int[] normal, Material material) {
 		this.index = index;
 		this.location = location;
 		this.normal = normal;
 		this.material = material;
+		this.dataBuffer = new VertexDataBuffer(this);
 	}
 
 	public int getIndex() {
@@ -51,5 +53,13 @@ public class Vertex {
 	
 	public Material getMaterial() {
 		return material;
+	}
+
+	public VertexDataBuffer getDataBuffer() {
+		return dataBuffer;
+	}
+
+	public void setDataBuffer(VertexDataBuffer dataBuffer) {
+		this.dataBuffer = dataBuffer;
 	}
 }

@@ -12,7 +12,6 @@ import com.johnsproject.jpge2.dto.Texture;
 import com.johnsproject.jpge2.dto.Transform;
 import com.johnsproject.jpge2.event.EngineKeyListener;
 import com.johnsproject.jpge2.event.EngineListener;
-import com.johnsproject.jpge2.importer.SOMImporter;
 import com.johnsproject.jpge2.importer.SceneImporter;
 import com.johnsproject.jpge2.library.FileLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
@@ -24,8 +23,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 
 	private static final int WINDOW_W = 1024;
 	private static final int WINDOW_H = 768;
-	private static final int RENDER_W = 480;
-	private static final int RENDER_H = 320;
+	private static final int RENDER_W = 1024;
+	private static final int RENDER_H = 768;
 	
 	private final int[] cache;
 	private Transform cameraTransform;

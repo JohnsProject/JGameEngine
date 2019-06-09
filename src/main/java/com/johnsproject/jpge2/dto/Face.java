@@ -25,13 +25,14 @@ package com.johnsproject.jpge2.dto;
 
 public class Face {
 		
-	private int index;
-	private Vertex[] vertices;
-	private int[] normal;
-	private int[] uv1;
-	private int[] uv2;
-	private int[] uv3;
-	private Material material;
+	private final int index;
+	private final Vertex[] vertices;
+	private final int[] normal;
+	private final int[] uv1;
+	private final int[] uv2;
+	private final int[] uv3;
+	private final Material material;
+	private GeometryDataBuffer dataBuffer;
 
 	public Face(int index, Vertex vertex1, Vertex vertex2, Vertex vertex3, Material material, int[] normal, int[] uv1, int[] uv2, int[] uv3) {
 		this.index = index;
@@ -44,6 +45,7 @@ public class Face {
 		this.uv2 = uv2;
 		this.uv3 = uv3;
 		this.material = material;
+		this.dataBuffer = new GeometryDataBuffer(this);
 	}
 
 	public int getIndex() {
@@ -76,5 +78,13 @@ public class Face {
 
 	public Material getMaterial() {
 		return material;
+	}
+
+	public GeometryDataBuffer getDataBuffer() {
+		return dataBuffer;
+	}
+
+	public void setDataBuffer(GeometryDataBuffer dataBuffer) {
+		this.dataBuffer = dataBuffer;
 	}
 }

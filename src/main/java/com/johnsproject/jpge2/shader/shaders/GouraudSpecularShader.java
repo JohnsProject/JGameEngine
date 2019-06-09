@@ -3,13 +3,13 @@ package com.johnsproject.jpge2.shader.shaders;
 import java.util.List;
 
 import com.johnsproject.jpge2.dto.Camera;
-import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
+import com.johnsproject.jpge2.dto.GeometryDataBuffer;
 import com.johnsproject.jpge2.dto.Light;
 import com.johnsproject.jpge2.dto.ShaderDataBuffer;
 import com.johnsproject.jpge2.dto.ShaderProperties;
 import com.johnsproject.jpge2.dto.Texture;
-import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.dto.VertexDataBuffer;
 import com.johnsproject.jpge2.library.ColorLibrary;
 import com.johnsproject.jpge2.library.GraphicsLibrary;
 import com.johnsproject.jpge2.library.MathLibrary;
@@ -45,7 +45,6 @@ public class GouraudSpecularShader implements Shader {
 	private final int[] lightLocation;
 	private final int[] viewDirection;
 	private final int[] portedFrustum;
-	private final int[] colors;
 	
 	private final int[][] viewMatrix;
 	private final int[][] projectionMatrix;
@@ -62,7 +61,6 @@ public class GouraudSpecularShader implements Shader {
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
 	private ForwardDataBuffer shaderData;
-	private ShaderProperties shaderProperties;
 
 	public GouraudSpecularShader() {
 		this.graphicsLibrary = new GraphicsLibrary();
@@ -76,7 +74,6 @@ public class GouraudSpecularShader implements Shader {
 		this.lightDirection = vectorLibrary.generate();
 		this.lightLocation = vectorLibrary.generate();
 		this.viewDirection = vectorLibrary.generate();
-		this.colors = vectorLibrary.generate();
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 
 		this.viewMatrix = matrixLibrary.generate();
@@ -108,11 +105,10 @@ public class GouraudSpecularShader implements Shader {
 		}
 	}
 
-	// VertexShaderInput and Output and only loop through all vertices once
-	public void vertex(int index, Vertex vertex) {
-		this.shaderProperties = (ShaderProperties)vertex.getMaterial().getProperties();
-		int[] location = vertex.getLocation();
-		int[] normal = vertex.getNormal();
+	public void vertex(VertexDataBuffer dataBuffer) {
+		ShaderProperties shaderProperties = (ShaderProperties)dataBuffer.getMaterial().getProperties();
+		int[] location = dataBuffer.getLocation();
+		int[] normal = dataBuffer.getNormal();
 		int lightColor = ColorLibrary.BLACK;
 		int[] cameraLocation = camera.getTransform().getLocation();	
 		vectorLibrary.subtract(cameraLocation, location, viewDirection);
@@ -187,19 +183,20 @@ public class GouraudSpecularShader implements Shader {
 				lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
 			}
 		}
-		colors[index] = lightColor;
+		dataBuffer.setLightColor(lightColor);
 		vectorLibrary.multiply(location, viewMatrix, location);
 		vectorLibrary.multiply(location, projectionMatrix, location);
 		graphicsLibrary.viewport(location, portedFrustum, location);
 	}
 
-	public void geometry(Face face) {
+	public void geometry(GeometryDataBuffer dataBuffer) {
+		ShaderProperties shaderProperties = (ShaderProperties)dataBuffer.getMaterial().getProperties();
 		color = shaderProperties.getDiffuseColor();
 		texture = shaderProperties.getTexture();
 		if (texture == null) {
-			graphicsLibrary.drawTriangle(triangle, face, colors, portedFrustum);
+			graphicsLibrary.drawGouraudTriangle(triangle, dataBuffer, portedFrustum);
 		} else {
-			graphicsLibrary.drawTriangle(triangle, face, texture, colors, portedFrustum);
+			graphicsLibrary.drawPerspectiveGouraudTriangle(triangle, dataBuffer, texture, portedFrustum);
 		}
 	}
 

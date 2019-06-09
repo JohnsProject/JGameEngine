@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.johnsproject.jpge2.dto.Camera;
-import com.johnsproject.jpge2.dto.Face;
 import com.johnsproject.jpge2.dto.FrameBuffer;
+import com.johnsproject.jpge2.dto.GeometryDataBuffer;
 import com.johnsproject.jpge2.dto.Mesh;
 import com.johnsproject.jpge2.dto.Model;
 import com.johnsproject.jpge2.dto.Scene;
 import com.johnsproject.jpge2.dto.ShaderDataBuffer;
-import com.johnsproject.jpge2.dto.Vertex;
+import com.johnsproject.jpge2.dto.VertexDataBuffer;
 import com.johnsproject.jpge2.event.EngineListener;
 import com.johnsproject.jpge2.library.GraphicsLibrary;
 import com.johnsproject.jpge2.library.MatrixLibrary;
@@ -23,14 +23,6 @@ import com.johnsproject.jpge2.shader.shaders.PointLightShadowShader;
 import com.johnsproject.jpge2.shader.shaders.SpotLightShadowShader;
 
 public class GraphicsEngine implements EngineListener {
-	
-	private final int[] location0Cache;
-	private final int[] location1Cache;
-	private final int[] location2Cache;
-	private final int[] normal0Cache;
-	private final int[] normal1Cache;
-	private final int[] normal2Cache;
-	private final int[] normal3Cache;
 	
 	private int[][] modelMatrix;
 	private int[][] normalMatrix;
@@ -52,13 +44,6 @@ public class GraphicsEngine implements EngineListener {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.location0Cache = vectorLibrary.generate();
-		this.location1Cache = vectorLibrary.generate();
-		this.location2Cache = vectorLibrary.generate();
-		this.normal0Cache = vectorLibrary.generate();
-		this.normal1Cache = vectorLibrary.generate();
-		this.normal2Cache = vectorLibrary.generate();
-		this.normal3Cache = vectorLibrary.generate();
 		this.modelMatrix = matrixLibrary.generate();
 		this.normalMatrix = matrixLibrary.generate();
 		
@@ -66,9 +51,9 @@ public class GraphicsEngine implements EngineListener {
 		this.shaders = new ArrayList<Shader>();
 		this.scene = scene;
 		this.frameBuffer = frameBuffer;
-//		addPreprocessingShader(new DirectionalLightShadowShader());
-//		addPreprocessingShader(new SpotLightShadowShader());
-//		addPreprocessingShader(new PointLightShadowShader());
+		addPreprocessingShader(new DirectionalLightShadowShader());
+		addPreprocessingShader(new SpotLightShadowShader());
+		addPreprocessingShader(new PointLightShadowShader());
 		addShader(new GouraudSpecularShader());
 	}
 	
@@ -88,45 +73,28 @@ public class GraphicsEngine implements EngineListener {
 					Mesh mesh = model.getMesh();
 					graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
 					graphicsLibrary.normalMatrix(normalMatrix, model.getTransform());
-					for (int f = 0; f < mesh.getFaces().length; f++) {
-						Face face = mesh.getFace(f);
-						if ((face.getMaterial().getShaderIndex() == s - preShadersCount)
+					for (int v = 0; v < mesh.getVertices().length; v++) {
+						VertexDataBuffer dataBuffer = mesh.getVertex(v).getDataBuffer();
+						if ((dataBuffer.getMaterial().getShaderIndex() == s - preShadersCount)
 								| (s < preShadersCount) | (s > preShadersCount + shadersCount)) {
-							backup(face);
-							for (int v = 0; v < face.getVertices().length; v++) {
-								Vertex vertex = face.getVertices()[v];
-								vectorLibrary.multiply(vertex.getLocation(), modelMatrix, vertex.getLocation());
-								vectorLibrary.multiply(vertex.getNormal(), normalMatrix, vertex.getNormal());
-								shader.vertex(v, vertex);
-							}
-							vectorLibrary.multiply(face.getNormal(), normalMatrix, face.getNormal());
-							shader.geometry(face);
-							restore(face);
+							dataBuffer.reset();
+							vectorLibrary.multiply(dataBuffer.getLocation(), modelMatrix, dataBuffer.getLocation());
+							vectorLibrary.multiply(dataBuffer.getNormal(), normalMatrix, dataBuffer.getNormal());
+							shader.vertex(dataBuffer);
+						}
+					}
+					for (int f = 0; f < mesh.getFaces().length; f++) {
+						GeometryDataBuffer dataBuffer = mesh.getFace(f).getDataBuffer();
+						if ((dataBuffer.getMaterial().getShaderIndex() == s - preShadersCount)
+								| (s < preShadersCount) | (s > preShadersCount + shadersCount)) {
+							dataBuffer.reset();
+							vectorLibrary.multiply(dataBuffer.getNormal(), normalMatrix, dataBuffer.getNormal());
+							shader.geometry(dataBuffer);
 						}
 					}
 				}
 			}
 		}
-	}
-	
-	private void backup(Face face) {
-		vectorLibrary.copy(location0Cache, face.getVertex(0).getLocation());
-		vectorLibrary.copy(location1Cache, face.getVertex(1).getLocation());
-		vectorLibrary.copy(location2Cache, face.getVertex(2).getLocation());
-		vectorLibrary.copy(normal0Cache, face.getVertex(0).getNormal());
-		vectorLibrary.copy(normal1Cache, face.getVertex(1).getNormal());
-		vectorLibrary.copy(normal2Cache, face.getVertex(2).getNormal());
-		vectorLibrary.copy(normal3Cache, face.getNormal());
-	}
-	
-	private void restore(Face face) {
-		vectorLibrary.copy(face.getVertex(0).getLocation(), location0Cache);
-		vectorLibrary.copy(face.getVertex(1).getLocation(), location1Cache);
-		vectorLibrary.copy(face.getVertex(2).getLocation(), location2Cache);
-		vectorLibrary.copy(face.getVertex(0).getNormal(), normal0Cache);
-		vectorLibrary.copy(face.getVertex(1).getNormal(), normal1Cache);
-		vectorLibrary.copy(face.getVertex(2).getNormal(), normal2Cache);
-		vectorLibrary.copy(face.getNormal(), normal3Cache);
 	}
 	
 	public void fixedUpdate() { }
