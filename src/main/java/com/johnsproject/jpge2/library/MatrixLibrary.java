@@ -23,6 +23,12 @@
  */
 package com.johnsproject.jpge2.library;
 
+/**
+ * The MatrixLibrary class contains methods for generating matrices and performing matrix 
+ * operations such as multiply, translate, scale, rotate.
+ * 
+ * @author John Ferraz Salomon
+ */
 public class MatrixLibrary {
 
 	private static final int FP_ONE = MathLibrary.FP_ONE;

@@ -120,7 +120,7 @@ public class FlatSpecularShader implements Shader {
 	public void setup(Camera camera) {
 		this.camera = camera;
 		graphicsLibrary.viewMatrix(viewMatrix, camera.getTransform());
-		graphicsLibrary.portFrustum(camera.getFrustum(), frameBuffer.getWidth(), frameBuffer.getHeight(), portedFrustum);
+		graphicsLibrary.screenportFrustum(camera.getFrustum(), frameBuffer.getWidth(), frameBuffer.getHeight(), portedFrustum);
 		switch (camera.getType()) {
 		case ORTHOGRAPHIC:
 			graphicsLibrary.orthographicMatrix(projectionMatrix, portedFrustum);
@@ -163,7 +163,7 @@ public class FlatSpecularShader implements Shader {
 				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
 				if (i == shaderData.getDirectionalLightIndex()) {
 					vectorLibrary.multiply(faceLocation, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
-					graphicsLibrary.viewport(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
+					graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
 					inShadow = inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap());
 				}
 				break;
@@ -180,7 +180,7 @@ public class FlatSpecularShader implements Shader {
 				if ((i == shaderData.getPointLightIndex()) && (currentFactor > 100)) {
 					for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
 						vectorLibrary.multiply(faceLocation, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
-						graphicsLibrary.viewport(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
+						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
 						inShadow = inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j]);
 					}
 				}
@@ -203,7 +203,7 @@ public class FlatSpecularShader implements Shader {
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
 					if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
 						vectorLibrary.multiply(faceLocation, shaderData.getSpotLightMatrix(), lightSpaceLocation);
-						graphicsLibrary.viewport(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
+						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
 						inShadow = inShadow(lightSpaceLocation, shaderData.getSpotShadowMap());
 					}
 				}
@@ -223,7 +223,7 @@ public class FlatSpecularShader implements Shader {
 			vectorLibrary.copy(vertexLocations[i], vertexLocation);
 			vectorLibrary.multiply(vertexLocation, viewMatrix, vertexLocation);
 			vectorLibrary.multiply(vertexLocation, projectionMatrix, vertexLocation);
-			graphicsLibrary.viewport(vertexLocation, portedFrustum, vertexLocation);
+			graphicsLibrary.screenportVector(vertexLocation, portedFrustum, vertexLocation);
 		}
 		texture = shaderProperties.getTexture();
 		if (texture == null) {

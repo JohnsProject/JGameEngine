@@ -1,3 +1,26 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2018 John Salomon - John´s Project
+ *  
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.johnsproject.jpge2.library;
 
 import com.johnsproject.jpge2.dto.Camera;
@@ -11,6 +34,13 @@ import com.johnsproject.jpge2.shader.GouraudTriangle;
 import com.johnsproject.jpge2.shader.PerspectiveFlatTriangle;
 import com.johnsproject.jpge2.shader.PerspectiveGouraudTriangle;
 
+/**
+ * The GraphicsLibrary class contains methods for generating 
+ * matrices needed to move location vectors between spaces 
+ * and triangle drawing algorithms.
+ * 
+ * @author John Ferraz Salomon
+ */
 public class GraphicsLibrary {
 	
 	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
@@ -33,6 +63,14 @@ public class GraphicsLibrary {
 		this.colorLibrary = new ColorLibrary();
 	}
 
+	/**
+	 * Fills the given matrix with the values of the model matrix of the given transform.
+	 * This matrix can be used to transform location vectors from local/model to world space.
+	 * 
+	 * @param matrix
+	 * @param transform
+	 * @return
+	 */
 	public int[][] modelMatrix(int[][] matrix, Transform transform) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
@@ -44,6 +82,14 @@ public class GraphicsLibrary {
 		return matrix;
 	}
 
+	/**
+	 * Fills the given matrix with the values of the normal matrix of the given transform.
+	 * This matrix can be used to transform normal vectors from local/model to world space.
+	 * 
+	 * @param matrix
+	 * @param transform
+	 * @return
+	 */
 	public int[][] normalMatrix(int[][] matrix, Transform transform) {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
@@ -53,6 +99,14 @@ public class GraphicsLibrary {
 		return matrix;
 	}
 
+	/**
+	 * Fills the given matrix with the values of the view matrix of the given transform.
+	 * This matrix can be used to transform location vectors from world to view/camera space.
+	 * 
+	 * @param matrix
+	 * @param transform
+	 * @return
+	 */
 	public int[][] viewMatrix(int[][] matrix, Transform transform) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
@@ -66,6 +120,17 @@ public class GraphicsLibrary {
 		return matrix;
 	}
 
+	
+	/**
+	 * Fills the given matrix with the values of the projection matrix of the given cameraFrustum.
+	 * This matrix can be used to orthographic project location vectors from view/camera to projection space.
+	 * To get the vectors into screen space it's needed to {@link #screenportVector} them.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param matrix
+	 * @param cameraFrustum
+	 * @return
+	 */
 	public int[][] orthographicMatrix(int[][] matrix, int[] cameraFrustum) {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
 		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR]) / 16;
@@ -76,6 +141,16 @@ public class GraphicsLibrary {
 		return matrix;
 	}
 
+	/**
+	 * Fills the given matrix with the values of the projection matrix of the given cameraFrustum.
+	 * This matrix can be used to perspective project location vectors from view/camera to projection space.
+	 * To get the vectors into screen space it's needed to {@link #screenportVector} them.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param matrix
+	 * @param cameraFrustum
+	 * @return
+	 */
 	public int[][] perspectiveMatrix(int[][] matrix, int[] cameraFrustum) {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
 		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR]) / 16;
@@ -87,7 +162,19 @@ public class GraphicsLibrary {
 		return matrix;
 	}
 
-	public int[] viewport(int[] location, int[] cameraFrustum, int[] result) {
+	/**
+	 * Sets result equals location in screen space.
+	 * This methods needs location to be in projection space, 
+	 * vectors can be transformed into projection space by multiplying them by the 
+	 * {@link #perspectiveMatrix perspective} or the {@link #orthographicMatrix orthographic} projection matrix.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param location
+	 * @param cameraFrustum
+	 * @param result
+	 * @return
+	 */
+	public int[] screenportVector(int[] location, int[] cameraFrustum, int[] result) {
 		int top = cameraFrustum[Camera.FRUSTUM_TOP];
 		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
 		int left = cameraFrustum[Camera.FRUSTUM_LEFT];
@@ -101,16 +188,36 @@ public class GraphicsLibrary {
 		return result;
 	}
 
-	public int[] portFrustum(int[] cameraFrustum, int width, int height, int[] result) {
-		result[Camera.FRUSTUM_LEFT] = mathLibrary.multiply(width, cameraFrustum[Camera.FRUSTUM_LEFT]);
-		result[Camera.FRUSTUM_RIGHT] = mathLibrary.multiply(width, cameraFrustum[Camera.FRUSTUM_RIGHT]);
-		result[Camera.FRUSTUM_TOP] = mathLibrary.multiply(height, cameraFrustum[Camera.FRUSTUM_TOP]);
-		result[Camera.FRUSTUM_BOTTOM] = mathLibrary.multiply(height, cameraFrustum[Camera.FRUSTUM_BOTTOM]);
+	/**
+	 * Sets result equals the cameraFrustum ported into the given width and height.
+	 * This method fits the given cameraFrustum into the given screen size, 
+	 * this is needed to correctly {@link #screenportVector screenport} vectors.
+	 * 
+	 * 
+	 * @param cameraFrustum
+	 * @param screenWidth
+	 * @param screenHeight
+	 * @param result
+	 * @return
+	 */
+	public int[] screenportFrustum(int[] cameraFrustum, int screenWidth, int screenHeight, int[] result) {
+		result[Camera.FRUSTUM_LEFT] = mathLibrary.multiply(screenWidth, cameraFrustum[Camera.FRUSTUM_LEFT]);
+		result[Camera.FRUSTUM_RIGHT] = mathLibrary.multiply(screenWidth, cameraFrustum[Camera.FRUSTUM_RIGHT]);
+		result[Camera.FRUSTUM_TOP] = mathLibrary.multiply(screenHeight, cameraFrustum[Camera.FRUSTUM_TOP]);
+		result[Camera.FRUSTUM_BOTTOM] = mathLibrary.multiply(screenHeight, cameraFrustum[Camera.FRUSTUM_BOTTOM]);
 		result[Camera.FRUSTUM_NEAR] = cameraFrustum[Camera.FRUSTUM_NEAR];
 		result[Camera.FRUSTUM_FAR] = cameraFrustum[Camera.FRUSTUM_FAR];
 		return result;
 	}
 	
+	/**
+	 * Draws a triangle using flat shading.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param triangle
+	 * @param dataBuffer
+	 * @param cameraFrustum
+	 */
 	public void drawFlatTriangle(FlatTriangle triangle, GeometryDataBuffer dataBuffer, int[] cameraFrustum) {
 		if (clip(dataBuffer, cameraFrustum))
 			return;
@@ -118,6 +225,14 @@ public class GraphicsLibrary {
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
+	/**
+	 * Draws a triangle using gouraud shading.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param triangle
+	 * @param dataBuffer
+	 * @param cameraFrustum
+	 */
 	public void drawGouraudTriangle(GouraudTriangle triangle, GeometryDataBuffer dataBuffer, int[] cameraFrustum) {
 		if (clip(dataBuffer, cameraFrustum))
 			return;
@@ -126,6 +241,15 @@ public class GraphicsLibrary {
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
+	/**
+	 * Draws a triangle using flat shading and affine texture mapping.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param triangle
+	 * @param dataBuffer
+	 * @param texture
+	 * @param cameraFrustum
+	 */
 	public void drawAffineFlatTriangle(AffineFlatTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
 		if (clip(dataBuffer, cameraFrustum))
 			return;
@@ -134,6 +258,15 @@ public class GraphicsLibrary {
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
+	/**
+	 * Draws a triangle using flat shading and perspective correct texture mapping.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param triangle
+	 * @param dataBuffer
+	 * @param texture
+	 * @param cameraFrustum
+	 */
 	public void drawPerspectiveFlatTriangle(PerspectiveFlatTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
 		if (clip(dataBuffer, cameraFrustum))
 			return;
@@ -142,6 +275,15 @@ public class GraphicsLibrary {
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
+	/**
+	 * Draws a triangle using gouraud shading and affine texture mapping.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param triangle
+	 * @param dataBuffer
+	 * @param texture
+	 * @param cameraFrustum
+	 */
 	public void drawAffineGouraudTriangle(AffineGouraudTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
 		if (clip(dataBuffer, cameraFrustum))
 			return;
@@ -151,6 +293,15 @@ public class GraphicsLibrary {
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
+	/**
+	 * Draws a triangle using gouraud shading and perspective correct texture mapping.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param triangle
+	 * @param dataBuffer
+	 * @param texture
+	 * @param cameraFrustum
+	 */
 	public void drawPerspectiveGouraudTriangle(PerspectiveGouraudTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
 		if (clip(dataBuffer, cameraFrustum))
 			return;
@@ -190,7 +341,7 @@ public class GraphicsLibrary {
 		return false;
 	}
 	
-	private final int shoelace(int[] vector1, int[] vector2, int[] vector3) {
+	private int shoelace(int[] vector1, int[] vector2, int[] vector3) {
 		return (vector2[VECTOR_X] - vector1[VECTOR_X]) * (vector3[VECTOR_Y] - vector1[VECTOR_Y])
 				- (vector3[VECTOR_X] - vector1[VECTOR_X]) * (vector2[VECTOR_Y] - vector1[VECTOR_Y]);
 	}

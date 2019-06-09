@@ -27,11 +27,10 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
- * The ColorProcessor class contains methods for generating and performing 
- * integer sRGB color operations such as lerp, multiply and add.
+ * The ColorLibrary class contains methods for generating integer sRGB colors 
+ * and performing integer sRGB color operations such as lerp, multiply and add.
  * 
  * @author John Ferraz Salomon
- *
  */
 public class ColorLibrary {
 

@@ -23,6 +23,12 @@
  */
 package com.johnsproject.jpge2.library;
 
+/**
+ * The VectorLibrary class contains methods for generating vectors and performing vector 
+ * operations such as add, subtract, multiply, divide, cross product, normalize, rotate, swap.
+ * 
+ * @author John Ferraz Salomon
+ */
 public class VectorLibrary {
 
 	private static final int FP_ONE = MathLibrary.FP_ONE;

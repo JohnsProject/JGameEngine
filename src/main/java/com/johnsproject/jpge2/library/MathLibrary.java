@@ -24,11 +24,11 @@
 package com.johnsproject.jpge2.library;
 
 /**
- * The MathProcessor class contains methods for performing fixed point math operations 
- * such as power, square root, multiply, divide, and some trigonometric functions.
+ * The MathLibrary class contains methods for generating fixed point numbers and 
+ * performing fixed point math operations such as power, square root, multiply, 
+ * divide, and some trigonometric functions.
  * 
  * @author John Ferraz Salomon
- *
  */
 public class MathLibrary {
 	

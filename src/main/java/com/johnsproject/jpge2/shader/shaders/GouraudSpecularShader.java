@@ -1,3 +1,26 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2018 John Salomon - John´s Project
+ *  
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.johnsproject.jpge2.shader.shaders;
 
 import java.util.List;
@@ -93,7 +116,7 @@ public class GouraudSpecularShader implements Shader {
 	public void setup(Camera camera) {
 		this.camera = camera;
 		graphicsLibrary.viewMatrix(viewMatrix, camera.getTransform());
-		graphicsLibrary.portFrustum(camera.getFrustum(), frameBuffer.getWidth(), frameBuffer.getHeight(), portedFrustum);
+		graphicsLibrary.screenportFrustum(camera.getFrustum(), frameBuffer.getWidth(), frameBuffer.getHeight(), portedFrustum);
 		switch (camera.getType()) {
 		case ORTHOGRAPHIC:
 			graphicsLibrary.orthographicMatrix(projectionMatrix, portedFrustum);
@@ -129,7 +152,7 @@ public class GouraudSpecularShader implements Shader {
 				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
 				if (i == shaderData.getDirectionalLightIndex()) {
 					vectorLibrary.multiply(location, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
-					graphicsLibrary.viewport(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
+					graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
 					inShadow = inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap());
 				}
 				break;
@@ -146,7 +169,7 @@ public class GouraudSpecularShader implements Shader {
 				if ((i == shaderData.getPointLightIndex()) && (currentFactor > 100)) {
 					for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
 						vectorLibrary.multiply(location, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
-						graphicsLibrary.viewport(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
+						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
 						inShadow = inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j]);
 					}
 				}
@@ -169,7 +192,7 @@ public class GouraudSpecularShader implements Shader {
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
 					if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
 						vectorLibrary.multiply(location, shaderData.getSpotLightMatrix(), lightSpaceLocation);
-						graphicsLibrary.viewport(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
+						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
 						inShadow = inShadow(lightSpaceLocation, shaderData.getSpotShadowMap());
 					}
 				}
@@ -186,7 +209,7 @@ public class GouraudSpecularShader implements Shader {
 		dataBuffer.setLightColor(lightColor);
 		vectorLibrary.multiply(location, viewMatrix, location);
 		vectorLibrary.multiply(location, projectionMatrix, location);
-		graphicsLibrary.viewport(location, portedFrustum, location);
+		graphicsLibrary.screenportVector(location, portedFrustum, location);
 	}
 
 	public void geometry(GeometryDataBuffer dataBuffer) {
