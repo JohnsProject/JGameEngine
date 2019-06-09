@@ -70,7 +70,7 @@ public class EngineStatistics implements EngineListener {
 			}
 		}
 		long ramUsage = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) >> 20;
-		int maxFPS = Engine.getInstance().getUpdateRate();
+		int maxFPS = Engine.getInstance().getFixedUpdateRate();
 		int frameBufferWidth = 0;
 		int frameBufferHeight = 0;
 		int shadersCount = 0;
@@ -100,8 +100,13 @@ public class EngineStatistics implements EngineListener {
 		g.drawString("RAM usage", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
 		g.drawString(ramUsage + " MB", STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
 		currentLine++;
-		g.drawString("FPS", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		g.drawString(fps + " / " + maxFPS, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
+		if (Engine.getInstance().limitUpdateRate()) {
+			g.drawString("FPS", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
+			g.drawString(fps + " / " + maxFPS, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
+		} else {
+			g.drawString("FPS", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
+			g.drawString("" + fps, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
+		}
 		currentLine++;
 		g.drawString("Framebuffer", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
 		g.drawString(frameBufferWidth + "x" + frameBufferHeight, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);

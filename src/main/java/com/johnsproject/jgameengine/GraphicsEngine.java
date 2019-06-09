@@ -35,9 +35,6 @@ import com.johnsproject.jgameengine.dto.Scene;
 import com.johnsproject.jgameengine.dto.ShaderDataBuffer;
 import com.johnsproject.jgameengine.dto.VertexDataBuffer;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.library.GraphicsLibrary;
-import com.johnsproject.jgameengine.library.MatrixLibrary;
-import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.Shader;
 import com.johnsproject.jgameengine.shader.databuffers.ForwardDataBuffer;
 import com.johnsproject.jgameengine.shader.shaders.DirectionalLightShadowShader;
@@ -46,13 +43,6 @@ import com.johnsproject.jgameengine.shader.shaders.PointLightShadowShader;
 import com.johnsproject.jgameengine.shader.shaders.SpotLightShadowShader;
 
 public class GraphicsEngine implements EngineListener {
-	
-	private int[][] modelMatrix;
-	private int[][] normalMatrix;
-	
-	private final GraphicsLibrary graphicsLibrary;
-	private final MatrixLibrary matrixLibrary;
-	private final VectorLibrary vectorLibrary;
 	
 	private final List<Shader> shaders;
 	private ShaderDataBuffer shaderDataBuffer;
@@ -64,12 +54,6 @@ public class GraphicsEngine implements EngineListener {
 	private int postShadersCount;
 	
 	public GraphicsEngine(Scene scene, FrameBuffer frameBuffer) {
-		this.graphicsLibrary = new GraphicsLibrary();
-		this.matrixLibrary = new MatrixLibrary();
-		this.vectorLibrary = new VectorLibrary();
-		this.modelMatrix = matrixLibrary.generate();
-		this.normalMatrix = matrixLibrary.generate();
-		
 		this.shaderDataBuffer = new ForwardDataBuffer();
 		this.shaders = new ArrayList<Shader>();
 		this.scene = scene;
@@ -94,15 +78,12 @@ public class GraphicsEngine implements EngineListener {
 				for (int m = 0; m < scene.getModels().size(); m++) {
 					Model model = scene.getModels().get(m);
 					Mesh mesh = model.getMesh();
-					graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
-					graphicsLibrary.normalMatrix(normalMatrix, model.getTransform());
+					shader.setup(model);
 					for (int v = 0; v < mesh.getVertices().length; v++) {
 						VertexDataBuffer dataBuffer = mesh.getVertex(v).getDataBuffer();
 						if ((dataBuffer.getMaterial().getShaderIndex() == s - preShadersCount)
 								| (s < preShadersCount) | (s > preShadersCount + shadersCount)) {
 							dataBuffer.reset();
-							vectorLibrary.multiply(dataBuffer.getLocation(), modelMatrix, dataBuffer.getLocation());
-							vectorLibrary.multiply(dataBuffer.getNormal(), normalMatrix, dataBuffer.getNormal());
 							shader.vertex(dataBuffer);
 						}
 					}
@@ -111,7 +92,6 @@ public class GraphicsEngine implements EngineListener {
 						if ((dataBuffer.getMaterial().getShaderIndex() == s - preShadersCount)
 								| (s < preShadersCount) | (s > preShadersCount + shadersCount)) {
 							dataBuffer.reset();
-							vectorLibrary.multiply(dataBuffer.getNormal(), normalMatrix, dataBuffer.getNormal());
 							shader.geometry(dataBuffer);
 						}
 					}

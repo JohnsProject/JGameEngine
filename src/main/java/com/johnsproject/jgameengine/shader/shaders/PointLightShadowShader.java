@@ -29,6 +29,7 @@ import com.johnsproject.jgameengine.dto.Camera;
 import com.johnsproject.jgameengine.dto.GeometryDataBuffer;
 import com.johnsproject.jgameengine.dto.Light;
 import com.johnsproject.jgameengine.dto.LightType;
+import com.johnsproject.jgameengine.dto.Model;
 import com.johnsproject.jgameengine.dto.ShaderDataBuffer;
 import com.johnsproject.jgameengine.dto.Texture;
 import com.johnsproject.jgameengine.dto.Transform;
@@ -59,7 +60,7 @@ public class PointLightShadowShader implements Shader {
 
 	private final FlatTriangle triangle;
 	
-	private int[][] viewMatrix;
+	private int[][] modelMatrix;
 	private int[][] projectionMatrix;
 	private final int[][][] lightMatrices;
 	
@@ -83,7 +84,7 @@ public class PointLightShadowShader implements Shader {
 		this.vectorLibrary = new VectorLibrary();
 		this.triangle = new FlatTriangle(this);
 
-		this.viewMatrix = matrixLibrary.generate();
+		this.modelMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
 		this.lightMatrices = new int[6][4][4];
 		
@@ -111,7 +112,7 @@ public class PointLightShadowShader implements Shader {
 		this.vectorLibrary = new VectorLibrary();
 		this.triangle = new FlatTriangle(this);
 
-		this.viewMatrix = matrixLibrary.generate();
+		this.modelMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
 		this.lightMatrices = new int[6][4][4];
 		
@@ -165,37 +166,41 @@ public class PointLightShadowShader implements Shader {
 			if (shaderData.getPointLightIndex() == -1)
 				return;		
 			int[][] lightMatrix = lightMatrices[0];
-			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			matrixLibrary.multiply(projectionMatrix, modelMatrix, lightMatrix);
 			lightTransform.rotate(0, 0, 90);
 			lightMatrix = lightMatrices[1];
-			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			matrixLibrary.multiply(projectionMatrix, modelMatrix, lightMatrix);
 			lightTransform.rotate(0, 0, 90);
 			lightMatrix = lightMatrices[2];
-			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			matrixLibrary.multiply(projectionMatrix, modelMatrix, lightMatrix);
 			lightTransform.rotate(0, 0, 90);
 			lightMatrix = lightMatrices[3];
-			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			matrixLibrary.multiply(projectionMatrix, modelMatrix, lightMatrix);
 			lightTransform.rotate(0, 0, -270);
 			lightTransform.rotate(90, 0, 0);
 			lightMatrix = lightMatrices[4];
-			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			matrixLibrary.multiply(projectionMatrix, modelMatrix, lightMatrix);
 			lightTransform.rotate(-180, 0, 0);
 			lightMatrix = lightMatrices[5];
-			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
-			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			matrixLibrary.multiply(projectionMatrix, modelMatrix, lightMatrix);
 			lightTransform.rotate(90, 0, 0);
 		}
+	}
+	
+	public void setup(Model model) {
+		graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
 	}
 	
 	public void vertex(VertexDataBuffer dataBuffer) {
@@ -209,6 +214,7 @@ public class PointLightShadowShader implements Shader {
 			currentShadowMap = shadowMaps[i];
 			for (int j = 0; j < dataBuffer.getVertexDataBuffers().length; j++) {
 				int[] vertexLocation = dataBuffer.getVertexDataBuffer(j).getLocation();
+				vectorLibrary.multiply(vertexLocation, modelMatrix, vertexLocation);
 				vectorLibrary.multiply(vertexLocation, lightMatrices[i], vertexLocation);
 				graphicsLibrary.screenportVector(vertexLocation, portedFrustum, vertexLocation);
 			}

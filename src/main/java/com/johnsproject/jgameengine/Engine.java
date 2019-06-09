@@ -23,29 +23,6 @@
  */
 package com.johnsproject.jgameengine;
 
-/**
- * MIT License
- *
- * Copyright (c) 2018 John Salomon - John´s Project
- *  
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,11 +40,13 @@ public class Engine {
 	private final List<EngineListener> engineListeners;
 	private int maxUpdateSkip;
 	private int updateRate;
+	private boolean limitUpdateRate;
 	private volatile boolean running;
 
 	private Engine() {
 		updateRate = 30;
 		maxUpdateSkip = 10;
+		limitUpdateRate = false;
 		engineListeners = new ArrayList<EngineListener>();
 	}
 
@@ -81,21 +60,18 @@ public class Engine {
 	
 	private void startEngineLoop() {
 		running = true;
-		
 		engineThread = new Thread(new Runnable() {
-			
 			long nextUpateTick = System.currentTimeMillis();
 			long current = System.currentTimeMillis();
 			int updatesToCatchUp = 0;
 			int loops = 0;
-
 			public void run() {
 				for (int i = 0; i < engineListeners.size(); i++) {
 					engineListeners.get(i).start();
 				}
 				while (running) {
 					loops = 0;
-					updatesToCatchUp = 1000 / getUpdateRate();
+					updatesToCatchUp = 1000 / getFixedUpdateRate();
 					current = System.currentTimeMillis();
 					while (current > nextUpateTick && loops < getMaxUpdateSkip()) {
 						for (int i = 0; i < engineListeners.size(); i++) {
@@ -107,16 +83,16 @@ public class Engine {
 					for (int i = 0; i < engineListeners.size(); i++) {
 						engineListeners.get(i).update();
 					}
-//					if(loops == 1) {
-//						long sleepTime = nextUpateTick - current;
-//						if (sleepTime > 0) {
-//							try {
-//								Thread.sleep(sleepTime);
-//							} catch (InterruptedException e) {
-//								e.printStackTrace();
-//							}
-//						}
-//					}
+					if((loops == 1) & limitUpdateRate) {
+						long sleepTime = nextUpateTick - current;
+						if (sleepTime > 0) {
+							try {
+								Thread.sleep(sleepTime);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
 				}
 			}
 		});
@@ -137,14 +113,22 @@ public class Engine {
 		return engineListeners;
 	}
 
-	public int getUpdateRate() {
+	public int getFixedUpdateRate() {
 		return updateRate;
 	}
 	
-	public void setUpdateRate(int updateRate) {
+	public void setFixedUpdateRate(int updateRate) {
 		this.updateRate = updateRate;
 	}
 	
+	public boolean limitUpdateRate() {
+		return limitUpdateRate;
+	}
+
+	public void limitUpdateRate(boolean limitUpdateRate) {
+		this.limitUpdateRate = limitUpdateRate;
+	}
+
 	public int getMaxUpdateSkip() {
 		return maxUpdateSkip;
 	}

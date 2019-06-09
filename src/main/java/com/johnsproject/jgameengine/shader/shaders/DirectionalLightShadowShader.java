@@ -29,6 +29,7 @@ import com.johnsproject.jgameengine.dto.Camera;
 import com.johnsproject.jgameengine.dto.GeometryDataBuffer;
 import com.johnsproject.jgameengine.dto.Light;
 import com.johnsproject.jgameengine.dto.LightType;
+import com.johnsproject.jgameengine.dto.Model;
 import com.johnsproject.jgameengine.dto.ShaderDataBuffer;
 import com.johnsproject.jgameengine.dto.Texture;
 import com.johnsproject.jgameengine.dto.Transform;
@@ -59,7 +60,7 @@ public class DirectionalLightShadowShader implements Shader {
 
 	private final FlatTriangle triangle;
 	
-	private final int[][] viewMatrix;
+	private final int[][] modelMatrix;
 	private final int[][] projectionMatrix;
 	private final int[][] lightMatrix;
 	
@@ -77,7 +78,7 @@ public class DirectionalLightShadowShader implements Shader {
 		this.vectorLibrary = new VectorLibrary();
 		this.triangle = new FlatTriangle(this);
 
-		this.viewMatrix = matrixLibrary.generate();
+		this.modelMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
 		this.lightMatrix = matrixLibrary.generate();
 		
@@ -98,7 +99,7 @@ public class DirectionalLightShadowShader implements Shader {
 		this.vectorLibrary = new VectorLibrary();
 		this.triangle = new FlatTriangle(this);
 		
-		this.viewMatrix = matrixLibrary.generate();
+		this.modelMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
 		this.lightMatrix = matrixLibrary.generate();
 		
@@ -144,16 +145,21 @@ public class DirectionalLightShadowShader implements Shader {
 			
 			if (shaderData.getDirectionalLightIndex() == -1)
 				return;
-			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.orthographicMatrix(projectionMatrix, portedFrustum);
-			matrixLibrary.multiply(projectionMatrix, viewMatrix, lightMatrix);
+			matrixLibrary.multiply(projectionMatrix, modelMatrix, lightMatrix);
 		}
+	}
+	
+	public void setup(Model model) {
+		graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
 	}
 
 	public void vertex(VertexDataBuffer dataBuffer) {
 		if (shaderData.getDirectionalLightIndex() == -1)
 			return;
 		int[] location = dataBuffer.getLocation();
+		vectorLibrary.multiply(location, modelMatrix, location);
 		vectorLibrary.multiply(location, lightMatrix, location);
 		graphicsLibrary.screenportVector(location, portedFrustum, location);
 	}
