@@ -128,7 +128,6 @@ public class GouraudSpecularShader implements Shader {
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
 			break;
 		}
-		matrixLibrary.multiply(projectionMatrix, viewMatrix, projectionMatrix);
 	}
 	
 	public void setup(Model model) {
@@ -156,8 +155,6 @@ public class GouraudSpecularShader implements Shader {
 			boolean inShadow = false;
 			switch (light.getType()) {
 			case DIRECTIONAL:
-				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
-					continue;
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
 				if (i == shaderData.getDirectionalLightIndex()) {
@@ -217,6 +214,7 @@ public class GouraudSpecularShader implements Shader {
 			}
 		}
 		dataBuffer.setLightColor(lightColor);
+		vectorLibrary.multiply(location, viewMatrix, location);
 		vectorLibrary.multiply(location, projectionMatrix, location);
 		graphicsLibrary.screenportVector(location, portedFrustum, location);
 	}

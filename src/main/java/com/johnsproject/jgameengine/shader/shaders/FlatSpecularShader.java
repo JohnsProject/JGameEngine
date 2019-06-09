@@ -133,7 +133,6 @@ public class FlatSpecularShader implements Shader {
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
 			break;
 		}
-		matrixLibrary.multiply(projectionMatrix, viewMatrix, projectionMatrix);
 	}
 	
 	public void setup(Model model) {
@@ -170,8 +169,6 @@ public class FlatSpecularShader implements Shader {
 			int[] lightPosition = light.getTransform().getLocation();
 			switch (light.getType()) {
 			case DIRECTIONAL:
-				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
-					continue;
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
 				if (i == shaderData.getDirectionalLightIndex()) {
@@ -234,6 +231,7 @@ public class FlatSpecularShader implements Shader {
 		for (int i = 0; i < dataBuffer.getVertexDataBuffers().length; i++) {
 			int[] vertexLocation = dataBuffer.getVertexDataBuffer(i).getLocation();
 			vectorLibrary.copy(vertexLocations[i], vertexLocation);
+			vectorLibrary.multiply(vertexLocation, viewMatrix, vertexLocation);
 			vectorLibrary.multiply(vertexLocation, projectionMatrix, vertexLocation);
 			graphicsLibrary.screenportVector(vertexLocation, portedFrustum, vertexLocation);
 		}
