@@ -12,3 +12,8 @@ It only uses Java AWT, as the 3D part is done by software rendering.
 * Gouraud and flat shaders
 * Shadow mapping shaders for all three light types
 * Blender exporter and importer
+
+## Screenshots
+![Screenshot](Images/Example1.PNG "Example1")
+![Screenshot](Images/Example2.PNG "Example2")
+![Screenshot](Images/Example3.PNG "Example3")

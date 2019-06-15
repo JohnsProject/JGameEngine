@@ -49,7 +49,7 @@ public class FlatSpecularShader implements Shader {
 	private static final int LINEAR_ATTENUATION = 14;
 	private static final int QUADRATIC_ATTENUATION = 7;
 	
-	private static final int LIGHT_RANGE = MathLibrary.FP_ONE * 1000;
+	private static final int LIGHT_RANGE = MathLibrary.FP_ONE * 200;
 	
 	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
 	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;

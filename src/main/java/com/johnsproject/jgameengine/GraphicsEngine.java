@@ -199,7 +199,7 @@ public class GraphicsEngine implements EngineListener {
 	}
 
 	private void sortShaders(int pass) {
-		for (int i = 0; i < shaders.size() - 1; i++) {
+		for (int i = 0; i < shaders.size(); i++) {
 			int min_i = i;
 			for (int j = i + 1; j < shaders.size(); j++) {
 				int currentPass = 0;

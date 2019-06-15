@@ -138,7 +138,7 @@ public class Engine {
 	}
 
 	private void sortListeners() {
-		for (int i = 0; i < engineListeners.size() - 1; i++) {
+		for (int i = 0; i < engineListeners.size(); i++) {
 			int min_i = i;
 			for (int j = i + 1; j < engineListeners.size(); j++) {
 				if (engineListeners.get(j).getPriority() < engineListeners.get(min_i).getPriority()) {
