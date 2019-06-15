@@ -71,7 +71,8 @@ public class SOMImporter {
 		Face[] faces = parseFaces(rawData, vertices, materials);
 		int[] location = vectorLibrary.generate();
 		int[] rotation = vectorLibrary.generate();
-		int[] scale = vectorLibrary.generate(10000, 10000, 10000);
+		int one = MathLibrary.FP_ONE;
+		int[] scale = vectorLibrary.generate(one, one, one);
 		Transform transform = new Transform(location, rotation, scale);
 		Mesh mesh = new Mesh(vertices, faces, materials);
 		Model result = new Model("Model", transform, mesh);

@@ -63,8 +63,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
-		graphicsEngine.removeShader(graphicsEngine.getShader(0));
-		graphicsEngine.addShader(new FlatSpecularShader());
+//		graphicsEngine.removeShader(graphicsEngine.getShader(0));
+//		graphicsEngine.addShader(new FlatSpecularShader());
 	}
 	
 	private Scene loadScene() {
@@ -118,7 +118,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		}
 	}
 
-	int startSpeed = MathLibrary.FP_ONE / 2;
+	int startSpeed = MathLibrary.FP_ONE * 2;
 	int speed = startSpeed;
 	public void keyDown(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_W) {

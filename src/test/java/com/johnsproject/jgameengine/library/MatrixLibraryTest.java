@@ -7,19 +7,6 @@ import com.johnsproject.jgameengine.library.MatrixLibrary;
 public class MatrixLibraryTest {
 	
 	@Test
-	public void addTest() throws Exception {
-		MatrixLibrary matrixProcessor = new MatrixLibrary();
-		int[][] out = new int[4][4];
-		int[][] matrix1 = matrixProcessor.generate();
-		int[][] matrix2 = matrixProcessor.generate();
-		matrixProcessor.add(matrix1, matrix2, out);
-		assert(out[0][0] == 2048);
-		assert(out[1][1] == 2048);
-		assert(out[2][2] == 2048);
-		assert(out[3][3] == 2048);
-	}
-	
-	@Test
 	public void multiplyTest() throws Exception {
 		MatrixLibrary matrixProcessor = new MatrixLibrary();
 		int[][] out = new int[4][4];

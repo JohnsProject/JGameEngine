@@ -203,39 +203,44 @@ public class MathLibrary {
 	 * @return fixed point result.
 	 */
 	public int sqrt(int number) {
-		number >>= FP_BITS;
-		int c = 0x8000;
-		int g = 0x8000;
-
-		if (g * g > number) {
+		// integral part
+		int num = number >> FP_BITS;
+		int c = 1 << 15;
+		int g = c;
+		if (g * g > num) {
 			g ^= c;
 		}
 		c >>= 1;
-		if (c == 0) {
-			return g << FP_BITS;
+		if (c != 0) {
+			g |= c;
 		}
-		g |= c;
 		for (int i = 0; i < 15; i++) {
-			if (g * g > number) {
+			if (g * g > num) {
 				g ^= c;
 			}
 			c >>= 1;
 			if (c == 0) {
-				return g << FP_BITS;
+				break;
 			}
 			g |= c;
 		}
-		return g << FP_BITS;
+		int result = (g << FP_BITS);
+		// fractional part
+		final int increment = FP_ONE >> 7;
+		for (; ((long)result * result + FP_HALF) >> FP_BITS <= number; result += increment);
+		result -= increment;
+		return result;
 	}
 	
 	/**
 	 * Returns the power of the given number.
 	 * 
 	 * @param base fixed point number.
-	 * @param exp not fixed point number.
+	 * @param exp fixed point number.
 	 * @return fixed point result.
 	 */
 	public int pow(int base, int exp) {
+		exp >>= FP_BITS;
 		long lBase = base;
 		long result = FP_ONE;
 		while (exp != 0) {

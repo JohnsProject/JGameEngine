@@ -46,8 +46,8 @@ import com.johnsproject.jgameengine.shader.databuffers.ForwardDataBuffer;
 public class FlatSpecularShader implements Shader {
 	
 	private static final int INITIAL_ATTENUATION = MathLibrary.FP_ONE;
-	private static final int LINEAR_ATTENUATION = (MathLibrary.FP_ONE * 14) / 10;
-	private static final int QUADRATIC_ATTENUATION = (MathLibrary.FP_ONE * 7) / 10;
+	private static final int LINEAR_ATTENUATION = 14;
+	private static final int QUADRATIC_ATTENUATION = 7;
 	
 	private static final int LIGHT_RANGE = MathLibrary.FP_ONE * 1000;
 	
@@ -64,7 +64,6 @@ public class FlatSpecularShader implements Shader {
 	private final VectorLibrary vectorLibrary;
 	private final ColorLibrary colorLibrary;
 
-	private final int[] normalizedNormal;
 	private final int[] lightLocation;
 	private final int[] lightDirection;
 	private final int[] viewDirection;
@@ -98,7 +97,6 @@ public class FlatSpecularShader implements Shader {
 		this.vectorLibrary = new VectorLibrary();
 		this.colorLibrary = new ColorLibrary();
 		this.triangle = new PerspectiveFlatTriangle(this);
-		this.normalizedNormal = vectorLibrary.generate();
 		this.lightLocation = vectorLibrary.generate();
 		this.lightDirection = vectorLibrary.generate();
 		this.viewDirection = vectorLibrary.generate();
@@ -157,9 +155,8 @@ public class FlatSpecularShader implements Shader {
 		vectorLibrary.multiply(normal, normalMatrix, normal);
 		lightColor = ColorLibrary.BLACK;		
 		int[] cameraLocation = camera.getTransform().getLocation();		
+		vectorLibrary.normalize(normal, normal);
 		vectorLibrary.subtract(cameraLocation, faceLocation, viewDirection);
-		// normalize values
-		vectorLibrary.normalize(normal, normalizedNormal);
 		vectorLibrary.normalize(viewDirection, viewDirection);
 		boolean inShadow = false;
 		for (int i = 0; i < lights.size(); i++) {
@@ -170,11 +167,13 @@ public class FlatSpecularShader implements Shader {
 			switch (light.getType()) {
 			case DIRECTIONAL:
 				vectorLibrary.invert(light.getDirection(), lightDirection);
-				currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
+				currentFactor = getLightFactor(normal, lightDirection, viewDirection, shaderProperties);
 				if (i == shaderData.getDirectionalLightIndex()) {
 					vectorLibrary.multiply(faceLocation, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
 					graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
-					inShadow = inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap());
+					if(inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap())) {
+						currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
+					}
 				}
 				break;
 			case POINT:
@@ -185,13 +184,15 @@ public class FlatSpecularShader implements Shader {
 				attenuation = getAttenuation(lightLocation);
 				// other light values
 				vectorLibrary.normalize(lightLocation, lightLocation);
-				currentFactor = getLightFactor(normalizedNormal, lightLocation, viewDirection, shaderProperties);
+				currentFactor = getLightFactor(normal, lightLocation, viewDirection, shaderProperties);
 				currentFactor = mathLibrary.divide(currentFactor, attenuation);
-				if ((i == shaderData.getPointLightIndex()) && (currentFactor > 100)) {
+				if ((i == shaderData.getPointLightIndex()) && (currentFactor > 150)) {
 					for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
 						vectorLibrary.multiply(faceLocation, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
 						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
-						inShadow = inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j]);
+						if(inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j])) {
+							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
+						}
 					}
 				}
 				break;
@@ -208,13 +209,15 @@ public class FlatSpecularShader implements Shader {
 				if(theta > phi) {
 					int intensity = -mathLibrary.divide(phi - theta, light.getSpotSoftness() + 1);
 					intensity = mathLibrary.clamp(intensity, 1, FP_ONE);
-					currentFactor = getLightFactor(normalizedNormal, lightDirection, viewDirection, shaderProperties);
+					currentFactor = getLightFactor(normal, lightDirection, viewDirection, shaderProperties);
 					currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
 					if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
 						vectorLibrary.multiply(faceLocation, shaderData.getSpotLightMatrix(), lightSpaceLocation);
 						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
-						inShadow = inShadow(lightSpaceLocation, shaderData.getSpotShadowMap());
+						if(inShadow(lightSpaceLocation, shaderData.getSpotShadowMap())) {
+							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
+						}
 					}
 				}
 				break;
@@ -279,8 +282,8 @@ public class FlatSpecularShader implements Shader {
 		vectorLibrary.reflect(lightDirection, normal, lightDirection);
 		dotProduct = vectorLibrary.dotProduct(viewDirection, lightDirection);
 		int specularFactor = Math.max(dotProduct, 0);
-		specularFactor = mathLibrary.pow(specularFactor, properties.getShininess() >> FP_BITS);
 		specularFactor = mathLibrary.multiply(specularFactor, properties.getSpecularIntensity());
+		specularFactor = mathLibrary.pow(specularFactor, properties.getShininess());
 		// putting it all together...
 		return diffuseFactor + specularFactor;
 	}
@@ -291,7 +294,7 @@ public class FlatSpecularShader implements Shader {
 		int attenuation = INITIAL_ATTENUATION;
 		attenuation += mathLibrary.multiply(distance, LINEAR_ATTENUATION);
 		attenuation += mathLibrary.multiply(mathLibrary.multiply(distance, distance), QUADRATIC_ATTENUATION);
-		return (attenuation >> FP_BITS) + 1;
+		return attenuation + 1;
 	}
 	
 	private boolean inShadow(int[] lightSpaceLocation, Texture shadowMap) {

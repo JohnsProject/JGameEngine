@@ -50,7 +50,7 @@ public class GraphicsLibrary {
 
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	private static final int FP_HALF = MathLibrary.FP_HALF;
-
+	
 	private final MathLibrary mathLibrary;
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
@@ -96,9 +96,13 @@ public class GraphicsLibrary {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
 		matrixLibrary.scale(matrix, scale, matrix);
 		matrixLibrary.rotateXYZ(matrix, rotation, matrix);
+		if ((scale[VECTOR_X] != scale[VECTOR_Y]) | (scale[VECTOR_Y] != scale[VECTOR_Z])) {
+			matrixLibrary.inverse(matrix, matrix);
+			matrixLibrary.transpose(matrix, matrix);
+		}
 		return matrix;
 	}
-
+	
 	/**
 	 * Fills the given matrix with the values of the view matrix of the given transform.
 	 * This matrix can be used to transform location vectors from world to view/camera space.
@@ -133,7 +137,7 @@ public class GraphicsLibrary {
 	 */
 	public int[][] orthographicMatrix(int[][] matrix, int[] cameraFrustum) {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR]) / 16;
+		int scaleFactor = cameraFrustum[Camera.FRUSTUM_NEAR];
 		matrix[0][0] = scaleFactor;
 		matrix[1][1] = scaleFactor;
 		matrix[2][2] = -FP_ONE / 10;
@@ -322,7 +326,7 @@ public class GraphicsLibrary {
 		int right = cameraFrustum[Camera.FRUSTUM_RIGHT] - 1;
 		int top = cameraFrustum[Camera.FRUSTUM_TOP] + 1;
 		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1;
-		int near = cameraFrustum[Camera.FRUSTUM_NEAR];
+		int near = cameraFrustum[Camera.FRUSTUM_NEAR] / 10;
 		int far = (cameraFrustum[Camera.FRUSTUM_FAR] / 10);
 		boolean insideWidth1 = (location1[VECTOR_X] > left) & (location1[VECTOR_X] < right);
 		boolean insideWidth2 = (location2[VECTOR_X] > left) & (location2[VECTOR_X] < right);

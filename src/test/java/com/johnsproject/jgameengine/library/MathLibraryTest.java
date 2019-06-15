@@ -70,12 +70,14 @@ public class MathLibraryTest {
 	@Test
 	public void powTest() throws Exception {
 		MathLibrary mathLibrary = new MathLibrary();
-		assert(mathLibrary.pow(5 << MathLibrary.FP_BITS, 2) == 25 << MathLibrary.FP_BITS);
+		assert(mathLibrary.pow(5 << MathLibrary.FP_BITS, 10 << MathLibrary.FP_BITS) == 9765625 << MathLibrary.FP_BITS);
 	}
 	
 	@Test
 	public void sqrtTest() throws Exception {
 		MathLibrary mathLibrary = new MathLibrary();
+		System.out.println((mathLibrary.sqrt(256)) + ", " + (Math.sqrt(((double)0.25)) * MathLibrary.FP_ONE));
+		System.out.println((mathLibrary.sqrt(512)) + ", " + (Math.sqrt(((double)0.5)) * MathLibrary.FP_ONE));
 		assert(mathLibrary.sqrt(25 << MathLibrary.FP_BITS) == 5 << MathLibrary.FP_BITS);
 	}
 

@@ -495,9 +495,10 @@ public class VectorLibrary {
 	 */
 	public String toString(int[] vector) {
 		String result = "(";
-		for (int i = 0; i < 4; i++) {
-			result += vector[i] + ", ";
-		}
+		result += vector[0] + ", ";
+		result += vector[1] + ", ";
+		result += vector[2] + ", ";
+		result += vector[3];
 		result += ")";
 		return result;
 	}

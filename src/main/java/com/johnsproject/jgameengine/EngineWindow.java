@@ -58,7 +58,6 @@ public class EngineWindow extends Frame implements EngineListener {
 		panel = new EnginePanel();
 		this.add(panel);
 		panel.setup();
-		Engine.getInstance().addEngineListener(this);
 	}
 
 	public void update() {

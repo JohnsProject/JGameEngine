@@ -52,7 +52,7 @@ public class SpotLightShadowShader implements Shader {
 
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	
-	private static final short SHADOW_BIAS = 500;
+	private static final short SHADOW_BIAS = 50;
 	
 	private final GraphicsLibrary graphicsLibrary;
 	private final MatrixLibrary matrixLibrary;
@@ -87,7 +87,7 @@ public class SpotLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 10;
+		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 5;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.shadowMap = new Texture(64, 64);
@@ -108,7 +108,7 @@ public class SpotLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 10;
+		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 5;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.shadowMap = new Texture(width, height);

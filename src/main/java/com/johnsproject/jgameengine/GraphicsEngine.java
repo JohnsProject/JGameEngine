@@ -58,9 +58,9 @@ public class GraphicsEngine implements EngineListener {
 		this.shaders = new ArrayList<Shader>();
 		this.scene = scene;
 		this.frameBuffer = frameBuffer;
-//		addPreprocessingShader(new DirectionalLightShadowShader());
-//		addPreprocessingShader(new SpotLightShadowShader());
-//		addPreprocessingShader(new PointLightShadowShader());
+		addPreprocessingShader(new DirectionalLightShadowShader());
+		addPreprocessingShader(new SpotLightShadowShader());
+		addPreprocessingShader(new PointLightShadowShader());
 		addShader(new GouraudSpecularShader());
 	}
 	
@@ -203,9 +203,9 @@ public class GraphicsEngine implements EngineListener {
 			int min_i = i;
 			for (int j = i + 1; j < shaders.size(); j++) {
 				int currentPass = 0;
-				if(min_i > preShadersCount) currentPass = 1;
-				if(min_i > shadersCount) currentPass = 2;
-				if (pass < currentPass) {
+				if(j > preShadersCount) currentPass = 1;
+				if(j > shadersCount) currentPass = 2;
+				if (pass > currentPass) {
 					min_i = j;
 				}
 			}
