@@ -21,8 +21,8 @@ import com.johnsproject.jgameengine.importer.SceneImporter;
 import com.johnsproject.jgameengine.library.FileLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
-import com.johnsproject.jgameengine.shader.shaders.FlatSpecularShader;
-import com.johnsproject.jgameengine.shader.shaders.GouraudSpecularShader;
+import com.johnsproject.jgameengine.shader.shaders.FlatShader;
+import com.johnsproject.jgameengine.shader.shaders.GouraudShader;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
@@ -64,8 +64,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
 		Engine.getInstance().limitUpdateRate(false);
-//		graphicsEngine.removeShader(graphicsEngine.getShader(0));
-//		graphicsEngine.addShader(new FlatSpecularShader());
+		graphicsEngine.removeShader(graphicsEngine.getShader(0));
+		graphicsEngine.addShader(new FlatShader());
 	}
 	
 	private Scene loadScene() {

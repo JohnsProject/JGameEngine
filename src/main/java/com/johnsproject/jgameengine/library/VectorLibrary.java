@@ -225,7 +225,7 @@ public class VectorLibrary {
 	 * @param matrix
 	 * @param result
 	 */
-	public int[] multiplyMatrix(int[] vector, int[] matrix, int[] result) {
+	public int[] matrixMultiply(int[] vector, int[] matrix, int[] result) {
 		final int rowSize = MatrixLibrary.MATRIX_ROW_SIZE;
 		// ensures that will return right values if vector is the same as result
 		copy(vectorCache1, vector);

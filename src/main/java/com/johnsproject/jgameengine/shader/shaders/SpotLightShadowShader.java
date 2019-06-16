@@ -158,8 +158,8 @@ public class SpotLightShadowShader implements Shader {
 		if (shaderData.getSpotLightIndex() == -1)
 			return;
 		int[] location = dataBuffer.getLocation();
-		vectorLibrary.multiplyMatrix(location, modelMatrix, location);
-		vectorLibrary.multiplyMatrix(location, lightMatrix, location);
+		vectorLibrary.matrixMultiply(location, modelMatrix, location);
+		vectorLibrary.matrixMultiply(location, lightMatrix, location);
 		graphicsLibrary.screenportVector(location, portedFrustum, location);
 	}
 

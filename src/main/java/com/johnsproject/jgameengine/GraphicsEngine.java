@@ -38,7 +38,7 @@ import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.shader.Shader;
 import com.johnsproject.jgameengine.shader.databuffers.ForwardDataBuffer;
 import com.johnsproject.jgameengine.shader.shaders.DirectionalLightShadowShader;
-import com.johnsproject.jgameengine.shader.shaders.GouraudSpecularShader;
+import com.johnsproject.jgameengine.shader.shaders.GouraudShader;
 import com.johnsproject.jgameengine.shader.shaders.PointLightShadowShader;
 import com.johnsproject.jgameengine.shader.shaders.SpotLightShadowShader;
 
@@ -58,10 +58,10 @@ public class GraphicsEngine implements EngineListener {
 		this.shaders = new ArrayList<Shader>();
 		this.scene = scene;
 		this.frameBuffer = frameBuffer;
-//		addPreprocessingShader(new DirectionalLightShadowShader());
-//		addPreprocessingShader(new SpotLightShadowShader());
-//		addPreprocessingShader(new PointLightShadowShader());
-		addShader(new GouraudSpecularShader());
+		addPreprocessingShader(new DirectionalLightShadowShader());
+		addPreprocessingShader(new SpotLightShadowShader());
+		addPreprocessingShader(new PointLightShadowShader());
+		addShader(new GouraudShader());
 	}
 	
 	public void start() { }

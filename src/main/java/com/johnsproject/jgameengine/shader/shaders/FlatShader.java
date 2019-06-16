@@ -43,7 +43,7 @@ import com.johnsproject.jgameengine.shader.PerspectiveFlatTriangle;
 import com.johnsproject.jgameengine.shader.Shader;
 import com.johnsproject.jgameengine.shader.databuffers.ForwardDataBuffer;
 
-public class FlatSpecularShader implements Shader {
+public class FlatShader implements Shader {
 	
 	private static final int INITIAL_ATTENUATION = MathLibrary.FP_ONE;
 	private static final int LINEAR_ATTENUATION = 14;
@@ -90,7 +90,7 @@ public class FlatSpecularShader implements Shader {
 	private ForwardDataBuffer shaderData;
 	private ShaderProperties shaderProperties;
 	
-	public FlatSpecularShader() {
+	public FlatShader() {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.mathLibrary = new MathLibrary();
 		this.matrixLibrary = new MatrixLibrary();
@@ -140,7 +140,7 @@ public class FlatSpecularShader implements Shader {
 
 	public void vertex(VertexDataBuffer dataBuffer) {
 		int[] location = dataBuffer.getLocation();
-		vectorLibrary.multiplyMatrix(location, modelMatrix, location);
+		vectorLibrary.matrixMultiply(location, modelMatrix, location);
 	}
 
 	public void geometry(GeometryDataBuffer dataBuffer) {
@@ -152,7 +152,7 @@ public class FlatSpecularShader implements Shader {
 		vectorLibrary.add(location1, location2, faceLocation);
 		vectorLibrary.add(faceLocation, location3, faceLocation);
 		vectorLibrary.divide(faceLocation, 3 << FP_BITS, faceLocation);	
-		vectorLibrary.multiplyMatrix(normal, normalMatrix, normal);
+		vectorLibrary.matrixMultiply(normal, normalMatrix, normal);
 		lightColor = ColorLibrary.BLACK;		
 		int[] cameraLocation = camera.getTransform().getLocation();		
 		vectorLibrary.normalize(normal, normal);
@@ -169,7 +169,7 @@ public class FlatSpecularShader implements Shader {
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normal, lightDirection, viewDirection, shaderProperties);
 				if (i == shaderData.getDirectionalLightIndex()) {
-					vectorLibrary.multiplyMatrix(faceLocation, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
+					vectorLibrary.matrixMultiply(faceLocation, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
 					graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
 					if(inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap())) {
 						currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
@@ -188,7 +188,7 @@ public class FlatSpecularShader implements Shader {
 				currentFactor = mathLibrary.divide(currentFactor, attenuation);
 				if ((i == shaderData.getPointLightIndex()) && (currentFactor > 150)) {
 					for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
-						vectorLibrary.multiplyMatrix(faceLocation, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
+						vectorLibrary.matrixMultiply(faceLocation, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
 						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
 						if(inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j])) {
 							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
@@ -213,7 +213,7 @@ public class FlatSpecularShader implements Shader {
 					currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
 					if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
-						vectorLibrary.multiplyMatrix(faceLocation, shaderData.getSpotLightMatrix(), lightSpaceLocation);
+						vectorLibrary.matrixMultiply(faceLocation, shaderData.getSpotLightMatrix(), lightSpaceLocation);
 						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
 						if(inShadow(lightSpaceLocation, shaderData.getSpotShadowMap())) {
 							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
@@ -234,8 +234,8 @@ public class FlatSpecularShader implements Shader {
 		for (int i = 0; i < dataBuffer.getVertexDataBuffers().length; i++) {
 			int[] vertexLocation = dataBuffer.getVertexDataBuffer(i).getLocation();
 			vectorLibrary.copy(vertexLocations[i], vertexLocation);
-			vectorLibrary.multiplyMatrix(vertexLocation, viewMatrix, vertexLocation);
-			vectorLibrary.multiplyMatrix(vertexLocation, projectionMatrix, vertexLocation);
+			vectorLibrary.matrixMultiply(vertexLocation, viewMatrix, vertexLocation);
+			vectorLibrary.matrixMultiply(vertexLocation, projectionMatrix, vertexLocation);
 			graphicsLibrary.screenportVector(vertexLocation, portedFrustum, vertexLocation);
 		}
 		texture = shaderProperties.getTexture();
