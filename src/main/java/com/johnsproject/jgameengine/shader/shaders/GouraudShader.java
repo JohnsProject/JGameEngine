@@ -163,9 +163,10 @@ public class GouraudShader implements Shader {
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normal, lightDirection, viewDirection, shaderProperties);
 				if (i == shaderData.getDirectionalLightIndex()) {
-					vectorLibrary.matrixMultiply(location, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
-					graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
-					if(inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap())) {
+					int[] lightMatrix = shaderData.getDirectionalLightMatrix();
+					int[] lightFrustum = shaderData.getDirectionalLightFrustum();
+					Texture shadowMap = shaderData.getDirectionalShadowMap();
+					if(inShadow(location, lightMatrix, lightFrustum, shadowMap)) {
 						currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
 					}
 				}
@@ -180,9 +181,10 @@ public class GouraudShader implements Shader {
 				currentFactor = mathLibrary.divide(currentFactor, attenuation);
 				if ((i == shaderData.getPointLightIndex()) && (currentFactor > 150)) {
 					for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
-						vectorLibrary.matrixMultiply(location, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
-						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
-						if(inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j])) {
+						int[] lightMatrix = shaderData.getPointLightMatrices()[j];
+						int[] lightFrustum = shaderData.getPointLightFrustum();
+						Texture shadowMap = shaderData.getPointShadowMaps()[j];
+						if(inShadow(location, lightMatrix, lightFrustum, shadowMap)) {
 							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
 						}
 					}
@@ -204,9 +206,10 @@ public class GouraudShader implements Shader {
 					currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
 					if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
-						vectorLibrary.matrixMultiply(location, shaderData.getSpotLightMatrix(), lightSpaceLocation);
-						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
-						if(inShadow(lightSpaceLocation, shaderData.getSpotShadowMap())) {
+						int[] lightMatrix = shaderData.getSpotLightMatrix();
+						int[] lightFrustum = shaderData.getSpotLightFrustum();
+						Texture shadowMap = shaderData.getSpotShadowMap();
+						if(inShadow(location, lightMatrix, lightFrustum, shadowMap)) {
 							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
 						}
 					}
@@ -282,7 +285,9 @@ public class GouraudShader implements Shader {
 		return attenuation + 1;
 	}
 	
-	private boolean inShadow(int[] lightSpaceLocation, Texture shadowMap) {
+	private boolean inShadow(int[] location, int[] lightMatrix, int[] lightFrustum, Texture shadowMap) {
+		vectorLibrary.matrixMultiply(location, lightMatrix, lightSpaceLocation);
+		graphicsLibrary.screenportVector(lightSpaceLocation, lightFrustum, lightSpaceLocation);
 		int x = lightSpaceLocation[VECTOR_X];
 		int y = lightSpaceLocation[VECTOR_Y];
 		int depth = shadowMap.getPixel(x, y);

@@ -48,10 +48,11 @@ public class Engine {
 		maxUpdateSkip = 10;
 		limitUpdateRate = false;
 		engineListeners = new ArrayList<EngineListener>();
+		startEngineLoop();
 	}
 
 	public void start() {
-		startEngineLoop();
+		running = true;
 	}
 	
 	public void stop() {
@@ -61,29 +62,38 @@ public class Engine {
 	private void startEngineLoop() {
 		running = true;
 		engineThread = new Thread(new Runnable() {
-			long nextUpateTick = System.currentTimeMillis();
-			long current = System.currentTimeMillis();
-			int updatesToCatchUp = 0;
-			int loops = 0;
 			public void run() {
-				for (int i = 0; i < engineListeners.size(); i++) {
+				long nextUpateTick = System.currentTimeMillis();
+				long current = System.currentTimeMillis();
+				final int updatesToCatchUp = 1000 / getFixedUpdateRate();
+				int loops = 0;
+				int listernerCount = engineListeners.size();
+				for (int i = 0; i < listernerCount; i++) {
 					engineListeners.get(i).start();
 				}
-				while (running) {
+				while (true) {
+					if (!running) {
+						try {
+							Thread.sleep(20);
+							continue;
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
 					loops = 0;
-					updatesToCatchUp = 1000 / getFixedUpdateRate();
 					current = System.currentTimeMillis();
+					listernerCount = engineListeners.size();
 					while (current > nextUpateTick && loops < getMaxUpdateSkip()) {
-						for (int i = 0; i < engineListeners.size(); i++) {
+						for (int i = 0; i < listernerCount; i++) {
 							engineListeners.get(i).fixedUpdate();
 						}
 						nextUpateTick += updatesToCatchUp;
 						loops++;
 					}
-					for (int i = 0; i < engineListeners.size(); i++) {
+					for (int i = 0; i < listernerCount; i++) {
 						engineListeners.get(i).update();
 					}
-					if((loops == 1) & limitUpdateRate) {
+					if((loops == 1) & limitUpdateRate()) {
 						long sleepTime = nextUpateTick - current;
 						if (sleepTime > 0) {
 							try {
@@ -138,9 +148,10 @@ public class Engine {
 	}
 
 	private void sortListeners() {
-		for (int i = 0; i < engineListeners.size(); i++) {
+		final int listenerCount = engineListeners.size();
+		for (int i = 0; i < listenerCount; i++) {
 			int min_i = i;
-			for (int j = i + 1; j < engineListeners.size(); j++) {
+			for (int j = i + 1; j < listenerCount; j++) {
 				if (engineListeners.get(j).getPriority() < engineListeners.get(min_i).getPriority()) {
 					min_i = j;
 				}
