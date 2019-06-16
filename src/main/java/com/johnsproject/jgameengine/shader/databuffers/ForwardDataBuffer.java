@@ -30,17 +30,17 @@ public class ForwardDataBuffer extends ShaderDataBuffer {
 	
 	private int directionalLightIndex = -1;
 	private int[] directionalLightFrustum;
-	private int[][] directionalLightMatrix;
+	private int[] directionalLightMatrix;
 	private Texture directionalShadowMap;
 	
 	private int spotLightIndex = -1;
 	private int[] spotLightFrustum;
-	private int[][] spotLightMatrix;
+	private int[] spotLightMatrix;
 	private Texture spotShadowMap;
 	
 	private int pointLightIndex = -1;
 	private int[] pointLightFrustum;
-	private int[][][] pointLightMatrices;
+	private int[][] pointLightMatrices;
 	private Texture[] pointShadowMaps;
 
 	public int getDirectionalLightIndex() {
@@ -51,11 +51,11 @@ public class ForwardDataBuffer extends ShaderDataBuffer {
 		this.directionalLightIndex = directionalLightIndex;
 	}
 
-	public int[][] getDirectionalLightMatrix() {
+	public int[] getDirectionalLightMatrix() {
 		return directionalLightMatrix;
 	}
 
-	public void setDirectionalLightMatrix(int[][] directionalLightMatrix) {
+	public void setDirectionalLightMatrix(int[] directionalLightMatrix) {
 		this.directionalLightMatrix = directionalLightMatrix;
 	}
 
@@ -75,11 +75,11 @@ public class ForwardDataBuffer extends ShaderDataBuffer {
 		this.spotLightIndex = spotLightIndex;
 	}
 
-	public int[][] getSpotLightMatrix() {
+	public int[] getSpotLightMatrix() {
 		return spotLightMatrix;
 	}
 
-	public void setSpotLightMatrix(int[][] spotLightMatrix) {
+	public void setSpotLightMatrix(int[] spotLightMatrix) {
 		this.spotLightMatrix = spotLightMatrix;
 	}
 
@@ -123,11 +123,11 @@ public class ForwardDataBuffer extends ShaderDataBuffer {
 		this.pointLightFrustum = pointLightFrustum;
 	}
 
-	public int[][][] getPointLightMatrices() {
+	public int[][] getPointLightMatrices() {
 		return pointLightMatrices;
 	}
 
-	public void setPointLightMatrices(int[][][] pointLightMatrices) {
+	public void setPointLightMatrices(int[][] pointLightMatrices) {
 		this.pointLightMatrices = pointLightMatrices;
 	}
 

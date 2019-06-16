@@ -60,9 +60,9 @@ public class PointLightShadowShader implements Shader {
 
 	private final FlatTriangle triangle;
 	
-	private int[][] modelMatrix;
-	private int[][] projectionMatrix;
-	private final int[][][] lightMatrices;
+	private int[] modelMatrix;
+	private int[] projectionMatrix;
+	private final int[][] lightMatrices;
 	
 	private int[] lightFrustum;
 	private final int[] portedFrustum;
@@ -86,7 +86,7 @@ public class PointLightShadowShader implements Shader {
 
 		this.modelMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
-		this.lightMatrices = new int[6][4][4];
+		this.lightMatrices = new int[6][16];
 		
 		this.location0Cache = vectorLibrary.generate();
 		this.location1Cache = vectorLibrary.generate();
@@ -114,7 +114,7 @@ public class PointLightShadowShader implements Shader {
 
 		this.modelMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
-		this.lightMatrices = new int[6][4][4];
+		this.lightMatrices = new int[6][16];
 		
 		this.location0Cache = vectorLibrary.generate();
 		this.location1Cache = vectorLibrary.generate();
@@ -165,7 +165,7 @@ public class PointLightShadowShader implements Shader {
 			}
 			if (shaderData.getPointLightIndex() == -1)
 				return;		
-			int[][] lightMatrix = lightMatrices[0];
+			int[] lightMatrix = lightMatrices[0];
 			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
 			matrixLibrary.multiply(projectionMatrix, modelMatrix, lightMatrix);
@@ -214,8 +214,8 @@ public class PointLightShadowShader implements Shader {
 			currentShadowMap = shadowMaps[i];
 			for (int j = 0; j < dataBuffer.getVertexDataBuffers().length; j++) {
 				int[] vertexLocation = dataBuffer.getVertexDataBuffer(j).getLocation();
-				vectorLibrary.multiply(vertexLocation, modelMatrix, vertexLocation);
-				vectorLibrary.multiply(vertexLocation, lightMatrices[i], vertexLocation);
+				vectorLibrary.multiplyMatrix(vertexLocation, modelMatrix, vertexLocation);
+				vectorLibrary.multiplyMatrix(vertexLocation, lightMatrices[i], vertexLocation);
 				graphicsLibrary.screenportVector(vertexLocation, portedFrustum, vertexLocation);
 			}
 			graphicsLibrary.drawFlatTriangle(triangle, dataBuffer, portedFrustum);

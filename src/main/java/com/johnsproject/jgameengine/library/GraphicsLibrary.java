@@ -71,7 +71,7 @@ public class GraphicsLibrary {
 	 * @param transform
 	 * @return
 	 */
-	public int[][] modelMatrix(int[][] matrix, Transform transform) {
+	public int[] modelMatrix(int[] matrix, Transform transform) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
@@ -90,7 +90,7 @@ public class GraphicsLibrary {
 	 * @param transform
 	 * @return
 	 */
-	public int[][] normalMatrix(int[][] matrix, Transform transform) {
+	public int[] normalMatrix(int[] matrix, Transform transform) {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
@@ -111,7 +111,7 @@ public class GraphicsLibrary {
 	 * @param transform
 	 * @return
 	 */
-	public int[][] viewMatrix(int[][] matrix, Transform transform) {
+	public int[] viewMatrix(int[] matrix, Transform transform) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
@@ -135,13 +135,13 @@ public class GraphicsLibrary {
 	 * @param cameraFrustum
 	 * @return
 	 */
-	public int[][] orthographicMatrix(int[][] matrix, int[] cameraFrustum) {
+	public int[] orthographicMatrix(int[] matrix, int[] cameraFrustum) {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
 		int scaleFactor = cameraFrustum[Camera.FRUSTUM_NEAR];
-		matrix[0][0] = scaleFactor;
-		matrix[1][1] = scaleFactor;
-		matrix[2][2] = -FP_ONE / 10;
-		matrix[3][3] = FP_ONE * -FP_HALF;
+		matrixLibrary.set(matrix, 0, 0, scaleFactor);
+		matrixLibrary.set(matrix, 1, 1, scaleFactor);
+		matrixLibrary.set(matrix, 2, 2, -FP_ONE / 10);
+		matrixLibrary.set(matrix, 3, 3, FP_ONE * -FP_HALF);
 		return matrix;
 	}
 
@@ -155,14 +155,14 @@ public class GraphicsLibrary {
 	 * @param cameraFrustum
 	 * @return
 	 */
-	public int[][] perspectiveMatrix(int[][] matrix, int[] cameraFrustum) {
+	public int[] perspectiveMatrix(int[] matrix, int[] cameraFrustum) {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
 		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR]) / 16;
-		matrix[0][0] = scaleFactor;
-		matrix[1][1] = scaleFactor;
-		matrix[2][2] = -FP_ONE / 10;
-		matrix[2][3] = FP_ONE;
-		matrix[3][3] = 0;
+		matrixLibrary.set(matrix, 0, 0, scaleFactor);
+		matrixLibrary.set(matrix, 1, 1, scaleFactor);
+		matrixLibrary.set(matrix, 2, 2, -FP_ONE / 10);
+		matrixLibrary.set(matrix, 2, 3, FP_ONE);
+		matrixLibrary.set(matrix, 3, 3, 0);
 		return matrix;
 	}
 

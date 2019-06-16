@@ -10,15 +10,15 @@ public class VectorLibraryTest {
 
 	@Test
 	public void multiplyMatrixTest() throws Exception {
-		MatrixLibrary matrixProcessor = new MatrixLibrary();
-		VectorLibrary vectorProcessor = new VectorLibrary();
-		int[] out = vectorProcessor.generate();
-		int[][] matrix = matrixProcessor.generate();
-		int[] vector = vectorProcessor.generate(6, 3, 2);
-		vectorProcessor.multiply(vector, matrix, out);
-		assert(out[0] == 6);
-		assert(out[1] == 3);
-		assert(out[2] == 2);
+		MatrixLibrary matrixLibrary = new MatrixLibrary();
+		VectorLibrary vectorLibrary = new VectorLibrary();
+		int[] out = vectorLibrary.generate();
+		int[] matrix = matrixLibrary.generate();
+		int[] vector = vectorLibrary.generate(6 << MathLibrary.FP_BITS, 3 << MathLibrary.FP_BITS, 2 << MathLibrary.FP_BITS);
+		vectorLibrary.multiply(vector, matrix, out);
+		assert(out[0] == 6 << MathLibrary.FP_BITS);
+		assert(out[1] == 3 << MathLibrary.FP_BITS);
+		assert(out[2] == 2 << MathLibrary.FP_BITS);
 		assert(out[3] == 1024);
 	}
 	

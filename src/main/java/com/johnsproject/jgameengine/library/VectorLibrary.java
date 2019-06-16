@@ -37,6 +37,7 @@ public class VectorLibrary {
 	public static final byte VECTOR_Y = 1;
 	public static final byte VECTOR_Z = 2;
 	public static final byte VECTOR_W = 3;
+	public static final byte VECTOR_SIZE = 4;
 	
 	public static final int[] VECTOR_UP = new int[] {0, 0, FP_ONE, FP_ONE};
 	public static final int[] VECTOR_DOWN = new int[] {0, 0, -FP_ONE, FP_ONE};
@@ -224,14 +225,15 @@ public class VectorLibrary {
 	 * @param matrix
 	 * @param result
 	 */
-	public int[] multiply(int[] vector, int[][] matrix, int[] result) {
+	public int[] multiplyMatrix(int[] vector, int[] matrix, int[] result) {
+		final int rowSize = MatrixLibrary.MATRIX_ROW_SIZE;
 		// ensures that will return right values if vector is the same as result
 		copy(vectorCache1, vector);
-		for (int i = 0; i < 4; i++) {
-			int res = mathLibrary.multiply(matrix[0][i], vectorCache1[VECTOR_X]);
-			res += mathLibrary.multiply(matrix[1][i], vectorCache1[VECTOR_Y]);
-			res += mathLibrary.multiply(matrix[2][i], vectorCache1[VECTOR_Z]);
-			result[i] = res + matrix[3][i];
+		for (int i = 0; i < VECTOR_SIZE; i++) {
+			int res = mathLibrary.multiply(matrix[0 + (i * rowSize)], vectorCache1[VECTOR_X]);
+			res += mathLibrary.multiply(matrix[1 + (i * rowSize)], vectorCache1[VECTOR_Y]);
+			res += mathLibrary.multiply(matrix[2 + (i * rowSize)], vectorCache1[VECTOR_Z]);
+			result[i] = res + matrix[3 + (i * rowSize)];
 		}
 		return result;
 	}

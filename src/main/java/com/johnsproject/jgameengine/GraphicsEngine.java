@@ -58,9 +58,9 @@ public class GraphicsEngine implements EngineListener {
 		this.shaders = new ArrayList<Shader>();
 		this.scene = scene;
 		this.frameBuffer = frameBuffer;
-		addPreprocessingShader(new DirectionalLightShadowShader());
-		addPreprocessingShader(new SpotLightShadowShader());
-		addPreprocessingShader(new PointLightShadowShader());
+//		addPreprocessingShader(new DirectionalLightShadowShader());
+//		addPreprocessingShader(new SpotLightShadowShader());
+//		addPreprocessingShader(new PointLightShadowShader());
 		addShader(new GouraudSpecularShader());
 	}
 	

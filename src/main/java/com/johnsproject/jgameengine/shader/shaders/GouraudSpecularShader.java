@@ -69,10 +69,10 @@ public class GouraudSpecularShader implements Shader {
 	private final int[] portedFrustum;
 	private final int[] lightSpaceLocation;
 	
-	private final int[][] modelMatrix;
-	private final int[][] normalMatrix;
-	private final int[][] viewMatrix;
-	private final int[][] projectionMatrix;
+	private final int[] modelMatrix;
+	private final int[] normalMatrix;
+	private final int[] viewMatrix;
+	private final int[] projectionMatrix;
 	
 	private final PerspectiveGouraudTriangle triangle;
 	
@@ -148,8 +148,8 @@ public class GouraudSpecularShader implements Shader {
 		int[] normal = dataBuffer.getNormal();
 		int lightColor = ColorLibrary.BLACK;
 		int[] cameraLocation = camera.getTransform().getLocation();	
-		vectorLibrary.multiply(location, modelMatrix, location);
-		vectorLibrary.multiply(normal, normalMatrix, normal);
+		vectorLibrary.multiplyMatrix(location, modelMatrix, location);
+		vectorLibrary.multiplyMatrix(normal, normalMatrix, normal);
 		vectorLibrary.normalize(normal, normal);
 		vectorLibrary.subtract(cameraLocation, location, viewDirection);
 		vectorLibrary.normalize(viewDirection, viewDirection);
@@ -163,7 +163,7 @@ public class GouraudSpecularShader implements Shader {
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normal, lightDirection, viewDirection, shaderProperties);
 				if (i == shaderData.getDirectionalLightIndex()) {
-					vectorLibrary.multiply(location, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
+					vectorLibrary.multiplyMatrix(location, shaderData.getDirectionalLightMatrix(), lightSpaceLocation);
 					graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getDirectionalLightFrustum(), lightSpaceLocation);
 					if(inShadow(lightSpaceLocation, shaderData.getDirectionalShadowMap())) {
 						currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
@@ -180,7 +180,7 @@ public class GouraudSpecularShader implements Shader {
 				currentFactor = mathLibrary.divide(currentFactor, attenuation);
 				if ((i == shaderData.getPointLightIndex()) && (currentFactor > 150)) {
 					for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
-						vectorLibrary.multiply(location, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
+						vectorLibrary.multiplyMatrix(location, shaderData.getPointLightMatrices()[j], lightSpaceLocation);
 						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getPointLightFrustum(), lightSpaceLocation);
 						if(inShadow(lightSpaceLocation, shaderData.getPointShadowMaps()[j])) {
 							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
@@ -204,7 +204,7 @@ public class GouraudSpecularShader implements Shader {
 					currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
 					if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
-						vectorLibrary.multiply(location, shaderData.getSpotLightMatrix(), lightSpaceLocation);
+						vectorLibrary.multiplyMatrix(location, shaderData.getSpotLightMatrix(), lightSpaceLocation);
 						graphicsLibrary.screenportVector(lightSpaceLocation, shaderData.getSpotLightFrustum(), lightSpaceLocation);
 						if(inShadow(lightSpaceLocation, shaderData.getSpotShadowMap())) {
 							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
@@ -218,8 +218,8 @@ public class GouraudSpecularShader implements Shader {
 			lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
 		}
 		dataBuffer.setLightColor(lightColor);
-		vectorLibrary.multiply(location, viewMatrix, location);
-		vectorLibrary.multiply(location, projectionMatrix, location);
+		vectorLibrary.multiplyMatrix(location, viewMatrix, location);
+		vectorLibrary.multiplyMatrix(location, projectionMatrix, location);
 		graphicsLibrary.screenportVector(location, portedFrustum, location);
 	}
 

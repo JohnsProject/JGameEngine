@@ -60,9 +60,9 @@ public class DirectionalLightShadowShader implements Shader {
 
 	private final FlatTriangle triangle;
 	
-	private final int[][] modelMatrix;
-	private final int[][] projectionMatrix;
-	private final int[][] lightMatrix;
+	private final int[] modelMatrix;
+	private final int[] projectionMatrix;
+	private final int[] lightMatrix;
 	
 	private final int[] lightFrustum;
 	private final int[] portedFrustum;
@@ -159,8 +159,8 @@ public class DirectionalLightShadowShader implements Shader {
 		if (shaderData.getDirectionalLightIndex() == -1)
 			return;
 		int[] location = dataBuffer.getLocation();
-		vectorLibrary.multiply(location, modelMatrix, location);
-		vectorLibrary.multiply(location, lightMatrix, location);
+		vectorLibrary.multiplyMatrix(location, modelMatrix, location);
+		vectorLibrary.multiplyMatrix(location, lightMatrix, location);
 		graphicsLibrary.screenportVector(location, portedFrustum, location);
 	}
 	
