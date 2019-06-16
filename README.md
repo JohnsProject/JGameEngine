@@ -4,6 +4,7 @@ JGameEngine is a tiny 3D game engine written in Java.
 It only uses Java AWT, as the 3D part is done by software rendering.
 
 ## Features 
+* Pure Java
 * Fixed point math only
 * Scanline triangle rasterization 
 * Flat and gouraud shaded triangles
@@ -18,3 +19,5 @@ It only uses Java AWT, as the 3D part is done by software rendering.
 ![Screenshot](Images/Example1.PNG "Example1")
 ![Screenshot](Images/Example2.PNG "Example2")
 ![Screenshot](Images/Example3.PNG "Example3")
+![Screenshot](Images/Example4.PNG "Example4")
+![Screenshot](Images/Example5.PNG "Example5")

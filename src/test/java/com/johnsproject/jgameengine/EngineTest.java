@@ -63,6 +63,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
+		Engine.getInstance().limitUpdateRate(false);
 //		graphicsEngine.removeShader(graphicsEngine.getShader(0));
 //		graphicsEngine.addShader(new FlatSpecularShader());
 	}
@@ -96,7 +97,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	public void mouseMoved(MouseEvent e) {
-//		int[] rotation = cameraTransform.getRotation();
+		int[] rotation = cameraTransform.getRotation();
 //		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
 //		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
 	}
