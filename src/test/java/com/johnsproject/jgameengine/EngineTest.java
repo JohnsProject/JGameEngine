@@ -63,9 +63,9 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
-//		for (int i = 0; i < graphicsEngine.getPreprocessingShadersCount(); i++) {
-//			graphicsEngine.removePreprocessingShader(graphicsEngine.getPreprocessingShader(i));
-//		}
+		for (int i = 0; i < graphicsEngine.getPreprocessingShadersCount(); i++) {
+			graphicsEngine.removePreprocessingShader(graphicsEngine.getPreprocessingShader(i));
+		}
 //		graphicsEngine.removeShader(graphicsEngine.getShader(0));
 //		graphicsEngine.addShader(new FlatShader());
 	}
@@ -74,7 +74,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		try {
 			Scene scene = new SceneImporter().load("C:/Development/test.scene");
 			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
-//			((ShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
+			((ShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
 			return scene;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -100,8 +100,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 
 	public void mouseMoved(MouseEvent e) {
 		int[] rotation = cameraTransform.getRotation();
-		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
-		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
+//		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
+//		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
 	}
 
 	public void keyTyped(KeyEvent e) {

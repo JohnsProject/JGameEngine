@@ -20,4 +20,3 @@ It only uses Java AWT, as the 3D part is done by software rendering.
 ![Screenshot](Images/Example2.PNG "Example2")
 ![Screenshot](Images/Example3.PNG "Example3")
 ![Screenshot](Images/Example4.PNG "Example4")
-![Screenshot](Images/Example5.PNG "Example5")
