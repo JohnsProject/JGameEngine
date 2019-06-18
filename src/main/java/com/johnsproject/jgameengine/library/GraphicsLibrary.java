@@ -24,15 +24,16 @@
 package com.johnsproject.jgameengine.library;
 
 import com.johnsproject.jgameengine.dto.Camera;
-import com.johnsproject.jgameengine.dto.GeometryDataBuffer;
-import com.johnsproject.jgameengine.dto.Texture;
 import com.johnsproject.jgameengine.dto.Transform;
 import com.johnsproject.jgameengine.shader.AffineFlatTriangle;
 import com.johnsproject.jgameengine.shader.AffineGouraudTriangle;
+import com.johnsproject.jgameengine.shader.AffinePhongTriangle;
 import com.johnsproject.jgameengine.shader.FlatTriangle;
 import com.johnsproject.jgameengine.shader.GouraudTriangle;
 import com.johnsproject.jgameengine.shader.PerspectiveFlatTriangle;
 import com.johnsproject.jgameengine.shader.PerspectiveGouraudTriangle;
+import com.johnsproject.jgameengine.shader.PerspectivePhongTriangle;
+import com.johnsproject.jgameengine.shader.PhongTriangle;
 
 /**
  * The GraphicsLibrary class contains methods for generating 
@@ -54,13 +55,11 @@ public class GraphicsLibrary {
 	private final MathLibrary mathLibrary;
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
-	private final ColorLibrary colorLibrary;
 	
 	public GraphicsLibrary() {
 		this.mathLibrary = new MathLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.colorLibrary = new ColorLibrary();
 	}
 
 	/**
@@ -219,13 +218,11 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
-	 * @param dataBuffer
 	 * @param cameraFrustum
 	 */
-	public void drawFlatTriangle(FlatTriangle triangle, GeometryDataBuffer dataBuffer, int[] cameraFrustum) {
-		if (clip(dataBuffer, cameraFrustum))
+	public void drawFlatTriangle(FlatTriangle triangle, int[] cameraFrustum) {
+		if (clip(triangle, cameraFrustum))
 			return;
-		copyLocations(triangle, dataBuffer);
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
@@ -234,14 +231,24 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
-	 * @param dataBuffer
 	 * @param cameraFrustum
 	 */
-	public void drawGouraudTriangle(GouraudTriangle triangle, GeometryDataBuffer dataBuffer, int[] cameraFrustum) {
-		if (clip(dataBuffer, cameraFrustum))
+	public void drawGouraudTriangle(GouraudTriangle triangle, int[] cameraFrustum) {
+		if (clip(triangle, cameraFrustum))
 			return;
-		copyColors(triangle, dataBuffer);
-		copyLocations(triangle, dataBuffer);
+		triangle.drawTriangle(cameraFrustum);
+	}
+	
+	/**
+	 * Draws a triangle using phong shading.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param triangle
+	 * @param cameraFrustum
+	 */
+	public void drawPhongTriangle(PhongTriangle triangle, int[] cameraFrustum) {
+		if (clip(triangle, cameraFrustum))
+			return;
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
@@ -250,32 +257,11 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
-	 * @param dataBuffer
-	 * @param texture
 	 * @param cameraFrustum
 	 */
-	public void drawAffineFlatTriangle(AffineFlatTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
-		if (clip(dataBuffer, cameraFrustum))
+	public void drawAffineFlatTriangle(AffineFlatTriangle triangle, int[] cameraFrustum) {
+		if (clip(triangle, cameraFrustum))
 			return;
-		copyUVs(triangle, dataBuffer, texture);
-		copyLocations(triangle, dataBuffer);
-		triangle.drawTriangle(cameraFrustum);
-	}
-	
-	/**
-	 * Draws a triangle using flat shading and perspective correct texture mapping.
-	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
-	 * 
-	 * @param triangle
-	 * @param dataBuffer
-	 * @param texture
-	 * @param cameraFrustum
-	 */
-	public void drawPerspectiveFlatTriangle(PerspectiveFlatTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
-		if (clip(dataBuffer, cameraFrustum))
-			return;
-		copyUVs(triangle, dataBuffer, texture);
-		copyLocations(triangle, dataBuffer);
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
@@ -284,16 +270,37 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
-	 * @param dataBuffer
-	 * @param texture
 	 * @param cameraFrustum
 	 */
-	public void drawAffineGouraudTriangle(AffineGouraudTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
-		if (clip(dataBuffer, cameraFrustum))
+	public void drawAffineGouraudTriangle(AffineGouraudTriangle triangle, int[] cameraFrustum) {
+		if (clip(triangle, cameraFrustum))
 			return;
-		copyUVs(triangle, dataBuffer, texture);
-		copyColors(triangle, dataBuffer);
-		copyLocations(triangle, dataBuffer);
+		triangle.drawTriangle(cameraFrustum);
+	}
+	
+	/**
+	 * Draws a triangle using phong shading and affine texture mapping.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param triangle
+	 * @param cameraFrustum
+	 */
+	public void drawAffinePhongTriangle(AffinePhongTriangle triangle, int[] cameraFrustum) {
+		if (clip(triangle, cameraFrustum))
+			return;
+		triangle.drawTriangle(cameraFrustum);
+	}
+	
+	/**
+	 * Draws a triangle using flat shading and perspective correct texture mapping.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param triangle
+	 * @param cameraFrustum
+	 */
+	public void drawPerspectiveFlatTriangle(PerspectiveFlatTriangle triangle, int[] cameraFrustum) {
+		if (clip(triangle, cameraFrustum))
+			return;
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
@@ -302,30 +309,35 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
-	 * @param dataBuffer
-	 * @param texture
 	 * @param cameraFrustum
 	 */
-	public void drawPerspectiveGouraudTriangle(PerspectiveGouraudTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture, int[] cameraFrustum) {
-		if (clip(dataBuffer, cameraFrustum))
+	public void drawPerspectiveGouraudTriangle(PerspectiveGouraudTriangle triangle, int[] cameraFrustum) {
+		if (clip(triangle, cameraFrustum))
 			return;
-		copyUVs(triangle, dataBuffer, texture);
-		copyColors(triangle, dataBuffer);
-		copyLocations(triangle, dataBuffer);
 		triangle.drawTriangle(cameraFrustum);
 	}
 	
-	private boolean clip(GeometryDataBuffer dataBuffer, int[] cameraFrustum) {
-		int[] location1 = dataBuffer.getVertexDataBuffer(0).getLocation();
-		int[] location2 = dataBuffer.getVertexDataBuffer(1).getLocation();
-		int[] location3 = dataBuffer.getVertexDataBuffer(2).getLocation();
-		int triangleSize = shoelace(location1, location2, location3);
-		if (triangleSize > 0) // backface culling
-			return true;
-		int left = cameraFrustum[Camera.FRUSTUM_LEFT] + 1;
-		int right = cameraFrustum[Camera.FRUSTUM_RIGHT] - 1;
-		int top = cameraFrustum[Camera.FRUSTUM_TOP] + 1;
-		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1;
+	/**
+	 * Draws a triangle using phong shading and perspective correct texture mapping.
+	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
+	 * 
+	 * @param triangle
+	 * @param cameraFrustum
+	 */
+	public void drawPerspectivePhongTriangle(PerspectivePhongTriangle triangle, int[] cameraFrustum) {
+		if (clip(triangle, cameraFrustum))
+			return;
+		triangle.drawTriangle(cameraFrustum);
+	}
+	
+	private boolean clip(FlatTriangle triangle, int[] cameraFrustum) {
+		int[] location1 = triangle.getLocation0();
+		int[] location2 = triangle.getLocation1();
+		int[] location3 = triangle.getLocation2();
+		int left = cameraFrustum[Camera.FRUSTUM_LEFT];
+		int right = cameraFrustum[Camera.FRUSTUM_RIGHT];
+		int top = cameraFrustum[Camera.FRUSTUM_TOP];
+		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
 		int near = cameraFrustum[Camera.FRUSTUM_NEAR] / 10;
 		int far = (cameraFrustum[Camera.FRUSTUM_FAR] / 10);
 		boolean insideWidth1 = (location1[VECTOR_X] > left) & (location1[VECTOR_X] < right);
@@ -345,61 +357,11 @@ public class GraphicsLibrary {
 		return false;
 	}
 	
-	private int shoelace(int[] vector1, int[] vector2, int[] vector3) {
-		return (vector2[VECTOR_X] - vector1[VECTOR_X]) * (vector3[VECTOR_Y] - vector1[VECTOR_Y])
-				- (vector3[VECTOR_X] - vector1[VECTOR_X]) * (vector2[VECTOR_Y] - vector1[VECTOR_Y]);
-	}
-	
-	private void copyUVs(AffineFlatTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture) {
-		if (texture != null) {
-			int width = texture.getWidth() - 1;
-			int height = texture.getHeight() - 1;
-			int[] uv0 = dataBuffer.getUV(0);
-			int[] uv1 = dataBuffer.getUV(1);
-			int[] uv2 = dataBuffer.getUV(2);
-			triangle.getU()[0] = mathLibrary.multiply(uv0[VECTOR_X], width);
-			triangle.getU()[1] = mathLibrary.multiply(uv1[VECTOR_X], width);
-			triangle.getU()[2] = mathLibrary.multiply(uv2[VECTOR_X], width);
-			triangle.getV()[0] = mathLibrary.multiply(uv0[VECTOR_Y], height);
-			triangle.getV()[1] = mathLibrary.multiply(uv1[VECTOR_Y], height);
-			triangle.getV()[2] = mathLibrary.multiply(uv2[VECTOR_Y], height);
-		}
-	}
-	
-	private void copyUVs(AffineGouraudTriangle triangle, GeometryDataBuffer dataBuffer, Texture texture) {
-		if (texture != null) {
-			int width = texture.getWidth() - 1;
-			int height = texture.getHeight() - 1;
-			int[] uv0 = dataBuffer.getUV(0);
-			int[] uv1 = dataBuffer.getUV(1);
-			int[] uv2 = dataBuffer.getUV(2);
-			triangle.getU()[0] = mathLibrary.multiply(uv0[VECTOR_X], width);
-			triangle.getU()[1] = mathLibrary.multiply(uv1[VECTOR_X], width);
-			triangle.getU()[2] = mathLibrary.multiply(uv2[VECTOR_X], width);
-			triangle.getV()[0] = mathLibrary.multiply(uv0[VECTOR_Y], height);
-			triangle.getV()[1] = mathLibrary.multiply(uv1[VECTOR_Y], height);
-			triangle.getV()[2] = mathLibrary.multiply(uv2[VECTOR_Y], height);
-		}
-	}
-	
-	private void copyColors(GouraudTriangle triangle, GeometryDataBuffer dataBuffer) {
-		int lightColor0 = dataBuffer.getVertexDataBuffer(0).getLightColor();
-		int lightColor1 = dataBuffer.getVertexDataBuffer(1).getLightColor();
-		int lightColor2 = dataBuffer.getVertexDataBuffer(2).getLightColor();
-		triangle.getRed()[0] = colorLibrary.getRed(lightColor0);
-		triangle.getGreen()[0] = colorLibrary.getGreen(lightColor0);
-		triangle.getBlue()[0] = colorLibrary.getBlue(lightColor0);
-		triangle.getRed()[1] = colorLibrary.getRed(lightColor1);
-		triangle.getGreen()[1] = colorLibrary.getGreen(lightColor1);
-		triangle.getBlue()[1] = colorLibrary.getBlue(lightColor1);
-		triangle.getRed()[2] = colorLibrary.getRed(lightColor2);
-		triangle.getGreen()[2] = colorLibrary.getGreen(lightColor2);
-		triangle.getBlue()[2] = colorLibrary.getBlue(lightColor2);
-	}
-	
-	private void copyLocations(FlatTriangle triangle, GeometryDataBuffer dataBuffer) {
-		vectorLibrary.copy(triangle.getLocation1(), dataBuffer.getVertexDataBuffer(0).getLocation());
-		vectorLibrary.copy(triangle.getLocation2(), dataBuffer.getVertexDataBuffer(1).getLocation());
-		vectorLibrary.copy(triangle.getLocation3(), dataBuffer.getVertexDataBuffer(2).getLocation());
+	public int shoelace(FlatTriangle triangle) {
+		int[] location1 = triangle.getLocation0();
+		int[] location2 = triangle.getLocation1();
+		int[] location3 = triangle.getLocation2();
+		return -((location2[VECTOR_X] - location1[VECTOR_X]) * (location3[VECTOR_Y] - location1[VECTOR_Y])
+				- (location3[VECTOR_X] - location1[VECTOR_X]) * (location2[VECTOR_Y] - location1[VECTOR_Y]));
 	}
 }

@@ -24,7 +24,7 @@
 package com.johnsproject.jgameengine.shader;
 
 import com.johnsproject.jgameengine.dto.Camera;
-import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.library.ColorLibrary;
 
 public class GouraudTriangle extends FlatTriangle {
 	
@@ -32,58 +32,70 @@ public class GouraudTriangle extends FlatTriangle {
 	protected final int[] green;
 	protected final int[] blue;
 	
+	protected final ColorLibrary colorLibrary;
+	
 	public GouraudTriangle(Shader shader) {
 		super(shader);
-		VectorLibrary vectorLibrary = new VectorLibrary();
-		red = vectorLibrary.generate();
-		green = vectorLibrary.generate();
-		blue = vectorLibrary.generate();
+		this.colorLibrary = new ColorLibrary();
+		this.red = vectorLibrary.generate();
+		this.green = vectorLibrary.generate();
+		this.blue = vectorLibrary.generate();
+	}
+	
+	public final void setColor0(int color) {
+		red[0] = colorLibrary.getRed(color);
+		green[0] = colorLibrary.getGreen(color);
+		blue[0] = colorLibrary.getBlue(color);
+	}
+	
+	public final void setColor1(int color) {
+		red[1] = colorLibrary.getRed(color);
+		green[1] = colorLibrary.getGreen(color);
+		blue[1] = colorLibrary.getBlue(color);
+	}
+	
+	public final void setColor2(int color) {
+		red[2] = colorLibrary.getRed(color);
+		green[2] = colorLibrary.getGreen(color);
+		blue[2] = colorLibrary.getBlue(color);
 	}
 
-	public final int[] getRed() {
-		return red;
-	}
-
-	public final int[] getGreen() {
-		return green;
-	}
-
-	public final int[] getBlue() {
-		return blue;
+	public final int getColor() {
+		return colorLibrary.generate(red[3], green[3], blue[3]);
 	}
 	
 	public void drawTriangle(int[] cameraFrustum) {
 		int tmp = 0;
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			vectorLibrary.swap(location0, location1);
 			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
 			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
 			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
 		}
-		if (location2[VECTOR_Y] > location3[VECTOR_Y]) {
-			vectorLibrary.swap(location2, location3);
+		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
+			vectorLibrary.swap(location1, location2);
 			tmp = red[2]; red[2] = red[1]; red[1] = tmp;
 			tmp = green[2]; green[2] = green[1]; green[1] = tmp;
 			tmp = blue[2]; blue[2] = blue[1]; blue[1] = tmp;
 		}
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			vectorLibrary.swap(location0, location1);
 			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
 			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
 			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
 		}
-        if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
+        if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
         	drawBottomTriangle(cameraFrustum);
-        } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
+        } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
         	drawTopTriangle(cameraFrustum);
         } else {
-            int x = location1[VECTOR_X];
-            int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
-            int multiplier = location3[VECTOR_X] - location1[VECTOR_X];
+            int x = location0[VECTOR_X];
+            int dy = mathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
+            int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
             x += mathLibrary.multiply(dy, multiplier);
-            int y = location2[VECTOR_Y];
-            int z = location1[VECTOR_Z];
-            multiplier = location3[VECTOR_Z] - location1[VECTOR_Z];
+            int y = location1[VECTOR_Y];
+            int z = location0[VECTOR_Z];
+            multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
             z += mathLibrary.multiply(dy, multiplier);
             int r = red[0];
             multiplier = red[2] - red[0];
@@ -97,14 +109,14 @@ public class GouraudTriangle extends FlatTriangle {
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
-            vectorLibrary.swap(vectorCache, location3);
+            vectorLibrary.swap(vectorCache, location2);
             tmp = red[2]; red[2] = r; r = tmp;
             tmp = green[2]; green[2] = g; g = tmp;
             tmp = blue[2]; blue[2] = b; b = tmp;
             drawBottomTriangle(cameraFrustum);
-            vectorLibrary.swap(vectorCache, location3);
-            vectorLibrary.swap(location1, location2);
-            vectorLibrary.swap(location2, vectorCache);
+            vectorLibrary.swap(vectorCache, location2);
+            vectorLibrary.swap(location0, location1);
+            vectorLibrary.swap(location1, vectorCache);
             tmp = red[2]; red[2] = r; r = tmp;
             tmp = red[0]; red[0] = red[1]; red[1] = tmp;
             tmp = red[1]; red[1] = r; r = tmp;
@@ -119,15 +131,15 @@ public class GouraudTriangle extends FlatTriangle {
 	}
 	
 	private void drawBottomTriangle(int[] cameraFrustum) {
-		int xShifted = location1[VECTOR_X] << FP_BITS;
-		int y2y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
+		int xShifted = location0[VECTOR_X] << FP_BITS;
+		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
+		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y2y1);
-        int dx2 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-        int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y2y1);
-        int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
+        int dx1 = mathLibrary.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+        int dx2 = mathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+        int dz1 = mathLibrary.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+        int dz2 = mathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
         int dr1 = mathLibrary.divide(red[1] - red[0], y2y1);
         int dr2 = mathLibrary.divide(red[2] - red[0], y3y1);
         int dg1 = mathLibrary.divide(green[1] - green[0], y2y1);
@@ -143,11 +155,11 @@ public class GouraudTriangle extends FlatTriangle {
         	int db = mathLibrary.divide(db2 - db1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
+            int z = location0[VECTOR_Z] << FP_BITS;
             int r = red[0] << FP_BITS;
             int g = green[0] << FP_BITS;
             int b = blue[0] << FP_BITS;
-	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
+	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
 	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, cameraFrustum);
 	            x1 += dx1;
 	            x2 += dx2;
@@ -165,11 +177,11 @@ public class GouraudTriangle extends FlatTriangle {
         	int db = mathLibrary.divide(db1 - db2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
+            int z = location0[VECTOR_Z] << FP_BITS;
             int r = red[0] << FP_BITS;
             int g = green[0] << FP_BITS;
             int b = blue[0] << FP_BITS;
-        	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
+        	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
         		drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, cameraFrustum);
 	            x1 += dx2;
 	            x2 += dx1;
@@ -182,15 +194,15 @@ public class GouraudTriangle extends FlatTriangle {
     }
     
 	private void drawTopTriangle(int[] cameraFrustum) {
-		int xShifted = location3[VECTOR_X] << FP_BITS;
-		int y3y1 = location3[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y2 = location3[VECTOR_Y] - location2[VECTOR_Y];
+		int xShifted = location2[VECTOR_X] << FP_BITS;
+		int y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
+		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-		int dx2 = mathLibrary.divide(location3[VECTOR_X] - location2[VECTOR_X], y3y2);
-		int dz1 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-		int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location2[VECTOR_Z], y3y2);
+		int dx1 = mathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		int dx2 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		int dz2 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
 		int dr1 = mathLibrary.divide(red[2] - red[0], y3y1);
 		int dr2 = mathLibrary.divide(red[2] - red[1], y3y2);
 		int dg1 = mathLibrary.divide(green[2] - green[0], y3y1);
@@ -206,11 +218,11 @@ public class GouraudTriangle extends FlatTriangle {
 			int db = mathLibrary.divide(db1 - db2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
+			int z = location2[VECTOR_Z] << FP_BITS;
 			int r = red[2] << FP_BITS;
 			int g = green[2] << FP_BITS;
 			int b = blue[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
+	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, cameraFrustum);
 	            x1 -= dx1;
 	            x2 -= dx2;
@@ -228,11 +240,11 @@ public class GouraudTriangle extends FlatTriangle {
 			int db = mathLibrary.divide(db2 - db1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
+			int z = location2[VECTOR_Z] << FP_BITS;
 			int r = red[2] << FP_BITS;
 			int g = green[2] << FP_BITS;
 			int b = blue[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
+	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, cameraFrustum);
 	            x1 -= dx2;
 	            x2 -= dx1;

@@ -46,9 +46,9 @@ public class FlatTriangle {
 	protected final MathLibrary mathLibrary;
 	protected final VectorLibrary vectorLibrary;
 	
+	protected final int[] location0;
 	protected final int[] location1;
 	protected final int[] location2;
-	protected final int[] location3;
 	
 	protected final Shader shader;
 	
@@ -58,21 +58,33 @@ public class FlatTriangle {
 		this.vectorLibrary = new VectorLibrary();
 		this.vectorCache = vectorLibrary.generate();
 		this.pixelCache = vectorLibrary.generate();
+		this.location0 = vectorLibrary.generate();
 		this.location1 = vectorLibrary.generate();
 		this.location2 = vectorLibrary.generate();
-		this.location3 = vectorLibrary.generate();
 	}
 	
+	public final void setLocation0(int[] location) {
+		vectorLibrary.copy(location0, location);
+	}
+	
+	public final void setLocation1(int[] location) {
+		vectorLibrary.copy(location1, location);
+	}
+	
+	public final void setLocation2(int[] location) {
+		vectorLibrary.copy(location2, location);
+	}
+	
+	public final int[] getLocation0() {
+		return location0;
+	}
+
 	public final int[] getLocation1() {
 		return location1;
 	}
 
 	public final int[] getLocation2() {
 		return location2;
-	}
-
-	public final int[] getLocation3() {
-		return location3;
 	}
 	
 	/**
@@ -82,58 +94,58 @@ public class FlatTriangle {
 	 * @param cameraFrustum
 	 */
 	public void drawTriangle(int[] cameraFrustum) {
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
-		}
-		if (location2[VECTOR_Y] > location3[VECTOR_Y]) {
-			vectorLibrary.swap(location2, location3);
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			vectorLibrary.swap(location0, location1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
 			vectorLibrary.swap(location1, location2);
 		}
-        if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			vectorLibrary.swap(location0, location1);
+		}
+        if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
         	drawBottomTriangle(cameraFrustum);
-        } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
+        } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
         	drawTopTriangle(cameraFrustum);
         } else {
-            int x = location1[VECTOR_X];
-            int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
-            int multiplier = location3[VECTOR_X] - location1[VECTOR_X];
+            int x = location0[VECTOR_X];
+            int dy = mathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
+            int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
             x += mathLibrary.multiply(dy, multiplier);
-            int y = location2[VECTOR_Y];
-            int z = location1[VECTOR_Z];
-            multiplier = location3[VECTOR_Z] - location1[VECTOR_Z];
+            int y = location1[VECTOR_Y];
+            int z = location0[VECTOR_Z];
+            multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
             z += mathLibrary.multiply(dy, multiplier);
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
-            vectorLibrary.swap(vectorCache, location3);
+            vectorLibrary.swap(vectorCache, location2);
             drawBottomTriangle(cameraFrustum);
-            vectorLibrary.swap(vectorCache, location3);
-            vectorLibrary.swap(location1, location2);
-            vectorLibrary.swap(location2, vectorCache);
+            vectorLibrary.swap(vectorCache, location2);
+            vectorLibrary.swap(location0, location1);
+            vectorLibrary.swap(location1, vectorCache);
             drawTopTriangle(cameraFrustum);
         }
 	}
 	
 	private void drawBottomTriangle(int[] cameraFrustum) {
-		int xShifted = location1[VECTOR_X] << FP_BITS;
-		int y2y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
+		int xShifted = location0[VECTOR_X] << FP_BITS;
+		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
+		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y2y1);
-        int dx2 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-        int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y2y1);
-        int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
+        int dx1 = mathLibrary.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+        int dx2 = mathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+        int dz1 = mathLibrary.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+        int dz2 = mathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
         	int dz = mathLibrary.divide(dz2 - dz1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
-	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
+            int z = location0[VECTOR_Z] << FP_BITS;
+	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
 	        	drawScanline(x1, x2, y, z, dz, cameraFrustum);
 	            x1 += dx1;
 	            x2 += dx2;
@@ -145,8 +157,8 @@ public class FlatTriangle {
         	int dz = mathLibrary.divide(dz1 - dz2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
-        	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
+            int z = location0[VECTOR_Z] << FP_BITS;
+        	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
         		drawScanline(x1, x2, y, z, dz, cameraFrustum);
 	            x1 += dx2;
 	            x2 += dx1;
@@ -156,23 +168,23 @@ public class FlatTriangle {
     }
     
 	private void drawTopTriangle(int[] cameraFrustum) {
-		int xShifted = location3[VECTOR_X] << FP_BITS;
-		int y3y1 = location3[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y2 = location3[VECTOR_Y] - location2[VECTOR_Y];
+		int xShifted = location2[VECTOR_X] << FP_BITS;
+		int y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
+		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-		int dx2 = mathLibrary.divide(location3[VECTOR_X] - location2[VECTOR_X], y3y2);
-		int dz1 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-		int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location2[VECTOR_Z], y3y2);
+		int dx1 = mathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		int dx2 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		int dz2 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
 			int dz = mathLibrary.divide(dz1 - dz2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
+			int z = location2[VECTOR_Z] << FP_BITS;
+	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, dz, cameraFrustum);
 	            x1 -= dx1;
 	            x2 -= dx2;
@@ -184,8 +196,8 @@ public class FlatTriangle {
 			int dz = mathLibrary.divide(dz2 - dz1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
+			int z = location2[VECTOR_Z] << FP_BITS;
+	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, dz, cameraFrustum);
 	            x1 -= dx2;
 	            x2 -= dx1;

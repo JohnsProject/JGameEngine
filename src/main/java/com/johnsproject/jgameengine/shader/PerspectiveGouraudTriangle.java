@@ -32,61 +32,61 @@ public class PerspectiveGouraudTriangle extends AffineGouraudTriangle {
 	}
 	
 	public void drawTriangle(int[] cameraFrustum) {
+		location0[VECTOR_Z] = PERSPECTIVE_ONE / location0[VECTOR_Z];
 		location1[VECTOR_Z] = PERSPECTIVE_ONE / location1[VECTOR_Z];
 		location2[VECTOR_Z] = PERSPECTIVE_ONE / location2[VECTOR_Z];
-		location3[VECTOR_Z] = PERSPECTIVE_ONE / location3[VECTOR_Z];
-		this.u[0] = mathLibrary.multiply(this.u[0], location1[VECTOR_Z]);
-		this.u[1] = mathLibrary.multiply(this.u[1], location2[VECTOR_Z]);
-		this.u[2] = mathLibrary.multiply(this.u[2], location3[VECTOR_Z]);
-		this.v[0] = mathLibrary.multiply(this.v[0], location1[VECTOR_Z]);
-		this.v[1] = mathLibrary.multiply(this.v[1], location2[VECTOR_Z]);
-		this.v[2] = mathLibrary.multiply(this.v[2], location3[VECTOR_Z]);
-		red[0] = mathLibrary.multiply(red[0], location1[VECTOR_Z]);
-		red[1] = mathLibrary.multiply(red[1], location2[VECTOR_Z]);
-		red[2] = mathLibrary.multiply(red[2], location3[VECTOR_Z]);
-		green[0] = mathLibrary.multiply(green[0], location1[VECTOR_Z]);
-		green[1] = mathLibrary.multiply(green[1], location2[VECTOR_Z]);
-		green[2] = mathLibrary.multiply(green[2], location3[VECTOR_Z]);
-		blue[0] = mathLibrary.multiply(blue[0], location1[VECTOR_Z]);
-		blue[1] = mathLibrary.multiply(blue[1], location2[VECTOR_Z]);
-		blue[2] = mathLibrary.multiply(blue[2], location3[VECTOR_Z]);
+		this.u[0] = mathLibrary.multiply(this.u[0], location0[VECTOR_Z]);
+		this.u[1] = mathLibrary.multiply(this.u[1], location1[VECTOR_Z]);
+		this.u[2] = mathLibrary.multiply(this.u[2], location2[VECTOR_Z]);
+		this.v[0] = mathLibrary.multiply(this.v[0], location0[VECTOR_Z]);
+		this.v[1] = mathLibrary.multiply(this.v[1], location1[VECTOR_Z]);
+		this.v[2] = mathLibrary.multiply(this.v[2], location2[VECTOR_Z]);
+		red[0] = mathLibrary.multiply(red[0], location0[VECTOR_Z]);
+		red[1] = mathLibrary.multiply(red[1], location1[VECTOR_Z]);
+		red[2] = mathLibrary.multiply(red[2], location2[VECTOR_Z]);
+		green[0] = mathLibrary.multiply(green[0], location0[VECTOR_Z]);
+		green[1] = mathLibrary.multiply(green[1], location1[VECTOR_Z]);
+		green[2] = mathLibrary.multiply(green[2], location2[VECTOR_Z]);
+		blue[0] = mathLibrary.multiply(blue[0], location0[VECTOR_Z]);
+		blue[1] = mathLibrary.multiply(blue[1], location1[VECTOR_Z]);
+		blue[2] = mathLibrary.multiply(blue[2], location2[VECTOR_Z]);
 		int tmp = 0;
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			vectorLibrary.swap(location0, location1);
 			tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
 			tmp = this.v[0]; this.v[0] = this.v[1]; this.v[1] = tmp;
 			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
 			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
 			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
 		}
-		if (location2[VECTOR_Y] > location3[VECTOR_Y]) {
-			vectorLibrary.swap(location2, location3);
+		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
+			vectorLibrary.swap(location1, location2);
 			tmp = this.u[2]; this.u[2] = this.u[1]; this.u[1] = tmp;
 			tmp = this.v[2]; this.v[2] = this.v[1]; this.v[1] = tmp;
 			tmp = red[2]; red[2] = red[1]; red[1] = tmp;
 			tmp = green[2]; green[2] = green[1]; green[1] = tmp;
 			tmp = blue[2]; blue[2] = blue[1]; blue[1] = tmp;
 		}
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			vectorLibrary.swap(location0, location1);
 			tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
 			tmp = this.v[0]; this.v[0] = this.v[1]; this.v[1] = tmp;
 			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
 			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
 			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
 		}
-        if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
+        if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
             drawBottomTriangle(cameraFrustum);
-        } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
+        } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
             drawTopTriangle(cameraFrustum);
         } else {
-            int x = location1[VECTOR_X];
-            int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
-            int multiplier = location3[VECTOR_X] - location1[VECTOR_X];
+            int x = location0[VECTOR_X];
+            int dy = mathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
+            int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
             x += mathLibrary.multiply(dy, multiplier);
-            int y = location2[VECTOR_Y];
-            int z = location1[VECTOR_Z];
-            multiplier = location3[VECTOR_Z] - location1[VECTOR_Z];
+            int y = location1[VECTOR_Y];
+            int z = location0[VECTOR_Z];
+            multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
             z += mathLibrary.multiply(dy, multiplier);
             int uvx = this.u[0];
             multiplier = this.u[2] - this.u[0];
@@ -106,16 +106,16 @@ public class PerspectiveGouraudTriangle extends AffineGouraudTriangle {
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
-            vectorLibrary.swap(vectorCache, location3);
+            vectorLibrary.swap(vectorCache, location2);
             tmp = this.u[2]; this.u[2] = uvx; uvx = tmp;
             tmp = this.v[2]; this.v[2] = uvy; uvy = tmp;
             tmp = red[2]; red[2] = r; r = tmp;
             tmp = green[2]; green[2] = g; g = tmp;
             tmp = blue[2]; blue[2] = b; b = tmp;
             drawBottomTriangle(cameraFrustum);
-            vectorLibrary.swap(vectorCache, location3);
-            vectorLibrary.swap(location1, location2);
-            vectorLibrary.swap(location2, vectorCache);
+            vectorLibrary.swap(vectorCache, location2);
+            vectorLibrary.swap(location0, location1);
+            vectorLibrary.swap(location1, vectorCache);
             tmp = this.u[2]; this.u[2] = uvx; uvx = tmp;
             tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
             tmp = this.u[1]; this.u[1] = uvx; uvx = tmp;
@@ -136,15 +136,15 @@ public class PerspectiveGouraudTriangle extends AffineGouraudTriangle {
 	}
 	
 	private void drawBottomTriangle(int[] cameraFrustum) {
-		int xShifted = location1[VECTOR_X] << FP_BITS;
-		int y2y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
+		int xShifted = location0[VECTOR_X] << FP_BITS;
+		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
+		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y2y1);
-        int dx2 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-        int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y2y1);
-        int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
+        int dx1 = mathLibrary.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+        int dx2 = mathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+        int dz1 = mathLibrary.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+        int dz2 = mathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
         int du1 = mathLibrary.divide(this.u[1] - this.u[0], y2y1);
         int du2 = mathLibrary.divide(this.u[2] - this.u[0], y3y1);
         int dv1 = mathLibrary.divide(this.v[1] - this.v[0], y2y1);
@@ -166,13 +166,13 @@ public class PerspectiveGouraudTriangle extends AffineGouraudTriangle {
         	int db = mathLibrary.divide(db2 - db1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
+            int z = location0[VECTOR_Z] << FP_BITS;
             int u = this.u[0] << FP_BITS;
             int v = this.v[0] << FP_BITS;
             int r = red[0] << FP_BITS;
             int g = green[0] << FP_BITS;
             int b = blue[0] << FP_BITS;
-	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
+	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
 	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, cameraFrustum);
 	            x1 += dx1;
 	            x2 += dx2;
@@ -194,13 +194,13 @@ public class PerspectiveGouraudTriangle extends AffineGouraudTriangle {
         	int db = mathLibrary.divide(db1 - db2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
+            int z = location0[VECTOR_Z] << FP_BITS;
             int u = this.u[0] << FP_BITS;
             int v = this.v[0] << FP_BITS;
             int r = red[0] << FP_BITS;
             int g = green[0] << FP_BITS;
             int b = blue[0] << FP_BITS;
-        	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
+        	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
         		drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, cameraFrustum);
 	            x1 += dx2;
 	            x2 += dx1;
@@ -215,15 +215,15 @@ public class PerspectiveGouraudTriangle extends AffineGouraudTriangle {
     }
     
 	private void drawTopTriangle(int[] cameraFrustum) {
-		int xShifted = location3[VECTOR_X] << FP_BITS;
-		int y3y1 = location3[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y2 = location3[VECTOR_Y] - location2[VECTOR_Y];
+		int xShifted = location2[VECTOR_X] << FP_BITS;
+		int y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
+		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-		int dx2 = mathLibrary.divide(location3[VECTOR_X] - location2[VECTOR_X], y3y2);
-		int dz1 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-		int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location2[VECTOR_Z], y3y2);
+		int dx1 = mathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		int dx2 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		int dz2 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
 		int du1 = mathLibrary.divide(this.u[2] - this.u[0], y3y1);
 		int du2 = mathLibrary.divide(this.u[2] - this.u[1], y3y2);
 		int dv1 = mathLibrary.divide(this.v[2] - this.v[0], y3y1);
@@ -245,13 +245,13 @@ public class PerspectiveGouraudTriangle extends AffineGouraudTriangle {
 			int db = mathLibrary.divide(db1 - db2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
+			int z = location2[VECTOR_Z] << FP_BITS;
 			int u = this.u[2] << FP_BITS;
 			int v = this.v[2] << FP_BITS;
 			int r = red[2] << FP_BITS;
 			int g = green[2] << FP_BITS;
 			int b = blue[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
+	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, cameraFrustum);
 	            x1 -= dx1;
 	            x2 -= dx2;
@@ -273,13 +273,13 @@ public class PerspectiveGouraudTriangle extends AffineGouraudTriangle {
 			int db = mathLibrary.divide(db2 - db1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
+			int z = location2[VECTOR_Z] << FP_BITS;
 			int u = this.u[2] << FP_BITS;
 			int v = this.v[2] << FP_BITS;
 			int r = red[2] << FP_BITS;
 			int g = green[2] << FP_BITS;
 			int b = blue[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
+	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db, cameraFrustum);
 	            x1 -= dx2;
 	            x2 -= dx1;

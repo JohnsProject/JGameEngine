@@ -21,15 +21,16 @@ import com.johnsproject.jgameengine.importer.SceneImporter;
 import com.johnsproject.jgameengine.library.FileLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
-import com.johnsproject.jgameengine.shader.shaders.FlatShader;
-import com.johnsproject.jgameengine.shader.shaders.GouraudShader;
+import com.johnsproject.jgameengine.shader.shaders.FlatSpecularShader;
+import com.johnsproject.jgameengine.shader.shaders.GouraudSpecularShader;
+import com.johnsproject.jgameengine.shader.shaders.PhongSpecularShader;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
 	private static final int WINDOW_W = 1024;
 	private static final int WINDOW_H = 768;
-	private static final int RENDER_W = 1024;
-	private static final int RENDER_H = 768;
+	private static final int RENDER_W = (WINDOW_W * 100) / 100;
+	private static final int RENDER_H = (WINDOW_H * 100) / 100;
 	
 	private final int[] cache;
 	private Transform cameraTransform;
@@ -52,10 +53,12 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	public void start() {
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
 		EngineWindow window = new EngineWindow(frameBuffer);
+		window.setSize(WINDOW_W, WINDOW_H);
+//		window.setFullscreen(true);
+//		window.setBorders(false);
 		EngineStatistics stats = new EngineStatistics(frameBuffer);
 		graphicsEngine = new GraphicsEngine(loadScene(), frameBuffer);
 		inputEngine = new InputEngine();
-		window.setSize(WINDOW_W, WINDOW_H);
 		inputEngine.addMouseMotionListener(this);
 		inputEngine.addEngineKeyListener(this);
 		cameraTransform = graphicsEngine.getScene().getCamera(0).getTransform();
@@ -63,11 +66,11 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
-		for (int i = 0; i < graphicsEngine.getPreprocessingShadersCount(); i++) {
+		for (int i = graphicsEngine.getPreprocessingShadersCount(); i > 0; i--) {
 			graphicsEngine.removePreprocessingShader(graphicsEngine.getPreprocessingShader(i));
 		}
-//		graphicsEngine.removeShader(graphicsEngine.getShader(0));
-//		graphicsEngine.addShader(new FlatShader());
+		graphicsEngine.removeShader(graphicsEngine.getShader(0));
+		graphicsEngine.addShader(new PhongSpecularShader());
 	}
 	
 	private Scene loadScene() {

@@ -24,57 +24,71 @@
 package com.johnsproject.jgameengine.shader;
 
 import com.johnsproject.jgameengine.dto.Camera;
-import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.dto.Texture;
 
 public class AffineFlatTriangle extends FlatTriangle {
 
 	protected final int[] u;
 	protected final int[] v;
+	protected final int[] uv;
 	
 	public AffineFlatTriangle(Shader shader) {
 		super(shader);
-		VectorLibrary vectorLibrary = new VectorLibrary();
 		u = vectorLibrary.generate();
 		v = vectorLibrary.generate();
+		uv = vectorLibrary.generate();
 	}
 	
-	public int[] getU() {
-		return u;
+	public final void setUV0(int[] uv, Texture texture) {
+		u[0] = mathLibrary.multiply(uv[VECTOR_X], texture.getWidth());
+		v[0] = mathLibrary.multiply(uv[VECTOR_Y], texture.getHeight());
 	}
-
-	public int[] getV() {
-		return v;
+	
+	public final void setUV1(int[] uv, Texture texture) {
+		u[1] = mathLibrary.multiply(uv[VECTOR_X], texture.getWidth());
+		v[1] = mathLibrary.multiply(uv[VECTOR_Y], texture.getHeight());
+	}
+	
+	public final void setUV2(int[] uv, Texture texture) {
+		u[2] = mathLibrary.multiply(uv[VECTOR_X], texture.getWidth());
+		v[2] = mathLibrary.multiply(uv[VECTOR_Y], texture.getHeight());
+	}
+	
+	public final int[] getUV() {
+		uv[VECTOR_X] = u[3];
+		uv[VECTOR_Y] = v[3];
+		return uv;
 	}
 	
 	public void drawTriangle(int[] cameraFrustum) {
 		int tmp = 0;
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			vectorLibrary.swap(location0, location1);
 			tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
 			tmp = this.v[0]; this.v[0] = this.v[1]; this.v[1] = tmp;
 		}
-		if (location2[VECTOR_Y] > location3[VECTOR_Y]) {
-			vectorLibrary.swap(location2, location3);
+		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
+			vectorLibrary.swap(location1, location2);
 			tmp = this.u[2]; this.u[2] = this.u[1]; this.u[1] = tmp;
 			tmp = this.v[2]; this.v[2] = this.v[1]; this.v[1] = tmp;
 		}
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			vectorLibrary.swap(location0, location1);
 			tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
 			tmp = this.v[0]; this.v[0] = this.v[1]; this.v[1] = tmp;
 		}
-        if (location2[VECTOR_Y] == location3[VECTOR_Y]) {
+        if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
         	drawBottomTriangle(cameraFrustum);
-        } else if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
+        } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
             drawTopTriangle(cameraFrustum);
         } else {
-            int x = location1[VECTOR_X];
-            int dy = mathLibrary.divide(location2[VECTOR_Y] - location1[VECTOR_Y], location3[VECTOR_Y] - location1[VECTOR_Y]);
-            int multiplier = location3[VECTOR_X] - location1[VECTOR_X];
+            int x = location0[VECTOR_X];
+            int dy = mathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
+            int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
             x += mathLibrary.multiply(dy, multiplier);
-            int y = location2[VECTOR_Y];
-            int z = location1[VECTOR_Z];
-            multiplier = location3[VECTOR_Z] - location1[VECTOR_Z];
+            int y = location1[VECTOR_Y];
+            int z = location0[VECTOR_Z];
+            multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
             z += mathLibrary.multiply(dy, multiplier);
             int uvx = this.u[0];
             multiplier = this.u[2] - this.u[0];
@@ -85,13 +99,13 @@ public class AffineFlatTriangle extends FlatTriangle {
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
-            vectorLibrary.swap(vectorCache, location3);
+            vectorLibrary.swap(vectorCache, location2);
             tmp = this.u[2]; this.u[2] = uvx; uvx = tmp;
             tmp = this.v[2]; this.v[2] = uvy; uvy = tmp;
             drawBottomTriangle(cameraFrustum);
-            vectorLibrary.swap(vectorCache, location3);
-            vectorLibrary.swap(location1, location2);
-            vectorLibrary.swap(location2, vectorCache);
+            vectorLibrary.swap(vectorCache, location2);
+            vectorLibrary.swap(location0, location1);
+            vectorLibrary.swap(location1, vectorCache);
             tmp = this.u[2]; this.u[2] = uvx; uvx = tmp;
             tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
             tmp = this.u[1]; this.u[1] = uvx; uvx = tmp;
@@ -103,15 +117,15 @@ public class AffineFlatTriangle extends FlatTriangle {
 	}
 	
 	private void drawBottomTriangle(int[] cameraFrustum) {
-		int xShifted = location1[VECTOR_X] << FP_BITS;
-		int y2y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y1 = location2[VECTOR_Y] - location1[VECTOR_Y];
+		int xShifted = location0[VECTOR_X] << FP_BITS;
+		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
+		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y2y1);
-        int dx2 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-        int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y2y1);
-        int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
+        int dx1 = mathLibrary.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+        int dx2 = mathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+        int dz1 = mathLibrary.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+        int dz2 = mathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
         int du1 = mathLibrary.divide(this.u[1] - this.u[0], y2y1);
         int du2 = mathLibrary.divide(this.u[2] - this.u[0], y3y1);
         int dv1 = mathLibrary.divide(this.v[1] - this.v[0], y2y1);
@@ -124,10 +138,10 @@ public class AffineFlatTriangle extends FlatTriangle {
         	int dv = mathLibrary.divide(dv2 - dv1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
+            int z = location0[VECTOR_Z] << FP_BITS;
             int u = this.u[0] << FP_BITS;
             int v = this.v[0] << FP_BITS;
-	        for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
+	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
 	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, cameraFrustum);
 	            x1 += dx1;
 	            x2 += dx2;
@@ -143,10 +157,10 @@ public class AffineFlatTriangle extends FlatTriangle {
         	int dv = mathLibrary.divide(dv1 - dv2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location1[VECTOR_Z] << FP_BITS;
+            int z = location0[VECTOR_Z] << FP_BITS;
             int u = this.u[0] << FP_BITS;
             int v = this.v[0] << FP_BITS;
-        	for (int y = location1[VECTOR_Y]; y <= location2[VECTOR_Y]; y++) {
+        	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
         		drawScanline(x1, x2, y, z, u, v, dz, du, dv, cameraFrustum);
 	            x1 += dx2;
 	            x2 += dx1;
@@ -158,15 +172,15 @@ public class AffineFlatTriangle extends FlatTriangle {
     }
     
 	private void drawTopTriangle(int[] cameraFrustum) {
-		int xShifted = location3[VECTOR_X] << FP_BITS;
-		int y3y1 = location3[VECTOR_Y] - location1[VECTOR_Y];
-		int y3y2 = location3[VECTOR_Y] - location2[VECTOR_Y];
+		int xShifted = location2[VECTOR_X] << FP_BITS;
+		int y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
+		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = mathLibrary.divide(location3[VECTOR_X] - location1[VECTOR_X], y3y1);
-		int dx2 = mathLibrary.divide(location3[VECTOR_X] - location2[VECTOR_X], y3y2);
-		int dz1 = mathLibrary.divide(location3[VECTOR_Z] - location1[VECTOR_Z], y3y1);
-		int dz2 = mathLibrary.divide(location3[VECTOR_Z] - location2[VECTOR_Z], y3y2);
+		int dx1 = mathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		int dx2 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		int dz2 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
 		int du1 = mathLibrary.divide(this.u[2] - this.u[0], y3y1);
 		int du2 = mathLibrary.divide(this.u[2] - this.u[1], y3y2);
 		int dv1 = mathLibrary.divide(this.v[2] - this.v[0], y3y1);
@@ -179,10 +193,10 @@ public class AffineFlatTriangle extends FlatTriangle {
 			int dv = mathLibrary.divide(dv1 - dv2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
+			int z = location2[VECTOR_Z] << FP_BITS;
 			int u = this.u[2] << FP_BITS;
 			int v = this.v[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
+	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, cameraFrustum);
 	            x1 -= dx1;
 	            x2 -= dx2;
@@ -198,10 +212,10 @@ public class AffineFlatTriangle extends FlatTriangle {
 			int dv = mathLibrary.divide(dv2 - dv1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location3[VECTOR_Z] << FP_BITS;
+			int z = location2[VECTOR_Z] << FP_BITS;
 			int u = this.u[2] << FP_BITS;
 			int v = this.v[2] << FP_BITS;
-	        for (int y = location3[VECTOR_Y]; y > location1[VECTOR_Y]; y--) {
+	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, cameraFrustum);
 	            x1 -= dx2;
 	            x2 -= dx1;

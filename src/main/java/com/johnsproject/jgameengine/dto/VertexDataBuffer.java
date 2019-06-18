@@ -30,6 +30,7 @@ public class VertexDataBuffer {
 	private final int[] normal;
 	private final Material material;
 	private int lightColor;
+	private final int[] worldLocation;
 	
 	public VertexDataBuffer(Vertex vertex) {
 		this.vertex = vertex;
@@ -37,6 +38,7 @@ public class VertexDataBuffer {
 		this.normal = vertex.getNormal().clone();
 		this.material = vertex.getMaterial();
 		this.lightColor = 0;
+		this.worldLocation = vertex.getLocation().clone();
 	}
 	
 	public int[] getLocation() {
@@ -59,10 +61,15 @@ public class VertexDataBuffer {
 		this.lightColor = lightColor;
 	}
 
+	public int[] getWorldLocation() {
+		return worldLocation;
+	}
+
 	public void reset() {
 		for (int i = 0; i < location.length; i++) {
 			location[i] = vertex.getLocation()[i];
 			normal[i] = vertex.getNormal()[i];
+			worldLocation[i] = 0;
 		}
 		lightColor = 0;
 	}

@@ -7,11 +7,11 @@ It only uses Java AWT, as the 3D part is done by software rendering.
 * Pure Java
 * Fixed point math only
 * Scanline triangle rasterization 
-* Flat and gouraud shaded triangles
+* Flat, gouraud and phong shaded triangles
 * Perspective correct and affine texture mapping
 * Point, Directional and Spot lights
 * Shaders
-* Gouraud and flat shaders
+* Flat, gouraud and phong shaders
 * Shadow mapping shaders for all three light types
 * Blender exporter and importer
 

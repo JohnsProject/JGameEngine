@@ -218,7 +218,11 @@ public class PointLightShadowShader implements Shader {
 				vectorLibrary.matrixMultiply(vertexLocation, lightMatrices[i], vertexLocation);
 				graphicsLibrary.screenportVector(vertexLocation, portedFrustum, vertexLocation);
 			}
-			graphicsLibrary.drawFlatTriangle(triangle, dataBuffer, portedFrustum);
+			triangle.setLocation0(dataBuffer.getVertexDataBuffer(0).getLocation());
+			triangle.setLocation1(dataBuffer.getVertexDataBuffer(1).getLocation());
+			triangle.setLocation2(dataBuffer.getVertexDataBuffer(2).getLocation());
+			if(graphicsLibrary.shoelace(triangle) > 0)
+				graphicsLibrary.drawFlatTriangle(triangle, portedFrustum);
 			restore(dataBuffer);
 		}
 	}
