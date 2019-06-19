@@ -30,8 +30,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 
 	private static final int WINDOW_W = 1024;
 	private static final int WINDOW_H = 768;
-	private static final int RENDER_W = (WINDOW_W * 100) / 100;
-	private static final int RENDER_H = (WINDOW_H * 100) / 100;
+	private static final int RENDER_W = (WINDOW_W * 60) / 100;
+	private static final int RENDER_H = (WINDOW_H * 60) / 100;
 	
 	private final int[] cache;
 	private Transform cameraTransform;
@@ -67,12 +67,11 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
-		for (int i = graphicsEngine.getPreprocessingShadersCount(); i > 0; i--) {
-			graphicsEngine.removePreprocessingShader(graphicsEngine.getPreprocessingShader(0));
-		}
+//		for (int i = graphicsEngine.getPreprocessingShadersCount(); i > 0; i--) {
+//			graphicsEngine.removePreprocessingShader(graphicsEngine.getPreprocessingShader(0));
+//		}
 		graphicsEngine.removeShader(graphicsEngine.getShader(0));
-		graphicsEngine.addPreprocessingShader(new EarlyDepthBufferShader());
-		graphicsEngine.addShader(new PhongSpecularShader());
+		graphicsEngine.addShader(new GouraudSpecularShader());
 	}
 	
 	private Scene loadScene() {
@@ -105,8 +104,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 
 	public void mouseMoved(MouseEvent e) {
 		int[] rotation = cameraTransform.getRotation();
-//		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
-//		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
+		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
+		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
 	}
 
 	public void keyTyped(KeyEvent e) {

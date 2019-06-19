@@ -268,7 +268,7 @@ public class VectorLibrary {
 	}
 	
 	/**
-	 * Returns the dot product of vector1 and vector2.
+	 * Returns the distance between vector1 and vector2.
 	 * 
 	 * @param vector1
 	 * @param vector2
@@ -277,6 +277,28 @@ public class VectorLibrary {
 	public int distance(int[] vector1, int[] vector2) {
 		subtract(vector2, vector1, vectorCache1);
 		return magnitude(vectorCache1);
+	}
+	
+	/**
+	 * Returns the averaged distance between vector1 and vector2.
+	 * Averaged distance isn't the correct way to get the distace, 
+	 * but its faster, its just
+	 * <pre>
+	 * result = vector2 - vector1
+	 * return (abs(resultX) + abs(resultY) + abs(resultZ)) / 3
+	 * </pre>
+	 * To get correct distance use {@link #distance} method.
+	 * 
+	 * @param vector1
+	 * @param vector2
+	 * @return
+	 */
+	public int averagedDistance(int[] vector1, int[] vector2) {
+		subtract(vector2, vector1, vectorCache1);
+		int x = Math.abs(vectorCache1[VECTOR_X]);
+		int y = Math.abs(vectorCache1[VECTOR_Y]);
+		int z = Math.abs(vectorCache1[VECTOR_Z]);
+		return (x + y + z) / 3;
 	}
 
 	/**

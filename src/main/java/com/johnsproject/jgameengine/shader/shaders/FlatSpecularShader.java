@@ -48,7 +48,7 @@ public class FlatSpecularShader implements Shader {
 	private static final int LINEAR_ATTENUATION = 14;
 	private static final int QUADRATIC_ATTENUATION = 7;
 	
-	private static final int LIGHT_RANGE = MathLibrary.FP_ONE * 200;
+	private static final int LIGHT_RANGE = MathLibrary.FP_ONE * 150;
 	
 	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
 	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
@@ -175,7 +175,7 @@ public class FlatSpecularShader implements Shader {
 				}
 				break;
 			case POINT:
-				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
+				if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
 					continue;
 				vectorLibrary.subtract(lightPosition, faceLocation, lightLocation);
 				// attenuation
@@ -196,7 +196,7 @@ public class FlatSpecularShader implements Shader {
 				}
 				break;
 			case SPOT:				
-				if (vectorLibrary.distance(cameraLocation, lightPosition) > LIGHT_RANGE)
+				if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
 					continue;
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				vectorLibrary.subtract(lightPosition, faceLocation, lightLocation);

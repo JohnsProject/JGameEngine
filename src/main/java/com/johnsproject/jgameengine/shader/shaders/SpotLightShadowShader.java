@@ -43,7 +43,7 @@ import com.johnsproject.jgameengine.shader.Shader;
 
 public class SpotLightShadowShader implements Shader {
 
-	private static final int LIGHT_RANGE = MathLibrary.FP_ONE * 1000;
+	private static final int LIGHT_RANGE = MathLibrary.FP_ONE * 300;
 	
 	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
 	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
@@ -135,7 +135,7 @@ public class SpotLightShadowShader implements Shader {
 				Light light = lights.get(i);
 				lightTransform = light.getTransform();
 				int[] lightPosition = lightTransform.getLocation();
-				int dist = vectorLibrary.distance(cameraLocation, lightPosition);
+				int dist = vectorLibrary.averagedDistance(cameraLocation, lightPosition);
 				if ((light.getType() == LightType.SPOT) & (dist < distance) & (dist < LIGHT_RANGE)) {
 					distance = dist;
 					shaderData.setSpotLightIndex(i);
