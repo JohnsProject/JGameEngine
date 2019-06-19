@@ -31,7 +31,7 @@ public class PerspectiveGouraudTriangle extends AffineGouraudTriangle {
 		super(shader);
 	}
 	
-	public void drawTriangle(int[] cameraFrustum) {
+	public final void drawPerspectiveGouraudTriangle(int[] cameraFrustum) {
 		location0[VECTOR_Z] = PERSPECTIVE_ONE / location0[VECTOR_Z];
 		location1[VECTOR_Z] = PERSPECTIVE_ONE / location1[VECTOR_Z];
 		location2[VECTOR_Z] = PERSPECTIVE_ONE / location2[VECTOR_Z];

@@ -93,7 +93,7 @@ public class FlatTriangle {
 	 * 
 	 * @param cameraFrustum
 	 */
-	public void drawTriangle(int[] cameraFrustum) {
+	public final void drawFlatTriangle(int[] cameraFrustum) {
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
 		}

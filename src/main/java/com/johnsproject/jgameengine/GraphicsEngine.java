@@ -36,7 +36,6 @@ import com.johnsproject.jgameengine.dto.ShaderDataBuffer;
 import com.johnsproject.jgameengine.dto.VertexDataBuffer;
 import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.shader.Shader;
-import com.johnsproject.jgameengine.shader.databuffers.ForwardDataBuffer;
 import com.johnsproject.jgameengine.shader.shaders.DirectionalLightShadowShader;
 import com.johnsproject.jgameengine.shader.shaders.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.shaders.PointLightShadowShader;
@@ -54,7 +53,7 @@ public class GraphicsEngine implements EngineListener {
 	private int postShadersCount;
 	
 	public GraphicsEngine(Scene scene, FrameBuffer frameBuffer) {
-		this.shaderDataBuffer = new ForwardDataBuffer();
+		this.shaderDataBuffer = new ShaderDataBuffer();
 		this.shaders = new ArrayList<Shader>();
 		this.scene = scene;
 		this.frameBuffer = frameBuffer;
@@ -67,6 +66,9 @@ public class GraphicsEngine implements EngineListener {
 	public void start() { }
 	
 	public void update() {
+		frameBuffer.getColorBuffer().fill(0);
+		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
+		frameBuffer.getStencilBuffer().fill(0);
 		shaderDataBuffer.setFrameBuffer(frameBuffer);
 		shaderDataBuffer.setLights(scene.getLights());
 		for (int s = 0; s < shaders.size(); s++) {

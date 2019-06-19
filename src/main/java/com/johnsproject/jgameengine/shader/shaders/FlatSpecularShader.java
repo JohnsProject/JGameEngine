@@ -41,7 +41,6 @@ import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.PerspectiveFlatTriangle;
 import com.johnsproject.jgameengine.shader.Shader;
-import com.johnsproject.jgameengine.shader.databuffers.ForwardDataBuffer;
 
 public class FlatSpecularShader implements Shader {
 	
@@ -87,7 +86,7 @@ public class FlatSpecularShader implements Shader {
 	private Camera camera;	
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
-	private ForwardDataBuffer shaderData;
+	private ShaderDataBuffer shaderData;
 	private ShaderProperties shaderProperties;
 	
 	public FlatSpecularShader() {
@@ -111,11 +110,9 @@ public class FlatSpecularShader implements Shader {
 	}
 	
 	public void update(ShaderDataBuffer shaderDataBuffer) {
-		this.shaderData = (ForwardDataBuffer)shaderDataBuffer;
+		this.shaderData = shaderDataBuffer;
 		this.lights = shaderData.getLights();
 		this.frameBuffer = shaderData.getFrameBuffer();
-		frameBuffer.getColorBuffer().fill(0);
-		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
 	}
 	
 	public void setup(Camera camera) {
@@ -242,9 +239,9 @@ public class FlatSpecularShader implements Shader {
 			graphicsLibrary.screenportVector(vertexLocation, portedFrustum, vertexLocation);
 		}
 		texture = shaderProperties.getTexture();
-		triangle.setLocation0(dataBuffer.getVertexDataBuffer(0).getLocation());
-		triangle.setLocation1(dataBuffer.getVertexDataBuffer(1).getLocation());
-		triangle.setLocation2(dataBuffer.getVertexDataBuffer(2).getLocation());
+		triangle.setLocation0(location1);
+		triangle.setLocation1(location2);
+		triangle.setLocation2(location3);
 		if(graphicsLibrary.shoelace(triangle) > 0) {
 			if (texture == null) {
 				graphicsLibrary.drawFlatTriangle(triangle, portedFrustum);

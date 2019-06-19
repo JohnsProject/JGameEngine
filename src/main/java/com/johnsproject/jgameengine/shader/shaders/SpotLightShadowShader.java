@@ -40,7 +40,6 @@ import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.FlatTriangle;
 import com.johnsproject.jgameengine.shader.Shader;
-import com.johnsproject.jgameengine.shader.databuffers.ForwardDataBuffer;
 
 public class SpotLightShadowShader implements Shader {
 
@@ -70,7 +69,7 @@ public class SpotLightShadowShader implements Shader {
 	private final Texture shadowMap;
 
 	private List<Light> lights;
-	private ForwardDataBuffer shaderData;
+	private ShaderDataBuffer shaderData;
 
 	public SpotLightShadowShader() {
 		this.graphicsLibrary = new GraphicsLibrary();
@@ -115,7 +114,7 @@ public class SpotLightShadowShader implements Shader {
 	}
 	
 	public void update(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = (ForwardDataBuffer)shaderDataBuffer;
+		shaderData = shaderDataBuffer;
 		this.lights = shaderData.getLights();
 		if (shaderData.getSpotLightIndex() == -1) {
 			shaderData.setSpotLightFrustum(portedFrustum);
@@ -183,7 +182,7 @@ public class SpotLightShadowShader implements Shader {
 	}
 
 	public void terminate(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = (ForwardDataBuffer)shaderDataBuffer;
+		shaderData = shaderDataBuffer;
 		shaderData.setSpotLightIndex(-1);
 		shaderData.setSpotLightFrustum(null);
 		shaderData.setSpotLightMatrix(null);

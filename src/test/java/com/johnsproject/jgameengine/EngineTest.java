@@ -21,6 +21,7 @@ import com.johnsproject.jgameengine.importer.SceneImporter;
 import com.johnsproject.jgameengine.library.FileLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.shader.shaders.EarlyDepthBufferShader;
 import com.johnsproject.jgameengine.shader.shaders.FlatSpecularShader;
 import com.johnsproject.jgameengine.shader.shaders.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.shaders.PhongSpecularShader;
@@ -67,9 +68,10 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
 		for (int i = graphicsEngine.getPreprocessingShadersCount(); i > 0; i--) {
-			graphicsEngine.removePreprocessingShader(graphicsEngine.getPreprocessingShader(i));
+			graphicsEngine.removePreprocessingShader(graphicsEngine.getPreprocessingShader(0));
 		}
 		graphicsEngine.removeShader(graphicsEngine.getShader(0));
+		graphicsEngine.addPreprocessingShader(new EarlyDepthBufferShader());
 		graphicsEngine.addShader(new PhongSpecularShader());
 	}
 	

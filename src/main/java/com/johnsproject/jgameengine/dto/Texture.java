@@ -28,28 +28,28 @@ import java.awt.image.DataBufferInt;
 
 public class Texture {
 	
-	private final int[] pixel;
+	private final int[] pixels;
 	private final int[] size;
 	
 	public Texture (BufferedImage bufferedImage){
 		int width = bufferedImage.getWidth();
 		int height = bufferedImage.getHeight();
 		this.size = new int[] {width, height, width * height, 0};
-		this.pixel = ((DataBufferInt)bufferedImage.getRaster().getDataBuffer()).getData();;
+		this.pixels = ((DataBufferInt)bufferedImage.getRaster().getDataBuffer()).getData();
 	}
 	
-	public Texture (int width, int height, int[] pixelBuffer){
+	public Texture (int width, int height, int[] pixels){
 		this.size = new int[] {width, height, width * height, 0};
-		this.pixel = pixelBuffer;
+		this.pixels = pixels;
 	}
 	
 	public Texture (int width, int height){
 		this.size = new int[] {width, height, width * height, 0};
-		this.pixel = new int[size[2]];
+		this.pixels = new int[size[2]];
 	}
 	
-	public int[] getPixel() {
-		return pixel;
+	public int[] getPixels() {
+		return pixels;
 	}
 	
 	public int getWidth() {
@@ -65,7 +65,7 @@ public class Texture {
 		x = x < size[0] ? x : size[0] - 1;
 		y = y >= 0 ? y : 0;
 		y = y < size[1] ? y : size[1] - 1;
-		return pixel[x + (y * size[0])];
+		return pixels[x + (y * size[0])];
 	}
 	
 	public void setPixel(int x, int y, int value) {
@@ -73,11 +73,11 @@ public class Texture {
 		x = x < size[0] ? x : size[0] - 1;
 		y = y >= 0 ? y : 0;
 		y = y < size[1] ? y : size[1] - 1;
-		pixel[x + (y * size[0])] = value;
+		pixels[x + (y * size[0])] = value;
 	}
 	
 	public void fill(int value) {
-		int[] pixelBuffer = getPixel();
+		int[] pixelBuffer = getPixels();
 		for (int i = 0; i < pixelBuffer.length; i++) {
 			pixelBuffer[i] = value;
 		}

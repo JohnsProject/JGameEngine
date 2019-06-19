@@ -31,7 +31,12 @@ package com.johnsproject.jgameengine.library;
  */
 public class VectorLibrary {
 
+	private static final byte FP_BITS = MathLibrary.FP_BITS;
 	private static final int FP_ONE = MathLibrary.FP_ONE;
+	
+	private static final byte NORMALIZE_BITS = FP_BITS << 1;
+	private static final int NORMALIZE_HALF = FP_ONE << FP_BITS;
+	private static final int NORMALIZE_ONE = NORMALIZE_HALF << FP_BITS;
 	
 	public static final byte VECTOR_X = 0;
 	public static final byte VECTOR_Y = 1;
@@ -301,10 +306,10 @@ public class VectorLibrary {
 	 * @param result
 	 */
 	public int[] normalize(int[] vector, int[] result) {
-		int magnitude = magnitude(vector) + 1;
-		result[VECTOR_X] = mathLibrary.divide(vector[VECTOR_X], magnitude);
-		result[VECTOR_Y] = mathLibrary.divide(vector[VECTOR_Y], magnitude);
-		result[VECTOR_Z] = mathLibrary.divide(vector[VECTOR_Z], magnitude);
+		final long magnitude = NORMALIZE_ONE / (magnitude(vector) + 1);
+		result[VECTOR_X] = (int)(((long)vector[VECTOR_X] * magnitude + NORMALIZE_HALF) >> NORMALIZE_BITS);
+		result[VECTOR_Y] = (int)(((long)vector[VECTOR_Y] * magnitude + NORMALIZE_HALF) >> NORMALIZE_BITS);
+		result[VECTOR_Z] = (int)(((long)vector[VECTOR_Z] * magnitude + NORMALIZE_HALF) >> NORMALIZE_BITS);
 		return result;
 	}
 	

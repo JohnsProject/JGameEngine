@@ -60,7 +60,7 @@ public class AffineGouraudTriangle extends GouraudTriangle {
 		return uv;
 	}
 	
-	public void drawTriangle(int[] cameraFrustum) {
+	public final void drawAffineGouraudTriangle(int[] cameraFrustum) {
 		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);

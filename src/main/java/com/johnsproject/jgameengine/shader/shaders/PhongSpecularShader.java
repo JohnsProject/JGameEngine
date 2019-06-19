@@ -18,7 +18,6 @@ import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.PerspectivePhongTriangle;
 import com.johnsproject.jgameengine.shader.Shader;
-import com.johnsproject.jgameengine.shader.databuffers.ForwardDataBuffer;
 
 public class PhongSpecularShader implements Shader {
 
@@ -60,7 +59,7 @@ public class PhongSpecularShader implements Shader {
 	private Camera camera;	
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
-	private ForwardDataBuffer shaderData;
+	private ShaderDataBuffer shaderData;
 	private ShaderProperties shaderProperties;
 
 	public PhongSpecularShader() {
@@ -82,11 +81,9 @@ public class PhongSpecularShader implements Shader {
 	}
 	
 	public void update(ShaderDataBuffer shaderDataBuffer) {
-		this.shaderData = (ForwardDataBuffer)shaderDataBuffer;
+		this.shaderData = shaderDataBuffer;
 		this.lights = shaderData.getLights();
 		this.frameBuffer = shaderData.getFrameBuffer();
-		frameBuffer.getColorBuffer().fill(0);
-		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
 	}
 
 	public void setup(Camera camera) {
@@ -125,16 +122,19 @@ public class PhongSpecularShader implements Shader {
 		shaderProperties = (ShaderProperties)dataBuffer.getMaterial().getProperties();
 		color = shaderProperties.getDiffuseColor();
 		texture = shaderProperties.getTexture();
-		triangle.setLocation0(dataBuffer.getVertexDataBuffer(0).getLocation());
-		triangle.setLocation1(dataBuffer.getVertexDataBuffer(1).getLocation());
-		triangle.setLocation2(dataBuffer.getVertexDataBuffer(2).getLocation());
-		triangle.setWorldLocation0(dataBuffer.getVertexDataBuffer(0).getWorldLocation());
-		triangle.setWorldLocation1(dataBuffer.getVertexDataBuffer(1).getWorldLocation());
-		triangle.setWorldLocation2(dataBuffer.getVertexDataBuffer(2).getWorldLocation());
-		triangle.setNormal0(dataBuffer.getVertexDataBuffer(0).getNormal());
-		triangle.setNormal1(dataBuffer.getVertexDataBuffer(1).getNormal());
-		triangle.setNormal2(dataBuffer.getVertexDataBuffer(2).getNormal());
+		VertexDataBuffer dataBuffer0 = dataBuffer.getVertexDataBuffer(0);
+		VertexDataBuffer dataBuffer1 = dataBuffer.getVertexDataBuffer(1);
+		VertexDataBuffer dataBuffer2 = dataBuffer.getVertexDataBuffer(2);
+		triangle.setLocation0(dataBuffer0.getLocation());
+		triangle.setLocation1(dataBuffer1.getLocation());
+		triangle.setLocation2(dataBuffer2.getLocation());
 		if(graphicsLibrary.shoelace(triangle) > 0) {
+			triangle.setWorldLocation0(dataBuffer0.getWorldLocation());
+			triangle.setWorldLocation1(dataBuffer1.getWorldLocation());
+			triangle.setWorldLocation2(dataBuffer2.getWorldLocation());
+			triangle.setNormal0(dataBuffer0.getNormal());
+			triangle.setNormal1(dataBuffer1.getNormal());
+			triangle.setNormal2(dataBuffer2.getNormal());
 			if (texture == null) {
 				graphicsLibrary.drawPhongTriangle(triangle, portedFrustum);
 			} else {
@@ -147,6 +147,15 @@ public class PhongSpecularShader implements Shader {
 	}
 
 	public void fragment(int[] location) {
+		int x = location[VECTOR_X];
+		int y = location[VECTOR_Y];
+		int z = location[VECTOR_Z];
+		if(shaderData.isEarlyDepthBuffering()) {
+			int gz = shaderData.getEarlyDepthBuffer().getPixel(x, y);
+			if(gz < z) {
+				return;
+			}
+		}
 		int[] worldLocation = triangle.getWorldLocation();
 		int[] normal = triangle.getNormal();
 		int lightColor = ColorLibrary.BLACK;
@@ -231,9 +240,6 @@ public class PhongSpecularShader implements Shader {
 		}
 		Texture colorBuffer = frameBuffer.getColorBuffer();
 		Texture depthBuffer = frameBuffer.getDepthBuffer();
-		int x = location[VECTOR_X];
-		int y = location[VECTOR_Y];
-		int z = location[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
 			depthBuffer.setPixel(x, y, z);
 			colorBuffer.setPixel(x, y, modelColor);

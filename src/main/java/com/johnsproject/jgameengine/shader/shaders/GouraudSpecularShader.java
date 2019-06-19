@@ -41,7 +41,6 @@ import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.PerspectiveGouraudTriangle;
 import com.johnsproject.jgameengine.shader.Shader;
-import com.johnsproject.jgameengine.shader.databuffers.ForwardDataBuffer;
 
 public class GouraudSpecularShader implements Shader {
 
@@ -83,7 +82,7 @@ public class GouraudSpecularShader implements Shader {
 	private Camera camera;	
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
-	private ForwardDataBuffer shaderData;
+	private ShaderDataBuffer shaderData;
 
 	public GouraudSpecularShader() {
 		this.graphicsLibrary = new GraphicsLibrary();
@@ -104,11 +103,9 @@ public class GouraudSpecularShader implements Shader {
 	}
 	
 	public void update(ShaderDataBuffer shaderDataBuffer) {
-		this.shaderData = (ForwardDataBuffer)shaderDataBuffer;
+		this.shaderData = shaderDataBuffer;
 		this.lights = shaderData.getLights();
 		this.frameBuffer = shaderData.getFrameBuffer();
-		frameBuffer.getColorBuffer().fill(0);
-		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
 		
 		// debug shadow map
 //		Texture shadowMap = shaderData.getDirectionalShadowMap();
@@ -230,13 +227,16 @@ public class GouraudSpecularShader implements Shader {
 		ShaderProperties shaderProperties = (ShaderProperties)dataBuffer.getMaterial().getProperties();
 		color = shaderProperties.getDiffuseColor();
 		texture = shaderProperties.getTexture();
-		triangle.setLocation0(dataBuffer.getVertexDataBuffer(0).getLocation());
-		triangle.setLocation1(dataBuffer.getVertexDataBuffer(1).getLocation());
-		triangle.setLocation2(dataBuffer.getVertexDataBuffer(2).getLocation());
-		triangle.setColor0(dataBuffer.getVertexDataBuffer(0).getLightColor());
-		triangle.setColor1(dataBuffer.getVertexDataBuffer(1).getLightColor());
-		triangle.setColor2(dataBuffer.getVertexDataBuffer(2).getLightColor());
+		VertexDataBuffer dataBuffer0 = dataBuffer.getVertexDataBuffer(0);
+		VertexDataBuffer dataBuffer1 = dataBuffer.getVertexDataBuffer(1);
+		VertexDataBuffer dataBuffer2 = dataBuffer.getVertexDataBuffer(2);
+		triangle.setLocation0(dataBuffer0.getLocation());
+		triangle.setLocation1(dataBuffer1.getLocation());
+		triangle.setLocation2(dataBuffer2.getLocation());
 		if(graphicsLibrary.shoelace(triangle) > 0) {
+			triangle.setColor0(dataBuffer0.getLightColor());
+			triangle.setColor1(dataBuffer1.getLightColor());
+			triangle.setColor2(dataBuffer2.getLightColor());
 			if (texture == null) {
 				graphicsLibrary.drawGouraudTriangle(triangle, portedFrustum);
 			} else {

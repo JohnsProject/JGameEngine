@@ -224,12 +224,12 @@ public class MathLibrary {
 			}
 			g |= c;
 		}
-		int result = (g << FP_BITS);
+		long result = (g << FP_BITS);
 		// fractional part
-		final int increment = FP_ONE >> 7;
-		for (; ((long)result * result + FP_HALF) >> FP_BITS <= number; result += increment);
+		final byte increment = FP_ONE >> 7;
+		for (; (result * result + FP_HALF) >> FP_BITS <= number; result += increment);
 		result -= increment;
-		return result;
+		return (int)result;
 	}
 	
 	/**
@@ -260,10 +260,8 @@ public class MathLibrary {
 	 * @param value2 fixed point number.
 	 * @return fixed point result.
 	 */
-	public int multiply(int value1, int value2) {
-		long a = value1;
-		long b = value2;
-		long result = a * b + FP_HALF;
+	public int multiply(long value1, long value2) {
+		long result = value1 * value2 + FP_HALF;
 		return (int) (result >> FP_BITS);
 	}
 
@@ -274,8 +272,8 @@ public class MathLibrary {
 	 * @param divisor not fixed point number.
 	 * @return fixed point result.
 	 */
-	public int divide(int dividend, int divisor) {
-		long result = (long)dividend << FP_BITS;
+	public int divide(long dividend, long divisor) {
+		long result = dividend << FP_BITS;
 		result /= divisor;
 		return (int) result;
 	}

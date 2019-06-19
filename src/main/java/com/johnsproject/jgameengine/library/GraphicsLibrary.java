@@ -223,7 +223,7 @@ public class GraphicsLibrary {
 	public void drawFlatTriangle(FlatTriangle triangle, int[] cameraFrustum) {
 		if (clip(triangle, cameraFrustum))
 			return;
-		triangle.drawTriangle(cameraFrustum);
+		triangle.drawFlatTriangle(cameraFrustum);
 	}
 	
 	/**
@@ -236,7 +236,7 @@ public class GraphicsLibrary {
 	public void drawGouraudTriangle(GouraudTriangle triangle, int[] cameraFrustum) {
 		if (clip(triangle, cameraFrustum))
 			return;
-		triangle.drawTriangle(cameraFrustum);
+		triangle.drawGouraudTriangle(cameraFrustum);
 	}
 	
 	/**
@@ -249,7 +249,7 @@ public class GraphicsLibrary {
 	public void drawPhongTriangle(PhongTriangle triangle, int[] cameraFrustum) {
 		if (clip(triangle, cameraFrustum))
 			return;
-		triangle.drawTriangle(cameraFrustum);
+		triangle.drawPhongTriangle(cameraFrustum);
 	}
 	
 	/**
@@ -262,7 +262,7 @@ public class GraphicsLibrary {
 	public void drawAffineFlatTriangle(AffineFlatTriangle triangle, int[] cameraFrustum) {
 		if (clip(triangle, cameraFrustum))
 			return;
-		triangle.drawTriangle(cameraFrustum);
+		triangle.drawAffineFlatTriangle(cameraFrustum);
 	}
 	
 	/**
@@ -275,7 +275,7 @@ public class GraphicsLibrary {
 	public void drawAffineGouraudTriangle(AffineGouraudTriangle triangle, int[] cameraFrustum) {
 		if (clip(triangle, cameraFrustum))
 			return;
-		triangle.drawTriangle(cameraFrustum);
+		triangle.drawAffineGouraudTriangle(cameraFrustum);
 	}
 	
 	/**
@@ -288,7 +288,7 @@ public class GraphicsLibrary {
 	public void drawAffinePhongTriangle(AffinePhongTriangle triangle, int[] cameraFrustum) {
 		if (clip(triangle, cameraFrustum))
 			return;
-		triangle.drawTriangle(cameraFrustum);
+		triangle.drawAffinePhongTriangle(cameraFrustum);
 	}
 	
 	/**
@@ -301,7 +301,7 @@ public class GraphicsLibrary {
 	public void drawPerspectiveFlatTriangle(PerspectiveFlatTriangle triangle, int[] cameraFrustum) {
 		if (clip(triangle, cameraFrustum))
 			return;
-		triangle.drawTriangle(cameraFrustum);
+		triangle.drawPerspectiveFlatTriangle(cameraFrustum);
 	}
 	
 	/**
@@ -314,7 +314,7 @@ public class GraphicsLibrary {
 	public void drawPerspectiveGouraudTriangle(PerspectiveGouraudTriangle triangle, int[] cameraFrustum) {
 		if (clip(triangle, cameraFrustum))
 			return;
-		triangle.drawTriangle(cameraFrustum);
+		triangle.drawPerspectiveGouraudTriangle(cameraFrustum);
 	}
 	
 	/**
@@ -327,7 +327,7 @@ public class GraphicsLibrary {
 	public void drawPerspectivePhongTriangle(PerspectivePhongTriangle triangle, int[] cameraFrustum) {
 		if (clip(triangle, cameraFrustum))
 			return;
-		triangle.drawTriangle(cameraFrustum);
+		triangle.drawPerspectivePhongTriangle(cameraFrustum);
 	}
 	
 	private boolean clip(FlatTriangle triangle, int[] cameraFrustum) {

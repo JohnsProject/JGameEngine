@@ -40,7 +40,6 @@ import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.FlatTriangle;
 import com.johnsproject.jgameengine.shader.Shader;
-import com.johnsproject.jgameengine.shader.databuffers.ForwardDataBuffer;
 
 public class PointLightShadowShader implements Shader {
 
@@ -76,7 +75,7 @@ public class PointLightShadowShader implements Shader {
 	private Transform lightTransform;
 
 	private List<Light> lights;
-	private ForwardDataBuffer shaderData;
+	private ShaderDataBuffer shaderData;
 
 	public PointLightShadowShader() {
 		this.graphicsLibrary = new GraphicsLibrary();
@@ -135,7 +134,7 @@ public class PointLightShadowShader implements Shader {
 	}
 	
 	public void update(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = (ForwardDataBuffer)shaderDataBuffer;
+		shaderData = shaderDataBuffer;
 		this.lights = shaderData.getLights();
 		if (shaderData.getPointLightIndex() == -1) {
 			shaderData.setPointLightFrustum(portedFrustum);
@@ -249,7 +248,7 @@ public class PointLightShadowShader implements Shader {
 	}
 
 	public void terminate(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = (ForwardDataBuffer)shaderDataBuffer;
+		shaderData = shaderDataBuffer;
 		shaderData.setPointLightIndex(-1);
 		shaderData.setPointLightFrustum(null);
 		shaderData.setPointLightMatrices(null);

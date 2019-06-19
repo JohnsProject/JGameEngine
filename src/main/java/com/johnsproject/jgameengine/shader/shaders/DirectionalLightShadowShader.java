@@ -40,7 +40,6 @@ import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.FlatTriangle;
 import com.johnsproject.jgameengine.shader.Shader;
-import com.johnsproject.jgameengine.shader.databuffers.ForwardDataBuffer;
 
 public class DirectionalLightShadowShader implements Shader {
 
@@ -70,7 +69,7 @@ public class DirectionalLightShadowShader implements Shader {
 	private final Texture shadowMap;
 	
 	private List<Light> lights;
-	private ForwardDataBuffer shaderData;
+	private ShaderDataBuffer shaderData;
 
 	public DirectionalLightShadowShader() {
 		this.graphicsLibrary = new GraphicsLibrary();
@@ -115,7 +114,7 @@ public class DirectionalLightShadowShader implements Shader {
 	}
 	
 	public void update(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = (ForwardDataBuffer)shaderDataBuffer;
+		shaderData = shaderDataBuffer;
 		lights = shaderData.getLights();
 		if (shaderData.getDirectionalLightIndex() == -1) {
 			shaderData.setDirectionalLightFrustum(portedFrustum);
@@ -184,7 +183,7 @@ public class DirectionalLightShadowShader implements Shader {
 	}
 
 	public void terminate(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = (ForwardDataBuffer)shaderDataBuffer;
+		shaderData = shaderDataBuffer;
 		shaderData.setDirectionalLightIndex(-1);
 		shaderData.setDirectionalLightFrustum(null);
 		shaderData.setDirectionalLightMatrix(null);

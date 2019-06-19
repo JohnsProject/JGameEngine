@@ -75,7 +75,7 @@ public class PhongTriangle extends FlatTriangle {
 		return normal;
 	}
 
-	public void drawTriangle(int[] cameraFrustum) {
+	public final void drawPhongTriangle(int[] cameraFrustum) {
 		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
