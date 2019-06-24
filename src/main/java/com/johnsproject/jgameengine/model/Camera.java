@@ -21,39 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.dto;
+package com.johnsproject.jgameengine.model;
 
-public class Material {
+import com.johnsproject.jgameengine.library.MathLibrary;
 
-	private int index;
-	private String name;
-	private int shaderIndex;
-	private ShaderProperties properties;
+public class Camera extends SceneObject {
 	
-	public Material(int index, String name, int shaderIndex, ShaderProperties shaderProperties) {
-		this.index = index;
-		this.name = "";
-		setShader(shaderIndex, shaderProperties);
-	}
-
-	public int getIndex() {
-		return index;
-	}
+	public static final byte FRUSTUM_LEFT = 0;
+	public static final byte FRUSTUM_RIGHT = 1;
+	public static final byte FRUSTUM_TOP = 2;
+	public static final byte FRUSTUM_BOTTOM = 3;
+	public static final byte FRUSTUM_NEAR = 4;
+	public static final byte FRUSTUM_FAR = 5;
+	public static final byte FRUSTUM_SIZE = 6;
 	
-	public String getName() {
-		return name;
-	}
-	
-	public int getShaderIndex() {
-		return shaderIndex;
+	private CameraType type;
+	private final int[] frustum;
+
+	public Camera(String name, Transform transform) {
+		super(name, transform);
+		this.frustum = new int[6];
+		frustum[FRUSTUM_LEFT] = 0;
+		frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;
+		frustum[FRUSTUM_TOP] = 0;
+		frustum[FRUSTUM_BOTTOM] = MathLibrary.FP_ONE;
+		frustum[FRUSTUM_NEAR] = MathLibrary.FP_ONE / 10;
+		frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 100;
 	}
 
-	public ShaderProperties getProperties() {
-		return properties;
+	public int[] getFrustum() {
+		return frustum;
 	}
 
-	public void setShader(int shaderIndex, ShaderProperties shaderProperties) {
-		this.shaderIndex = shaderIndex;
-		this.properties = shaderProperties;
+	public CameraType getType() {
+		return type;
+	}
+
+	public void setType(CameraType type) {
+		this.type = type;
 	}
 }

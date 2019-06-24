@@ -25,20 +25,20 @@ package com.johnsproject.jgameengine.shader.shaders;
 
 import java.util.List;
 
-import com.johnsproject.jgameengine.dto.Camera;
-import com.johnsproject.jgameengine.dto.FrameBuffer;
-import com.johnsproject.jgameengine.dto.GeometryBuffer;
-import com.johnsproject.jgameengine.dto.Light;
-import com.johnsproject.jgameengine.dto.Model;
-import com.johnsproject.jgameengine.dto.ShaderBuffer;
-import com.johnsproject.jgameengine.dto.ShaderProperties;
-import com.johnsproject.jgameengine.dto.Texture;
-import com.johnsproject.jgameengine.dto.VertexBuffer;
 import com.johnsproject.jgameengine.library.ColorLibrary;
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.model.Camera;
+import com.johnsproject.jgameengine.model.FrameBuffer;
+import com.johnsproject.jgameengine.model.GeometryBuffer;
+import com.johnsproject.jgameengine.model.Light;
+import com.johnsproject.jgameengine.model.Model;
+import com.johnsproject.jgameengine.model.ShaderBuffer;
+import com.johnsproject.jgameengine.model.ShaderProperties;
+import com.johnsproject.jgameengine.model.Texture;
+import com.johnsproject.jgameengine.model.VertexBuffer;
 import com.johnsproject.jgameengine.shader.PerspectiveFlatTriangle;
 import com.johnsproject.jgameengine.shader.Shader;
 

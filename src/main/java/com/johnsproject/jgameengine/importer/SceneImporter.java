@@ -26,22 +26,22 @@ package com.johnsproject.jgameengine.importer;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.johnsproject.jgameengine.dto.Camera;
-import com.johnsproject.jgameengine.dto.CameraType;
-import com.johnsproject.jgameengine.dto.Face;
-import com.johnsproject.jgameengine.dto.Light;
-import com.johnsproject.jgameengine.dto.LightType;
-import com.johnsproject.jgameengine.dto.Material;
-import com.johnsproject.jgameengine.dto.Mesh;
-import com.johnsproject.jgameengine.dto.Model;
-import com.johnsproject.jgameengine.dto.Scene;
-import com.johnsproject.jgameengine.dto.ShaderProperties;
-import com.johnsproject.jgameengine.dto.Transform;
-import com.johnsproject.jgameengine.dto.Vertex;
 import com.johnsproject.jgameengine.library.ColorLibrary;
 import com.johnsproject.jgameengine.library.FileLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.model.Camera;
+import com.johnsproject.jgameengine.model.CameraType;
+import com.johnsproject.jgameengine.model.Face;
+import com.johnsproject.jgameengine.model.Light;
+import com.johnsproject.jgameengine.model.LightType;
+import com.johnsproject.jgameengine.model.Material;
+import com.johnsproject.jgameengine.model.Mesh;
+import com.johnsproject.jgameengine.model.Model;
+import com.johnsproject.jgameengine.model.Scene;
+import com.johnsproject.jgameengine.model.ShaderProperties;
+import com.johnsproject.jgameengine.model.Transform;
+import com.johnsproject.jgameengine.model.Vertex;
 
 public class SceneImporter {
 	

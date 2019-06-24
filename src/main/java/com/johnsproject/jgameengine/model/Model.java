@@ -21,45 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.dto;
+package com.johnsproject.jgameengine.model;
 
-public class Vertex {
+public class Model extends SceneObject {
 	
-	private final int index;
-	private final int[] location;
-	private final int[] normal;
-	private final Material material;
-	private VertexBuffer buffer;
+	private Mesh mesh;
 	
-	public Vertex(int index, int[] location, int[] normal, Material material) {
-		this.index = index;
-		this.location = location;
-		this.normal = normal;
-		this.material = material;
-		this.buffer = new VertexBuffer(this);
+	public Model (String name, Transform transform, Mesh mesh) {
+		super(name, transform);
+		this.mesh = mesh;
 	}
 
-	public int getIndex() {
-		return index;
-	}
-
-	public int[] getLocation() {
-		return location;
-	}
-	
-	public int[] getNormal() {
-		return normal;
-	}
-	
-	public Material getMaterial() {
-		return material;
-	}
-
-	public VertexBuffer getBuffer() {
-		return buffer;
-	}
-
-	public void setBuffer(VertexBuffer buffer) {
-		this.buffer = buffer;
+	public Mesh getMesh() {
+		return mesh;
 	}
 }

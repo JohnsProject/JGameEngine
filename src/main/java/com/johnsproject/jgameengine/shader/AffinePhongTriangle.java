@@ -1,6 +1,6 @@
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.dto.Texture;
+import com.johnsproject.jgameengine.model.Texture;
 
 public class AffinePhongTriangle extends PhongTriangle {
 	

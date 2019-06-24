@@ -23,11 +23,11 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.dto.Camera;
-import com.johnsproject.jgameengine.dto.GeometryBuffer;
-import com.johnsproject.jgameengine.dto.Model;
-import com.johnsproject.jgameengine.dto.ShaderBuffer;
-import com.johnsproject.jgameengine.dto.VertexBuffer;
+import com.johnsproject.jgameengine.model.Camera;
+import com.johnsproject.jgameengine.model.GeometryBuffer;
+import com.johnsproject.jgameengine.model.Model;
+import com.johnsproject.jgameengine.model.ShaderBuffer;
+import com.johnsproject.jgameengine.model.VertexBuffer;
 
 public interface Shader {
 	

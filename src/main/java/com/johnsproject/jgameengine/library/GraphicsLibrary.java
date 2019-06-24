@@ -23,8 +23,8 @@
  */
 package com.johnsproject.jgameengine.library;
 
-import com.johnsproject.jgameengine.dto.Camera;
-import com.johnsproject.jgameengine.dto.Transform;
+import com.johnsproject.jgameengine.model.Camera;
+import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.shader.AffineFlatTriangle;
 import com.johnsproject.jgameengine.shader.AffineGouraudTriangle;
 import com.johnsproject.jgameengine.shader.AffinePhongTriangle;

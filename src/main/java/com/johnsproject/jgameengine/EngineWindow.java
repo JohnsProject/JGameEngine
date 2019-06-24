@@ -30,8 +30,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 
-import com.johnsproject.jgameengine.dto.FrameBuffer;
 import com.johnsproject.jgameengine.event.EngineListener;
+import com.johnsproject.jgameengine.model.FrameBuffer;
 
 public class EngineWindow extends Frame implements EngineListener {
 

@@ -26,17 +26,17 @@ package com.johnsproject.jgameengine.importer;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.johnsproject.jgameengine.dto.Face;
-import com.johnsproject.jgameengine.dto.Material;
-import com.johnsproject.jgameengine.dto.Mesh;
-import com.johnsproject.jgameengine.dto.Model;
-import com.johnsproject.jgameengine.dto.ShaderProperties;
-import com.johnsproject.jgameengine.dto.Transform;
-import com.johnsproject.jgameengine.dto.Vertex;
 import com.johnsproject.jgameengine.library.ColorLibrary;
 import com.johnsproject.jgameengine.library.FileLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.model.Face;
+import com.johnsproject.jgameengine.model.Material;
+import com.johnsproject.jgameengine.model.Mesh;
+import com.johnsproject.jgameengine.model.Model;
+import com.johnsproject.jgameengine.model.ShaderProperties;
+import com.johnsproject.jgameengine.model.Transform;
+import com.johnsproject.jgameengine.model.Vertex;
 
 public class SOMImporter {
 	

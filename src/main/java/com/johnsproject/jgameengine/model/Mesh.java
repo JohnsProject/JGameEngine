@@ -21,12 +21,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.dto;
+package com.johnsproject.jgameengine.model;
 
-public enum LightType {
+public class Mesh {
 
-	DIRECTIONAL,
-	POINT,
-	SPOT
+	private Vertex[] vertices;
+	private Face[] faces;
+	private Material[] materials;
+	
+	public Mesh(Vertex[] vertices, Face[] faces, Material[] materials) {
+		super();
+		this.vertices = vertices;
+		this.faces = faces;
+		this.materials = materials;
+	}
+
+	public Vertex[] getVertices(){
+		return vertices;
+	}
+	
+	public Vertex getVertex(int index){
+		return vertices[index];
+	}
+	
+	public Face[] getFaces() {
+		return faces;
+	}
+	
+	public Face getFace(int index) {
+		return faces[index];
+	}
+	
+	public Material[] getMaterials() {
+		return materials;
+	}
+	
+	public Material getMaterial(int index) {
+		return materials[index];
+	}
+	
+	public Material getMaterial(String name) {
+		for (int i = 0; i < materials.length; i++) {
+			Material material = materials[i];
+			if (material.getName().equals(name)) {
+				return material;
+			}
+		}
+		return materials[0];
+	}	
 	
 }

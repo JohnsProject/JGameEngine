@@ -27,9 +27,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
 
-import com.johnsproject.jgameengine.dto.FrameBuffer;
-import com.johnsproject.jgameengine.dto.Model;
 import com.johnsproject.jgameengine.event.EngineListener;
+import com.johnsproject.jgameengine.model.FrameBuffer;
+import com.johnsproject.jgameengine.model.Model;
 
 public class EngineStatistics implements EngineListener {
 

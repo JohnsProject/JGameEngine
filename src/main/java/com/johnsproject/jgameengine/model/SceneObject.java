@@ -21,43 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.dto;
+package com.johnsproject.jgameengine.model;
 
-import com.johnsproject.jgameengine.library.MathLibrary;
-
-public class Camera extends SceneObject {
+public class SceneObject {
+		
+	protected String name;
+	protected Transform transform;
+	protected boolean active;
 	
-	public static final byte FRUSTUM_LEFT = 0;
-	public static final byte FRUSTUM_RIGHT = 1;
-	public static final byte FRUSTUM_TOP = 2;
-	public static final byte FRUSTUM_BOTTOM = 3;
-	public static final byte FRUSTUM_NEAR = 4;
-	public static final byte FRUSTUM_FAR = 5;
-	public static final byte FRUSTUM_SIZE = 6;
-	
-	private CameraType type;
-	private final int[] frustum;
-
-	public Camera(String name, Transform transform) {
-		super(name, transform);
-		this.frustum = new int[6];
-		frustum[FRUSTUM_LEFT] = 0;
-		frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;
-		frustum[FRUSTUM_TOP] = 0;
-		frustum[FRUSTUM_BOTTOM] = MathLibrary.FP_ONE;
-		frustum[FRUSTUM_NEAR] = MathLibrary.FP_ONE / 10;
-		frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 100;
+	public SceneObject(String name, Transform transform) {
+		this.name = name;
+		this.transform = transform;
+		this.active = true;
 	}
 
-	public int[] getFrustum() {
-		return frustum;
+	public Transform getTransform() {
+		return this.transform;
 	}
 
-	public CameraType getType() {
-		return type;
+	public String getName() {
+		return name;
 	}
 
-	public void setType(CameraType type) {
-		this.type = type;
+	public boolean isActive() {
+		return active;
 	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}	
 }

@@ -21,18 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.dto;
+package com.johnsproject.jgameengine.model;
 
-public class Model extends SceneObject {
+public class Material {
+
+	private int index;
+	private String name;
+	private int shaderIndex;
+	private ShaderProperties properties;
 	
-	private Mesh mesh;
-	
-	public Model (String name, Transform transform, Mesh mesh) {
-		super(name, transform);
-		this.mesh = mesh;
+	public Material(int index, String name, int shaderIndex, ShaderProperties shaderProperties) {
+		this.index = index;
+		this.name = "";
+		setShader(shaderIndex, shaderProperties);
 	}
 
-	public Mesh getMesh() {
-		return mesh;
+	public int getIndex() {
+		return index;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public int getShaderIndex() {
+		return shaderIndex;
+	}
+
+	public ShaderProperties getProperties() {
+		return properties;
+	}
+
+	public void setShader(int shaderIndex, ShaderProperties shaderProperties) {
+		this.shaderIndex = shaderIndex;
+		this.properties = shaderProperties;
 	}
 }
