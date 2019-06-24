@@ -12,10 +12,10 @@ bl_info = {
 
 if "bpy" in locals():
 	import importlib
-	if "import_som" in locals():
-		importlib.reload(import_som)
-	if "export_som" in locals():
-		importlib.reload(export_som)
+	if "import_scene" in locals():
+		importlib.reload(import_scene)
+	if "export_scene" in locals():
+		importlib.reload(export_scene)
 else:
 	import bpy
 
@@ -23,7 +23,7 @@ from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ExportHelper
 
 
-class SOMImporter(bpy.types.Operator):
+class SceneImporter(bpy.types.Operator):
 	"""Load Scene Object Model data"""
 	bl_idname = "import_model.scene"
 	bl_label = "Import Scene"
@@ -35,8 +35,8 @@ class SOMImporter(bpy.types.Operator):
 	filter_glob = StringProperty(default="*.scene", options={'HIDDEN'})
 
 	def execute(self, context):
-		from . import import_som
-		import_som.read(self.filepath)
+		from . import import_scene
+		import_scene.read(self.filepath)
 		return {'FINISHED'}
 
 	def invoke(self, context, event):
@@ -45,7 +45,7 @@ class SOMImporter(bpy.types.Operator):
 		return {'RUNNING_MODAL'}
 
 
-class SOMExporter(bpy.types.Operator, ExportHelper):
+class SceneExporter(bpy.types.Operator, ExportHelper):
 	"""Save Scene Object Model data"""
 	bl_idname = "export_model.scene"
 	bl_label = "Export Scene"
@@ -54,18 +54,18 @@ class SOMExporter(bpy.types.Operator, ExportHelper):
 	filter_glob = StringProperty(default="*.scene", options={'HIDDEN'})
 
 	def execute(self, context):
-		from . import export_som
-		export_som.write(self.filepath)
+		from . import export_scene
+		export_scene.write(self.filepath)
 
 		return {'FINISHED'}
 
 
 def menu_import(self, context):
-	self.layout.operator(SOMImporter.bl_idname, text="Scene (.scene)")
+	self.layout.operator(SceneImporter.bl_idname, text="Scene (.scene)")
 
 
 def menu_export(self, context):
-	self.layout.operator(SOMExporter.bl_idname, text="Scene (.scene)")
+	self.layout.operator(SceneExporter.bl_idname, text="Scene (.scene)")
 
 
 def register():
