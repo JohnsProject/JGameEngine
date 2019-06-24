@@ -26,14 +26,14 @@ package com.johnsproject.jgameengine.shader.shaders;
 import java.util.List;
 
 import com.johnsproject.jgameengine.dto.Camera;
-import com.johnsproject.jgameengine.dto.GeometryDataBuffer;
+import com.johnsproject.jgameengine.dto.GeometryBuffer;
 import com.johnsproject.jgameengine.dto.Light;
 import com.johnsproject.jgameengine.dto.LightType;
 import com.johnsproject.jgameengine.dto.Model;
-import com.johnsproject.jgameengine.dto.ShaderDataBuffer;
+import com.johnsproject.jgameengine.dto.ShaderBuffer;
 import com.johnsproject.jgameengine.dto.Texture;
 import com.johnsproject.jgameengine.dto.Transform;
-import com.johnsproject.jgameengine.dto.VertexDataBuffer;
+import com.johnsproject.jgameengine.dto.VertexBuffer;
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.MatrixLibrary;
@@ -75,7 +75,7 @@ public class PointLightShadowShader implements Shader {
 	private Transform lightTransform;
 
 	private List<Light> lights;
-	private ShaderDataBuffer shaderData;
+	private ShaderBuffer shaderBuffer;
 
 	public PointLightShadowShader() {
 		this.graphicsLibrary = new GraphicsLibrary();
@@ -133,13 +133,13 @@ public class PointLightShadowShader implements Shader {
 		}
 	}
 	
-	public void update(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = shaderDataBuffer;
-		this.lights = shaderData.getLights();
-		if (shaderData.getPointLightIndex() == -1) {
-			shaderData.setPointLightFrustum(portedFrustum);
-			shaderData.setPointLightMatrices(lightMatrices);
-			shaderData.setPointShadowMaps(shadowMaps);
+	public void update(ShaderBuffer shaderBuffer) {
+		this.shaderBuffer = shaderBuffer;
+		this.lights = shaderBuffer.getLights();
+		if (shaderBuffer.getPointLightIndex() == -1) {
+			shaderBuffer.setPointLightFrustum(portedFrustum);
+			shaderBuffer.setPointLightMatrices(lightMatrices);
+			shaderBuffer.setPointShadowMaps(shadowMaps);
 		}
 		graphicsLibrary.screenportFrustum(lightFrustum, shadowMaps[0].getWidth(), shadowMaps[0].getHeight(), portedFrustum);
 		for (int i = 0; i < shadowMaps.length; i++) {
@@ -148,7 +148,7 @@ public class PointLightShadowShader implements Shader {
 	}
 
 	public void setup(Camera camera) {
-		shaderData.setPointLightIndex(-1);
+		shaderBuffer.setPointLightIndex(-1);
 		if(lights.size() > 0) {
 			int[] cameraLocation = camera.getTransform().getLocation();		
 			int distance = Integer.MAX_VALUE;
@@ -159,10 +159,10 @@ public class PointLightShadowShader implements Shader {
 				int dist = vectorLibrary.averagedDistance(cameraLocation, lightPosition);
 				if ((light.getType() == LightType.POINT) & (dist < distance) & (dist < LIGHT_RANGE)) {
 					distance = dist;
-					shaderData.setPointLightIndex(i);
+					shaderBuffer.setPointLightIndex(i);
 				}
 			}
-			if (shaderData.getPointLightIndex() == -1)
+			if (shaderBuffer.getPointLightIndex() == -1)
 				return;		
 			int[] lightMatrix = lightMatrices[0];
 			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
@@ -202,27 +202,27 @@ public class PointLightShadowShader implements Shader {
 		graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
 	}
 	
-	public void vertex(VertexDataBuffer dataBuffer) {
+	public void vertex(VertexBuffer vertexBuffer) {
 	}
 
-	public void geometry(GeometryDataBuffer dataBuffer) {
-		if (shaderData.getPointLightIndex() == -1)
+	public void geometry(GeometryBuffer geometryBuffer) {
+		if (shaderBuffer.getPointLightIndex() == -1)
 			return;	
-		backup(dataBuffer);
+		backup(geometryBuffer);
 		for (int i = 0; i < lightMatrices.length; i++) {
 			currentShadowMap = shadowMaps[i];
-			for (int j = 0; j < dataBuffer.getVertexDataBuffers().length; j++) {
-				int[] vertexLocation = dataBuffer.getVertexDataBuffer(j).getLocation();
+			for (int j = 0; j < geometryBuffer.getVertexDataBuffers().length; j++) {
+				int[] vertexLocation = geometryBuffer.getVertexDataBuffer(j).getLocation();
 				vectorLibrary.matrixMultiply(vertexLocation, modelMatrix, vertexLocation);
 				vectorLibrary.matrixMultiply(vertexLocation, lightMatrices[i], vertexLocation);
 				graphicsLibrary.screenportVector(vertexLocation, portedFrustum, vertexLocation);
 			}
-			triangle.setLocation0(dataBuffer.getVertexDataBuffer(0).getLocation());
-			triangle.setLocation1(dataBuffer.getVertexDataBuffer(1).getLocation());
-			triangle.setLocation2(dataBuffer.getVertexDataBuffer(2).getLocation());
+			triangle.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
+			triangle.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
+			triangle.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
 			if(graphicsLibrary.shoelace(triangle) > 0)
 				graphicsLibrary.drawFlatTriangle(triangle, portedFrustum);
-			restore(dataBuffer);
+			restore(geometryBuffer);
 		}
 	}
 
@@ -235,22 +235,21 @@ public class PointLightShadowShader implements Shader {
 		}
 	}
 	
-	private void backup(GeometryDataBuffer dataBuffer) {
-		vectorLibrary.copy(location0Cache, dataBuffer.getVertexDataBuffer(0).getLocation());
-		vectorLibrary.copy(location1Cache, dataBuffer.getVertexDataBuffer(1).getLocation());
-		vectorLibrary.copy(location2Cache, dataBuffer.getVertexDataBuffer(2).getLocation());
+	private void backup(GeometryBuffer geometryBuffer) {
+		vectorLibrary.copy(location0Cache, geometryBuffer.getVertexDataBuffer(0).getLocation());
+		vectorLibrary.copy(location1Cache, geometryBuffer.getVertexDataBuffer(1).getLocation());
+		vectorLibrary.copy(location2Cache, geometryBuffer.getVertexDataBuffer(2).getLocation());
 	}
 	
-	private void restore(GeometryDataBuffer dataBuffer) {
-		vectorLibrary.copy(dataBuffer.getVertexDataBuffer(0).getLocation(), location0Cache);
-		vectorLibrary.copy(dataBuffer.getVertexDataBuffer(1).getLocation(), location1Cache);
-		vectorLibrary.copy(dataBuffer.getVertexDataBuffer(2).getLocation(), location2Cache);
+	private void restore(GeometryBuffer geometryBuffer) {
+		vectorLibrary.copy(geometryBuffer.getVertexDataBuffer(0).getLocation(), location0Cache);
+		vectorLibrary.copy(geometryBuffer.getVertexDataBuffer(1).getLocation(), location1Cache);
+		vectorLibrary.copy(geometryBuffer.getVertexDataBuffer(2).getLocation(), location2Cache);
 	}
 
-	public void terminate(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = shaderDataBuffer;
-		shaderData.setPointLightIndex(-1);
-		shaderData.setPointLightFrustum(null);
-		shaderData.setPointLightMatrices(null);
+	public void terminate(ShaderBuffer shaderBuffer) {
+		shaderBuffer.setPointLightIndex(-1);
+		shaderBuffer.setPointLightFrustum(null);
+		shaderBuffer.setPointLightMatrices(null);
 	}	
 }

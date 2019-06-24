@@ -23,7 +23,6 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.dto.Camera;
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
@@ -207,16 +206,13 @@ public class FlatTriangle {
     }
 	
 	private void drawScanline(int x1, int x2, int y, int z, int dz, int[] cameraFrustum) {
-		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
 		x1 >>= FP_BITS;
 		x2 >>= FP_BITS;
 		for (; x1 <= x2; x1++) {
-			if (yInside & (x1 > cameraFrustum[Camera.FRUSTUM_LEFT] + 1) & (x1 < cameraFrustum[Camera.FRUSTUM_RIGHT] - 1)) {
-				pixelCache[VECTOR_X] = x1;
-				pixelCache[VECTOR_Y] = y;
-				pixelCache[VECTOR_Z] = z >> FP_BITS;
-				shader.fragment(pixelCache);
-			}
+			pixelCache[VECTOR_X] = x1;
+			pixelCache[VECTOR_Y] = y;
+			pixelCache[VECTOR_Z] = z >> FP_BITS;
+			shader.fragment(pixelCache);
 			z += dz;
 		}
 	}

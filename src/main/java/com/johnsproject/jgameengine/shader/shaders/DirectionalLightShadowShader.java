@@ -26,14 +26,14 @@ package com.johnsproject.jgameengine.shader.shaders;
 import java.util.List;
 
 import com.johnsproject.jgameengine.dto.Camera;
-import com.johnsproject.jgameengine.dto.GeometryDataBuffer;
+import com.johnsproject.jgameengine.dto.GeometryBuffer;
 import com.johnsproject.jgameengine.dto.Light;
 import com.johnsproject.jgameengine.dto.LightType;
 import com.johnsproject.jgameengine.dto.Model;
-import com.johnsproject.jgameengine.dto.ShaderDataBuffer;
+import com.johnsproject.jgameengine.dto.ShaderBuffer;
 import com.johnsproject.jgameengine.dto.Texture;
 import com.johnsproject.jgameengine.dto.Transform;
-import com.johnsproject.jgameengine.dto.VertexDataBuffer;
+import com.johnsproject.jgameengine.dto.VertexBuffer;
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.MatrixLibrary;
@@ -69,7 +69,7 @@ public class DirectionalLightShadowShader implements Shader {
 	private final Texture shadowMap;
 	
 	private List<Light> lights;
-	private ShaderDataBuffer shaderData;
+	private ShaderBuffer shaderBuffer;
 
 	public DirectionalLightShadowShader() {
 		this.graphicsLibrary = new GraphicsLibrary();
@@ -113,20 +113,20 @@ public class DirectionalLightShadowShader implements Shader {
 		this.shadowMap = new Texture(width, height);
 	}
 	
-	public void update(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = shaderDataBuffer;
-		lights = shaderData.getLights();
-		if (shaderData.getDirectionalLightIndex() == -1) {
-			shaderData.setDirectionalLightFrustum(portedFrustum);
-			shaderData.setDirectionalLightMatrix(lightMatrix);
-			shaderData.setDirectionalShadowMap(shadowMap);
+	public void update(ShaderBuffer shaderBuffer) {
+		this.shaderBuffer = shaderBuffer;
+		lights = shaderBuffer.getLights();
+		if (shaderBuffer.getDirectionalLightIndex() == -1) {
+			shaderBuffer.setDirectionalLightFrustum(portedFrustum);
+			shaderBuffer.setDirectionalLightMatrix(lightMatrix);
+			shaderBuffer.setDirectionalShadowMap(shadowMap);
 		}
 		graphicsLibrary.screenportFrustum(lightFrustum, shadowMap.getWidth(), shadowMap.getHeight(), portedFrustum);
 		shadowMap.fill(Integer.MAX_VALUE);
 	}
 	
 	public void setup(Camera camera) {
-		shaderData.setDirectionalLightIndex(-1);
+		shaderBuffer.setDirectionalLightIndex(-1);
 		if(lights.size() > 0) {
 			Transform lightTransform = lights.get(0).getTransform();
 			int[] cameraLocation = camera.getTransform().getLocation();		
@@ -138,11 +138,11 @@ public class DirectionalLightShadowShader implements Shader {
 				int dist = vectorLibrary.averagedDistance(cameraLocation, lightPosition);
 				if ((light.getType() == LightType.DIRECTIONAL) & (dist < distance) & (dist < LIGHT_RANGE)) {
 					distance = dist;
-					shaderData.setDirectionalLightIndex(i);
+					shaderBuffer.setDirectionalLightIndex(i);
 				}
 			}
 			
-			if (shaderData.getDirectionalLightIndex() == -1)
+			if (shaderBuffer.getDirectionalLightIndex() == -1)
 				return;
 			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.orthographicMatrix(projectionMatrix, portedFrustum);
@@ -154,21 +154,21 @@ public class DirectionalLightShadowShader implements Shader {
 		graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
 	}
 
-	public void vertex(VertexDataBuffer dataBuffer) {
-		if (shaderData.getDirectionalLightIndex() == -1)
+	public void vertex(VertexBuffer vertexBuffer) {
+		if (shaderBuffer.getDirectionalLightIndex() == -1)
 			return;
-		int[] location = dataBuffer.getLocation();
+		int[] location = vertexBuffer.getLocation();
 		vectorLibrary.matrixMultiply(location, modelMatrix, location);
 		vectorLibrary.matrixMultiply(location, lightMatrix, location);
 		graphicsLibrary.screenportVector(location, portedFrustum, location);
 	}
 	
-	public void geometry(GeometryDataBuffer dataBuffer) {
-		if (shaderData.getDirectionalLightIndex() == -1)
+	public void geometry(GeometryBuffer geometryBuffer) {
+		if (shaderBuffer.getDirectionalLightIndex() == -1)
 			return;
-		triangle.setLocation0(dataBuffer.getVertexDataBuffer(0).getLocation());
-		triangle.setLocation1(dataBuffer.getVertexDataBuffer(1).getLocation());
-		triangle.setLocation2(dataBuffer.getVertexDataBuffer(2).getLocation());
+		triangle.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
+		triangle.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
+		triangle.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
 		if(graphicsLibrary.shoelace(triangle) > 0)
 			graphicsLibrary.drawFlatTriangle(triangle, portedFrustum);
 	}
@@ -182,11 +182,10 @@ public class DirectionalLightShadowShader implements Shader {
 		}
 	}
 
-	public void terminate(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = shaderDataBuffer;
-		shaderData.setDirectionalLightIndex(-1);
-		shaderData.setDirectionalLightFrustum(null);
-		shaderData.setDirectionalLightMatrix(null);
-		shaderData.setDirectionalShadowMap(null);
+	public void terminate(ShaderBuffer shaderBuffer) {
+		shaderBuffer.setDirectionalLightIndex(-1);
+		shaderBuffer.setDirectionalLightFrustum(null);
+		shaderBuffer.setDirectionalLightMatrix(null);
+		shaderBuffer.setDirectionalShadowMap(null);
 	}
 }

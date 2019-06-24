@@ -27,13 +27,13 @@ import java.util.List;
 
 import com.johnsproject.jgameengine.dto.Camera;
 import com.johnsproject.jgameengine.dto.FrameBuffer;
-import com.johnsproject.jgameengine.dto.GeometryDataBuffer;
+import com.johnsproject.jgameengine.dto.GeometryBuffer;
 import com.johnsproject.jgameengine.dto.Light;
 import com.johnsproject.jgameengine.dto.Model;
-import com.johnsproject.jgameengine.dto.ShaderDataBuffer;
+import com.johnsproject.jgameengine.dto.ShaderBuffer;
 import com.johnsproject.jgameengine.dto.ShaderProperties;
 import com.johnsproject.jgameengine.dto.Texture;
-import com.johnsproject.jgameengine.dto.VertexDataBuffer;
+import com.johnsproject.jgameengine.dto.VertexBuffer;
 import com.johnsproject.jgameengine.library.ColorLibrary;
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
@@ -86,7 +86,7 @@ public class FlatSpecularShader implements Shader {
 	private Camera camera;	
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
-	private ShaderDataBuffer shaderData;
+	private ShaderBuffer shaderBuffer;
 	private ShaderProperties shaderProperties;
 	
 	public FlatSpecularShader() {
@@ -109,10 +109,10 @@ public class FlatSpecularShader implements Shader {
 		this.lightSpaceLocation = vectorLibrary.generate();
 	}
 	
-	public void update(ShaderDataBuffer shaderDataBuffer) {
-		this.shaderData = shaderDataBuffer;
-		this.lights = shaderData.getLights();
-		this.frameBuffer = shaderData.getFrameBuffer();
+	public void update(ShaderBuffer shaderBuffer) {
+		this.shaderBuffer = shaderBuffer;
+		this.lights = shaderBuffer.getLights();
+		this.frameBuffer = shaderBuffer.getFrameBuffer();
 	}
 	
 	public void setup(Camera camera) {
@@ -135,17 +135,17 @@ public class FlatSpecularShader implements Shader {
 		graphicsLibrary.normalMatrix(normalMatrix, model.getTransform());
 	}
 
-	public void vertex(VertexDataBuffer dataBuffer) {
-		int[] location = dataBuffer.getLocation();
+	public void vertex(VertexBuffer vertexBuffer) {
+		int[] location = vertexBuffer.getLocation();
 		vectorLibrary.matrixMultiply(location, modelMatrix, location);
 	}
 
-	public void geometry(GeometryDataBuffer dataBuffer) {
-		this.shaderProperties = (ShaderProperties)dataBuffer.getMaterial().getProperties();
-		int[] normal = dataBuffer.getNormal();
-		int[] location1 = dataBuffer.getVertexDataBuffer(0).getLocation();
-		int[] location2 = dataBuffer.getVertexDataBuffer(1).getLocation();
-		int[] location3 = dataBuffer.getVertexDataBuffer(2).getLocation();
+	public void geometry(GeometryBuffer geometryBuffer) {
+		this.shaderProperties = (ShaderProperties)geometryBuffer.getMaterial().getProperties();
+		int[] normal = geometryBuffer.getNormal();
+		int[] location1 = geometryBuffer.getVertexDataBuffer(0).getLocation();
+		int[] location2 = geometryBuffer.getVertexDataBuffer(1).getLocation();
+		int[] location3 = geometryBuffer.getVertexDataBuffer(2).getLocation();
 		vectorLibrary.add(location1, location2, faceLocation);
 		vectorLibrary.add(faceLocation, location3, faceLocation);
 		vectorLibrary.divide(faceLocation, 3 << FP_BITS, faceLocation);	
@@ -165,10 +165,10 @@ public class FlatSpecularShader implements Shader {
 			case DIRECTIONAL:
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normal, lightDirection, viewDirection, shaderProperties);
-				if (i == shaderData.getDirectionalLightIndex()) {
-					int[] lightMatrix = shaderData.getDirectionalLightMatrix();
-					int[] lightFrustum = shaderData.getDirectionalLightFrustum();
-					Texture shadowMap = shaderData.getDirectionalShadowMap();
+				if (i == shaderBuffer.getDirectionalLightIndex()) {
+					int[] lightMatrix = shaderBuffer.getDirectionalLightMatrix();
+					int[] lightFrustum = shaderBuffer.getDirectionalLightFrustum();
+					Texture shadowMap = shaderBuffer.getDirectionalShadowMap();
 					if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
 						currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
 					}
@@ -184,11 +184,11 @@ public class FlatSpecularShader implements Shader {
 				vectorLibrary.normalize(lightLocation, lightLocation);
 				currentFactor = getLightFactor(normal, lightLocation, viewDirection, shaderProperties);
 				currentFactor = mathLibrary.divide(currentFactor, attenuation);
-				if ((i == shaderData.getPointLightIndex()) && (currentFactor > 150)) {
-					for (int j = 0; j < shaderData.getPointLightMatrices().length; j++) {
-						int[] lightMatrix = shaderData.getPointLightMatrices()[j];
-						int[] lightFrustum = shaderData.getPointLightFrustum();
-						Texture shadowMap = shaderData.getPointShadowMaps()[j];
+				if ((i == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
+					for (int j = 0; j < shaderBuffer.getPointLightMatrices().length; j++) {
+						int[] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
+						int[] lightFrustum = shaderBuffer.getPointLightFrustum();
+						Texture shadowMap = shaderBuffer.getPointShadowMaps()[j];
 						if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
 							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
 						}
@@ -211,10 +211,10 @@ public class FlatSpecularShader implements Shader {
 					currentFactor = getLightFactor(normal, lightDirection, viewDirection, shaderProperties);
 					currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
-					if ((i == shaderData.getSpotLightIndex()) && (currentFactor > 10)) {
-						int[] lightMatrix = shaderData.getSpotLightMatrix();
-						int[] lightFrustum = shaderData.getSpotLightFrustum();
-						Texture shadowMap = shaderData.getSpotShadowMap();
+					if ((i == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
+						int[] lightMatrix = shaderBuffer.getSpotLightMatrix();
+						int[] lightFrustum = shaderBuffer.getSpotLightFrustum();
+						Texture shadowMap = shaderBuffer.getSpotShadowMap();
 						if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
 							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
 						}
@@ -231,8 +231,8 @@ public class FlatSpecularShader implements Shader {
 			}
 		}
 		color = shaderProperties.getDiffuseColor();
-		for (int i = 0; i < dataBuffer.getVertexDataBuffers().length; i++) {
-			int[] vertexLocation = dataBuffer.getVertexDataBuffer(i).getLocation();
+		for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
+			int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
 			vectorLibrary.copy(vertexLocations[i], vertexLocation);
 			vectorLibrary.matrixMultiply(vertexLocation, viewMatrix, vertexLocation);
 			vectorLibrary.matrixMultiply(vertexLocation, projectionMatrix, vertexLocation);
@@ -246,14 +246,14 @@ public class FlatSpecularShader implements Shader {
 			if (texture == null) {
 				graphicsLibrary.drawFlatTriangle(triangle, portedFrustum);
 			} else {
-				triangle.setUV0(dataBuffer.getUV(0), texture);
-				triangle.setUV1(dataBuffer.getUV(1), texture);
-				triangle.setUV2(dataBuffer.getUV(2), texture);
+				triangle.setUV0(geometryBuffer.getUV(0), texture);
+				triangle.setUV1(geometryBuffer.getUV(1), texture);
+				triangle.setUV2(geometryBuffer.getUV(2), texture);
 				graphicsLibrary.drawPerspectiveFlatTriangle(triangle, portedFrustum);
 			}
 		}
-		for (int i = 0; i < dataBuffer.getVertexDataBuffers().length; i++) {
-			int[] vertexLocation = dataBuffer.getVertexDataBuffer(i).getLocation();
+		for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
+			int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
 			vectorLibrary.copy(vertexLocation, vertexLocations[i]);
 		}
 	}
@@ -289,8 +289,8 @@ public class FlatSpecularShader implements Shader {
 		vectorLibrary.reflect(lightDirection, normal, lightDirection);
 		dotProduct = vectorLibrary.dotProduct(viewDirection, lightDirection);
 		int specularFactor = Math.max(dotProduct, 0);
-		specularFactor = mathLibrary.multiply(specularFactor, properties.getSpecularIntensity());
 		specularFactor = mathLibrary.pow(specularFactor, properties.getShininess());
+		specularFactor = mathLibrary.multiply(specularFactor, properties.getSpecularIntensity());
 		// putting it all together...
 		return diffuseFactor + specularFactor;
 	}
@@ -313,7 +313,7 @@ public class FlatSpecularShader implements Shader {
 		return depth < lightSpaceLocation[VECTOR_Z];
 	}
 
-	public void terminate(ShaderDataBuffer shaderDataBuffer) {
+	public void terminate(ShaderBuffer shaderBuffer) {
 		
 	}
 }

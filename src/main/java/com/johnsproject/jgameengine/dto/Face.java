@@ -30,7 +30,7 @@ public class Face {
 	private final int[] normal;
 	private final int[][] uvs;
 	private final Material material;
-	private GeometryDataBuffer dataBuffer;
+	private GeometryBuffer buffer;
 
 	public Face(int index, Vertex vertex1, Vertex vertex2, Vertex vertex3, Material material, int[] normal, int[] uv1, int[] uv2, int[] uv3) {
 		this.index = index;
@@ -44,7 +44,7 @@ public class Face {
 		this.uvs[1] = uv2;
 		this.uvs[2] = uv3;
 		this.material = material;
-		this.dataBuffer = new GeometryDataBuffer(this);
+		this.buffer = new GeometryBuffer(this);
 	}
 
 	public int getIndex() {
@@ -75,11 +75,11 @@ public class Face {
 		return material;
 	}
 
-	public GeometryDataBuffer getDataBuffer() {
-		return dataBuffer;
+	public GeometryBuffer getBuffer() {
+		return buffer;
 	}
 
-	public void setDataBuffer(GeometryDataBuffer dataBuffer) {
-		this.dataBuffer = dataBuffer;
+	public void setBuffer(GeometryBuffer buffer) {
+		this.buffer = buffer;
 	}
 }

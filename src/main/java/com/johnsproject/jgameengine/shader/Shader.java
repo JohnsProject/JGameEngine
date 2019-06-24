@@ -24,25 +24,25 @@
 package com.johnsproject.jgameengine.shader;
 
 import com.johnsproject.jgameengine.dto.Camera;
-import com.johnsproject.jgameengine.dto.GeometryDataBuffer;
+import com.johnsproject.jgameengine.dto.GeometryBuffer;
 import com.johnsproject.jgameengine.dto.Model;
-import com.johnsproject.jgameengine.dto.ShaderDataBuffer;
-import com.johnsproject.jgameengine.dto.VertexDataBuffer;
+import com.johnsproject.jgameengine.dto.ShaderBuffer;
+import com.johnsproject.jgameengine.dto.VertexBuffer;
 
 public interface Shader {
 	
-	public void update(ShaderDataBuffer dataBuffer);
+	public void update(ShaderBuffer shaderBuffer);
 	
 	public void setup(Camera camera);
 	
 	public void setup(Model model);
 	
-	public void vertex(VertexDataBuffer dataBuffer);
+	public void vertex(VertexBuffer vertexBuffer);
 
-	public void geometry(GeometryDataBuffer dataBuffer);
+	public void geometry(GeometryBuffer geometryBuffer);
 
 	public void fragment(int[] location);
 	
-	public void terminate(ShaderDataBuffer shaderDataBuffer);
+	public void terminate(ShaderBuffer shaderBuffer);
 	
 }

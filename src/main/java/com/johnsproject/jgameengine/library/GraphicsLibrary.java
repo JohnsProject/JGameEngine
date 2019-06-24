@@ -156,7 +156,7 @@ public class GraphicsLibrary {
 	 */
 	public int[] perspectiveMatrix(int[] matrix, int[] cameraFrustum) {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR]) / 16;
+		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR]) / 2;
 		matrixLibrary.set(matrix, 0, 0, scaleFactor);
 		matrixLibrary.set(matrix, 1, 1, scaleFactor);
 		matrixLibrary.set(matrix, 2, 2, -FP_ONE / 10);
@@ -338,8 +338,8 @@ public class GraphicsLibrary {
 		int right = cameraFrustum[Camera.FRUSTUM_RIGHT];
 		int top = cameraFrustum[Camera.FRUSTUM_TOP];
 		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
-		int near = cameraFrustum[Camera.FRUSTUM_NEAR] / 10;
-		int far = (cameraFrustum[Camera.FRUSTUM_FAR] / 10);
+		int near = cameraFrustum[Camera.FRUSTUM_NEAR];
+		int far = (cameraFrustum[Camera.FRUSTUM_FAR]);
 		boolean insideWidth1 = (location1[VECTOR_X] > left) & (location1[VECTOR_X] < right);
 		boolean insideWidth2 = (location2[VECTOR_X] > left) & (location2[VECTOR_X] < right);
 		boolean insideWidth3 = (location3[VECTOR_X] > left) & (location3[VECTOR_X] < right);

@@ -25,7 +25,7 @@ package com.johnsproject.jgameengine.dto;
 
 import java.util.List;
 
-public class ShaderDataBuffer {
+public class ShaderBuffer {
 	
 	private FrameBuffer frameBuffer;
 	private List<Light> lights;

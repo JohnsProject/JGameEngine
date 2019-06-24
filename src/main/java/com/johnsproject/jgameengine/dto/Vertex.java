@@ -29,14 +29,14 @@ public class Vertex {
 	private final int[] location;
 	private final int[] normal;
 	private final Material material;
-	private VertexDataBuffer dataBuffer;
+	private VertexBuffer buffer;
 	
 	public Vertex(int index, int[] location, int[] normal, Material material) {
 		this.index = index;
 		this.location = location;
 		this.normal = normal;
 		this.material = material;
-		this.dataBuffer = new VertexDataBuffer(this);
+		this.buffer = new VertexBuffer(this);
 	}
 
 	public int getIndex() {
@@ -55,11 +55,11 @@ public class Vertex {
 		return material;
 	}
 
-	public VertexDataBuffer getDataBuffer() {
-		return dataBuffer;
+	public VertexBuffer getBuffer() {
+		return buffer;
 	}
 
-	public void setDataBuffer(VertexDataBuffer dataBuffer) {
-		this.dataBuffer = dataBuffer;
+	public void setBuffer(VertexBuffer buffer) {
+		this.buffer = buffer;
 	}
 }

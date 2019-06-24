@@ -23,8 +23,6 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.dto.Camera;
-
 public class PerspectiveFlatTriangle extends AffineFlatTriangle {
 	
 	public PerspectiveFlatTriangle(Shader shader) {
@@ -207,19 +205,16 @@ public class PerspectiveFlatTriangle extends AffineFlatTriangle {
     }
 	
 	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int dz, int du, int dv, int[] cameraFrustum) {
-		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
 		x1 >>= FP_BITS;
 		x2 >>= FP_BITS;
 		for (; x1 <= x2; x1++) {
-			if (yInside & (x1 > cameraFrustum[Camera.FRUSTUM_LEFT] + 1) & (x1 < cameraFrustum[Camera.FRUSTUM_RIGHT] - 1)) {
-				pixelCache[VECTOR_X] = x1;
-				pixelCache[VECTOR_Y] = y;
-				pixelCache[VECTOR_Z] = z >> FP_BITS;
-				pixelCache[VECTOR_Z] = PERSPECTIVE_ONE / pixelCache[VECTOR_Z];
-				this.u[3] = multiply(u, pixelCache[VECTOR_Z]);
-				this.v[3] = multiply(v, pixelCache[VECTOR_Z]);
-				shader.fragment(pixelCache);
-			}
+			pixelCache[VECTOR_X] = x1;
+			pixelCache[VECTOR_Y] = y;
+			pixelCache[VECTOR_Z] = z >> FP_BITS;
+			pixelCache[VECTOR_Z] = PERSPECTIVE_ONE / pixelCache[VECTOR_Z];
+			this.u[3] = multiply(u, pixelCache[VECTOR_Z]);
+			this.v[3] = multiply(v, pixelCache[VECTOR_Z]);
+			shader.fragment(pixelCache);
 			z += dz;
 			u += du;
 			v += dv;

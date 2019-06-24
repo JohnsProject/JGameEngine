@@ -23,7 +23,6 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.dto.Camera;
 import com.johnsproject.jgameengine.library.ColorLibrary;
 
 public class GouraudTriangle extends FlatTriangle {
@@ -257,19 +256,16 @@ public class GouraudTriangle extends FlatTriangle {
     }
 	
 	private void drawScanline(int x1, int x2, int y, int z, int r, int g, int b, int dz, int dr, int dg, int db, int[] cameraFrustum) {
-		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
 		x1 >>= FP_BITS;
 		x2 >>= FP_BITS;
 		for (; x1 <= x2; x1++) {
-			if (yInside & (x1 > cameraFrustum[Camera.FRUSTUM_LEFT] + 1) & (x1 < cameraFrustum[Camera.FRUSTUM_RIGHT] - 1)) {
-				pixelCache[VECTOR_X] = x1;
-				pixelCache[VECTOR_Y] = y;
-				pixelCache[VECTOR_Z] = z >> FP_BITS;
-				red[3] = r >> FP_BITS;
-				green[3] = g >> FP_BITS;
-				blue[3] = b >> FP_BITS;
-				shader.fragment(pixelCache);
-			}
+			pixelCache[VECTOR_X] = x1;
+			pixelCache[VECTOR_Y] = y;
+			pixelCache[VECTOR_Z] = z >> FP_BITS;
+			red[3] = r >> FP_BITS;
+			green[3] = g >> FP_BITS;
+			blue[3] = b >> FP_BITS;
+			shader.fragment(pixelCache);
 			z += dz;
 			r += dr;
 			g += dg;

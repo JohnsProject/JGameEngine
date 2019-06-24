@@ -45,8 +45,8 @@ public class Camera extends SceneObject {
 		frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;
 		frustum[FRUSTUM_TOP] = 0;
 		frustum[FRUSTUM_BOTTOM] = MathLibrary.FP_ONE;
-		frustum[FRUSTUM_NEAR] = MathLibrary.FP_ONE;
-		frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 1000;
+		frustum[FRUSTUM_NEAR] = MathLibrary.FP_ONE / 10;
+		frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 100;
 	}
 
 	public int[] getFrustum() {

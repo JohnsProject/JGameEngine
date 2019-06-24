@@ -26,14 +26,14 @@ package com.johnsproject.jgameengine.shader.shaders;
 import java.util.List;
 
 import com.johnsproject.jgameengine.dto.Camera;
-import com.johnsproject.jgameengine.dto.GeometryDataBuffer;
+import com.johnsproject.jgameengine.dto.GeometryBuffer;
 import com.johnsproject.jgameengine.dto.Light;
 import com.johnsproject.jgameengine.dto.LightType;
 import com.johnsproject.jgameengine.dto.Model;
-import com.johnsproject.jgameengine.dto.ShaderDataBuffer;
+import com.johnsproject.jgameengine.dto.ShaderBuffer;
 import com.johnsproject.jgameengine.dto.Texture;
 import com.johnsproject.jgameengine.dto.Transform;
-import com.johnsproject.jgameengine.dto.VertexDataBuffer;
+import com.johnsproject.jgameengine.dto.VertexBuffer;
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.MatrixLibrary;
@@ -69,7 +69,7 @@ public class SpotLightShadowShader implements Shader {
 	private final Texture shadowMap;
 
 	private List<Light> lights;
-	private ShaderDataBuffer shaderData;
+	private ShaderBuffer shaderBuffer;
 
 	public SpotLightShadowShader() {
 		this.graphicsLibrary = new GraphicsLibrary();
@@ -113,20 +113,20 @@ public class SpotLightShadowShader implements Shader {
 		this.shadowMap = new Texture(width, height);
 	}
 	
-	public void update(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = shaderDataBuffer;
-		this.lights = shaderData.getLights();
-		if (shaderData.getSpotLightIndex() == -1) {
-			shaderData.setSpotLightFrustum(portedFrustum);
-			shaderData.setSpotLightMatrix(lightMatrix);
-			shaderData.setSpotShadowMap(shadowMap);
+	public void update(ShaderBuffer shaderBuffer) {
+		this.shaderBuffer = shaderBuffer;
+		this.lights = shaderBuffer.getLights();
+		if (shaderBuffer.getSpotLightIndex() == -1) {
+			shaderBuffer.setSpotLightFrustum(portedFrustum);
+			shaderBuffer.setSpotLightMatrix(lightMatrix);
+			shaderBuffer.setSpotShadowMap(shadowMap);
 		}
 		graphicsLibrary.screenportFrustum(lightFrustum, shadowMap.getWidth(), shadowMap.getHeight(), portedFrustum);
 		shadowMap.fill(Integer.MAX_VALUE);
 	}
 
 	public void setup(Camera camera) {
-		shaderData.setSpotLightIndex(-1);
+		shaderBuffer.setSpotLightIndex(-1);
 		if(lights.size() > 0) {
 			Transform lightTransform = lights.get(0).getTransform();
 			int[] cameraLocation = camera.getTransform().getLocation();		
@@ -138,10 +138,10 @@ public class SpotLightShadowShader implements Shader {
 				int dist = vectorLibrary.averagedDistance(cameraLocation, lightPosition);
 				if ((light.getType() == LightType.SPOT) & (dist < distance) & (dist < LIGHT_RANGE)) {
 					distance = dist;
-					shaderData.setSpotLightIndex(i);
+					shaderBuffer.setSpotLightIndex(i);
 				}
 			}
-			if (shaderData.getSpotLightIndex() == -1)
+			if (shaderBuffer.getSpotLightIndex() == -1)
 				return;
 			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
@@ -153,21 +153,21 @@ public class SpotLightShadowShader implements Shader {
 		graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
 	}
 	
-	public void vertex(VertexDataBuffer dataBuffer) {
-		if (shaderData.getSpotLightIndex() == -1)
+	public void vertex(VertexBuffer vertexBuffer) {
+		if (shaderBuffer.getSpotLightIndex() == -1)
 			return;
-		int[] location = dataBuffer.getLocation();
+		int[] location = vertexBuffer.getLocation();
 		vectorLibrary.matrixMultiply(location, modelMatrix, location);
 		vectorLibrary.matrixMultiply(location, lightMatrix, location);
 		graphicsLibrary.screenportVector(location, portedFrustum, location);
 	}
 
-	public void geometry(GeometryDataBuffer dataBuffer) {
-		if (shaderData.getSpotLightIndex() == -1)
+	public void geometry(GeometryBuffer geometryBuffer) {
+		if (shaderBuffer.getSpotLightIndex() == -1)
 			return;
-		triangle.setLocation0(dataBuffer.getVertexDataBuffer(0).getLocation());
-		triangle.setLocation1(dataBuffer.getVertexDataBuffer(1).getLocation());
-		triangle.setLocation2(dataBuffer.getVertexDataBuffer(2).getLocation());
+		triangle.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
+		triangle.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
+		triangle.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
 		if(graphicsLibrary.shoelace(triangle) > 0)
 			graphicsLibrary.drawFlatTriangle(triangle, portedFrustum);
 	}
@@ -181,11 +181,10 @@ public class SpotLightShadowShader implements Shader {
 		}
 	}
 
-	public void terminate(ShaderDataBuffer shaderDataBuffer) {
-		shaderData = shaderDataBuffer;
-		shaderData.setSpotLightIndex(-1);
-		shaderData.setSpotLightFrustum(null);
-		shaderData.setSpotLightMatrix(null);
-		shaderData.setSpotShadowMap(null);
+	public void terminate(ShaderBuffer shaderBuffer) {
+		shaderBuffer.setSpotLightIndex(-1);
+		shaderBuffer.setSpotLightFrustum(null);
+		shaderBuffer.setSpotLightMatrix(null);
+		shaderBuffer.setSpotShadowMap(null);
 	}	
 }

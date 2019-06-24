@@ -1,6 +1,5 @@
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.dto.Camera;
 import com.johnsproject.jgameengine.dto.Texture;
 
 public class AffinePhongTriangle extends PhongTriangle {
@@ -361,24 +360,21 @@ public class AffinePhongTriangle extends PhongTriangle {
 	
 	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int wx, int wy, int wz, int nx, int ny, int nz,
 							int dz, int du, int dv, int dwx, int dwy, int dwz, int dnx, int dny, int dnz, int[] cameraFrustum) {
-		boolean yInside = (y > cameraFrustum[Camera.FRUSTUM_TOP] + 1) & (y < cameraFrustum[Camera.FRUSTUM_BOTTOM] - 1);
 		x1 >>= FP_BITS;
 		x2 >>= FP_BITS;
 		for (; x1 <= x2; x1++) {
-			if (yInside & (x1 > cameraFrustum[Camera.FRUSTUM_LEFT] + 1) & (x1 < cameraFrustum[Camera.FRUSTUM_RIGHT] - 1)) {
-				pixelCache[VECTOR_X] = x1;
-				pixelCache[VECTOR_Y] = y;
-				pixelCache[VECTOR_Z] = z >> FP_BITS;
-				this.u[3] = u >> FP_BITS;
-				this.v[3] = v >> FP_BITS;
-				worldX[3] = wx >> FP_BITS;
-            	worldY[3] = wy >> FP_BITS;
-            	worldZ[3] = wz >> FP_BITS;
-				normalX[3] = nx >> FP_BITS;
-				normalY[3] = ny >> FP_BITS;
-	            normalZ[3] = nz >> FP_BITS;
-				shader.fragment(pixelCache);
-			}
+			pixelCache[VECTOR_X] = x1;
+			pixelCache[VECTOR_Y] = y;
+			pixelCache[VECTOR_Z] = z >> FP_BITS;
+			this.u[3] = u >> FP_BITS;
+			this.v[3] = v >> FP_BITS;
+			worldX[3] = wx >> FP_BITS;
+        	worldY[3] = wy >> FP_BITS;
+        	worldZ[3] = wz >> FP_BITS;
+			normalX[3] = nx >> FP_BITS;
+			normalY[3] = ny >> FP_BITS;
+            normalZ[3] = nz >> FP_BITS;
+			shader.fragment(pixelCache);
 			z += dz;
 			u += du;
 			v += dv;
