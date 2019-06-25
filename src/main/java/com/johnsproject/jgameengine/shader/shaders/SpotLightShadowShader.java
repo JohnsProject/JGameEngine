@@ -86,10 +86,10 @@ public class SpotLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 5;
+		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 50;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.shadowMap = new Texture(64, 64);
+		this.shadowMap = new Texture(320, 320);
 	}
 	
 	public SpotLightShadowShader(int width, int height) {
@@ -107,7 +107,7 @@ public class SpotLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 5;
+		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 50;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.shadowMap = new Texture(width, height);
@@ -143,6 +143,7 @@ public class SpotLightShadowShader implements Shader {
 			}
 			if (shaderBuffer.getSpotLightIndex() == -1)
 				return;
+			lightTransform = lights.get(shaderBuffer.getSpotLightIndex()).getTransform();
 			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
 			matrixLibrary.multiply(projectionMatrix, modelMatrix, lightMatrix);
@@ -175,9 +176,9 @@ public class SpotLightShadowShader implements Shader {
 	public void fragment(int[] location) {
 		int x = location[VECTOR_X];
 		int y = location[VECTOR_Y];
-		int z = location[VECTOR_Z];
+		int z = location[VECTOR_Z] + SHADOW_BIAS;
 		if (shadowMap.getPixel(x, y) > z) {
-			shadowMap.setPixel(x, y, z + SHADOW_BIAS);
+			shadowMap.setPixel(x, y, z);
 		}
 	}
 

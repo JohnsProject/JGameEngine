@@ -136,7 +136,7 @@ public class GraphicsLibrary {
 	 */
 	public int[] orthographicMatrix(int[] matrix, int[] cameraFrustum) {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		int scaleFactor = cameraFrustum[Camera.FRUSTUM_NEAR];
+		int scaleFactor = cameraFrustum[Camera.FRUSTUM_NEAR] << 2;
 		matrixLibrary.set(matrix, 0, 0, scaleFactor);
 		matrixLibrary.set(matrix, 1, 1, scaleFactor);
 		matrixLibrary.set(matrix, 2, 2, -FP_ONE / 10);

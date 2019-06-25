@@ -1,7 +1,5 @@
 package com.johnsproject.jgameengine;
 
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -76,12 +74,12 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
-		for (int i = graphicsEngine.getPreprocessingShadersCount(); i > 0; i--) {
-			graphicsEngine.removePreprocessingShader(graphicsEngine.getPreprocessingShader(0));
-		}
+//		for (int i = graphicsEngine.getPreprocessingShadersCount(); i > 0; i--) {
+//			graphicsEngine.removePreprocessingShader(graphicsEngine.getPreprocessingShader(0));
+//		}
 //		Engine.getInstance().limitUpdateRate(true);
-		graphicsEngine.removeShader(graphicsEngine.getShader(0));
-		graphicsEngine.addShader(new FlatSpecularShader());
+//		graphicsEngine.removeShader(graphicsEngine.getShader(0));
+//		graphicsEngine.addShader(new FlatSpecularShader());
 //		graphicsEngine.addPreprocessingShader(new EarlyDepthBufferShader());
 //		graphicsEngine.addShader(new PhongSpecularShader());
 	}

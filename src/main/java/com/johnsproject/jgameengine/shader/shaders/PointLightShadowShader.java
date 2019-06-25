@@ -96,7 +96,7 @@ public class PointLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 10;
+		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 50;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.shadowMaps = new Texture[6];
@@ -124,7 +124,7 @@ public class PointLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 10;
+		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 50;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.shadowMaps = new Texture[6];
@@ -164,6 +164,7 @@ public class PointLightShadowShader implements Shader {
 			}
 			if (shaderBuffer.getPointLightIndex() == -1)
 				return;		
+			lightTransform = lights.get(shaderBuffer.getPointLightIndex()).getTransform();
 			int[] lightMatrix = lightMatrices[0];
 			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
@@ -229,9 +230,9 @@ public class PointLightShadowShader implements Shader {
 	public void fragment(int[] location) {
 		int x = location[VECTOR_X];
 		int y = location[VECTOR_Y];
-		int z = location[VECTOR_Z];
+		int z = location[VECTOR_Z] + SHADOW_BIAS;
 		if (currentShadowMap.getPixel(x, y) > z) {
-			currentShadowMap.setPixel(x, y, z + SHADOW_BIAS);
+			currentShadowMap.setPixel(x, y, z);
 		}
 	}
 	

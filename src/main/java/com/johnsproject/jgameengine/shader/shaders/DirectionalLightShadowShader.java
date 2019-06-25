@@ -86,7 +86,7 @@ public class DirectionalLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		lightFrustum[Camera.FRUSTUM_TOP] = 0;
 		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE;
+		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 10;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.shadowMap = new Texture(64, 64);
@@ -141,9 +141,9 @@ public class DirectionalLightShadowShader implements Shader {
 					shaderBuffer.setDirectionalLightIndex(i);
 				}
 			}
-			
 			if (shaderBuffer.getDirectionalLightIndex() == -1)
 				return;
+			lightTransform = lights.get(shaderBuffer.getDirectionalLightIndex()).getTransform();
 			graphicsLibrary.viewMatrix(modelMatrix, lightTransform);
 			graphicsLibrary.orthographicMatrix(projectionMatrix, portedFrustum);
 			matrixLibrary.multiply(projectionMatrix, modelMatrix, lightMatrix);
@@ -176,9 +176,9 @@ public class DirectionalLightShadowShader implements Shader {
 	public void fragment(int[] location) {
 		int x = location[VECTOR_X];
 		int y = location[VECTOR_Y];
-		int z = location[VECTOR_Z];
+		int z = location[VECTOR_Z] + SHADOW_BIAS;
 		if (shadowMap.getPixel(x, y) > z) {
-			shadowMap.setPixel(x, y, z + SHADOW_BIAS);
+			shadowMap.setPixel(x, y, z);
 		}
 	}
 

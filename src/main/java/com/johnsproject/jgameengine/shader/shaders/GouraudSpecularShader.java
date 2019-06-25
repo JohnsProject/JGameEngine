@@ -108,13 +108,13 @@ public class GouraudSpecularShader implements Shader {
 		this.frameBuffer = shaderBuffer.getFrameBuffer();
 		
 		// debug shadow map
-//		Texture shadowMap = shaderData.getDirectionalShadowMap();
-//		for (int i = 0; i < shadowMap.getWidth(); i++) {
-//			for (int j = 0; j < shadowMap.getHeight(); j++) {
-//				int depth = shadowMap.getPixel(i, j);
+//		Texture shadowMap = shaderBuffer.getSpotShadowMap();
+//		for (int x = 0; x < shadowMap.getWidth(); x++) {
+//			for (int y = 0; y < shadowMap.getHeight(); y++) {
+//				int depth = shadowMap.getPixel(x, y);
 //				int color = (depth + 100) >> 3;
 //				color = new ColorLibrary().generate(color, color, color);
-//				frameBuffer.getColorBuffer().setPixel(i, j, color);
+//				frameBuffer.getColorBuffer().setPixel(x, y, color);
 //			}
 //		}
 	}
