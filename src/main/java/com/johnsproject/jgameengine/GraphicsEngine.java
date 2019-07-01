@@ -43,18 +43,18 @@ import com.johnsproject.jgameengine.shader.shaders.SpotLightShadowShader;
 
 public class GraphicsEngine implements EngineListener {
 	
+	private final List<Shader> preShaders;
 	private final List<Shader> shaders;
-	private ShaderBuffer shaderDataBuffer;
+	private final List<Shader> postShaders;
+	private ShaderBuffer shaderBuffer;
 	private FrameBuffer frameBuffer;
 	private Scene scene;
 	
-	private int preShadersCount;
-	private int shadersCount;
-	private int postShadersCount;
-	
 	public GraphicsEngine(Scene scene, FrameBuffer frameBuffer) {
-		this.shaderDataBuffer = new ShaderBuffer();
+		this.shaderBuffer = new ShaderBuffer();
+		this.preShaders = new ArrayList<Shader>();
 		this.shaders = new ArrayList<Shader>();
+		this.postShaders = new ArrayList<Shader>();
 		this.scene = scene;
 		this.frameBuffer = frameBuffer;
 		addPreprocessingShader(new DirectionalLightShadowShader());
@@ -69,34 +69,40 @@ public class GraphicsEngine implements EngineListener {
 		frameBuffer.getColorBuffer().fill(0);
 		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
 		frameBuffer.getStencilBuffer().fill(0);
-		shaderDataBuffer.setFrameBuffer(frameBuffer);
-		shaderDataBuffer.setLights(scene.getLights());
+		shaderBuffer.setFrameBuffer(frameBuffer);
+		shaderBuffer.setLights(scene.getLights());
+		for (int s = 0; s < preShaders.size(); s++) {
+			useShader(preShaders.get(s), s, true);
+		}
 		for (int s = 0; s < shaders.size(); s++) {
-			final Shader shader = shaders.get(s);
-			shader.update(shaderDataBuffer);
-			final int shaderIndex = s - preShadersCount;
-			final boolean preShader = s < preShadersCount;
-			final boolean postShader = s > preShadersCount + shadersCount;
-			for (int c = 0; c < scene.getCameras().size(); c++) {
-				final Camera camera = scene.getCameras().get(c);
-				shader.setup(camera);
-				for (int m = 0; m < scene.getModels().size(); m++) {
-					final Model model = scene.getModels().get(m);
-					final Mesh mesh = model.getMesh();
-					shader.setup(model);
-					for (int v = 0; v < mesh.getVertices().length; v++) {
-						final VertexBuffer vertexBuffer = mesh.getVertex(v).getBuffer();
-						if ((vertexBuffer.getMaterial().getShaderIndex() == shaderIndex) | preShader | postShader) {
-							vertexBuffer.reset();
-							shader.vertex(vertexBuffer);
-						}
+			useShader(shaders.get(s), s, false);
+		}
+		for (int s = 0; s < postShaders.size(); s++) {
+			useShader(postShaders.get(s), s, true);
+		}
+	}
+	
+	public void useShader(Shader shader, int shaderIndex, boolean mustUse) {
+		shader.update(shaderBuffer);
+		for (int c = 0; c < scene.getCameras().size(); c++) {
+			final Camera camera = scene.getCameras().get(c);
+			shader.setup(camera);
+			for (int m = 0; m < scene.getModels().size(); m++) {
+				final Model model = scene.getModels().get(m);
+				final Mesh mesh = model.getMesh();
+				shader.setup(model);
+				for (int v = 0; v < mesh.getVertices().length; v++) {
+					final VertexBuffer vertexBuffer = mesh.getVertex(v).getBuffer();
+					if ((vertexBuffer.getMaterial().getShaderIndex() == shaderIndex) | mustUse) {
+						vertexBuffer.reset();
+						shader.vertex(vertexBuffer);
 					}
-					for (int f = 0; f < mesh.getFaces().length; f++) {
-						GeometryBuffer geometryBuffer = mesh.getFace(f).getBuffer();
-						if ((geometryBuffer.getMaterial().getShaderIndex() == shaderIndex) | preShader | postShader) {
-							geometryBuffer.reset();
-							shader.geometry(geometryBuffer);
-						}
+				}
+				for (int f = 0; f < mesh.getFaces().length; f++) {
+					GeometryBuffer geometryBuffer = mesh.getFace(f).getBuffer();
+					if ((geometryBuffer.getMaterial().getShaderIndex() == shaderIndex) | mustUse) {
+						geometryBuffer.reset();
+						shader.geometry(geometryBuffer);
 					}
 				}
 			}
@@ -110,11 +116,11 @@ public class GraphicsEngine implements EngineListener {
 	}
 
 	public ShaderBuffer getShaderDataBuffer() {
-		return shaderDataBuffer;
+		return shaderBuffer;
 	}
 
 	public void setShaderDataBuffer(ShaderBuffer shaderDataBuffer) {
-		this.shaderDataBuffer = shaderDataBuffer;
+		this.shaderBuffer = shaderDataBuffer;
 	}
 	
 	public void setFrameBuffer(FrameBuffer frameBuffer) {
@@ -133,89 +139,69 @@ public class GraphicsEngine implements EngineListener {
 		this.scene = scene;
 	}
 	
+	public List<Shader> getPreprocessingShaders() {
+		return preShaders;
+	}
+	
 	public List<Shader> getShaders() {
 		return shaders;
 	}
 	
+	public List<Shader> getPostprocessingShaders() {
+		return postShaders;
+	}
+	
 	public Shader getPreprocessingShader(int index) {
-		return shaders.get(index);
+		return preShaders.get(index);
 	}
 	
 	public Shader getShader(int index) {
-		return shaders.get(preShadersCount + index);
+		return shaders.get(index);
 	}
 	
 	public Shader getPostprocessingShader(int index) {
-		return shaders.get(preShadersCount + shadersCount + index);
+		return postShaders.get(index);
 	}
 	
-	public int addPreprocessingShader(Shader shader) {
-		final int index = preShadersCount;
-		shaders.add(shader);
-		sortShaders(index, 0);
-		preShadersCount++;
-		return index;
+	public void addPreprocessingShader(Shader shader) {
+		preShaders.add(shader);
 	}
 	
-	public int addShader(Shader shader) {
-		final int index = preShadersCount + shadersCount;
+	public void addShader(Shader shader) {
 		shaders.add(shader);
-		sortShaders(index, 1);
-		shadersCount++;
-		return index;
 	}
 	
-	public int addPostprocessingShader(Shader shader) {
-		final int index = preShadersCount + shadersCount + postShadersCount;
-		postShadersCount++;
-		shaders.add(shader);
-		sortShaders(index, 2);
-		postShadersCount++;
-		return index;
+	public void addPostprocessingShader(Shader shader) {
+		postShaders.add(shader);
+	}
+
+	public void removePreprocessingShader(int index) {
+		Shader shader = getPreprocessingShader(index);
+		removePreprocessingShader(shader);
+	}
+	
+	public void removeShader(int index) {
+		Shader shader = getShader(index);
+		removeShader(shader);
+	}
+	
+	public void removePostprocessingShader(int index) {
+		Shader shader = getPostprocessingShader(index);
+		removePostprocessingShader(shader);
 	}
 	
 	public boolean removePreprocessingShader(Shader shader) {
-		preShadersCount--;
-		shader.terminate(shaderDataBuffer);
-		return shaders.remove(shader);
+		shader.terminate(shaderBuffer);
+		return preShaders.remove(shader);
 	}
 	
 	public boolean removeShader(Shader shader) {
-		shadersCount--;
-		shader.terminate(shaderDataBuffer);
+		shader.terminate(shaderBuffer);
 		return shaders.remove(shader);
 	}
 	
 	public boolean removePostprocessingShader(Shader shader) {
-		postShadersCount--;
-		shader.terminate(shaderDataBuffer);
-		return shaders.remove(shader);
-	}
-	
-	public int getPreprocessingShadersCount() {
-		return preShadersCount;
-	}
-
-	public int getShadersCount() {
-		return shadersCount;
-	}
-	
-	public int getPostprocessingShadersCount() {
-		return postShadersCount;
-	}
-
-	private void sortShaders(int index, int pass) {
-		final int shaderCount = shaders.size();
-		for (int i = shaderCount-1; i > -1; i--) {
-			int currentPass = 0;
-			if(i > preShadersCount) currentPass = 1;
-			if(i > preShadersCount + shadersCount) currentPass = 2;
-			if (currentPass > pass) {
-				Shader temp = shaders.get(index);
-				shaders.set(index, shaders.get(i));
-				shaders.set(i, temp);
-				index = i;
-			}
-		}
+		shader.terminate(shaderBuffer);
+		return postShaders.remove(shader);
 	}
 }

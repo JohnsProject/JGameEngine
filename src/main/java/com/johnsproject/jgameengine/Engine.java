@@ -74,7 +74,7 @@ public class Engine {
 				while (true) {
 					if (!running) {
 						try {
-							Thread.sleep(20);
+							Thread.sleep(30);
 							continue;
 						} catch (InterruptedException e) {
 							e.printStackTrace();
