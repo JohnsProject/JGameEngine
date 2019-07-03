@@ -244,13 +244,32 @@ public class VectorLibrary {
 	}
 
 	/**
-	 * Returns the magnitude of the given vector.
+	 * Returns the length of the given vector.
 	 * 
 	 * @param vector
 	 * @return
 	 */
-	public int magnitude(int[] vector) {
+	public int length(int[] vector) {
 		return mathLibrary.sqrt(dotProduct(vector, vector));
+	}
+	
+	/**
+	 * Returns the averaged length of the given vector.
+	 * Averaged length isn't the correct way to get the length, 
+	 * but its faster, its just
+	 * <pre>
+	 * return (abs(vectorX) + abs(vectorY) + abs(vectorZ)) / 3
+	 * </pre>
+	 * To get correct length use {@link #length} method.
+	 * 
+	 * @param vector
+	 * @return
+	 */
+	public int averagedLength(int[] vector) {
+		int x = Math.abs(vector[VECTOR_X]);
+		int y = Math.abs(vector[VECTOR_Y]);
+		int z = Math.abs(vector[VECTOR_Z]);
+		return (x + y + z) / 3;
 	}
 
 	/**
@@ -276,7 +295,7 @@ public class VectorLibrary {
 	 */
 	public int distance(int[] vector1, int[] vector2) {
 		subtract(vector2, vector1, vectorCache1);
-		return magnitude(vectorCache1);
+		return length(vectorCache1);
 	}
 	
 	/**
@@ -295,10 +314,7 @@ public class VectorLibrary {
 	 */
 	public int averagedDistance(int[] vector1, int[] vector2) {
 		subtract(vector2, vector1, vectorCache1);
-		int x = Math.abs(vectorCache1[VECTOR_X]);
-		int y = Math.abs(vectorCache1[VECTOR_Y]);
-		int z = Math.abs(vectorCache1[VECTOR_Z]);
-		return (x + y + z) / 3;
+		return averagedLength(vectorCache1);
 	}
 
 	/**
@@ -328,7 +344,7 @@ public class VectorLibrary {
 	 * @param result
 	 */
 	public int[] normalize(int[] vector, int[] result) {
-		final long magnitude = NORMALIZE_ONE / (magnitude(vector) + 1);
+		final long magnitude = NORMALIZE_ONE / (length(vector) + 1);
 		result[VECTOR_X] = (int)(((long)vector[VECTOR_X] * magnitude + NORMALIZE_HALF) >> NORMALIZE_BITS);
 		result[VECTOR_Y] = (int)(((long)vector[VECTOR_Y] * magnitude + NORMALIZE_HALF) >> NORMALIZE_BITS);
 		result[VECTOR_Z] = (int)(((long)vector[VECTOR_Z] * magnitude + NORMALIZE_HALF) >> NORMALIZE_BITS);

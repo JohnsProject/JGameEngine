@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineListener;
+import com.johnsproject.jgameengine.library.GraphicsLibrary;
+import com.johnsproject.jgameengine.library.MatrixLibrary;
+import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.GeometryBuffer;
@@ -50,6 +53,12 @@ public class GraphicsEngine implements EngineListener {
 	private FrameBuffer frameBuffer;
 	private Scene scene;
 	
+	private final int[] modelMatrix;
+	private final int[] normalMatrix;
+	private final GraphicsLibrary graphicsLibrary;
+	private final MatrixLibrary matrixLibrary;
+	private final VectorLibrary vectorLibrary;
+	
 	public GraphicsEngine(Scene scene, FrameBuffer frameBuffer) {
 		this.shaderBuffer = new ShaderBuffer();
 		this.preShaders = new ArrayList<Shader>();
@@ -57,6 +66,11 @@ public class GraphicsEngine implements EngineListener {
 		this.postShaders = new ArrayList<Shader>();
 		this.scene = scene;
 		this.frameBuffer = frameBuffer;
+		this.graphicsLibrary = new GraphicsLibrary();
+		this.matrixLibrary = new MatrixLibrary();
+		this.vectorLibrary = new VectorLibrary();
+		this.modelMatrix = matrixLibrary.generate();
+		this.normalMatrix = matrixLibrary.generate();
 		addPreprocessingShader(new DirectionalLightShadowShader());
 		addPreprocessingShader(new SpotLightShadowShader());
 		addPreprocessingShader(new PointLightShadowShader());
@@ -71,6 +85,26 @@ public class GraphicsEngine implements EngineListener {
 		frameBuffer.getStencilBuffer().fill(0);
 		shaderBuffer.setFrameBuffer(frameBuffer);
 		shaderBuffer.setLights(scene.getLights());
+		for (int m = 0; m < scene.getModels().size(); m++) {
+			final Model model = scene.getModels().get(m);
+			final Mesh mesh = model.getMesh();
+			graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
+			graphicsLibrary.normalMatrix(normalMatrix, model.getTransform());
+			for (int v = 0; v < mesh.getVertices().length; v++) {
+				final VertexBuffer vertexBuffer = mesh.getVertex(v).getBuffer();
+				vertexBuffer.resetAll();
+				int[] worldLocation = vertexBuffer.getWorldLocation();
+				int[] worldNormal = vertexBuffer.getWorldNormal();
+				vectorLibrary.matrixMultiply(worldLocation, modelMatrix, worldLocation);
+				vectorLibrary.matrixMultiply(worldNormal, normalMatrix, worldNormal);
+			}
+			for (int f = 0; f < mesh.getFaces().length; f++) {
+				GeometryBuffer geometryBuffer = mesh.getFace(f).getBuffer();
+				geometryBuffer.resetAll();
+				int[] worldNormal = geometryBuffer.getWorldNormal();
+				vectorLibrary.matrixMultiply(worldNormal, normalMatrix, worldNormal);
+			}
+		}
 		for (int s = 0; s < preShaders.size(); s++) {
 			useShader(preShaders.get(s), s, true);
 		}
@@ -90,7 +124,6 @@ public class GraphicsEngine implements EngineListener {
 			for (int m = 0; m < scene.getModels().size(); m++) {
 				final Model model = scene.getModels().get(m);
 				final Mesh mesh = model.getMesh();
-				shader.setup(model);
 				for (int v = 0; v < mesh.getVertices().length; v++) {
 					final VertexBuffer vertexBuffer = mesh.getVertex(v).getBuffer();
 					if ((vertexBuffer.getMaterial().getShaderIndex() == shaderIndex) | mustUse) {

@@ -34,7 +34,6 @@ import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.GeometryBuffer;
 import com.johnsproject.jgameengine.model.Light;
-import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.ShaderBuffer;
 import com.johnsproject.jgameengine.model.ShaderProperties;
 import com.johnsproject.jgameengine.model.Texture;
@@ -68,8 +67,6 @@ public class GouraudSpecularShader implements Shader {
 	private final int[] portedFrustum;
 	private final int[] lightSpaceLocation;
 	
-	private final int[] modelMatrix;
-	private final int[] normalMatrix;
 	private final int[] viewMatrix;
 	private final int[] projectionMatrix;
 	
@@ -95,8 +92,6 @@ public class GouraudSpecularShader implements Shader {
 		this.lightLocation = vectorLibrary.generate();
 		this.viewDirection = vectorLibrary.generate();
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.modelMatrix = matrixLibrary.generate();
-		this.normalMatrix = matrixLibrary.generate();
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
 		this.lightSpaceLocation = vectorLibrary.generate();
@@ -133,11 +128,6 @@ public class GouraudSpecularShader implements Shader {
 			break;
 		}
 	}
-	
-	public void setup(Model model) {
-		graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
-		graphicsLibrary.normalMatrix(normalMatrix, model.getTransform());
-	}
 
 	public void vertex(VertexBuffer vertexBuffer) {
 		ShaderProperties shaderProperties = (ShaderProperties)vertexBuffer.getMaterial().getProperties();
@@ -145,8 +135,6 @@ public class GouraudSpecularShader implements Shader {
 		int[] normal = vertexBuffer.getNormal();
 		int lightColor = ColorLibrary.BLACK;
 		int[] cameraLocation = camera.getTransform().getLocation();	
-		vectorLibrary.matrixMultiply(location, modelMatrix, location);
-		vectorLibrary.matrixMultiply(normal, normalMatrix, normal);
 		vectorLibrary.normalize(normal, normal);
 		vectorLibrary.subtract(cameraLocation, location, viewDirection);
 		vectorLibrary.normalize(viewDirection, viewDirection);
@@ -255,10 +243,9 @@ public class GouraudSpecularShader implements Shader {
 			int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
 			if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;
-			modelColor = colorLibrary.multiplyColor(texel, lightColor);
-		} else {
-			modelColor = colorLibrary.multiplyColor(color, lightColor);
+			color = texel;
 		}
+		modelColor = colorLibrary.multiplyColor(color, lightColor);
 		Texture colorBuffer = frameBuffer.getColorBuffer();
 		Texture depthBuffer = frameBuffer.getDepthBuffer();
 		int x = location[VECTOR_X];
@@ -288,7 +275,7 @@ public class GouraudSpecularShader implements Shader {
 	
 	private int getAttenuation(int[] lightLocation) {
 		// attenuation
-		int distance = vectorLibrary.magnitude(lightLocation);
+		int distance = vectorLibrary.length(lightLocation);
 		int attenuation = INITIAL_ATTENUATION;
 		attenuation += mathLibrary.multiply(distance, LINEAR_ATTENUATION);
 		attenuation += mathLibrary.multiply(mathLibrary.multiply(distance, distance), QUADRATIC_ATTENUATION);

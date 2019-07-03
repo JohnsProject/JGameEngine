@@ -74,9 +74,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
-//		for (int i = graphicsEngine.getPreprocessingShadersCount(); i > 0; i--) {
-//			graphicsEngine.removePreprocessingShader(0);
-//		}
+		graphicsEngine.getPreprocessingShaders().clear();
 //		Engine.getInstance().limitUpdateRate(true);
 //		graphicsEngine.removeShader(0);
 //		graphicsEngine.addShader(new FlatSpecularShader());
@@ -88,7 +86,9 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		try {
 			Scene scene = new SceneImporter().load("C:/Development/test.scene");
 			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
-			((ShaderProperties)scene.getModel("Ground").getMesh().getMaterial(0).getProperties()).setTexture(texture);
+			for (int i = 0; i < scene.getModels().size(); i++) {
+				((ShaderProperties)scene.getModel(i).getMesh().getMaterial(0).getProperties()).setTexture(texture);
+			}
 			return scene;
 		} catch (IOException e) {
 			e.printStackTrace();

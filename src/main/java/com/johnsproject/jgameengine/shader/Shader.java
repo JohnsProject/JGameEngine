@@ -25,7 +25,6 @@ package com.johnsproject.jgameengine.shader;
 
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.GeometryBuffer;
-import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.ShaderBuffer;
 import com.johnsproject.jgameengine.model.VertexBuffer;
 
@@ -34,8 +33,6 @@ public interface Shader {
 	public void update(ShaderBuffer shaderBuffer);
 	
 	public void setup(Camera camera);
-	
-	public void setup(Model model);
 	
 	public void vertex(VertexBuffer vertexBuffer);
 

@@ -6,7 +6,6 @@ import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.GeometryBuffer;
-import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.ShaderBuffer;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.VertexBuffer;
@@ -27,8 +26,6 @@ public class EarlyDepthBufferShader implements Shader {
 
 	private final int[] portedFrustum;
 	
-	private final int[] modelMatrix;
-	private final int[] normalMatrix;
 	private final int[] viewMatrix;
 	private final int[] projectionMatrix;
 	
@@ -44,8 +41,6 @@ public class EarlyDepthBufferShader implements Shader {
 		this.vectorLibrary = new VectorLibrary();
 		this.triangle = new FlatTriangle(this);
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.modelMatrix = matrixLibrary.generate();
-		this.normalMatrix = matrixLibrary.generate();
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
 	}
@@ -75,15 +70,9 @@ public class EarlyDepthBufferShader implements Shader {
 			break;
 		}
 	}
-	
-	public void setup(Model model) {
-		graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
-		graphicsLibrary.normalMatrix(normalMatrix, model.getTransform());
-	}
 
 	public void vertex(VertexBuffer vertexBuffer) {
 		int[] location = vertexBuffer.getLocation();
-		vectorLibrary.matrixMultiply(location, modelMatrix, location);
 		vectorLibrary.matrixMultiply(location, viewMatrix, location);
 		vectorLibrary.matrixMultiply(location, projectionMatrix, location);
 		graphicsLibrary.screenportVector(location, portedFrustum, location);

@@ -26,7 +26,7 @@ public class VectorLibraryTest {
 	public void magnitudeTest() throws Exception {
 		VectorLibrary vectorProcessor = new VectorLibrary();
 		int[] vector = vectorProcessor.generate(6 << MathLibrary.FP_BITS, 3 << MathLibrary.FP_BITS, 2 << MathLibrary.FP_BITS);
-		assert(vectorProcessor.magnitude(vector) == 7 << MathLibrary.FP_BITS);
+		assert(vectorProcessor.length(vector) == 7 << MathLibrary.FP_BITS);
 	}
 	
 	@Test
