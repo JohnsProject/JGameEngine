@@ -228,15 +228,13 @@ public class FlatSpecularShader implements Shader {
 		triangle.setLocation0(location1);
 		triangle.setLocation1(location2);
 		triangle.setLocation2(location3);
-		if(graphicsLibrary.shoelace(triangle) > 0) {
-			if (texture == null) {
-				graphicsLibrary.drawFlatTriangle(triangle, portedFrustum);
-			} else {
-				triangle.setUV0(geometryBuffer.getUV(0), texture);
-				triangle.setUV1(geometryBuffer.getUV(1), texture);
-				triangle.setUV2(geometryBuffer.getUV(2), texture);
-				graphicsLibrary.drawPerspectiveFlatTriangle(triangle, portedFrustum);
-			}
+		if (texture == null) {
+			graphicsLibrary.drawFlatTriangle(triangle, true, 1, portedFrustum);
+		} else {
+			triangle.setUV0(geometryBuffer.getUV(0), texture);
+			triangle.setUV1(geometryBuffer.getUV(1), texture);
+			triangle.setUV2(geometryBuffer.getUV(2), texture);
+			graphicsLibrary.drawPerspectiveFlatTriangle(triangle, true, 1, portedFrustum);
 		}
 		for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
 			int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();

@@ -112,7 +112,7 @@ def writeToFile(filepath, scene):
 	i = 0
 	# write the commons to the file
 	commons = "".join(".scene file created by Blender Scene exporter"
-			+ "\n" + "https://github.com/JohnsProject/JPGE2" + "\n\n")
+			+ "\n" + "https://github.com/JohnsProject/JGameEngine" + "\n\n")
 	file.write(commons)
 	# write the models to the file
 	models = ""

@@ -85,9 +85,7 @@ public class EarlyDepthBufferShader implements Shader {
 		triangle.setLocation0(dataBuffer0.getLocation());
 		triangle.setLocation1(dataBuffer1.getLocation());
 		triangle.setLocation2(dataBuffer2.getLocation());
-		if(graphicsLibrary.shoelace(triangle) > 0) {
-			graphicsLibrary.drawFlatTriangle(triangle, portedFrustum);
-		}
+		graphicsLibrary.drawFlatTriangle(triangle, true, 1, portedFrustum);
 	}
 
 	public void fragment(int[] location) {

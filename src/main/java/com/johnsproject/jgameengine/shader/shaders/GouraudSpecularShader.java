@@ -103,12 +103,12 @@ public class GouraudSpecularShader implements Shader {
 		this.frameBuffer = shaderBuffer.getFrameBuffer();
 		
 		// debug shadow map
-//		Texture shadowMap = shaderBuffer.getSpotShadowMap();
+//		Texture shadowMap = shaderBuffer.getDirectionalShadowMap();
 //		for (int x = 0; x < shadowMap.getWidth(); x++) {
 //			for (int y = 0; y < shadowMap.getHeight(); y++) {
 //				int depth = shadowMap.getPixel(x, y);
 //				int color = (depth + 100) >> 3;
-//				color = new ColorLibrary().generate(color, color, color);
+//				color = colorLibrary.generate(color, color, color);
 //				frameBuffer.getColorBuffer().setPixel(x, y, color);
 //			}
 //		}
@@ -221,18 +221,16 @@ public class GouraudSpecularShader implements Shader {
 		triangle.setLocation0(dataBuffer0.getLocation());
 		triangle.setLocation1(dataBuffer1.getLocation());
 		triangle.setLocation2(dataBuffer2.getLocation());
-		if(graphicsLibrary.shoelace(triangle) > 0) {
-			triangle.setColor0(dataBuffer0.getLightColor());
-			triangle.setColor1(dataBuffer1.getLightColor());
-			triangle.setColor2(dataBuffer2.getLightColor());
-			if (texture == null) {
-				graphicsLibrary.drawGouraudTriangle(triangle, portedFrustum);
-			} else {
-				triangle.setUV0(geometryBuffer.getUV(0), texture);
-				triangle.setUV1(geometryBuffer.getUV(1), texture);
-				triangle.setUV2(geometryBuffer.getUV(2), texture);
-				graphicsLibrary.drawPerspectiveGouraudTriangle(triangle, portedFrustum);
-			}
+		triangle.setColor0(dataBuffer0.getLightColor());
+		triangle.setColor1(dataBuffer1.getLightColor());
+		triangle.setColor2(dataBuffer2.getLightColor());
+		if (texture == null) {
+			graphicsLibrary.drawGouraudTriangle(triangle, true, 1, portedFrustum);
+		} else {
+			triangle.setUV0(geometryBuffer.getUV(0), texture);
+			triangle.setUV1(geometryBuffer.getUV(1), texture);
+			triangle.setUV2(geometryBuffer.getUV(2), texture);
+			graphicsLibrary.drawPerspectiveGouraudTriangle(triangle, true, 1, portedFrustum);
 		}
 	}
 

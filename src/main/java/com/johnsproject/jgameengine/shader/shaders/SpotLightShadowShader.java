@@ -163,8 +163,7 @@ public class SpotLightShadowShader implements Shader {
 		triangle.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
 		triangle.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
 		triangle.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
-		if(graphicsLibrary.shoelace(triangle) > 0)
-			graphicsLibrary.drawFlatTriangle(triangle, portedFrustum);
+		graphicsLibrary.drawFlatTriangle(triangle, true, 1, portedFrustum);
 	}
 
 	public void fragment(int[] location) {

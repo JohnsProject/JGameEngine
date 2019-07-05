@@ -218,10 +218,12 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
+	 * @param frustumCull
+	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawFlatTriangle(FlatTriangle triangle, int[] cameraFrustum) {
-		if (clip(triangle, cameraFrustum))
+	public void drawFlatTriangle(FlatTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawFlatTriangle(cameraFrustum);
 	}
@@ -231,10 +233,12 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
+	 * @param frustumCull
+	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawGouraudTriangle(GouraudTriangle triangle, int[] cameraFrustum) {
-		if (clip(triangle, cameraFrustum))
+	public void drawGouraudTriangle(GouraudTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawGouraudTriangle(cameraFrustum);
 	}
@@ -244,10 +248,12 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
+	 * @param frustumCull
+	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawPhongTriangle(PhongTriangle triangle, int[] cameraFrustum) {
-		if (clip(triangle, cameraFrustum))
+	public void drawPhongTriangle(PhongTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawPhongTriangle(cameraFrustum);
 	}
@@ -257,10 +263,12 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
+	 * @param frustumCull
+	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawAffineFlatTriangle(AffineFlatTriangle triangle, int[] cameraFrustum) {
-		if (clip(triangle, cameraFrustum))
+	public void drawAffineFlatTriangle(AffineFlatTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawAffineFlatTriangle(cameraFrustum);
 	}
@@ -270,10 +278,12 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
+	 * @param frustumCull
+	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawAffineGouraudTriangle(AffineGouraudTriangle triangle, int[] cameraFrustum) {
-		if (clip(triangle, cameraFrustum))
+	public void drawAffineGouraudTriangle(AffineGouraudTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawAffineGouraudTriangle(cameraFrustum);
 	}
@@ -283,10 +293,12 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
+	 * @param frustumCull
+	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawAffinePhongTriangle(AffinePhongTriangle triangle, int[] cameraFrustum) {
-		if (clip(triangle, cameraFrustum))
+	public void drawAffinePhongTriangle(AffinePhongTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawAffinePhongTriangle(cameraFrustum);
 	}
@@ -296,10 +308,12 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
+	 * @param frustumCull
+	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawPerspectiveFlatTriangle(PerspectiveFlatTriangle triangle, int[] cameraFrustum) {
-		if (clip(triangle, cameraFrustum))
+	public void drawPerspectiveFlatTriangle(PerspectiveFlatTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawPerspectiveFlatTriangle(cameraFrustum);
 	}
@@ -309,10 +323,12 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
+	 * @param frustumCull
+	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawPerspectiveGouraudTriangle(PerspectiveGouraudTriangle triangle, int[] cameraFrustum) {
-		if (clip(triangle, cameraFrustum))
+	public void drawPerspectiveGouraudTriangle(PerspectiveGouraudTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawPerspectiveGouraudTriangle(cameraFrustum);
 	}
@@ -322,46 +338,46 @@ public class GraphicsLibrary {
 	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param triangle
+	 * @param frustumCull
+	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawPerspectivePhongTriangle(PerspectivePhongTriangle triangle, int[] cameraFrustum) {
-		if (clip(triangle, cameraFrustum))
+	public void drawPerspectivePhongTriangle(PerspectivePhongTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawPerspectivePhongTriangle(cameraFrustum);
 	}
 	
-	private boolean clip(FlatTriangle triangle, int[] cameraFrustum) {
+	private boolean cull(FlatTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
 		int[] location1 = triangle.getLocation0();
 		int[] location2 = triangle.getLocation1();
 		int[] location3 = triangle.getLocation2();
-		int left = cameraFrustum[Camera.FRUSTUM_LEFT];
-		int right = cameraFrustum[Camera.FRUSTUM_RIGHT];
-		int top = cameraFrustum[Camera.FRUSTUM_TOP];
-		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
-		int near = cameraFrustum[Camera.FRUSTUM_NEAR];
-		int far = (cameraFrustum[Camera.FRUSTUM_FAR]);
-		boolean insideWidth1 = (location1[VECTOR_X] > left) & (location1[VECTOR_X] < right);
-		boolean insideWidth2 = (location2[VECTOR_X] > left) & (location2[VECTOR_X] < right);
-		boolean insideWidth3 = (location3[VECTOR_X] > left) & (location3[VECTOR_X] < right);
-		boolean insideHeight1 = (location1[VECTOR_Y] > top) & (location1[VECTOR_Y] < bottom);
-		boolean insideHeight2 = (location2[VECTOR_Y] > top) & (location2[VECTOR_Y] < bottom);
-		boolean insideHeight3 = (location3[VECTOR_Y] > top) & (location3[VECTOR_Y] < bottom);
-		boolean insideDepth1 = (location1[VECTOR_Z] > near) & (location1[VECTOR_Z] < far);
-		boolean insideDepth2 = (location2[VECTOR_Z] > near) & (location2[VECTOR_Z] < far);
-		boolean insideDepth3 = (location3[VECTOR_Z] > near) & (location3[VECTOR_Z] < far);
-		if ((!insideDepth1 | !insideDepth2 | !insideDepth3) 
-				| (!insideHeight1 & !insideHeight2 & !insideHeight3)
-					| (!insideWidth1 & !insideWidth2 & !insideWidth3)) {
-					return true;
+		if(frustumCull) {
+			int left = cameraFrustum[Camera.FRUSTUM_LEFT];
+			int right = cameraFrustum[Camera.FRUSTUM_RIGHT];
+			int top = cameraFrustum[Camera.FRUSTUM_TOP];
+			int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
+			int near = cameraFrustum[Camera.FRUSTUM_NEAR];
+			int far = (cameraFrustum[Camera.FRUSTUM_FAR]);
+			boolean insideWidth1 = (location1[VECTOR_X] > left) & (location1[VECTOR_X] < right);
+			boolean insideWidth2 = (location2[VECTOR_X] > left) & (location2[VECTOR_X] < right);
+			boolean insideWidth3 = (location3[VECTOR_X] > left) & (location3[VECTOR_X] < right);
+			boolean insideHeight1 = (location1[VECTOR_Y] > top) & (location1[VECTOR_Y] < bottom);
+			boolean insideHeight2 = (location2[VECTOR_Y] > top) & (location2[VECTOR_Y] < bottom);
+			boolean insideHeight3 = (location3[VECTOR_Y] > top) & (location3[VECTOR_Y] < bottom);
+			boolean insideDepth1 = (location1[VECTOR_Z] > near) & (location1[VECTOR_Z] < far);
+			boolean insideDepth2 = (location2[VECTOR_Z] > near) & (location2[VECTOR_Z] < far);
+			boolean insideDepth3 = (location3[VECTOR_Z] > near) & (location3[VECTOR_Z] < far);
+			if ((!insideDepth1 | !insideDepth2 | !insideDepth3) 
+					| (!insideHeight1 & !insideHeight2 & !insideHeight3)
+						| (!insideWidth1 & !insideWidth2 & !insideWidth3)) {
+						return true;
+			}
 		}
-		return false;
-	}
-	
-	public int shoelace(FlatTriangle triangle) {
-		int[] location1 = triangle.getLocation0();
-		int[] location2 = triangle.getLocation1();
-		int[] location3 = triangle.getLocation2();
-		return -((location2[VECTOR_X] - location1[VECTOR_X]) * (location3[VECTOR_Y] - location1[VECTOR_Y])
+		int size = -((location2[VECTOR_X] - location1[VECTOR_X]) * (location3[VECTOR_Y] - location1[VECTOR_Y])
 				- (location3[VECTOR_X] - location1[VECTOR_X]) * (location2[VECTOR_Y] - location1[VECTOR_Y]));
+		if(size * backfaceCull < 0)
+			return true;
+		return false;
 	}
 }

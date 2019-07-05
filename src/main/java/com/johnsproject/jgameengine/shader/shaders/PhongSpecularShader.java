@@ -116,21 +116,19 @@ public class PhongSpecularShader implements Shader {
 		triangle.setLocation0(dataBuffer0.getLocation());
 		triangle.setLocation1(dataBuffer1.getLocation());
 		triangle.setLocation2(dataBuffer2.getLocation());
-		if(graphicsLibrary.shoelace(triangle) > 0) {
-			triangle.setWorldLocation0(dataBuffer0.getWorldLocation());
-			triangle.setWorldLocation1(dataBuffer1.getWorldLocation());
-			triangle.setWorldLocation2(dataBuffer2.getWorldLocation());
-			triangle.setNormal0(dataBuffer0.getNormal());
-			triangle.setNormal1(dataBuffer1.getNormal());
-			triangle.setNormal2(dataBuffer2.getNormal());
-			if (texture == null) {
-				graphicsLibrary.drawPhongTriangle(triangle, portedFrustum);
-			} else {
-				triangle.setUV0(geometryBuffer.getUV(0), texture);
-				triangle.setUV1(geometryBuffer.getUV(1), texture);
-				triangle.setUV2(geometryBuffer.getUV(2), texture);
-				graphicsLibrary.drawPerspectivePhongTriangle(triangle, portedFrustum);
-			}
+		triangle.setWorldLocation0(dataBuffer0.getWorldLocation());
+		triangle.setWorldLocation1(dataBuffer1.getWorldLocation());
+		triangle.setWorldLocation2(dataBuffer2.getWorldLocation());
+		triangle.setNormal0(dataBuffer0.getNormal());
+		triangle.setNormal1(dataBuffer1.getNormal());
+		triangle.setNormal2(dataBuffer2.getNormal());
+		if (texture == null) {
+			graphicsLibrary.drawPhongTriangle(triangle, true, 1, portedFrustum);
+		} else {
+			triangle.setUV0(geometryBuffer.getUV(0), texture);
+			triangle.setUV1(geometryBuffer.getUV(1), texture);
+			triangle.setUV2(geometryBuffer.getUV(2), texture);
+			graphicsLibrary.drawPerspectivePhongTriangle(triangle, true, 1, portedFrustum);
 		}
 	}
 
