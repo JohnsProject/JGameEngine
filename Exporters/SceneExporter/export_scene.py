@@ -120,12 +120,18 @@ def writeToFile(filepath, scene):
 		models += "model<\n"
 		models += ("	name<" + model.name + ">name\n")
 		models += ("	transform<" + model.transform.toString() + ">transform\n")
+		models += "	vertex<"
 		for vertex in model.vertices:
-			models += ("	vertex<" + vertex.toString() + ">vertex\n")
+			models += (vertex.toString() + "><")
+		models += ">vertex\n"
+		models += "	face<"
 		for face in model.faces:
-			models += ("	face<" + face.toString() + ">face\n")
+			models += (face.toString() + "><")
+		models += ">face\n"
+		models += "	material<"
 		for material in model.materials:
-			models += ("	material<" + material.toString() + ">material\n")
+			models += (material.toString() + "><")
+		models += ">material\n"
 		models += ">model\n"
 	# write the cameras to the file
 	cameras = ""
@@ -258,7 +264,7 @@ class Material:
 		self.shininess = 10
 	
 	def toString(self):
-			return str(self.name + "," + self.color.toString() + ","+ ("%.3f," % self.diffuseIntensity) + ("%.3f," % self.specularIntensity) + ("%.3f" % self.shininess))
+		return str(self.name + "," + self.color.toString() + ","+ ("%.3f," % self.diffuseIntensity) + ("%.3f," % self.specularIntensity) + ("%.3f" % self.shininess))
 
 
 

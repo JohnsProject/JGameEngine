@@ -95,9 +95,9 @@ public class SceneImporter {
 			String modelData = modelsData[i + 1].split(">model")[0];
 			String name = modelData.split("name<")[1].split(">name")[0];
 			Transform transform = parseTransform(modelData.split("transform<")[1].split(">transform")[0].split(","));
-			Material[] materials = parseMaterials(modelData.split("material<"));
-			Vertex[] vertices = parseVertices(modelData.split("vertex<"), materials);
-			Face[] faces = parseFaces(modelData.split("face<"), vertices, materials);
+			Material[] materials = parseMaterials(modelData.split("material<")[1].split(">material")[0].split("><"));
+			Vertex[] vertices = parseVertices(modelData.split("vertex<")[1].split(">vertex")[0].split("><"), materials);
+			Face[] faces = parseFaces(modelData.split("face<")[1].split(">face")[0].split("><"), vertices, materials);
 			Mesh mesh = new Mesh(vertices, faces, materials);
 			models[i] = new Model(name, transform, mesh);
 		}
@@ -181,9 +181,9 @@ public class SceneImporter {
 	}
 
 	private Vertex[] parseVertices(String[] verticesData, Material[] materials) {
-		Vertex[] vertices = new Vertex[verticesData.length - 1];
-		for (int i = 0; i < verticesData.length - 1; i++) {
-			String[] vertexData = verticesData[i + 1].split(">vertex")[0].split(",");
+		Vertex[] vertices = new Vertex[verticesData.length];
+		for (int i = 0; i < vertices.length; i++) {
+			String[] vertexData = verticesData[i].split(",");
 			int x = mathLibrary.generate(Float.parseFloat(vertexData[VECTOR_X]));
 			int y = mathLibrary.generate(Float.parseFloat(vertexData[VECTOR_Y]));
 			int z = mathLibrary.generate(Float.parseFloat(vertexData[VECTOR_Z]));
@@ -199,9 +199,9 @@ public class SceneImporter {
 	}
 
 	private Face[] parseFaces(String[] facesData, Vertex[] vertices, Material[] materials) {
-		Face[] faces = new Face[facesData.length - 1];
-		for (int i = 0; i < facesData.length - 1; i++) {
-			String[] faceData = facesData[i + 1].split(">face")[0].split(",");
+		Face[] faces = new Face[facesData.length];
+		for (int i = 0; i < faces.length; i++) {
+			String[] faceData = facesData[i].split(",");
 			int vertex1 = Integer.parseInt(faceData[0]);
 			int vertex2 = Integer.parseInt(faceData[1]);
 			int vertex3 = Integer.parseInt(faceData[2]);
@@ -225,9 +225,9 @@ public class SceneImporter {
 	}
 
 	private Material[] parseMaterials(String[] materialsData) {
-		Material[] materials = new Material[materialsData.length - 1];
-		for (int i = 0; i < materialsData.length - 1; i++) {
-			String[] materialData = materialsData[i + 1].split(">material")[0].split(",");
+		Material[] materials = new Material[materialsData.length];
+		for (int i = 0; i < materials.length; i++) {
+			String[] materialData = materialsData[i].split(",");
 			String name = materialData[0];
 			int red = (int)(Float.parseFloat(materialData[1]) * 256);
 			int green = (int)(Float.parseFloat(materialData[2]) * 256);
