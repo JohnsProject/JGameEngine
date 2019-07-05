@@ -50,7 +50,7 @@ public class DirectionalLightShadowShader implements Shader {
 	
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	
-	private static final short SHADOW_BIAS = 50;
+	private static final short SHADOW_BIAS = 500;
 	
 	private final GraphicsLibrary graphicsLibrary;
 	private final MatrixLibrary matrixLibrary;

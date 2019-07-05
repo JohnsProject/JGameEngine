@@ -52,6 +52,8 @@ public class GraphicsLibrary {
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	private static final int FP_HALF = MathLibrary.FP_HALF;
 	
+	private static final byte PROJECTION_BITS = 10;
+	
 	private final MathLibrary mathLibrary;
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
@@ -136,10 +138,10 @@ public class GraphicsLibrary {
 	 */
 	public int[] orthographicMatrix(int[] matrix, int[] cameraFrustum) {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		int scaleFactor = cameraFrustum[Camera.FRUSTUM_NEAR] << 2;
+		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR] << 2) << PROJECTION_BITS;
 		matrixLibrary.set(matrix, 0, 0, scaleFactor);
 		matrixLibrary.set(matrix, 1, 1, scaleFactor);
-		matrixLibrary.set(matrix, 2, 2, -FP_ONE / 10);
+		matrixLibrary.set(matrix, 2, 2, -FP_ONE);
 		matrixLibrary.set(matrix, 3, 3, FP_ONE * -FP_HALF);
 		return matrix;
 	}
@@ -156,10 +158,10 @@ public class GraphicsLibrary {
 	 */
 	public int[] perspectiveMatrix(int[] matrix, int[] cameraFrustum) {
 		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR]) / 2;
+		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR]) << (PROJECTION_BITS - 1);
 		matrixLibrary.set(matrix, 0, 0, scaleFactor);
 		matrixLibrary.set(matrix, 1, 1, scaleFactor);
-		matrixLibrary.set(matrix, 2, 2, -FP_ONE / 10);
+		matrixLibrary.set(matrix, 2, 2, -FP_ONE);
 		matrixLibrary.set(matrix, 2, 3, FP_ONE);
 		matrixLibrary.set(matrix, 3, 3, 0);
 		return matrix;
@@ -186,8 +188,8 @@ public class GraphicsLibrary {
 		int halfX = left + ((right - left) >> 1);
 		int halfY = top + ((bottom - top) >> 1);
 		int w = Math.min(-1, location[VECTOR_W]);
-		result[VECTOR_X] = mathLibrary.divide(location[VECTOR_X] * scaleFactor, w) + halfX;
-		result[VECTOR_Y] = mathLibrary.divide(location[VECTOR_Y] * scaleFactor, w) + halfY;
+		result[VECTOR_X] = (mathLibrary.divide(location[VECTOR_X] * scaleFactor, w) >> PROJECTION_BITS) + halfX;
+		result[VECTOR_Y] = (mathLibrary.divide(location[VECTOR_Y] * scaleFactor, w) >> PROJECTION_BITS) + halfY;
 		return result;
 	}
 
@@ -357,8 +359,8 @@ public class GraphicsLibrary {
 			int right = cameraFrustum[Camera.FRUSTUM_RIGHT];
 			int top = cameraFrustum[Camera.FRUSTUM_TOP];
 			int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
-			int near = cameraFrustum[Camera.FRUSTUM_NEAR];
-			int far = (cameraFrustum[Camera.FRUSTUM_FAR]);
+			int near = cameraFrustum[Camera.FRUSTUM_NEAR] * 10;
+			int far = cameraFrustum[Camera.FRUSTUM_FAR] * 10;
 			boolean insideWidth1 = (location1[VECTOR_X] > left) & (location1[VECTOR_X] < right);
 			boolean insideWidth2 = (location2[VECTOR_X] > left) & (location2[VECTOR_X] < right);
 			boolean insideWidth3 = (location3[VECTOR_X] > left) & (location3[VECTOR_X] < right);
