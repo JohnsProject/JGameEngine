@@ -43,6 +43,13 @@ import com.johnsproject.jgameengine.model.ShaderProperties;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 
+/**
+ * The SceneImporter class imports .scene files exported 
+ * by Blender SceneExporter included in the Exporters folder.
+ * 
+ * @author John Ferraz Salomon
+ *
+ */
 public class SceneImporter {
 	
 	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
@@ -59,16 +66,40 @@ public class SceneImporter {
 		this.colorLibrary = new ColorLibrary();
 	}
 	
+	/**
+	 * Loads the .scene file at the given path and returns a {@link Scene} 
+	 * containing the data of the file.
+	 * 
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
 	public Scene load(String path) throws IOException {
 		String content = new FileLibrary().readFile(path);
 		return loadFromRaw(content);
 	}
 
+	/**
+	 * Loads the .scene file content from the given {@link InputStream} and returns a {@link Scene} 
+	 * containing the data of the file.
+	 * 
+	 * @param stream
+	 * @return
+	 * @throws IOException
+	 */
 	public Scene load(InputStream stream) throws IOException {
 		String content = new FileLibrary().readStream(stream);
 		return loadFromRaw(content);
 	}
 
+	/**
+	 * Loads the .scene file content from the given string and returns a {@link Scene} 
+	 * containing the data of the string.
+	 * 
+	 * @param stream
+	 * @return
+	 * @throws IOException
+	 */
 	public Scene loadFromRaw(String data) throws IOException {
 		String sceneData = data.replace(" ", "").replace("\n", "");
 		Scene scene = new Scene();

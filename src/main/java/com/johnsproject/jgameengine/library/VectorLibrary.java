@@ -53,7 +53,6 @@ public class VectorLibrary {
 	public static final int[] VECTOR_ONE = new int[] {FP_ONE, FP_ONE, FP_ONE, FP_ONE};
 	public static final int[] VECTOR_ZERO = new int[] {0, 0, 0, FP_ONE};
 	
-	
 	private final int[] vectorCache1 = generate();
 	private final int[] vectorCache2 = generate();
 	

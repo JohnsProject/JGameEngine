@@ -299,6 +299,12 @@ public class ColorLibrary {
 		return generate(a, r, g, b);
 	}
 	
+	/**
+	 * Returns a string containing the data of the given color.
+	 * 
+	 * @param color
+	 * @return
+	 */
 	public String toString(int color) {
 		int r1 = getRed(color), g1 = getGreen(color), b1 = getBlue(color), a1 = getAlpha(color);
 		return "(" + a1 + ", " + g1 + ", " + b1 + ", " + r1 + ")";

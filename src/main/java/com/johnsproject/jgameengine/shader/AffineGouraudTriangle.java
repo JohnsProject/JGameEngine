@@ -23,6 +23,7 @@
  */
 package com.johnsproject.jgameengine.shader;
 
+import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.model.Texture;
 
 public class AffineGouraudTriangle extends GouraudTriangle {
@@ -59,6 +60,12 @@ public class AffineGouraudTriangle extends GouraudTriangle {
 		return uv;
 	}
 	
+	/**
+	 * THIS METHOD SHOULD NOT BE CALLED. 
+	 * Use the triangle drawing methods in {@link GraphicsLibrary} class.
+	 * 
+	 * @param cameraFrustum
+	 */
 	public final void drawAffineGouraudTriangle(int[] cameraFrustum) {
 		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {

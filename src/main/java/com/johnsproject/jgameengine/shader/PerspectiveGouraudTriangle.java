@@ -23,12 +23,20 @@
  */
 package com.johnsproject.jgameengine.shader;
 
+import com.johnsproject.jgameengine.library.GraphicsLibrary;
+
 public class PerspectiveGouraudTriangle extends AffineGouraudTriangle {
 	
 	public PerspectiveGouraudTriangle(Shader shader) {
 		super(shader);
 	}
 	
+	/**
+	 * THIS METHOD SHOULD NOT BE CALLED. 
+	 * Use the triangle drawing methods in {@link GraphicsLibrary} class.
+	 * 
+	 * @param cameraFrustum
+	 */
 	public final void drawPerspectiveGouraudTriangle(int[] cameraFrustum) {
 		location0[VECTOR_Z] = PERSPECTIVE_ONE / location0[VECTOR_Z];
 		location1[VECTOR_Z] = PERSPECTIVE_ONE / location1[VECTOR_Z];

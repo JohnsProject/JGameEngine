@@ -36,9 +36,8 @@ import com.johnsproject.jgameengine.shader.PerspectivePhongTriangle;
 import com.johnsproject.jgameengine.shader.PhongTriangle;
 
 /**
- * The GraphicsLibrary class contains methods for generating 
- * matrices needed to move location vectors between spaces 
- * and triangle drawing algorithms.
+ * The GraphicsLibrary class contains methods for generating matrices needed to move 
+ * vectors between spaces and triangle drawing algorithms.
  * 
  * @author John Ferraz Salomon
  */

@@ -24,6 +24,7 @@
 package com.johnsproject.jgameengine.shader;
 
 import com.johnsproject.jgameengine.library.ColorLibrary;
+import com.johnsproject.jgameengine.library.GraphicsLibrary;
 
 public class GouraudTriangle extends FlatTriangle {
 	
@@ -63,6 +64,12 @@ public class GouraudTriangle extends FlatTriangle {
 		return colorLibrary.generate(red[3], green[3], blue[3]);
 	}
 	
+	/**
+	 * THIS METHOD SHOULD NOT BE CALLED. 
+	 * Use the triangle drawing methods in {@link GraphicsLibrary} class.
+	 * 
+	 * @param cameraFrustum
+	 */
 	public final void drawGouraudTriangle(int[] cameraFrustum) {
 		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {

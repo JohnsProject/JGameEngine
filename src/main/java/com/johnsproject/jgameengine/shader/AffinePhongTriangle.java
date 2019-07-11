@@ -1,5 +1,6 @@
 package com.johnsproject.jgameengine.shader;
 
+import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.model.Texture;
 
 public class AffinePhongTriangle extends PhongTriangle {
@@ -36,6 +37,12 @@ public class AffinePhongTriangle extends PhongTriangle {
 		return uv;
 	}
 	
+	/**
+	 * THIS METHOD SHOULD NOT BE CALLED. 
+	 * Use the triangle drawing methods in {@link GraphicsLibrary} class.
+	 * 
+	 * @param cameraFrustum
+	 */
 	public final void drawAffinePhongTriangle(int[] cameraFrustum) {
 		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {

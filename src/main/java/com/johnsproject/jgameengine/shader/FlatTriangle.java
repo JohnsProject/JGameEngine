@@ -88,7 +88,7 @@ public class FlatTriangle {
 	
 	/**
 	 * THIS METHOD SHOULD NOT BE CALLED. 
-	 * Use the triangle drawing method at {@link GraphicsLibrary}.
+	 * Use the triangle drawing methods in {@link GraphicsLibrary} class.
 	 * 
 	 * @param cameraFrustum
 	 */

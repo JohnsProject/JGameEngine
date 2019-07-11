@@ -38,6 +38,13 @@ import com.johnsproject.jgameengine.model.ShaderProperties;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 
+/**
+ * The SOMImporter class imports .som (Scene Object Mesh) files exported 
+ * by Blender SOMExporter included in the Exporters folder.
+ * 
+ * @author John Ferraz Salomon
+ *
+ */
 public class SOMImporter {
 	
 	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
@@ -54,16 +61,40 @@ public class SOMImporter {
 		this.colorLibrary = new ColorLibrary();
 	}
 	
+	/**
+	 * Loads the .som file at the given path and returns a {@link Model} 
+	 * containing the data of the file.
+	 * 
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
 	public Model load(String path) throws IOException {
 		String content = new FileLibrary().readFile(path);
 		return loadFromRaw(content);
 	}
 
+	/**
+	 * Loads the .som file content from the given {@link InputStream} and returns a {@link Model} 
+	 * containing the data of the stream.
+	 * 
+	 * @param stream
+	 * @return
+	 * @throws IOException
+	 */
 	public Model load(InputStream stream) throws IOException {
 		String content = new FileLibrary().readStream(stream);
 		return loadFromRaw(content);
 	}
 
+	/**
+	 * Loads the .som file content from the given string and returns a {@link Model} 
+	 * containing the data of the string.
+	 * 
+	 * @param data string containing data of .som file.
+	 * @return
+	 * @throws IOException
+	 */
 	public Model loadFromRaw(String data) throws IOException {
 		String rawData = data.replace(" ", "").replace("\n", "");
 		Material[] materials = parseMaterials(rawData);

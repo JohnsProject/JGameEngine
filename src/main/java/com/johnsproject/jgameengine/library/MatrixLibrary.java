@@ -71,10 +71,27 @@ public class MatrixLibrary {
 		};
 	}
 	
+	/**
+	 * Returns the value at the given column and row.
+	 * 
+	 * @param matrix
+	 * @param column
+	 * @param row
+	 * @return
+	 */
 	public int get(int[] matrix, int column, int row) {
 		return matrix[column + (row * MATRIX_ROW_SIZE)];
 	}
 	
+	/**
+	 * Sets the value at the given column and row equals value.
+	 * 
+	 * @param matrix
+	 * @param column
+	 * @param row
+	 * @param value
+	 * @return
+	 */
 	public void set(int[] matrix, int column, int row, int value) {
 		matrix[column + (row * MATRIX_ROW_SIZE)] = value;
 	}
