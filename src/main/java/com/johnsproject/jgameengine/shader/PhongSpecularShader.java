@@ -46,7 +46,7 @@ public class PhongSpecularShader implements Shader {
 	private final int[] viewMatrix;
 	private final int[] projectionMatrix;
 	
-	private final PerspectivePhongRasterizer triangle;
+	private final PerspectivePhongRasterizer rasterizer;
 	
 	private int color;
 	private int modelColor;
@@ -64,7 +64,7 @@ public class PhongSpecularShader implements Shader {
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
 		this.colorLibrary = new ColorLibrary();
-		this.triangle = new PerspectivePhongRasterizer(this);
+		this.rasterizer = new PerspectivePhongRasterizer(this);
 		this.lightDirection = vectorLibrary.generate();
 		this.lightLocation = vectorLibrary.generate();
 		this.viewDirection = vectorLibrary.generate();
@@ -99,7 +99,6 @@ public class PhongSpecularShader implements Shader {
 		int[] location = vertexBuffer.getLocation();
 		int[] normal = vertexBuffer.getNormal();
 		vectorLibrary.normalize(normal, normal);
-		vectorLibrary.copy(vertexBuffer.getWorldLocation(), location);
 		vectorLibrary.matrixMultiply(location, viewMatrix, location);
 		vectorLibrary.matrixMultiply(location, projectionMatrix, location);
 		graphicsLibrary.screenportVector(location, portedFrustum, location);
@@ -112,22 +111,22 @@ public class PhongSpecularShader implements Shader {
 		VertexBuffer dataBuffer0 = geometryBuffer.getVertexDataBuffer(0);
 		VertexBuffer dataBuffer1 = geometryBuffer.getVertexDataBuffer(1);
 		VertexBuffer dataBuffer2 = geometryBuffer.getVertexDataBuffer(2);
-		triangle.setLocation0(dataBuffer0.getLocation());
-		triangle.setLocation1(dataBuffer1.getLocation());
-		triangle.setLocation2(dataBuffer2.getLocation());
-		triangle.setWorldLocation0(dataBuffer0.getWorldLocation());
-		triangle.setWorldLocation1(dataBuffer1.getWorldLocation());
-		triangle.setWorldLocation2(dataBuffer2.getWorldLocation());
-		triangle.setNormal0(dataBuffer0.getNormal());
-		triangle.setNormal1(dataBuffer1.getNormal());
-		triangle.setNormal2(dataBuffer2.getNormal());
+		rasterizer.setLocation0(dataBuffer0.getLocation());
+		rasterizer.setLocation1(dataBuffer1.getLocation());
+		rasterizer.setLocation2(dataBuffer2.getLocation());
+		rasterizer.setWorldLocation0(dataBuffer0.getWorldLocation());
+		rasterizer.setWorldLocation1(dataBuffer1.getWorldLocation());
+		rasterizer.setWorldLocation2(dataBuffer2.getWorldLocation());
+		rasterizer.setNormal0(dataBuffer0.getNormal());
+		rasterizer.setNormal1(dataBuffer1.getNormal());
+		rasterizer.setNormal2(dataBuffer2.getNormal());
 		if (texture == null) {
-			graphicsLibrary.drawPhongTriangle(triangle, true, 1, portedFrustum);
+			graphicsLibrary.drawPhongTriangle(rasterizer, true, 1, portedFrustum);
 		} else {
-			triangle.setUV0(geometryBuffer.getUV(0), texture);
-			triangle.setUV1(geometryBuffer.getUV(1), texture);
-			triangle.setUV2(geometryBuffer.getUV(2), texture);
-			graphicsLibrary.drawPerspectivePhongTriangle(triangle, true, 1, portedFrustum);
+			rasterizer.setUV0(geometryBuffer.getUV(0), texture);
+			rasterizer.setUV1(geometryBuffer.getUV(1), texture);
+			rasterizer.setUV2(geometryBuffer.getUV(2), texture);
+			graphicsLibrary.drawPerspectivePhongTriangle(rasterizer, true, 1, portedFrustum);
 		}
 	}
 
@@ -141,8 +140,8 @@ public class PhongSpecularShader implements Shader {
 				return;
 			}
 		}
-		int[] worldLocation = triangle.getWorldLocation();
-		int[] normal = triangle.getNormal();
+		int[] worldLocation = rasterizer.getWorldLocation();
+		int[] normal = rasterizer.getNormal();
 		int lightColor = ColorLibrary.BLACK;
 		int[] cameraLocation = camera.getTransform().getLocation();	
 		vectorLibrary.subtract(cameraLocation, worldLocation, viewDirection);
@@ -215,7 +214,7 @@ public class PhongSpecularShader implements Shader {
 			lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
 		}
 		if (texture != null) {
-			int[] uv = triangle.getUV();
+			int[] uv = rasterizer.getUV();
 			int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
 			if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
 				return;

@@ -55,7 +55,7 @@ public class PointLightShadowShader implements Shader {
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
 
-	private final FlatRasterizer triangle;
+	private final FlatRasterizer rasterizer;
 	
 	private int[] viewMatrix;
 	private int[] projectionMatrix;
@@ -79,7 +79,7 @@ public class PointLightShadowShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new FlatRasterizer(this);
+		this.rasterizer = new FlatRasterizer(this);
 
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -107,7 +107,7 @@ public class PointLightShadowShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new FlatRasterizer(this);
+		this.rasterizer = new FlatRasterizer(this);
 
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -211,10 +211,10 @@ public class PointLightShadowShader implements Shader {
 				vectorLibrary.matrixMultiply(vertexLocation, lightMatrices[i], vertexLocation);
 				graphicsLibrary.screenportVector(vertexLocation, portedFrustum, vertexLocation);
 			}
-			triangle.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
-			triangle.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
-			triangle.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
-			graphicsLibrary.drawFlatTriangle(triangle, true, 1, portedFrustum);
+			rasterizer.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
+			rasterizer.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
+			rasterizer.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
+			graphicsLibrary.drawFlatTriangle(rasterizer, true, 1, portedFrustum);
 			restore(geometryBuffer);
 		}
 	}

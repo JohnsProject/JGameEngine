@@ -60,7 +60,6 @@ public class GraphicsEngine implements EngineListener {
 	private final int[] modelMatrix;
 	private final int[] normalMatrix;
 	private final int[] weightBoneMatrix;
-	private long lastUpdateTime;
 	private final GraphicsLibrary graphicsLibrary;
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
@@ -104,7 +103,7 @@ public class GraphicsEngine implements EngineListener {
 				final VertexBuffer vertexBuffer = vertex.getBuffer();
 				vertexBuffer.resetAll();
 				final int[] worldLocation = vertexBuffer.getWorldLocation();
-				final int[] worldNormal = vertexBuffer.getWorldNormal();
+				final int[] normal = vertexBuffer.getNormal();
 //				for (int i = 0; i < armature.getVertexGroups().length; i++) {
 //					final VertexGroup vertexGroup = armature.getVertexGroup(i);
 //					for (int j = 0; j < vertexGroup.getVertices().length; j++) {
@@ -120,7 +119,7 @@ public class GraphicsEngine implements EngineListener {
 //					}
 //				}
 				vectorLibrary.matrixMultiply(worldLocation, modelMatrix, worldLocation);
-				vectorLibrary.matrixMultiply(worldNormal, normalMatrix, worldNormal);
+				vectorLibrary.matrixMultiply(normal, normalMatrix, normal);
 			}
 			for (int f = 0; f < mesh.getFaces().length; f++) {
 				GeometryBuffer geometryBuffer = mesh.getFace(f).getBuffer();

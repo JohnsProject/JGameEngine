@@ -55,7 +55,7 @@ public class DirectionalLightShadowShader implements Shader {
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
 
-	private final FlatRasterizer triangle;
+	private final FlatRasterizer rasterizer;
 	
 	private final int[] viewMatrix;
 	private final int[] projectionMatrix;
@@ -73,7 +73,7 @@ public class DirectionalLightShadowShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new FlatRasterizer(this);
+		this.rasterizer = new FlatRasterizer(this);
 
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -94,7 +94,7 @@ public class DirectionalLightShadowShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new FlatRasterizer(this);
+		this.rasterizer = new FlatRasterizer(this);
 		
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -159,10 +159,10 @@ public class DirectionalLightShadowShader implements Shader {
 	public void geometry(GeometryBuffer geometryBuffer) {
 		if (shaderBuffer.getDirectionalLightIndex() == -1)
 			return;
-		triangle.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
-		triangle.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
-		triangle.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
-		graphicsLibrary.drawFlatTriangle(triangle, false, 1, portedFrustum);
+		rasterizer.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
+		rasterizer.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
+		rasterizer.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
+		graphicsLibrary.drawFlatTriangle(rasterizer, false, 1, portedFrustum);
 	}
 
 	public void fragment(int[] location) {

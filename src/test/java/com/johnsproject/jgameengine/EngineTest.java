@@ -64,7 +64,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		window.setSize(WINDOW_W, WINDOW_H);
 //		window.setFullscreen(true);
 //		window.setBorders(false);
-		EngineStatistics stats = new EngineStatistics(frameBuffer);
+		EngineStatistics stats = new EngineStatistics();
 		graphicsEngine = new GraphicsEngine(loadScene(), frameBuffer);
 		inputEngine = new InputEngine();
 		inputEngine.addMouseMotionListener(this);
@@ -101,7 +101,6 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 	
 	public void fixedUpdate() {
-		
 	}
 
 	public int getPriority() {

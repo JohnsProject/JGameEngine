@@ -24,112 +24,154 @@
 package com.johnsproject.jgameengine;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.TextArea;
 import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.Model;
 
 public class EngineStatistics implements EngineListener {
 
 	private static final int STATISTICS_X = 10;
 	private static final int STATISTICS_Y = 30;
-	private static final int STATISTICS_LINE = 13;
 	private static final int STATISTICS_WIDTH = 160;
-	private static final int STATISTICS_HEIGHT = 115;
+	private static final int STATISTICS_HEIGHT = 130;
 	private static final Color STATISTICS_BACKROUND = new Color(230, 230, 230, 200);
 	
-	private final FrameBuffer frameBuffer;
+	private GraphicsEngine graphicsEngine;
+	private TextArea textArea;
 	private long lastUpdateTime; 
 	private long timeLastUpdate; 
-	private long elapsed, fps;
+	private long elapsed, ups;
 	
-	public EngineStatistics(FrameBuffer frameBuffer) {
-		this.frameBuffer = frameBuffer;
+	public EngineStatistics(EngineWindow window) {
+		this.textArea = new TextArea("", 0, 0, TextArea.SCROLLBARS_NONE);
+		textArea.setLocation(STATISTICS_X, STATISTICS_Y);
+		textArea.setSize(STATISTICS_WIDTH, STATISTICS_HEIGHT);
+		textArea.setEditable(false);
+		textArea.setBackground(STATISTICS_BACKROUND);
+		window.add(textArea, 0);
+		graphicsEngine = null;
 	}
 	
+	public EngineStatistics() {
+		graphicsEngine = null;
+	}
+	
+	
 	public void start() {
-		
 	}
 
 	public void update() {
 		long currentTime = System.currentTimeMillis();
 		if (currentTime - timeLastUpdate > 200) {
 			elapsed = currentTime - lastUpdateTime;
-			fps = 1000 / elapsed;
+			ups = 1000 / elapsed;
 			timeLastUpdate = currentTime;
 		}
 		lastUpdateTime = currentTime;
-		GraphicsEngine graphicsEnigne = null;
-		List<EngineListener> engineListeners = Engine.getInstance().getEngineListeners(); 
-		for (int i = 0; i < engineListeners.size(); i++) {
-			EngineListener engineListener = engineListeners.get(i);
-			if(engineListener instanceof GraphicsEngine) {
-				graphicsEnigne = (GraphicsEngine) engineListener;
-			}
+	}
+	
+
+	public void fixedUpdate() {
+		if(textArea == null) {
+			statsLog();
+		} else {
+			statsUI();
 		}
+	}
+
+	public int getPriority() {
+		return 10000;
+	}	
+	
+	private void statsUI() {
 		long ramUsage = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) >> 20;
-		int maxFPS = Engine.getInstance().getFixedUpdateRate();
+		int maxUpdateRate = Engine.getInstance().getFixedUpdateRate();
 		int frameBufferWidth = 0;
 		int frameBufferHeight = 0;
 		int shadersCount = 0;
 		int verticesCount = 0;
 		int trianglesCount = 0;
-		if (graphicsEnigne != null) {
-			frameBufferWidth = graphicsEnigne.getFrameBuffer().getWidth();
-			frameBufferHeight = graphicsEnigne.getFrameBuffer().getHeight();
-			shadersCount += graphicsEnigne.getPreprocessingShaders().size();
-			shadersCount += graphicsEnigne.getShaders().size();
-			shadersCount += graphicsEnigne.getPostprocessingShaders().size();
-			List<Model> models = graphicsEnigne.getScene().getModels();
+		if (graphicsEngine == null) {
+			List<EngineListener> engineListeners = Engine.getInstance().getEngineListeners(); 
+			for (int i = 0; i < engineListeners.size(); i++) {
+				EngineListener engineListener = engineListeners.get(i);
+				if(engineListener instanceof GraphicsEngine) {
+					graphicsEngine = (GraphicsEngine) engineListener;
+				}
+			}
+		} else {
+			frameBufferWidth = graphicsEngine.getFrameBuffer().getWidth();
+			frameBufferHeight = graphicsEngine.getFrameBuffer().getHeight();
+			shadersCount += graphicsEngine.getPreprocessingShaders().size();
+			shadersCount += graphicsEngine.getShaders().size();
+			shadersCount += graphicsEngine.getPostprocessingShaders().size();
+			List<Model> models = graphicsEngine.getScene().getModels();
 			for (int i = 0; i < models.size(); i++) {
 				Model model = models.get(i);
 				verticesCount += model.getMesh().getVertices().length;
 				trianglesCount += model.getMesh().getFaces().length;
 			}
 		}
-		Graphics2D g = frameBuffer.getImage().createGraphics();
-		g.setColor(STATISTICS_BACKROUND);
-		g.fillRect(STATISTICS_X, STATISTICS_Y, STATISTICS_WIDTH, STATISTICS_HEIGHT);
-		g.setColor(Color.black);
-		int currentLine = 1;
-		g.drawString("====== Statistics ======", STATISTICS_X * 2 , STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		currentLine++;
-		g.drawString("CPU time", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		g.drawString(elapsed + " ms", STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		currentLine++;
-		g.drawString("RAM usage", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		g.drawString(ramUsage + " MB", STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		currentLine++;
+		String output = "";
+		output += "====== Statistics ======" + "\n";
+		output += "CPU time\t" + elapsed + " ms" + "\n";
+		output += "RAM usage\t" + ramUsage + " MB" + "\n";
 		if (Engine.getInstance().limitUpdateRate()) {
-			g.drawString("FPS", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-			g.drawString(fps + " / " + maxFPS, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
+			output += "Updates / s\t" + ups + " / " + maxUpdateRate + "\n";
 		} else {
-			g.drawString("FPS", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-			g.drawString("" + fps, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
+			output += "Updates / s\t" + ups + "\n";
 		}
-		currentLine++;
-		g.drawString("Framebuffer", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		g.drawString(frameBufferWidth + "x" + frameBufferHeight, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		currentLine++;
-		g.drawString("Shaders", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		g.drawString("" + shadersCount, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		currentLine++;
-		g.drawString("Vertices", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		g.drawString("" + verticesCount, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		currentLine++;
-		g.drawString("Triangles", STATISTICS_X * 2, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		g.drawString("" + trianglesCount, STATISTICS_X * 11, STATISTICS_Y + STATISTICS_LINE * currentLine + 3);
-		g.dispose();
+		output += "Framebuffer\t" + frameBufferWidth + "x" + frameBufferHeight + "\n";
+		output += "Shaders Count\t" + shadersCount + "\n";
+		output += "Vertices\t\t" + verticesCount + "\n";
+		output += "Triangles\t" + trianglesCount + "\n";
+		textArea.setText(output);
 	}
-
-	public void fixedUpdate() {
-		
+	
+	private void statsLog() {
+		long ramUsage = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) >> 20;
+		int maxUpdateRate = Engine.getInstance().getFixedUpdateRate();
+		int frameBufferWidth = 0;
+		int frameBufferHeight = 0;
+		int shadersCount = 0;
+		int verticesCount = 0;
+		int trianglesCount = 0;
+		if (graphicsEngine == null) {
+			List<EngineListener> engineListeners = Engine.getInstance().getEngineListeners(); 
+			for (int i = 0; i < engineListeners.size(); i++) {
+				EngineListener engineListener = engineListeners.get(i);
+				if(engineListener instanceof GraphicsEngine) {
+					graphicsEngine = (GraphicsEngine) engineListener;
+				}
+			}
+		} else {
+			frameBufferWidth = graphicsEngine.getFrameBuffer().getWidth();
+			frameBufferHeight = graphicsEngine.getFrameBuffer().getHeight();
+			shadersCount += graphicsEngine.getPreprocessingShaders().size();
+			shadersCount += graphicsEngine.getShaders().size();
+			shadersCount += graphicsEngine.getPostprocessingShaders().size();
+			List<Model> models = graphicsEngine.getScene().getModels();
+			for (int i = 0; i < models.size(); i++) {
+				Model model = models.get(i);
+				verticesCount += model.getMesh().getVertices().length;
+				trianglesCount += model.getMesh().getFaces().length;
+			}
+		}
+		String output = "";
+		output += "====== Statistics ======" + "\n";
+		output += "CPU time\t" + elapsed + " ms" + "\n";
+		output += "RAM usage\t" + ramUsage + " MB" + "\n";
+		if (Engine.getInstance().limitUpdateRate()) {
+			output += "Updates / s\t" + ups + " / " + maxUpdateRate + "\n";
+		} else {
+			output += "Updates / s\t" + ups + "\n";
+		}
+		output += "Framebuffer\t" + frameBufferWidth + "x" + frameBufferHeight + "\n";
+		output += "Shaders Count\t" + shadersCount + "\n";
+		output += "Vertices\t\t" + verticesCount + "\n";
+		output += "Triangles\t" + trianglesCount + "\n";
+		System.out.println(output);
 	}
-
-	public int getPriority() {
-		return 10000;
-	}
-
 }

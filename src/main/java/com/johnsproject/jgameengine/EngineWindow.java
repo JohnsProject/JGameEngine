@@ -38,7 +38,6 @@ public class EngineWindow extends Frame implements EngineListener {
 	private static final long serialVersionUID = 1L;
 
 	private final EnginePanel panel;
-	
 	private int width;
 	private int height;
 	private FrameBuffer frameBuffer;
@@ -103,6 +102,10 @@ public class EngineWindow extends Frame implements EngineListener {
 		return frameBuffer;
 	}
 
+	public Canvas getCanvas() {
+		return panel;
+	}
+	
 	private class EnginePanel extends Canvas {
 
 		private static final long serialVersionUID = 1L;

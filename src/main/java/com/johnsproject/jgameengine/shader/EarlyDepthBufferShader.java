@@ -28,7 +28,7 @@ public class EarlyDepthBufferShader implements Shader {
 	private final int[] viewMatrix;
 	private final int[] projectionMatrix;
 	
-	private final FlatRasterizer triangle;
+	private final FlatRasterizer rasterizer;
 
 	private FrameBuffer frameBuffer;
 	
@@ -38,7 +38,7 @@ public class EarlyDepthBufferShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new FlatRasterizer(this);
+		this.rasterizer = new FlatRasterizer(this);
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -81,10 +81,10 @@ public class EarlyDepthBufferShader implements Shader {
 		VertexBuffer dataBuffer0 = geometryBuffer.getVertexDataBuffer(0);
 		VertexBuffer dataBuffer1 = geometryBuffer.getVertexDataBuffer(1);
 		VertexBuffer dataBuffer2 = geometryBuffer.getVertexDataBuffer(2);
-		triangle.setLocation0(dataBuffer0.getLocation());
-		triangle.setLocation1(dataBuffer1.getLocation());
-		triangle.setLocation2(dataBuffer2.getLocation());
-		graphicsLibrary.drawFlatTriangle(triangle, true, 1, portedFrustum);
+		rasterizer.setLocation0(dataBuffer0.getLocation());
+		rasterizer.setLocation1(dataBuffer1.getLocation());
+		rasterizer.setLocation2(dataBuffer2.getLocation());
+		graphicsLibrary.drawFlatTriangle(rasterizer, true, 1, portedFrustum);
 	}
 
 	public void fragment(int[] location) {

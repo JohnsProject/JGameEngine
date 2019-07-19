@@ -106,6 +106,7 @@ public class Engine {
 				}
 			}
 		});
+		engineThread.setName("Engine Thread");
 		engineThread.start();
 	}
 
