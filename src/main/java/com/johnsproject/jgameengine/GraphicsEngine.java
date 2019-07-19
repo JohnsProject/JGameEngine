@@ -30,6 +30,8 @@ import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.model.AnimationFrame;
+import com.johnsproject.jgameengine.model.Armature;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.GeometryBuffer;
@@ -37,12 +39,14 @@ import com.johnsproject.jgameengine.model.Mesh;
 import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.ShaderBuffer;
+import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.model.VertexBuffer;
+import com.johnsproject.jgameengine.model.VertexGroup;
+import com.johnsproject.jgameengine.shader.DirectionalLightShadowShader;
+import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
+import com.johnsproject.jgameengine.shader.PointLightShadowShader;
 import com.johnsproject.jgameengine.shader.Shader;
-import com.johnsproject.jgameengine.shader.shaders.DirectionalLightShadowShader;
-import com.johnsproject.jgameengine.shader.shaders.GouraudSpecularShader;
-import com.johnsproject.jgameengine.shader.shaders.PointLightShadowShader;
-import com.johnsproject.jgameengine.shader.shaders.SpotLightShadowShader;
+import com.johnsproject.jgameengine.shader.SpotLightShadowShader;
 
 public class GraphicsEngine implements EngineListener {
 	
@@ -55,6 +59,8 @@ public class GraphicsEngine implements EngineListener {
 	
 	private final int[] modelMatrix;
 	private final int[] normalMatrix;
+	private final int[] weightBoneMatrix;
+	private long lastUpdateTime;
 	private final GraphicsLibrary graphicsLibrary;
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
@@ -71,6 +77,7 @@ public class GraphicsEngine implements EngineListener {
 		this.vectorLibrary = new VectorLibrary();
 		this.modelMatrix = matrixLibrary.generate();
 		this.normalMatrix = matrixLibrary.generate();
+		this.weightBoneMatrix = matrixLibrary.generate();
 		addPreprocessingShader(new DirectionalLightShadowShader());
 		addPreprocessingShader(new SpotLightShadowShader());
 		addPreprocessingShader(new PointLightShadowShader());
@@ -88,13 +95,30 @@ public class GraphicsEngine implements EngineListener {
 		for (int m = 0; m < scene.getModels().size(); m++) {
 			final Model model = scene.getModels().get(m);
 			final Mesh mesh = model.getMesh();
+			final Armature armature = model.getArmature();
+			final AnimationFrame animationFrame = armature.getCurrentAnimationFrame();
 			graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
 			graphicsLibrary.normalMatrix(normalMatrix, model.getTransform());
 			for (int v = 0; v < mesh.getVertices().length; v++) {
-				final VertexBuffer vertexBuffer = mesh.getVertex(v).getBuffer();
+				final Vertex vertex = mesh.getVertex(v);
+				final VertexBuffer vertexBuffer = vertex.getBuffer();
 				vertexBuffer.resetAll();
-				int[] worldLocation = vertexBuffer.getWorldLocation();
-				int[] worldNormal = vertexBuffer.getWorldNormal();
+				final int[] worldLocation = vertexBuffer.getWorldLocation();
+				final int[] worldNormal = vertexBuffer.getWorldNormal();
+//				for (int i = 0; i < armature.getVertexGroups().length; i++) {
+//					final VertexGroup vertexGroup = armature.getVertexGroup(i);
+//					for (int j = 0; j < vertexGroup.getVertices().length; j++) {
+//						final Vertex groupVertex = vertexGroup.getVertex(j);
+//						if(groupVertex.getIndex() == vertex.getIndex()) {
+//							int[] boneMatrix = animationFrame.getBoneWorldMatrix(vertexGroup.getBoneIndex());
+//							int[] boneNormalMatrix = animationFrame.getBoneNormalMatrix(vertexGroup.getBoneIndex());
+//							matrixLibrary.multiply(boneMatrix, vertexGroup.getWeight(j), weightBoneMatrix);
+//							vectorLibrary.matrixMultiply(worldLocation, weightBoneMatrix, worldLocation);
+////							matrixLibrary.multiply(boneNormalMatrix, vertexGroup.getWeight(j), weightBoneMatrix);
+////							vectorLibrary.matrixMultiply(worldNormal, weightBoneMatrix, worldNormal);
+//						}
+//					}
+//				}
 				vectorLibrary.matrixMultiply(worldLocation, modelMatrix, worldLocation);
 				vectorLibrary.matrixMultiply(worldNormal, normalMatrix, worldNormal);
 			}
@@ -142,7 +166,11 @@ public class GraphicsEngine implements EngineListener {
 		}
 	}
 	
-	public void fixedUpdate() { }
+	public void fixedUpdate() { 
+		for (int m = 0; m < scene.getModels().size(); m++) {
+			scene.getModels().get(m).getArmature().nextFrame();
+		}		
+	}
 
 	public int getPriority() {
 		return 10000;

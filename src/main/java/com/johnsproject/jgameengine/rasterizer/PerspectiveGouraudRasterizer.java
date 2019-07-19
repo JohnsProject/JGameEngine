@@ -21,13 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.rasterizer;
 
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
+import com.johnsproject.jgameengine.shader.Shader;
 
-public class PerspectiveGouraudTriangle extends AffineGouraudTriangle {
+public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 	
-	public PerspectiveGouraudTriangle(Shader shader) {
+	public PerspectiveGouraudRasterizer(Shader shader) {
 		super(shader);
 	}
 	

@@ -310,7 +310,7 @@ public class MatrixLibrary {
 	public int[] inverse(int[] matrix, int[] result) {
 		// ensures that will return right values if matrix or matrix two is the same as result
 		copy(matrixCache1, matrix);
-		int determinant = determinant(matrixCache1);
+		int determinant = determinant(matrixCache1) + 1;
 		set(result, 0, 0, mathLibrary.multiply(get(matrixCache1, 2, 1), mathLibrary.multiply(get(matrixCache1, 3, 2), get(matrixCache1, 1, 3))) -
 						mathLibrary.multiply(get(matrixCache1, 3, 1), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 1, 3))) +
 						mathLibrary.multiply(get(matrixCache1, 3, 1), mathLibrary.multiply(get(matrixCache1, 1, 2), get(matrixCache1, 2, 3))) -

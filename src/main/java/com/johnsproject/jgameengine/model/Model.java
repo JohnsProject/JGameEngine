@@ -25,14 +25,26 @@ package com.johnsproject.jgameengine.model;
 
 public class Model extends SceneObject {
 	
-	private Mesh mesh;
+	private final Mesh mesh;
+	private final Armature armature;
 	
 	public Model (String name, Transform transform, Mesh mesh) {
 		super(name, transform);
 		this.mesh = mesh;
+		this.armature = null;
+	}
+	
+	public Model (String name, Transform transform, Mesh mesh, Armature armature) {
+		super(name, transform);
+		this.mesh = mesh;
+		this.armature = armature;
 	}
 
 	public Mesh getMesh() {
 		return mesh;
+	}
+	
+	public Armature getArmature() {
+		return armature;
 	}
 }

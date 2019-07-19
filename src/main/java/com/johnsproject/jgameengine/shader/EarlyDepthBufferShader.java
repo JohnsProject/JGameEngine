@@ -1,4 +1,4 @@
-package com.johnsproject.jgameengine.shader.shaders;
+package com.johnsproject.jgameengine.shader;
 
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MatrixLibrary;
@@ -9,8 +9,7 @@ import com.johnsproject.jgameengine.model.GeometryBuffer;
 import com.johnsproject.jgameengine.model.ShaderBuffer;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.VertexBuffer;
-import com.johnsproject.jgameengine.shader.FlatTriangle;
-import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
 
 public class EarlyDepthBufferShader implements Shader {
 	
@@ -29,7 +28,7 @@ public class EarlyDepthBufferShader implements Shader {
 	private final int[] viewMatrix;
 	private final int[] projectionMatrix;
 	
-	private final FlatTriangle triangle;
+	private final FlatRasterizer triangle;
 
 	private FrameBuffer frameBuffer;
 	
@@ -39,7 +38,7 @@ public class EarlyDepthBufferShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new FlatTriangle(this);
+		this.triangle = new FlatRasterizer(this);
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();

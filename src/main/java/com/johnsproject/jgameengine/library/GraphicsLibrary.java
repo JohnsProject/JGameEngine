@@ -25,15 +25,15 @@ package com.johnsproject.jgameengine.library;
 
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Transform;
-import com.johnsproject.jgameengine.shader.AffineFlatTriangle;
-import com.johnsproject.jgameengine.shader.AffineGouraudTriangle;
-import com.johnsproject.jgameengine.shader.AffinePhongTriangle;
-import com.johnsproject.jgameengine.shader.FlatTriangle;
-import com.johnsproject.jgameengine.shader.GouraudTriangle;
-import com.johnsproject.jgameengine.shader.PerspectiveFlatTriangle;
-import com.johnsproject.jgameengine.shader.PerspectiveGouraudTriangle;
-import com.johnsproject.jgameengine.shader.PerspectivePhongTriangle;
-import com.johnsproject.jgameengine.shader.PhongTriangle;
+import com.johnsproject.jgameengine.rasterizer.AffineFlatRasterizer;
+import com.johnsproject.jgameengine.rasterizer.AffineGouraudRasterizer;
+import com.johnsproject.jgameengine.rasterizer.AffinePhongRasterizer;
+import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
+import com.johnsproject.jgameengine.rasterizer.GouraudRasterizer;
+import com.johnsproject.jgameengine.rasterizer.PerspectiveFlatRasterizer;
+import com.johnsproject.jgameengine.rasterizer.PerspectiveGouraudRasterizer;
+import com.johnsproject.jgameengine.rasterizer.PerspectivePhongRasterizer;
+import com.johnsproject.jgameengine.rasterizer.PhongRasterizer;
 
 /**
  * The GraphicsLibrary class contains methods for generating matrices needed to move 
@@ -223,7 +223,7 @@ public class GraphicsLibrary {
 	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawFlatTriangle(FlatTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+	public void drawFlatTriangle(FlatRasterizer triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
 		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawFlatTriangle(cameraFrustum);
@@ -238,7 +238,7 @@ public class GraphicsLibrary {
 	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawGouraudTriangle(GouraudTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+	public void drawGouraudTriangle(GouraudRasterizer triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
 		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawGouraudTriangle(cameraFrustum);
@@ -253,7 +253,7 @@ public class GraphicsLibrary {
 	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawPhongTriangle(PhongTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+	public void drawPhongTriangle(PhongRasterizer triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
 		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawPhongTriangle(cameraFrustum);
@@ -268,7 +268,7 @@ public class GraphicsLibrary {
 	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawAffineFlatTriangle(AffineFlatTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+	public void drawAffineFlatTriangle(AffineFlatRasterizer triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
 		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawAffineFlatTriangle(cameraFrustum);
@@ -283,7 +283,7 @@ public class GraphicsLibrary {
 	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawAffineGouraudTriangle(AffineGouraudTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+	public void drawAffineGouraudTriangle(AffineGouraudRasterizer triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
 		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawAffineGouraudTriangle(cameraFrustum);
@@ -298,7 +298,7 @@ public class GraphicsLibrary {
 	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawAffinePhongTriangle(AffinePhongTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+	public void drawAffinePhongTriangle(AffinePhongRasterizer triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
 		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawAffinePhongTriangle(cameraFrustum);
@@ -313,7 +313,7 @@ public class GraphicsLibrary {
 	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawPerspectiveFlatTriangle(PerspectiveFlatTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+	public void drawPerspectiveFlatTriangle(PerspectiveFlatRasterizer triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
 		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawPerspectiveFlatTriangle(cameraFrustum);
@@ -328,7 +328,7 @@ public class GraphicsLibrary {
 	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawPerspectiveGouraudTriangle(PerspectiveGouraudTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+	public void drawPerspectiveGouraudTriangle(PerspectiveGouraudRasterizer triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
 		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawPerspectiveGouraudTriangle(cameraFrustum);
@@ -343,13 +343,13 @@ public class GraphicsLibrary {
 	 * @param backfaceCull set 1 for backface culling and -1 for frontface culling.
 	 * @param cameraFrustum
 	 */
-	public void drawPerspectivePhongTriangle(PerspectivePhongTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+	public void drawPerspectivePhongTriangle(PerspectivePhongRasterizer triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
 		if (cull(triangle, frustumCull, backfaceCull, cameraFrustum))
 			return;
 		triangle.drawPerspectivePhongTriangle(cameraFrustum);
 	}
 	
-	private boolean cull(FlatTriangle triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
+	private boolean cull(FlatRasterizer triangle, boolean frustumCull, int backfaceCull, int[] cameraFrustum) {
 		int[] location1 = triangle.getLocation0();
 		int[] location2 = triangle.getLocation1();
 		int[] location3 = triangle.getLocation2();

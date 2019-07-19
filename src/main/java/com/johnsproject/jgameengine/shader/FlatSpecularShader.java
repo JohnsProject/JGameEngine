@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.shader.shaders;
+package com.johnsproject.jgameengine.shader;
 
 import java.util.List;
 
@@ -38,11 +38,10 @@ import com.johnsproject.jgameengine.model.ShaderBuffer;
 import com.johnsproject.jgameengine.model.ShaderProperties;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.VertexBuffer;
-import com.johnsproject.jgameengine.shader.PerspectiveGouraudTriangle;
-import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.rasterizer.PerspectiveFlatRasterizer;
 
-public class GouraudSpecularShader implements Shader {
-
+public class FlatSpecularShader implements Shader {
+	
 	private static final int INITIAL_ATTENUATION = MathLibrary.FP_ONE;
 	private static final int LINEAR_ATTENUATION = 14;
 	private static final int QUADRATIC_ATTENUATION = 7;
@@ -53,6 +52,7 @@ public class GouraudSpecularShader implements Shader {
 	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
 	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
 	
+	private static final byte FP_BITS = MathLibrary.FP_BITS;
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	
 	private final GraphicsLibrary graphicsLibrary;
@@ -61,39 +61,45 @@ public class GouraudSpecularShader implements Shader {
 	private final VectorLibrary vectorLibrary;
 	private final ColorLibrary colorLibrary;
 
-	private final int[] lightDirection;
 	private final int[] lightLocation;
+	private final int[] lightDirection;
 	private final int[] viewDirection;
+	private final int[] faceLocation;
 	private final int[] portedFrustum;
+	private final int[][] vertexLocations;
 	private final int[] lightSpaceLocation;
 	
 	private final int[] viewMatrix;
 	private final int[] projectionMatrix;
 	
-	private final PerspectiveGouraudTriangle triangle;
+	private final PerspectiveFlatRasterizer triangle;
 	
 	private int color;
+	private int lightColor;
 	private int modelColor;
 	private Texture texture;
-
+	
 	private Camera camera;	
 	private List<Light> lights;
 	private FrameBuffer frameBuffer;
 	private ShaderBuffer shaderBuffer;
-
-	public GouraudSpecularShader() {
+	private ShaderProperties shaderProperties;
+	
+	public FlatSpecularShader() {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.mathLibrary = new MathLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
 		this.colorLibrary = new ColorLibrary();
-		this.triangle = new PerspectiveGouraudTriangle(this);
-		this.lightDirection = vectorLibrary.generate();
+		this.triangle = new PerspectiveFlatRasterizer(this);
 		this.lightLocation = vectorLibrary.generate();
+		this.lightDirection = vectorLibrary.generate();
 		this.viewDirection = vectorLibrary.generate();
-		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
+		this.faceLocation = vectorLibrary.generate();
+		this.vertexLocations = new int[3][4];
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
+		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.lightSpaceLocation = vectorLibrary.generate();
 	}
 	
@@ -101,19 +107,8 @@ public class GouraudSpecularShader implements Shader {
 		this.shaderBuffer = shaderBuffer;
 		this.lights = shaderBuffer.getLights();
 		this.frameBuffer = shaderBuffer.getFrameBuffer();
-		
-		// debug shadow map
-//		Texture shadowMap = shaderBuffer.getDirectionalShadowMap();
-//		for (int x = 0; x < shadowMap.getWidth(); x++) {
-//			for (int y = 0; y < shadowMap.getHeight(); y++) {
-//				int depth = shadowMap.getPixel(x, y);
-//				int color = (depth + 100) >> 3;
-//				color = colorLibrary.generate(color, color, color);
-//				frameBuffer.getColorBuffer().setPixel(x, y, color);
-//			}
-//		}
 	}
-
+	
 	public void setup(Camera camera) {
 		this.camera = camera;
 		graphicsLibrary.viewMatrix(viewMatrix, camera.getTransform());
@@ -129,15 +124,23 @@ public class GouraudSpecularShader implements Shader {
 		}
 	}
 
-	public void vertex(VertexBuffer vertexBuffer) {
-		ShaderProperties shaderProperties = (ShaderProperties)vertexBuffer.getMaterial().getProperties();
-		int[] location = vertexBuffer.getLocation();
-		int[] normal = vertexBuffer.getNormal();
-		int lightColor = ColorLibrary.BLACK;
-		int[] cameraLocation = camera.getTransform().getLocation();	
+	public void vertex(VertexBuffer vertexBuffer) {	}
+
+	public void geometry(GeometryBuffer geometryBuffer) {
+		this.shaderProperties = (ShaderProperties)geometryBuffer.getMaterial().getProperties();
+		int[] normal = geometryBuffer.getNormal();
+		int[] location1 = geometryBuffer.getVertexDataBuffer(0).getLocation();
+		int[] location2 = geometryBuffer.getVertexDataBuffer(1).getLocation();
+		int[] location3 = geometryBuffer.getVertexDataBuffer(2).getLocation();
+		vectorLibrary.add(location1, location2, faceLocation);
+		vectorLibrary.add(faceLocation, location3, faceLocation);
+		vectorLibrary.divide(faceLocation, 3 << FP_BITS, faceLocation);	
+		lightColor = ColorLibrary.BLACK;		
+		int[] cameraLocation = camera.getTransform().getLocation();		
 		vectorLibrary.normalize(normal, normal);
-		vectorLibrary.subtract(cameraLocation, location, viewDirection);
+		vectorLibrary.subtract(cameraLocation, faceLocation, viewDirection);
 		vectorLibrary.normalize(viewDirection, viewDirection);
+		boolean inShadow = false;
 		for (int i = 0; i < lights.size(); i++) {
 			Light light = lights.get(i);
 			int currentFactor = 0;
@@ -151,7 +154,7 @@ public class GouraudSpecularShader implements Shader {
 					int[] lightMatrix = shaderBuffer.getDirectionalLightMatrix();
 					int[] lightFrustum = shaderBuffer.getDirectionalLightFrustum();
 					Texture shadowMap = shaderBuffer.getDirectionalShadowMap();
-					if(inShadow(location, lightMatrix, lightFrustum, shadowMap)) {
+					if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
 						currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
 					}
 				}
@@ -159,8 +162,10 @@ public class GouraudSpecularShader implements Shader {
 			case POINT:
 				if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
 					continue;
-				vectorLibrary.subtract(lightPosition, location, lightLocation);
+				vectorLibrary.subtract(lightPosition, faceLocation, lightLocation);
+				// attenuation
 				attenuation = getAttenuation(lightLocation);
+				// other light values
 				vectorLibrary.normalize(lightLocation, lightLocation);
 				currentFactor = getLightFactor(normal, lightLocation, viewDirection, shaderProperties);
 				currentFactor = mathLibrary.divide(currentFactor, attenuation);
@@ -169,7 +174,7 @@ public class GouraudSpecularShader implements Shader {
 						int[] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
 						int[] lightFrustum = shaderBuffer.getPointLightFrustum();
 						Texture shadowMap = shaderBuffer.getPointShadowMaps()[j];
-						if(inShadow(location, lightMatrix, lightFrustum, shadowMap)) {
+						if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
 							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
 						}
 					}
@@ -179,7 +184,8 @@ public class GouraudSpecularShader implements Shader {
 				if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
 					continue;
 				vectorLibrary.invert(light.getDirection(), lightDirection);
-				vectorLibrary.subtract(lightPosition, location, lightLocation);
+				vectorLibrary.subtract(lightPosition, faceLocation, lightLocation);
+				// attenuation
 				attenuation = getAttenuation(lightLocation);
 				vectorLibrary.normalize(lightLocation, lightLocation);
 				int theta = vectorLibrary.dotProduct(lightLocation, lightDirection);
@@ -194,7 +200,7 @@ public class GouraudSpecularShader implements Shader {
 						int[] lightMatrix = shaderBuffer.getSpotLightMatrix();
 						int[] lightFrustum = shaderBuffer.getSpotLightFrustum();
 						Texture shadowMap = shaderBuffer.getSpotShadowMap();
-						if(inShadow(location, lightMatrix, lightFrustum, shadowMap)) {
+						if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
 							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
 						}
 					}
@@ -203,39 +209,39 @@ public class GouraudSpecularShader implements Shader {
 			}
 			currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
 			currentFactor = mathLibrary.multiply(currentFactor, 255);
-			lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
+			if(inShadow) {
+				lightColor = colorLibrary.lerp(lightColor, light.getShadowColor(), 128);
+			} else {
+				lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
+			}
 		}
-		vertexBuffer.setLightColor(lightColor);
-		vectorLibrary.matrixMultiply(location, viewMatrix, location);
-		vectorLibrary.matrixMultiply(location, projectionMatrix, location);
-		graphicsLibrary.screenportVector(location, portedFrustum, location);
-	}
-
-	public void geometry(GeometryBuffer geometryBuffer) {
-		ShaderProperties shaderProperties = (ShaderProperties)geometryBuffer.getMaterial().getProperties();
 		color = shaderProperties.getDiffuseColor();
+		for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
+			int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
+			vectorLibrary.copy(vertexLocations[i], vertexLocation);
+			vectorLibrary.matrixMultiply(vertexLocation, viewMatrix, vertexLocation);
+			vectorLibrary.matrixMultiply(vertexLocation, projectionMatrix, vertexLocation);
+			graphicsLibrary.screenportVector(vertexLocation, portedFrustum, vertexLocation);
+		}
 		texture = shaderProperties.getTexture();
-		VertexBuffer dataBuffer0 = geometryBuffer.getVertexDataBuffer(0);
-		VertexBuffer dataBuffer1 = geometryBuffer.getVertexDataBuffer(1);
-		VertexBuffer dataBuffer2 = geometryBuffer.getVertexDataBuffer(2);
-		triangle.setLocation0(dataBuffer0.getLocation());
-		triangle.setLocation1(dataBuffer1.getLocation());
-		triangle.setLocation2(dataBuffer2.getLocation());
-		triangle.setColor0(dataBuffer0.getLightColor());
-		triangle.setColor1(dataBuffer1.getLightColor());
-		triangle.setColor2(dataBuffer2.getLightColor());
+		triangle.setLocation0(location1);
+		triangle.setLocation1(location2);
+		triangle.setLocation2(location3);
 		if (texture == null) {
-			graphicsLibrary.drawGouraudTriangle(triangle, true, 1, portedFrustum);
+			graphicsLibrary.drawFlatTriangle(triangle, true, 1, portedFrustum);
 		} else {
 			triangle.setUV0(geometryBuffer.getUV(0), texture);
 			triangle.setUV1(geometryBuffer.getUV(1), texture);
 			triangle.setUV2(geometryBuffer.getUV(2), texture);
-			graphicsLibrary.drawPerspectiveGouraudTriangle(triangle, true, 1, portedFrustum);
+			graphicsLibrary.drawPerspectiveFlatTriangle(triangle, true, 1, portedFrustum);
+		}
+		for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
+			int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
+			vectorLibrary.copy(vertexLocation, vertexLocations[i]);
 		}
 	}
 
 	public void fragment(int[] location) {
-		int lightColor = triangle.getColor();
 		if (texture != null) {
 			int[] uv = triangle.getUV();
 			int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);

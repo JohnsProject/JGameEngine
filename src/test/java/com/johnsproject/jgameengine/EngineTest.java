@@ -21,10 +21,10 @@ import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.ShaderProperties;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
-import com.johnsproject.jgameengine.shader.shaders.EarlyDepthBufferShader;
-import com.johnsproject.jgameengine.shader.shaders.FlatSpecularShader;
-import com.johnsproject.jgameengine.shader.shaders.GouraudSpecularShader;
-import com.johnsproject.jgameengine.shader.shaders.PhongSpecularShader;
+import com.johnsproject.jgameengine.shader.EarlyDepthBufferShader;
+import com.johnsproject.jgameengine.shader.FlatSpecularShader;
+import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
+import com.johnsproject.jgameengine.shader.PhongSpecularShader;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 

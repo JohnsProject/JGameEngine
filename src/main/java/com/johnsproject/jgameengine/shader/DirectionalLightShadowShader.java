@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.shader.shaders;
+package com.johnsproject.jgameengine.shader;
 
 import java.util.List;
 
@@ -37,8 +37,7 @@ import com.johnsproject.jgameengine.model.ShaderBuffer;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.VertexBuffer;
-import com.johnsproject.jgameengine.shader.FlatTriangle;
-import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
 
 public class DirectionalLightShadowShader implements Shader {
 
@@ -56,7 +55,7 @@ public class DirectionalLightShadowShader implements Shader {
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
 
-	private final FlatTriangle triangle;
+	private final FlatRasterizer triangle;
 	
 	private final int[] viewMatrix;
 	private final int[] projectionMatrix;
@@ -74,7 +73,7 @@ public class DirectionalLightShadowShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new FlatTriangle(this);
+		this.triangle = new FlatRasterizer(this);
 
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();
@@ -95,7 +94,7 @@ public class DirectionalLightShadowShader implements Shader {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.triangle = new FlatTriangle(this);
+		this.triangle = new FlatRasterizer(this);
 		
 		this.viewMatrix = matrixLibrary.generate();
 		this.projectionMatrix = matrixLibrary.generate();

@@ -1,8 +1,9 @@
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.rasterizer;
 
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
+import com.johnsproject.jgameengine.shader.Shader;
 
-public class PhongTriangle extends FlatTriangle {
+public class PhongRasterizer extends FlatRasterizer {
 	
 	protected final int[] worldX;
 	protected final int[] worldY;
@@ -13,7 +14,7 @@ public class PhongTriangle extends FlatTriangle {
 	protected final int[] normalZ;
 	protected final int[] normal;
 	
-	public PhongTriangle(Shader shader) {
+	public PhongRasterizer(Shader shader) {
 		super(shader);
 		worldX = vectorLibrary.generate();
 		worldY = vectorLibrary.generate();

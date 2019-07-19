@@ -1,10 +1,11 @@
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.rasterizer;
 
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
+import com.johnsproject.jgameengine.shader.Shader;
 
-public class PerspectivePhongTriangle extends AffinePhongTriangle {
+public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 	
-	public PerspectivePhongTriangle(Shader shader) {
+	public PerspectivePhongRasterizer(Shader shader) {
 		super(shader);
 	}
 	

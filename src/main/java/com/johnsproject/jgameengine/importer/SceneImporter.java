@@ -28,8 +28,13 @@ import java.io.InputStream;
 
 import com.johnsproject.jgameengine.library.ColorLibrary;
 import com.johnsproject.jgameengine.library.FileLibrary;
+import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
+import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.model.Animation;
+import com.johnsproject.jgameengine.model.AnimationFrame;
+import com.johnsproject.jgameengine.model.Armature;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.CameraType;
 import com.johnsproject.jgameengine.model.Face;
@@ -42,6 +47,7 @@ import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.ShaderProperties;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
+import com.johnsproject.jgameengine.model.VertexGroup;
 
 /**
  * The SceneImporter class imports .scene files exported 
@@ -58,11 +64,15 @@ public class SceneImporter {
 
 	private final MathLibrary mathLibrary;
 	private final VectorLibrary vectorLibrary;
+	private final MatrixLibrary matrixLibrary;
+	private final GraphicsLibrary graphicsLibrary;
 	private final ColorLibrary colorLibrary;
 	
 	public SceneImporter() {
 		this.mathLibrary = new MathLibrary();
 		this.vectorLibrary = new VectorLibrary();
+		this.matrixLibrary = new MatrixLibrary();
+		this.graphicsLibrary = new GraphicsLibrary();
 		this.colorLibrary = new ColorLibrary();
 	}
 	
@@ -129,8 +139,11 @@ public class SceneImporter {
 			Material[] materials = parseMaterials(modelData.split("material<")[1].split(">material")[0].split("><"));
 			Vertex[] vertices = parseVertices(modelData.split("vertex<")[1].split(">vertex")[0].split("><"), materials);
 			Face[] faces = parseFaces(modelData.split("face<")[1].split(">face")[0].split("><"), vertices, materials);
+			VertexGroup[] vertexGroups = parseVertexGroups(modelData.split("vertexGroup<")[1].split(">vertexGroup")[0].split("><"), vertices);
+			Animation[] animations = parseAnimations(modelData.split("animation<")[1].split(">animation")[0].split("><"));
 			Mesh mesh = new Mesh(vertices, faces, materials);
-			models[i] = new Model(name, transform, mesh);
+			Armature armature = new Armature(vertexGroups, animations);
+			models[i] = new Model(name, transform, mesh, armature);
 		}
 		return models;
 	}
@@ -271,5 +284,59 @@ public class SceneImporter {
 			materials[i] = new Material(i, name, 0, properties);
 		}
 		return materials;
+	}
+	
+	private VertexGroup[] parseVertexGroups(String[] vertexGroupsData, Vertex[] meshVertices) {
+		VertexGroup[] vertexGroups = new VertexGroup[vertexGroupsData.length];
+		for (int i = 0; i < vertexGroups.length; i++) {
+			String[] vertexGroupData = vertexGroupsData[i].split(",");
+			int boneIndex = Integer.parseInt(vertexGroupData[0]);
+			int vertexCount = Integer.parseInt(vertexGroupData[1]);
+			Vertex[] vertices = new Vertex[vertexCount];
+			for (int j = 0; j < vertexCount; j++) {
+				vertices[j] = meshVertices[Integer.parseInt(vertexGroupData[j + 2])];
+			}
+			int[] weights = new int[vertexCount];
+			for (int j = 0; j < vertexCount; j++) {
+				weights[j] = mathLibrary.generate(Float.parseFloat(vertexGroupData[j + vertexCount + 2]));
+			}
+			vertexGroups[i] = new VertexGroup(boneIndex, vertices, weights);
+		}
+		return vertexGroups;
+	}
+	
+	private Animation[] parseAnimations(String[] animationsData) {
+		Animation[] animations = new Animation[animationsData.length];
+		for (int i = 0; i < animations.length; i++) {
+			String[] animationData = animationsData[i].split(",");
+			String name = animationData[0];
+			int bonesCount = Integer.parseInt(animationData[1]);
+			int framesCount = Integer.parseInt(animationData[2]);
+			AnimationFrame[] frames = new AnimationFrame[framesCount];
+			for (int f = 3, fi = 0; f < animationData.length; f += framesCount, fi++) {
+				int[][] boneMatrices = new int[bonesCount][MatrixLibrary.MATRIX_SIZE];
+				int[][] boneNormalMatrices = new int[bonesCount][MatrixLibrary.MATRIX_SIZE];
+				for (int b = f, bi = 0; b < f + bonesCount * 9; b += 9, bi++) {
+					int x = mathLibrary.generate(Float.parseFloat(animationData[b + VECTOR_X]));
+					int y = mathLibrary.generate(Float.parseFloat(animationData[b + VECTOR_Y]));
+					int z = mathLibrary.generate(Float.parseFloat(animationData[b + VECTOR_Z]));
+					int[] location = vectorLibrary.generate(-x, y, z);
+					x = mathLibrary.generate(Float.parseFloat(animationData[b + 3 + VECTOR_X]));
+					y = mathLibrary.generate(Float.parseFloat(animationData[b + 3 + VECTOR_Y]));
+					z = mathLibrary.generate(Float.parseFloat(animationData[b + 3 + VECTOR_Z]));
+					int[] rotation = vectorLibrary.generate(x, y, z);
+					x = mathLibrary.generate(Float.parseFloat(animationData[b + 6 + VECTOR_X]));
+					y = mathLibrary.generate(Float.parseFloat(animationData[b + 6 + VECTOR_Y]));
+					z = mathLibrary.generate(Float.parseFloat(animationData[b + 6 + VECTOR_Z]));
+					int[] scale = vectorLibrary.generate(x, y, z);
+					Transform transform = new Transform(location, rotation, scale);
+					boneMatrices[bi] = graphicsLibrary.modelMatrix(matrixLibrary.generate(), transform);
+					boneNormalMatrices[bi] = graphicsLibrary.normalMatrix(matrixLibrary.generate(), transform);
+				}
+				frames[fi] = new AnimationFrame(boneMatrices, boneNormalMatrices);
+			}
+			animations[i] = new Animation(name, frames);
+		}
+		return animations;
 	}
 }

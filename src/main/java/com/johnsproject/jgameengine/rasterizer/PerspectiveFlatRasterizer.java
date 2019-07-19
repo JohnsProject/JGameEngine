@@ -21,43 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.rasterizer;
 
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
-import com.johnsproject.jgameengine.model.Texture;
+import com.johnsproject.jgameengine.shader.Shader;
 
-public class AffineFlatTriangle extends FlatTriangle {
-
-	protected final int[] u;
-	protected final int[] v;
-	protected final int[] uv;
+public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
 	
-	public AffineFlatTriangle(Shader shader) {
+	public PerspectiveFlatRasterizer(Shader shader) {
 		super(shader);
-		u = vectorLibrary.generate();
-		v = vectorLibrary.generate();
-		uv = vectorLibrary.generate();
-	}
-	
-	public final void setUV0(int[] uv, Texture texture) {
-		u[0] = mathLibrary.multiply(uv[VECTOR_X], texture.getWidth());
-		v[0] = mathLibrary.multiply(uv[VECTOR_Y], texture.getHeight());
-	}
-	
-	public final void setUV1(int[] uv, Texture texture) {
-		u[1] = mathLibrary.multiply(uv[VECTOR_X], texture.getWidth());
-		v[1] = mathLibrary.multiply(uv[VECTOR_Y], texture.getHeight());
-	}
-	
-	public final void setUV2(int[] uv, Texture texture) {
-		u[2] = mathLibrary.multiply(uv[VECTOR_X], texture.getWidth());
-		v[2] = mathLibrary.multiply(uv[VECTOR_Y], texture.getHeight());
-	}
-	
-	public final int[] getUV() {
-		uv[VECTOR_X] = u[3];
-		uv[VECTOR_Y] = v[3];
-		return uv;
 	}
 	
 	/**
@@ -66,7 +38,16 @@ public class AffineFlatTriangle extends FlatTriangle {
 	 * 
 	 * @param cameraFrustum
 	 */
-	public final void drawAffineFlatTriangle(int[] cameraFrustum) {
+	public final void drawPerspectiveFlatTriangle(int[] cameraFrustum) {
+		location0[VECTOR_Z] = PERSPECTIVE_ONE / location0[VECTOR_Z];
+		location1[VECTOR_Z] = PERSPECTIVE_ONE / location1[VECTOR_Z];
+		location2[VECTOR_Z] = PERSPECTIVE_ONE / location2[VECTOR_Z];
+		this.u[0] = mathLibrary.multiply(this.u[0], location0[VECTOR_Z]);
+		this.u[1] = mathLibrary.multiply(this.u[1], location1[VECTOR_Z]);
+		this.u[2] = mathLibrary.multiply(this.u[2], location2[VECTOR_Z]);
+		this.v[0] = mathLibrary.multiply(this.v[0], location0[VECTOR_Z]);
+		this.v[1] = mathLibrary.multiply(this.v[1], location1[VECTOR_Z]);
+		this.v[2] = mathLibrary.multiply(this.v[2], location2[VECTOR_Z]);
 		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
@@ -239,8 +220,9 @@ public class AffineFlatTriangle extends FlatTriangle {
 			pixelCache[VECTOR_X] = x1;
 			pixelCache[VECTOR_Y] = y;
 			pixelCache[VECTOR_Z] = z >> FP_BITS;
-			this.u[3] = u >> FP_BITS;
-			this.v[3] = v >> FP_BITS;
+			pixelCache[VECTOR_Z] = PERSPECTIVE_ONE / pixelCache[VECTOR_Z];
+			this.u[3] = multiply(u, pixelCache[VECTOR_Z]);
+			this.v[3] = multiply(v, pixelCache[VECTOR_Z]);
 			shader.fragment(pixelCache);
 			z += dz;
 			u += du;

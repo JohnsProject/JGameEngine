@@ -31,9 +31,9 @@ public class Transform {
 	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
 	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
 	
-	private int[] location;
-	private int[] rotation;
-	private int[] scale;
+	private final int[] location;
+	private final int[] rotation;
+	private final int[] scale;
 	
 	public Transform(int[] location, int[] rotation, int[] scale) {
 		this.location = location;

@@ -25,8 +25,8 @@ package com.johnsproject.jgameengine.model;
 
 public class SceneObject {
 		
-	protected String name;
-	protected Transform transform;
+	protected final String name;
+	protected final Transform transform;
 	protected boolean active;
 	
 	public SceneObject(String name, Transform transform) {

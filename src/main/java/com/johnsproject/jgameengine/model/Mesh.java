@@ -25,9 +25,9 @@ package com.johnsproject.jgameengine.model;
 
 public class Mesh {
 
-	private Vertex[] vertices;
-	private Face[] faces;
-	private Material[] materials;
+	private final Vertex[] vertices;
+	private final Face[] faces;
+	private final Material[] materials;
 	
 	public Mesh(Vertex[] vertices, Face[] faces, Material[] materials) {
 		super();

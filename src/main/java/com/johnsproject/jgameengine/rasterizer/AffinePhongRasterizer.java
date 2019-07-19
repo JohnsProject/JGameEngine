@@ -1,15 +1,16 @@
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.rasterizer;
 
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.model.Texture;
+import com.johnsproject.jgameengine.shader.Shader;
 
-public class AffinePhongTriangle extends PhongTriangle {
+public class AffinePhongRasterizer extends PhongRasterizer {
 	
 	protected final int[] u;
 	protected final int[] v;
 	protected final int[] uv;
 	
-	public AffinePhongTriangle(Shader shader) {
+	public AffinePhongRasterizer(Shader shader) {
 		super(shader);
 		u = vectorLibrary.generate();
 		v = vectorLibrary.generate();

@@ -21,13 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.rasterizer;
 
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.shader.Shader;
 
-public class FlatTriangle {
+public class FlatRasterizer {
 
 	protected static final byte VECTOR_X = VectorLibrary.VECTOR_X;
 	protected static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
@@ -51,7 +52,7 @@ public class FlatTriangle {
 	
 	protected final Shader shader;
 	
-	public FlatTriangle(Shader shader) {
+	public FlatRasterizer(Shader shader) {
 		this.shader = shader;
 		this.mathLibrary = new MathLibrary();
 		this.vectorLibrary = new VectorLibrary();

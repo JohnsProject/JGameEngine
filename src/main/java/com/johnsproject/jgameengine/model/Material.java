@@ -25,8 +25,8 @@ package com.johnsproject.jgameengine.model;
 
 public class Material {
 
-	private int index;
-	private String name;
+	private final int index;
+	private final String name;
 	private int shaderIndex;
 	private ShaderProperties properties;
 	
