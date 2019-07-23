@@ -64,7 +64,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		window.setSize(WINDOW_W, WINDOW_H);
 //		window.setFullscreen(true);
 //		window.setBorders(false);
-		EngineStatistics stats = new EngineStatistics();
+		EngineStatistics stats = new EngineStatistics(window);
 		graphicsEngine = new GraphicsEngine(loadScene(), frameBuffer);
 		inputEngine = new InputEngine();
 		inputEngine.addMouseMotionListener(this);
@@ -85,9 +85,10 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	private Scene loadScene() {
 		try {
 			Scene scene = new SceneImporter().load("C:/Development/test.scene");
-			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
+			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/AnimationTest.png"));
 			for (int i = 0; i < scene.getModels().size(); i++) {
 				((ShaderProperties)scene.getModel(i).getMesh().getMaterial(0).getProperties()).setTexture(texture);
+				scene.getModel(i).getArmature().playAnimation("Action", true);
 			}
 			return scene;
 		} catch (IOException e) {

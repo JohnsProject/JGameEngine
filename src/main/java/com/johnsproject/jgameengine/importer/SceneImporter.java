@@ -28,7 +28,6 @@ import java.io.InputStream;
 
 import com.johnsproject.jgameengine.library.ColorLibrary;
 import com.johnsproject.jgameengine.library.FileLibrary;
-import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
@@ -65,14 +64,12 @@ public class SceneImporter {
 	private final MathLibrary mathLibrary;
 	private final VectorLibrary vectorLibrary;
 	private final MatrixLibrary matrixLibrary;
-	private final GraphicsLibrary graphicsLibrary;
 	private final ColorLibrary colorLibrary;
 	
 	public SceneImporter() {
 		this.mathLibrary = new MathLibrary();
 		this.vectorLibrary = new VectorLibrary();
 		this.matrixLibrary = new MatrixLibrary();
-		this.graphicsLibrary = new GraphicsLibrary();
 		this.colorLibrary = new ColorLibrary();
 	}
 	
@@ -313,9 +310,8 @@ public class SceneImporter {
 			int bonesCount = Integer.parseInt(animationData[1]);
 			int framesCount = Integer.parseInt(animationData[2]);
 			AnimationFrame[] frames = new AnimationFrame[framesCount];
-			for (int f = 3, fi = 0; f < animationData.length; f += framesCount, fi++) {
-				int[][] boneMatrices = new int[bonesCount][MatrixLibrary.MATRIX_SIZE];
-				int[][] boneNormalMatrices = new int[bonesCount][MatrixLibrary.MATRIX_SIZE];
+			for (int f = 3, fi = 0; f < animationData.length; f += bonesCount * 9, fi++) {
+				int[][] boneRotationMatrices = new int[bonesCount][MatrixLibrary.MATRIX_SIZE];
 				for (int b = f, bi = 0; b < f + bonesCount * 9; b += 9, bi++) {
 					int x = mathLibrary.generate(Float.parseFloat(animationData[b + VECTOR_X]));
 					int y = mathLibrary.generate(Float.parseFloat(animationData[b + VECTOR_Y]));
@@ -329,11 +325,13 @@ public class SceneImporter {
 					y = mathLibrary.generate(Float.parseFloat(animationData[b + 6 + VECTOR_Y]));
 					z = mathLibrary.generate(Float.parseFloat(animationData[b + 6 + VECTOR_Z]));
 					int[] scale = vectorLibrary.generate(x, y, z);
-					Transform transform = new Transform(location, rotation, scale);
-					boneMatrices[bi] = graphicsLibrary.modelMatrix(matrixLibrary.generate(), transform);
-					boneNormalMatrices[bi] = graphicsLibrary.normalMatrix(matrixLibrary.generate(), transform);
+					int[] boneRotationMatrix = matrixLibrary.generate();
+					matrixLibrary.scale(boneRotationMatrix, scale, boneRotationMatrix);
+					matrixLibrary.rotateXYZ(boneRotationMatrix, rotation, boneRotationMatrix);
+					matrixLibrary.translate(boneRotationMatrix, location, boneRotationMatrix);
+					boneRotationMatrices[bi] = boneRotationMatrix;
 				}
-				frames[fi] = new AnimationFrame(boneMatrices, boneNormalMatrices);
+				frames[fi] = new AnimationFrame(boneRotationMatrices);
 			}
 			animations[i] = new Animation(name, frames);
 		}

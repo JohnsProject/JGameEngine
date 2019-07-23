@@ -51,11 +51,10 @@ public class EngineStatistics implements EngineListener {
 		textArea.setEditable(false);
 		textArea.setBackground(STATISTICS_BACKROUND);
 		window.add(textArea, 0);
-		graphicsEngine = null;
 	}
 	
 	public EngineStatistics() {
-		graphicsEngine = null;
+		
 	}
 	
 	
@@ -77,6 +76,7 @@ public class EngineStatistics implements EngineListener {
 		if(textArea == null) {
 			statsLog();
 		} else {
+			textArea.setSize(STATISTICS_WIDTH, STATISTICS_HEIGHT);
 			statsUI();
 		}
 	}

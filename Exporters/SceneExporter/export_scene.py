@@ -7,7 +7,7 @@ def write(filepath):
 	for object in bpy.context.visible_objects:
 		object.rotation_mode = 'XYZ'
 		if object.type == "CAMERA":
-			blenderCamera = bpy.data.cameras[object.name]
+			blenderCamera = object.data
 			camera = Camera()
 			camera.name = blenderCamera.name
 			camera.type = blenderCamera.type
@@ -15,7 +15,7 @@ def write(filepath):
 			scene.cameras.append(camera)
 			
 		if object.type == "LAMP":
-			blenderLight = bpy.data.lamps[object.name]
+			blenderLight = object.data
 			light = Light()
 			light.name = blenderLight.name
 			light.type = blenderLight.type
@@ -102,6 +102,57 @@ def write(filepath):
 				i += 1
 			if len(model.materials) == 0:
 				model.materials.append(Material())
+			i = 0
+			armature = object.find_armature()
+			if armature is not None:
+				for blenderGroup in object.vertex_groups:
+					vertexGroup = VertexGroup()
+					vertexGroup.index = i
+					if blenderGroup is not None:
+						boneIndex = 0
+						for bone in armature.data.bones:
+							if bone.name == blenderGroup.name:
+								vertexGroup.bone = boneIndex
+							boneIndex += 1
+						vertexIndex = 0
+						for blenderVertex in blenderModel.vertices:
+							for blenderVertexGroup in blenderVertex.groups:
+								if blenderVertexGroup.group == blenderGroup.index:
+									vertexGroup.vertices.append(vertexIndex)
+									vertexGroup.weights.append(blenderGroup.weight(vertexIndex))
+							vertexIndex += 1
+					model.vertexGroups.append(vertexGroup)
+					i += 1
+				if armature.animation_data is not None:
+					for track in armature.animation_data.nla_tracks:
+						for strip in track.strips:
+							action = strip.action
+							armature.animation_data.action = action
+							animation = Animation()
+							animation.name = action.name
+							animation.bones = len(armature.pose.bones)
+							for frame in range(int(action.frame_range[0]), int(action.frame_range[1])):
+								bpy.context.scene.frame_set(frame)
+								bpy.context.scene.update()
+								for blenderBone in armature.pose.bones:
+									boneLocation, boneRotation, boneScale = blenderBone.matrix_channel.decompose()
+									boneEuler = boneRotation.to_euler('XYZ');
+									bone = Bone()
+									bone.location.append(boneLocation[0])
+									bone.location.append(boneLocation[1])
+									bone.location.append(boneLocation[2])
+									bone.rotation.append(math.degrees(boneEuler[0]))
+									bone.rotation.append(math.degrees(boneEuler[1]))
+									bone.rotation.append(math.degrees(boneEuler[2]))
+									bone.scale.append(boneScale[0])
+									bone.scale.append(boneScale[1])
+									bone.scale.append(boneScale[2])
+									animation.frames.append(bone)
+							model.animations.append(animation)
+			if len(model.vertexGroups) == 0:
+					model.vertexGroups.append(VertexGroup())
+			if len(model.animations) == 0:
+					model.animations.append(Animation())
 			scene.models.append(model)
 			bpy.data.meshes.remove(blenderModel)
 	writeToFile(filepath, scene)	
@@ -120,18 +171,26 @@ def writeToFile(filepath, scene):
 		models += "model<\n"
 		models += ("	name<" + model.name + ">name\n")
 		models += ("	transform<" + model.transform.toString() + ">transform\n")
-		models += "	vertex<"
+		models += "	vertex"
 		for vertex in model.vertices:
-			models += (vertex.toString() + "><")
-		models += ">vertex\n"
-		models += "	face<"
+			models += (vertex.toString())
+		models += "vertex\n"
+		models += "	face"
 		for face in model.faces:
-			models += (face.toString() + "><")
-		models += ">face\n"
-		models += "	material<"
+			models += (face.toString())
+		models += "face\n"
+		models += "	material"
 		for material in model.materials:
-			models += (material.toString() + "><")
-		models += ">material\n"
+			models += (material.toString())
+		models += "material\n"
+		models += "	vertexGroup"
+		for vertexGroup in model.vertexGroups:
+			models += (vertexGroup.toString())
+		models += "vertexGroup\n"
+		models += "	animation"
+		for animation in model.animations:
+			models += (animation.toString())
+		models += "animation\n"
 		models += ">model\n"
 	# write the cameras to the file
 	cameras = ""
@@ -201,6 +260,8 @@ class Model:
 		self.vertices = []
 		self.faces = []
 		self.materials = []
+		self.vertexGroups = []
+		self.animations = []
 		
 class Transform:
 	def __init__(self):
@@ -231,10 +292,9 @@ class Vertex:
 		self.material = 0
 		
 	def toString(self):
-		return str(("%.3f," % self.location[0]) + ("%.3f," % self.location[1]) + ("%.3f," % self.location[2])
+		return str("<" + ("%.3f," % self.location[0]) + ("%.3f," % self.location[1]) + ("%.3f," % self.location[2])
 					+ ("%.3f," % self.normal[0]) + ("%.3f," % self.normal[1]) + ("%.3f," % self.normal[2])
-					+ ("%i" % self.material))
-		
+					+ ("%i" % self.material) + ">")
 		
 class Face:
 	def __init__(self):
@@ -247,12 +307,12 @@ class Face:
 		self.material = 0
 		
 	def toString(self):
-		return str(("%i," % self.vertices[0]) + ("%i," % self.vertices[1]) + ("%i," % self.vertices[2])
+		return str("<" + ("%i," % self.vertices[0]) + ("%i," % self.vertices[1]) + ("%i," % self.vertices[2])
 					+ ("%.3f," % self.normal[0]) + ("%.3f," % self.normal[1]) + ("%.3f," % self.normal[2])
 					+ ("%.3f," % self.uv1[0]) + ("%.3f," % self.uv1[1])
 					+ ("%.3f," % self.uv2[0]) + ("%.3f," % self.uv2[1])
 					+ ("%.3f," % self.uv3[0]) + ("%.3f," % self.uv3[1])
-					+ ("%i" % self.material))
+					+ ("%i" % self.material) + ">")
 		
 class Material:
 	def __init__(self):
@@ -264,8 +324,61 @@ class Material:
 		self.shininess = 10
 	
 	def toString(self):
-		return str(self.name + "," + self.color.toString() + ","+ ("%.3f," % self.diffuseIntensity) + ("%.3f," % self.specularIntensity) + ("%.3f" % self.shininess))
+		return str("<" + self.name + "," + self.color.toString() + ","+ ("%.3f," % self.diffuseIntensity) + ("%.3f," % self.specularIntensity) + ("%.3f" % self.shininess) + ">")
 
+class VertexGroup:
+	def __init__(self):
+		self.index = 0
+		self.bone = 0
+		self.vertices = []
+		self.weights = []
+	
+	def toString(self):
+		result = str("<" + ("%i," % self.bone) + ("%i," % len(self.vertices)))
+		for vertex in self.vertices:
+			result += str("%i," % vertex)
+		i = 0
+		for weight in self.weights:
+			if i < len(self.weights)-1:
+				result += str("%.3f," % weight)
+			else:
+				result += str("%.3f" % weight)
+			i += 1
+		result += ">"
+		return result
+		
+class Animation:
+	def __init__(self):
+		self.index = 0
+		self.name = ""
+		self.bones = 1
+		self.frames = []
+	
+	def toString(self):
+		result = str("<" + (self.name) + "," + ("%i," % self.bones) + ("%i," % (len(self.frames) / self.bones)))
+		i = 0
+		for bone in self.frames:
+			if i < len(self.frames)-1:
+				result += str(bone.toString() + ",")
+			else:
+				result += bone.toString()
+			i += 1
+		result += ">"
+		return result
+	
+class Bone:
+	def __init__(self):
+		self.index = 0
+		self.location = []
+		self.rotation = []
+		self.scale = []			
+		
+	def toString(self):
+		return str(("%.3f," % self.location[0]) + ("%.3f," % self.location[1]) + ("%.3f," % self.location[2])
+				+ ("%.3f," % self.rotation[0]) + ("%.3f," % self.rotation[1]) + ("%.3f," % self.rotation[2])
+				+ ("%.3f," % self.scale[0]) + ("%.3f," % self.scale[1]) + ("%.3f" % self.scale[2]))
+
+		
 
 
 

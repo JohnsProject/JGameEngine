@@ -24,6 +24,15 @@ public class VertexGroup {
 		return vertices;
 	}
 	
+	public int getWeight(Vertex vertex) {
+		for (int i = 0; i < vertices.length; i++) {
+			if(vertices[i].getIndex() == vertex.getIndex()) {
+				return getWeight(i);
+			}
+		}
+		return -1;
+	}
+	
 	public int getWeight(int index) {
 		return weights[index];
 	}

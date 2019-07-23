@@ -11,7 +11,6 @@ public class Armature {
 	public Armature(VertexGroup[] vertexGroups, Animation[] animations) {
 		this.vertexGroups = vertexGroups;
 		this.animations = animations;
-		playAnimation(0, true);
 	}
 
 	public VertexGroup getVertexGroup(int index) {
@@ -48,21 +47,38 @@ public class Armature {
 	}
 
 	public AnimationFrame getCurrentAnimationFrame() {
-		return currentAnimation.getFrame(getCurrentFrame());
+		if(currentAnimation == null) {
+			return null;
+		} else {
+			return currentAnimation.getFrame(currentFrame);
+		}
 	}
 	
 	public int getCurrentFrame() {
-		if(currentFrame >= currentAnimation.getFrames().length-1) {
-			currentFrame = 0;
-		}
 		return currentFrame;
 	}
 
 	public void nextFrame() {
 		currentFrame++;
+		if(!isPlaying()) {
+			if(loopAnimation) {
+				currentFrame = 0;
+			} else {
+				stopPlaying();
+			}
+		}
 	}
 	
 	public boolean isPlaying() {
-		return currentFrame < currentAnimation.getFrames().length;
+		if(currentAnimation == null) {
+			return false;
+		} else {
+			return currentFrame < currentAnimation.getFrames().length;
+		}
+	}
+	
+	public void stopPlaying() {
+		currentFrame = -1;
+		currentAnimation = null;
 	}
 }

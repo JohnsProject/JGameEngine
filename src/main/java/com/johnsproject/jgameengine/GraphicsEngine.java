@@ -59,7 +59,9 @@ public class GraphicsEngine implements EngineListener {
 	
 	private final int[] modelMatrix;
 	private final int[] normalMatrix;
-	private final int[] weightBoneMatrix;
+	private final int[]	locationVector;
+	private final int[]	normalVector;
+	private final int[] multiplyVector;
 	private final GraphicsLibrary graphicsLibrary;
 	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
@@ -76,7 +78,9 @@ public class GraphicsEngine implements EngineListener {
 		this.vectorLibrary = new VectorLibrary();
 		this.modelMatrix = matrixLibrary.generate();
 		this.normalMatrix = matrixLibrary.generate();
-		this.weightBoneMatrix = matrixLibrary.generate();
+		this.locationVector = vectorLibrary.generate();
+		this.normalVector = vectorLibrary.generate();
+		this.multiplyVector = vectorLibrary.generate();
 		addPreprocessingShader(new DirectionalLightShadowShader());
 		addPreprocessingShader(new SpotLightShadowShader());
 		addPreprocessingShader(new PointLightShadowShader());
@@ -104,20 +108,7 @@ public class GraphicsEngine implements EngineListener {
 				vertexBuffer.resetAll();
 				final int[] worldLocation = vertexBuffer.getWorldLocation();
 				final int[] normal = vertexBuffer.getNormal();
-//				for (int i = 0; i < armature.getVertexGroups().length; i++) {
-//					final VertexGroup vertexGroup = armature.getVertexGroup(i);
-//					for (int j = 0; j < vertexGroup.getVertices().length; j++) {
-//						final Vertex groupVertex = vertexGroup.getVertex(j);
-//						if(groupVertex.getIndex() == vertex.getIndex()) {
-//							int[] boneMatrix = animationFrame.getBoneWorldMatrix(vertexGroup.getBoneIndex());
-//							int[] boneNormalMatrix = animationFrame.getBoneNormalMatrix(vertexGroup.getBoneIndex());
-//							matrixLibrary.multiply(boneMatrix, vertexGroup.getWeight(j), weightBoneMatrix);
-//							vectorLibrary.matrixMultiply(worldLocation, weightBoneMatrix, worldLocation);
-////							matrixLibrary.multiply(boneNormalMatrix, vertexGroup.getWeight(j), weightBoneMatrix);
-////							vectorLibrary.matrixMultiply(worldNormal, weightBoneMatrix, worldNormal);
-//						}
-//					}
-//				}
+				animateVertex(armature, animationFrame, vertex, worldLocation, normal);
 				vectorLibrary.matrixMultiply(worldLocation, modelMatrix, worldLocation);
 				vectorLibrary.matrixMultiply(normal, normalMatrix, normal);
 			}
@@ -139,7 +130,7 @@ public class GraphicsEngine implements EngineListener {
 		}
 	}
 	
-	public void useShader(Shader shader, int shaderIndex, boolean mustUse) {
+	private void useShader(Shader shader, int shaderIndex, boolean mustUse) {
 		shader.update(shaderBuffer);
 		for (int c = 0; c < scene.getCameras().size(); c++) {
 			final Camera camera = scene.getCameras().get(c);
@@ -162,6 +153,28 @@ public class GraphicsEngine implements EngineListener {
 					}
 				}
 			}
+		}
+	}
+	
+	private void animateVertex(Armature armature, AnimationFrame animationFrame, Vertex vertex, int[] worldLocation, int[] normal) {
+		if(animationFrame != null) {
+			vectorLibrary.copy(locationVector, VectorLibrary.VECTOR_ZERO);
+			vectorLibrary.copy(normalVector, VectorLibrary.VECTOR_ZERO);
+			for (int i = 0; i < armature.getVertexGroups().length; i++) {
+				final VertexGroup vertexGroup = armature.getVertexGroup(i);
+				final int boneWeight = vertexGroup.getWeight(vertex);
+				if(boneWeight != -1) {
+					int[] rotationMatrix = animationFrame.getBoneMatrix(vertexGroup.getBoneIndex());
+					vectorLibrary.matrixMultiply(worldLocation, rotationMatrix, multiplyVector);
+					vectorLibrary.multiply(multiplyVector, boneWeight, multiplyVector);
+					vectorLibrary.add(locationVector, multiplyVector, locationVector);
+					vectorLibrary.matrixMultiply(normal, rotationMatrix, multiplyVector);
+					vectorLibrary.multiply(multiplyVector, boneWeight, multiplyVector);
+					vectorLibrary.add(normalVector, multiplyVector, normalVector);
+				}
+			}
+			vectorLibrary.copy(worldLocation, locationVector);
+			vectorLibrary.copy(normal, normalVector);
 		}
 	}
 	
