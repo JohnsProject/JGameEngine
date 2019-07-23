@@ -36,7 +36,7 @@ public class EngineStatistics implements EngineListener {
 	private static final int STATISTICS_Y = 30;
 	private static final int STATISTICS_WIDTH = 160;
 	private static final int STATISTICS_HEIGHT = 130;
-	private static final Color STATISTICS_BACKROUND = new Color(230, 230, 230, 200);
+	private static final Color STATISTICS_BACKROUND = Color.WHITE;
 	
 	private GraphicsEngine graphicsEngine;
 	private TextArea textArea;
@@ -81,8 +81,8 @@ public class EngineStatistics implements EngineListener {
 		}
 	}
 
-	public int getPriority() {
-		return 10000;
+	public int getLayer() {
+		return GRAPHICS_ENGINE_LAYER;
 	}	
 	
 	private void statsUI() {

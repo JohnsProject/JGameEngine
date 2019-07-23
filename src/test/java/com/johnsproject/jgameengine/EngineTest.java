@@ -88,7 +88,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/AnimationTest.png"));
 			for (int i = 0; i < scene.getModels().size(); i++) {
 				((ShaderProperties)scene.getModel(i).getMesh().getMaterial(0).getProperties()).setTexture(texture);
-				scene.getModel(i).getArmature().playAnimation("Action", true);
+				scene.getModel(i).getArmature().playAnimation("Walk", true);
 			}
 			return scene;
 		} catch (IOException e) {
@@ -104,7 +104,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	public void fixedUpdate() {
 	}
 
-	public int getPriority() {
+	public int getLayer() {
 		return 0;
 	}
 

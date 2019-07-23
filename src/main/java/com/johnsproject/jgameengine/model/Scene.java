@@ -61,7 +61,7 @@ public class Scene {
 				return model;
 			}
 		}
-		return models.get(0);
+		return null;
 	}
 	
 	public void addLight(Light light){
@@ -87,7 +87,7 @@ public class Scene {
 				return light;
 			}
 		}
-		return lights.get(0);
+		return null;
 	}
 	
 	public void addCamera(Camera camera){
@@ -113,6 +113,6 @@ public class Scene {
 				return camera;
 			}
 		}
-		return cameras.get(0);
+		return null;
 	}
 }

@@ -131,7 +131,7 @@ public class EngineWindow extends Frame implements EngineListener {
 	
 	public void fixedUpdate() {}
 	
-	public int getPriority() {
-		return 10001;
+	public int getLayer() {
+		return GRAPHICS_ENGINE_LAYER + 1;
 	}
 }

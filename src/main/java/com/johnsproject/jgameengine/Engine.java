@@ -153,7 +153,7 @@ public class Engine {
 		for (int i = 0; i < listenerCount; i++) {
 			int min_i = i;
 			for (int j = i + 1; j < listenerCount; j++) {
-				if (engineListeners.get(j).getPriority() < engineListeners.get(min_i).getPriority()) {
+				if (engineListeners.get(j).getLayer() < engineListeners.get(min_i).getLayer()) {
 					min_i = j;
 				}
 			}

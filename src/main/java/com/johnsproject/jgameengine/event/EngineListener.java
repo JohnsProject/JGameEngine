@@ -25,9 +25,13 @@ package com.johnsproject.jgameengine.event;
 
 public interface EngineListener {
 	
+	public static final int INPUT_ENGINE_LAYER = -100;
+	public static final int DEFAULT_LAYER = 0;
+	public static final int GRAPHICS_ENGINE_LAYER = 100;
+	
 	public void start();
 	public void update();
 	public void fixedUpdate();
-	public int getPriority();
+	public int getLayer();
 	
 }

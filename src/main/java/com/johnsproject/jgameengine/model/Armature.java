@@ -1,16 +1,21 @@
 package com.johnsproject.jgameengine.model;
 
+import com.johnsproject.jgameengine.library.MathLibrary;
+
 public class Armature {
 	
 	private final VertexGroup[] vertexGroups;
 	private final Animation[] animations;
 	private Animation currentAnimation;
 	private int currentFrame;
+	private int animationSpeed;
 	private boolean loopAnimation;
 	
 	public Armature(VertexGroup[] vertexGroups, Animation[] animations) {
 		this.vertexGroups = vertexGroups;
 		this.animations = animations;
+		this.animationSpeed = MathLibrary.FP_ONE;
+		this.currentFrame = 0;
 	}
 
 	public VertexGroup getVertexGroup(int index) {
@@ -50,16 +55,16 @@ public class Armature {
 		if(currentAnimation == null) {
 			return null;
 		} else {
-			return currentAnimation.getFrame(currentFrame);
+			return currentAnimation.getFrame(getCurrentFrame());
 		}
 	}
 	
 	public int getCurrentFrame() {
-		return currentFrame;
+		return currentFrame >> MathLibrary.FP_BITS;
 	}
 
 	public void nextFrame() {
-		currentFrame++;
+		currentFrame += animationSpeed;
 		if(!isPlaying()) {
 			if(loopAnimation) {
 				currentFrame = 0;
@@ -73,12 +78,20 @@ public class Armature {
 		if(currentAnimation == null) {
 			return false;
 		} else {
-			return currentFrame < currentAnimation.getFrames().length;
+			return getCurrentFrame() < currentAnimation.getFrames().length;
 		}
 	}
 	
 	public void stopPlaying() {
-		currentFrame = -1;
+		currentFrame = 0;
 		currentAnimation = null;
+	}
+
+	public int getAnimationSpeed() {
+		return animationSpeed;
+	}
+
+	public void setAnimationSpeed(int animationSpeed) {
+		this.animationSpeed = animationSpeed;
 	}
 }

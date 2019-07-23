@@ -184,8 +184,8 @@ public class GraphicsEngine implements EngineListener {
 		}		
 	}
 
-	public int getPriority() {
-		return 10000;
+	public int getLayer() {
+		return GRAPHICS_ENGINE_LAYER;
 	}
 
 	public ShaderBuffer getShaderDataBuffer() {

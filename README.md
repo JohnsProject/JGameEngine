@@ -14,6 +14,7 @@ It only uses Java AWT, as the 3D part is done by software rendering.
 * Flat, gouraud and phong shaders
 * Shadow mapping shaders for all three light types
 * Blender exporter and importer
+* Skeletal animation
 
 ## Screenshots
 ![Screenshot](Images/Example1.PNG "Example1")

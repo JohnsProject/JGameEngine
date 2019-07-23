@@ -274,7 +274,7 @@ public class InputEngine implements EngineListener {
 		}
 	}
 
-	public int getPriority() {
-		return 0;
+	public int getLayer() {
+		return INPUT_ENGINE_LAYER;
 	}
 }
