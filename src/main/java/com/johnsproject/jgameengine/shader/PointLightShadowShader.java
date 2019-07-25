@@ -103,34 +103,6 @@ public class PointLightShadowShader implements Shader {
 		}
 	}
 	
-	public PointLightShadowShader(int width, int height) {
-		this.graphicsLibrary = new GraphicsLibrary();
-		this.matrixLibrary = new MatrixLibrary();
-		this.vectorLibrary = new VectorLibrary();
-		this.rasterizer = new FlatRasterizer(this);
-
-		this.viewMatrix = matrixLibrary.generate();
-		this.projectionMatrix = matrixLibrary.generate();
-		this.lightMatrices = new int[6][16];
-		
-		this.location0Cache = vectorLibrary.generate();
-		this.location1Cache = vectorLibrary.generate();
-		this.location2Cache = vectorLibrary.generate();
-		
-		this.lightFrustum = new int[Camera.FRUSTUM_SIZE];
-		lightFrustum[Camera.FRUSTUM_LEFT] = 0;
-		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_TOP] = 0;
-		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 50;
-		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
-		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.shadowMaps = new Texture[6];
-		for (int i = 0; i < shadowMaps.length; i++) {
-			shadowMaps[i] = new Texture(width, height);
-		}
-	}
-	
 	public void update(ShaderBuffer shaderBuffer) {
 		this.shaderBuffer = shaderBuffer;
 		this.lights = shaderBuffer.getLights();

@@ -87,28 +87,7 @@ public class SpotLightShadowShader implements Shader {
 		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 50;
 		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.shadowMap = new Texture(320, 320);
-	}
-	
-	public SpotLightShadowShader(int width, int height) {
-		this.graphicsLibrary = new GraphicsLibrary();
-		this.matrixLibrary = new MatrixLibrary();
-		this.vectorLibrary = new VectorLibrary();
-		this.rasterizer = new FlatRasterizer(this);
-
-		this.viewMatrix = matrixLibrary.generate();
-		this.projectionMatrix = matrixLibrary.generate();
-		this.lightMatrix = matrixLibrary.generate();
-		
-		this.lightFrustum = new int[Camera.FRUSTUM_SIZE];
-		lightFrustum[Camera.FRUSTUM_LEFT] = 0;
-		lightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_TOP] = 0;
-		lightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		lightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 50;
-		lightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
-		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.shadowMap = new Texture(width, height);
+		this.shadowMap = new Texture(64, 64);
 	}
 	
 	public void update(ShaderBuffer shaderBuffer) {

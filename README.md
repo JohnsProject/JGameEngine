@@ -4,16 +4,12 @@ JGameEngine is a tiny 3D game engine written in Java.
 It only uses Java AWT, as the 3D part is done by software rendering.
 
 ## Features 
-* Pure Java
-* Fixed point math only
-* Scanline triangle rasterization 
-* Flat, gouraud and phong shaded triangles
-* Perspective correct and affine texture mapping
-* Point, Directional and Spot lights
-* Shaders
-* Flat, gouraud and phong shaders
-* Shadow mapping shaders for all three light types
-* Blender exporter and importer
+* Pure Java and Java 1.5+ compatibility
+* Pure fixed point (no floats)
+* [Blender](https://www.blender.org/) exporter and importer
+* Scanline triangle rasterization (flat, gouraud and phong + texture mapping)
+* Shaders (flat, gouraud and phong shaders)
+* Point, directional and spot lights + shadow mapping shaders (experimental)
 * Skeletal animation
 
 ## Screenshots

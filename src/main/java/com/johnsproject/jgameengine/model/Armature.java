@@ -1,7 +1,5 @@
 package com.johnsproject.jgameengine.model;
 
-import com.johnsproject.jgameengine.library.MathLibrary;
-
 public class Armature {
 	
 	private final VertexGroup[] vertexGroups;
@@ -14,7 +12,7 @@ public class Armature {
 	public Armature(VertexGroup[] vertexGroups, Animation[] animations) {
 		this.vertexGroups = vertexGroups;
 		this.animations = animations;
-		this.animationSpeed = MathLibrary.FP_ONE;
+		this.animationSpeed = 1;
 		this.currentFrame = 0;
 	}
 
@@ -60,7 +58,7 @@ public class Armature {
 	}
 	
 	public int getCurrentFrame() {
-		return currentFrame >> MathLibrary.FP_BITS;
+		return currentFrame;
 	}
 
 	public void nextFrame() {

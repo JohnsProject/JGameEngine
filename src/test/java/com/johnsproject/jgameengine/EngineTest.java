@@ -21,10 +21,8 @@ import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.ShaderProperties;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
-import com.johnsproject.jgameengine.shader.EarlyDepthBufferShader;
 import com.johnsproject.jgameengine.shader.FlatSpecularShader;
 import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
-import com.johnsproject.jgameengine.shader.PhongSpecularShader;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
@@ -78,14 +76,12 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 //		Engine.getInstance().limitUpdateRate(true);
 //		graphicsEngine.removeShader(0);
 //		graphicsEngine.addShader(new FlatSpecularShader());
-//		graphicsEngine.addPreprocessingShader(new EarlyDepthBufferShader());
-//		graphicsEngine.addShader(new PhongSpecularShader());
 	}
 	
 	private Scene loadScene() {
 		try {
 			Scene scene = new SceneImporter().load("C:/Development/test.scene");
-			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/AnimationTest.png"));
+			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
 			for (int i = 0; i < scene.getModels().size(); i++) {
 				((ShaderProperties)scene.getModel(i).getMesh().getMaterial(0).getProperties()).setTexture(texture);
 				scene.getModel(i).getArmature().playAnimation("Walk", true);
@@ -109,9 +105,9 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		int[] rotation = cameraTransform.getRotation();
-		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
-		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
+//		int[] rotation = cameraTransform.getRotation();
+//		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
+//		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
 	}
 
 	public void mouseMoved(MouseEvent e) {

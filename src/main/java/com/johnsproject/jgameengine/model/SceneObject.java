@@ -27,6 +27,7 @@ public class SceneObject {
 		
 	protected final String name;
 	protected final Transform transform;
+//	protected final RigidBody rigidBody;
 	protected boolean active;
 	
 	public SceneObject(String name, Transform transform) {
