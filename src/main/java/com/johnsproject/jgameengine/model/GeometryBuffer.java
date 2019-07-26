@@ -29,7 +29,6 @@ public class GeometryBuffer {
 	private final int[] normal;
 	private final int[] worldNormal;
 	private final int[][] uvs;
-	private final Material material;
 	private final VertexBuffer[] vertexDataBuffers;
 	
 	public GeometryBuffer(Face face) {
@@ -40,7 +39,6 @@ public class GeometryBuffer {
 		this.uvs[0] = face.getUV(0).clone();
 		this.uvs[0] = face.getUV(1).clone();
 		this.uvs[0] = face.getUV(2).clone();
-		this.material = face.getMaterial();
 		this.vertexDataBuffers = new VertexBuffer[3];
 		this.vertexDataBuffers[0] = face.getVertex(0).getBuffer();
 		this.vertexDataBuffers[1] = face.getVertex(1).getBuffer();
@@ -57,10 +55,6 @@ public class GeometryBuffer {
 
 	public int[][] getUVs() {
 		return uvs;
-	}
-
-	public Material getMaterial() {
-		return material;
 	}
 
 	public VertexBuffer getVertexDataBuffer(int index) {

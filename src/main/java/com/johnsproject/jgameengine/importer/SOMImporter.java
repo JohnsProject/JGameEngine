@@ -34,9 +34,10 @@ import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Mesh;
 import com.johnsproject.jgameengine.model.Model;
-import com.johnsproject.jgameengine.model.ShaderProperties;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
+import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
+import com.johnsproject.jgameengine.shader.SpecularProperties;
 
 /**
  * The SOMImporter class imports .som (Scene Object Mesh) files exported 
@@ -180,8 +181,12 @@ public class SOMImporter {
 			int	a = mathLibrary.generate(getFloat(mDiffuseColorData[i+3]) * 256);
 			int diffuseIntensity = mathLibrary.generate(getFloat(mDiffuseIntensityData[i / 4]));
 			int specularIntensity = mathLibrary.generate(getFloat(mSpecularIntensityData[i / 4]));
-			ShaderProperties properties = new ShaderProperties(colorLibrary.generate(a, r, g, b), diffuseIntensity, specularIntensity, 0, null);
-			materials[i/4] = new Material(i/4, "", 0, properties);
+			GouraudSpecularShader shader = new GouraudSpecularShader();
+			SpecularProperties properties = (SpecularProperties) shader.getProperties();
+			properties.setDiffuseColor(colorLibrary.generate(a, r, g, b));
+			properties.setDiffuseIntensity(diffuseIntensity);
+			properties.setSpecularIntensity(specularIntensity);
+			materials[i/4] = new Material(i/4, "", shader);
 		}
 		return materials;
 	}

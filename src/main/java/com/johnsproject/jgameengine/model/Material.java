@@ -23,17 +23,18 @@
  */
 package com.johnsproject.jgameengine.model;
 
+import com.johnsproject.jgameengine.shader.Shader;
+
 public class Material {
 
 	private final int index;
 	private final String name;
-	private int shaderIndex;
-	private ShaderProperties properties;
+	private Shader shader;
 	
-	public Material(int index, String name, int shaderIndex, ShaderProperties shaderProperties) {
+	public Material(int index, String name, Shader shader) {
 		this.index = index;
-		this.name = "";
-		setShader(shaderIndex, shaderProperties);
+		this.name = name;
+		this.shader = shader;
 	}
 
 	public int getIndex() {
@@ -43,17 +44,12 @@ public class Material {
 	public String getName() {
 		return name;
 	}
-	
-	public int getShaderIndex() {
-		return shaderIndex;
+
+	public Shader getShader() {
+		return shader;
 	}
 
-	public ShaderProperties getProperties() {
-		return properties;
-	}
-
-	public void setShader(int shaderIndex, ShaderProperties shaderProperties) {
-		this.shaderIndex = shaderIndex;
-		this.properties = shaderProperties;
+	public void setShader(Shader shader) {
+		this.shader = shader;
 	}
 }

@@ -23,23 +23,49 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.model.Camera;
+import com.johnsproject.jgameengine.library.ColorLibrary;
+import com.johnsproject.jgameengine.library.GraphicsLibrary;
+import com.johnsproject.jgameengine.library.MathLibrary;
+import com.johnsproject.jgameengine.library.MatrixLibrary;
+import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.GeometryBuffer;
-import com.johnsproject.jgameengine.model.ShaderBuffer;
 import com.johnsproject.jgameengine.model.VertexBuffer;
 
-public interface Shader {
+public abstract class Shader {
 	
-	public void update(ShaderBuffer shaderBuffer);
+	protected static final byte VECTOR_X = VectorLibrary.VECTOR_X;
+	protected static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
+	protected static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
 	
-	public void setup(Camera camera);
+	protected static final byte FP_BITS = MathLibrary.FP_BITS;
+	protected static final int FP_ONE = MathLibrary.FP_ONE;
+	protected static final int FP_HALF = MathLibrary.FP_HALF;
 	
-	public void vertex(VertexBuffer vertexBuffer);
+	protected final GraphicsLibrary graphicsLibrary;
+	protected final MathLibrary mathLibrary;
+	protected final MatrixLibrary matrixLibrary;
+	protected final VectorLibrary vectorLibrary;
+	protected final ColorLibrary colorLibrary;
+	
+	public Shader() {
+		this.graphicsLibrary = new GraphicsLibrary();
+		this.mathLibrary = new MathLibrary();
+		this.matrixLibrary = new MatrixLibrary();
+		this.vectorLibrary = new VectorLibrary();
+		this.colorLibrary = new ColorLibrary();
+	}
+	
+	public abstract void vertex(VertexBuffer vertexBuffer);
+	
+	public abstract void geometry(GeometryBuffer geometryBuffer);
+	
+	public abstract void fragment(int[] location);
 
-	public void geometry(GeometryBuffer geometryBuffer);
+	public abstract ShaderBuffer getShaderBuffer();
 
-	public void fragment(int[] location);
+	public abstract void setShaderBuffer(ShaderBuffer shaderBuffer);
+
+	public abstract void setProperties(ShaderProperties shaderProperties);
 	
-	public void terminate(ShaderBuffer shaderBuffer);
-	
+	public abstract ShaderProperties getProperties();
 }

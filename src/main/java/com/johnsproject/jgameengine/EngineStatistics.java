@@ -105,7 +105,6 @@ public class EngineStatistics implements EngineListener {
 			frameBufferWidth = graphicsEngine.getFrameBuffer().getWidth();
 			frameBufferHeight = graphicsEngine.getFrameBuffer().getHeight();
 			shadersCount += graphicsEngine.getPreprocessingShaders().size();
-			shadersCount += graphicsEngine.getShaders().size();
 			shadersCount += graphicsEngine.getPostprocessingShaders().size();
 			List<Model> models = graphicsEngine.getScene().getModels();
 			for (int i = 0; i < models.size(); i++) {
@@ -150,7 +149,6 @@ public class EngineStatistics implements EngineListener {
 			frameBufferWidth = graphicsEngine.getFrameBuffer().getWidth();
 			frameBufferHeight = graphicsEngine.getFrameBuffer().getHeight();
 			shadersCount += graphicsEngine.getPreprocessingShaders().size();
-			shadersCount += graphicsEngine.getShaders().size();
 			shadersCount += graphicsEngine.getPostprocessingShaders().size();
 			List<Model> models = graphicsEngine.getScene().getModels();
 			for (int i = 0; i < models.size(); i++) {

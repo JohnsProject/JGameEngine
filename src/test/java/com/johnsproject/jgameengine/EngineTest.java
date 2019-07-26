@@ -17,12 +17,16 @@ import com.johnsproject.jgameengine.library.FileLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.FrameBuffer;
+import com.johnsproject.jgameengine.model.Material;
+import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.Scene;
-import com.johnsproject.jgameengine.model.ShaderProperties;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.shader.FlatSpecularShader;
 import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
+import com.johnsproject.jgameengine.shader.PhongSpecularShader;
+import com.johnsproject.jgameengine.shader.ShaderProperties;
+import com.johnsproject.jgameengine.shader.SpecularProperties;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
@@ -74,8 +78,6 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(stats);
 		graphicsEngine.getPreprocessingShaders().clear();
 //		Engine.getInstance().limitUpdateRate(true);
-//		graphicsEngine.removeShader(0);
-//		graphicsEngine.addShader(new FlatSpecularShader());
 	}
 	
 	private Scene loadScene() {
@@ -83,8 +85,16 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 			Scene scene = new SceneImporter().load("C:/Development/test.scene");
 			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
 			for (int i = 0; i < scene.getModels().size(); i++) {
-				((ShaderProperties)scene.getModel(i).getMesh().getMaterial(0).getProperties()).setTexture(texture);
-				scene.getModel(i).getArmature().playAnimation("Walk", true);
+				Model model = scene.getModel(i);
+				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
+					Material material = model.getMesh().getMaterial(j);
+					SpecularProperties properties = (SpecularProperties)material.getShader().getProperties();
+//					material.setShader(new FlatSpecularShader());
+//					material.setShader(new PhongSpecularShader());
+					material.getShader().setProperties(properties);
+					properties.setTexture(texture);
+				}
+				model.getArmature().playAnimation("Walk", true);
 			}
 			return scene;
 		} catch (IOException e) {
@@ -105,9 +115,9 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	public void mouseDragged(MouseEvent e) {
-//		int[] rotation = cameraTransform.getRotation();
-//		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
-//		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
+		int[] rotation = cameraTransform.getRotation();
+		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
+		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
 	}
 
 	public void mouseMoved(MouseEvent e) {

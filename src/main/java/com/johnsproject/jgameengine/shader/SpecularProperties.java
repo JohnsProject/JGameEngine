@@ -21,23 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.model;
+package com.johnsproject.jgameengine.shader;
 
-public class ShaderProperties {
+import com.johnsproject.jgameengine.model.Texture;
+
+public class SpecularProperties implements ShaderProperties {
 
 	private int diffuseIntensity;
 	private int diffuseColor;
 	private int specularIntensity;
 	private int shininess;
 	private Texture texture;
-
-	public ShaderProperties(int diffuseColor, int diffuseIntensity, int specularIntensity, int shininess, Texture texture) {
-		this.diffuseIntensity = diffuseIntensity;
-		this.diffuseColor = diffuseColor;
-		this.specularIntensity = specularIntensity;
-		this.shininess = shininess;
-		this.texture = texture;
-	}
 
 	public int getDiffuseIntensity() {
 		return diffuseIntensity;
