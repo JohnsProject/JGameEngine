@@ -30,7 +30,6 @@ public class Mesh {
 	private final Material[] materials;
 	
 	public Mesh(Vertex[] vertices, Face[] faces, Material[] materials) {
-		super();
 		this.vertices = vertices;
 		this.faces = faces;
 		this.materials = materials;

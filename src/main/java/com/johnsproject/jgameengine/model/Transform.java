@@ -35,6 +35,12 @@ public class Transform {
 	private final int[] rotation;
 	private final int[] scale;
 	
+	public Transform() {
+		this.location = VectorLibrary.generate();
+		this.rotation = VectorLibrary.generate();
+		this.scale = VectorLibrary.generate();
+	}
+	
 	public Transform(int[] location, int[] rotation, int[] scale) {
 		this.location = location;
 		this.rotation = rotation;

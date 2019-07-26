@@ -56,11 +56,11 @@ public class FlatRasterizer {
 		this.shader = shader;
 		this.mathLibrary = new MathLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.vectorCache = vectorLibrary.generate();
-		this.pixelCache = vectorLibrary.generate();
-		this.location0 = vectorLibrary.generate();
-		this.location1 = vectorLibrary.generate();
-		this.location2 = vectorLibrary.generate();
+		this.vectorCache = VectorLibrary.generate();
+		this.pixelCache = VectorLibrary.generate();
+		this.location0 = VectorLibrary.generate();
+		this.location1 = VectorLibrary.generate();
+		this.location2 = VectorLibrary.generate();
 	}
 	
 	public final void setLocation0(int[] location) {

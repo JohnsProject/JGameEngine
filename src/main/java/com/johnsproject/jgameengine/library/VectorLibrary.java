@@ -71,7 +71,7 @@ public class VectorLibrary {
 	 * @param z
 	 * @return
 	 */
-	public int[] generate(int x, int y, int z, int w) {
+	public static int[] generate(int x, int y, int z, int w) {
 		return new int[] {x, y, z, w};
 	}
 	
@@ -84,7 +84,7 @@ public class VectorLibrary {
 	 * @param z
 	 * @return
 	 */
-	public int[] generate(int x, int y, int z) {
+	public static int[] generate(int x, int y, int z) {
 		return new int[] {x, y, z, FP_ONE};
 	}
 
@@ -96,7 +96,7 @@ public class VectorLibrary {
 	 * @param y
 	 * @return
 	 */
-	public int[] generate(int x, int y) {
+	public static int[] generate(int x, int y) {
 		return new int[] {x, y, 0, FP_ONE};
 	}
 	
@@ -106,7 +106,7 @@ public class VectorLibrary {
 	 * 
 	 * @return
 	 */
-	public int[] generate() {
+	public static int[] generate() {
 		return new int[] {0, 0, 0, FP_ONE};
 	}
 

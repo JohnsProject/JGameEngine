@@ -25,6 +25,7 @@ package com.johnsproject.jgameengine.shader;
 
 import com.johnsproject.jgameengine.library.ColorLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
+import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.GeometryBuffer;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
@@ -55,12 +56,12 @@ public class FlatSpecularShader extends Shader {
 	public FlatSpecularShader() {
 		this.rasterizer = new PerspectiveFlatRasterizer(this);
 		this.shaderProperties = new SpecularProperties();
-		this.lightLocation = vectorLibrary.generate();
-		this.lightDirection = vectorLibrary.generate();
-		this.viewDirection = vectorLibrary.generate();
-		this.faceLocation = vectorLibrary.generate();
+		this.lightLocation = VectorLibrary.generate();
+		this.lightDirection = VectorLibrary.generate();
+		this.viewDirection = VectorLibrary.generate();
+		this.faceLocation = VectorLibrary.generate();
 		this.vertexLocations = new int[3][4];
-		this.lightSpaceLocation = vectorLibrary.generate();
+		this.lightSpaceLocation = VectorLibrary.generate();
 	}
 
 	@Override

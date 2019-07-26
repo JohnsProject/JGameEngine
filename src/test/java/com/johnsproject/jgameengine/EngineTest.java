@@ -91,7 +91,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 					SpecularProperties properties = (SpecularProperties)material.getShader().getProperties();
 //					material.setShader(new FlatSpecularShader());
 //					material.setShader(new PhongSpecularShader());
-					material.getShader().setProperties(properties);
+//					material.getShader().setProperties(properties);
 					properties.setTexture(texture);
 				}
 				model.getArmature().playAnimation("Walk", true);

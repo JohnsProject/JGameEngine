@@ -68,12 +68,8 @@ public class ColorLibrary {
 	private static final byte GREENSHIFT = 8;
 	private static final byte REDSHIFT = 16;
 	private static final byte ALPHASHIFT = 24;
-
-	private final MathLibrary mathLibrary;
 	
-	public ColorLibrary() {
-		this.mathLibrary = new MathLibrary();
-	}
+	public ColorLibrary() {	}
 	
 	/**
 	 * Returns a integer sRGB color. 
@@ -85,12 +81,12 @@ public class ColorLibrary {
 	 * @param b
 	 * @return
 	 */
-	public int generate(int a, int r, int g, int b) {
+	public static int generate(int a, int r, int g, int b) {
 		int color = 0;
-		color |= mathLibrary.clamp(a, 0, 255) << ALPHASHIFT;
-		color |= mathLibrary.clamp(r, 0, 255) << REDSHIFT;
-		color |= mathLibrary.clamp(g, 0, 255) << GREENSHIFT;
-		color |= mathLibrary.clamp(b, 0, 255);
+		color |= Math.min(255, Math.max(a, 0)) << ALPHASHIFT;
+		color |= Math.min(255, Math.max(r, 0)) << REDSHIFT;
+		color |= Math.min(255, Math.max(g, 0)) << GREENSHIFT;
+		color |= Math.min(255, Math.max(b, 0));
 		return color;
 	}
 
@@ -103,12 +99,12 @@ public class ColorLibrary {
 	 * @param b
 	 * @return
 	 */
-	public int generate(int r, int g, int b) {
+	public static int generate(int r, int g, int b) {
 		int color = 0;
 		color |= (255) << ALPHASHIFT;
-		color |= mathLibrary.clamp(r, 0, 255) << REDSHIFT;
-		color |= mathLibrary.clamp(g, 0, 255) << GREENSHIFT;
-		color |= mathLibrary.clamp(b, 0, 255);
+		color |= Math.min(255, Math.max(r, 0)) << REDSHIFT;
+		color |= Math.min(255, Math.max(g, 0)) << GREENSHIFT;
+		color |= Math.min(255, Math.max(b, 0));
 		return color;
 	}
 

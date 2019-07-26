@@ -66,7 +66,7 @@ public class MathLibrary {
 	 * @param value
 	 * @return
 	 */
-	public int generate(float value) {
+	public static int generate(float value) {
 		return (int)(value * FP_ONE);
 	}
 	

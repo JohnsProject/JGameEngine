@@ -1,6 +1,7 @@
 package com.johnsproject.jgameengine.rasterizer;
 
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
+import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.Shader;
 
 public class PhongRasterizer extends FlatRasterizer {
@@ -16,14 +17,14 @@ public class PhongRasterizer extends FlatRasterizer {
 	
 	public PhongRasterizer(Shader shader) {
 		super(shader);
-		worldX = vectorLibrary.generate();
-		worldY = vectorLibrary.generate();
-		worldZ = vectorLibrary.generate();
-		worldLocation = vectorLibrary.generate();
-		normalX = vectorLibrary.generate();
-		normalY = vectorLibrary.generate();
-		normalZ = vectorLibrary.generate();
-		normal = vectorLibrary.generate();
+		worldX = VectorLibrary.generate();
+		worldY = VectorLibrary.generate();
+		worldZ = VectorLibrary.generate();
+		worldLocation = VectorLibrary.generate();
+		normalX = VectorLibrary.generate();
+		normalY = VectorLibrary.generate();
+		normalZ = VectorLibrary.generate();
+		normal = VectorLibrary.generate();
 	}
 	
 	public void setWorldLocation0(int[] location) {

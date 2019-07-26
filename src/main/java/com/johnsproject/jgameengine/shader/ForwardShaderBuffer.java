@@ -77,8 +77,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
 		
-		this.viewMatrix = matrixLibrary.generate();
-		this.projectionMatrix = matrixLibrary.generate();
+		this.viewMatrix = MatrixLibrary.generate();
+		this.projectionMatrix = MatrixLibrary.generate();
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		
 		this.directionalLightIndex = -1;
@@ -90,7 +90,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.directionalLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
 		this.directionalLightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 15;
 		this.directionalLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
-		this.directionalLightMatrix = matrixLibrary.generate();
+		this.directionalLightMatrix = MatrixLibrary.generate();
 		this.directionalShadowMap = new Texture(128, 128);
 		
 		this.spotLightIndex = -1;
@@ -102,7 +102,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.spotLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
 		this.spotLightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 50;
 		this.spotLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
-		this.spotLightMatrix = matrixLibrary.generate();
+		this.spotLightMatrix = MatrixLibrary.generate();
 		this.spotShadowMap = new Texture(64, 64);
 		
 		this.pointLightIndex = -1;

@@ -24,6 +24,7 @@
 package com.johnsproject.jgameengine.rasterizer;
 
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
+import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.shader.Shader;
 
@@ -35,9 +36,9 @@ public class AffineGouraudRasterizer extends GouraudRasterizer {
 	
 	public AffineGouraudRasterizer(Shader shader) {
 		super(shader);
-		u = vectorLibrary.generate();
-		v = vectorLibrary.generate();
-		uv = vectorLibrary.generate();
+		u = VectorLibrary.generate();
+		v = VectorLibrary.generate();
+		uv = VectorLibrary.generate();
 	}
 	
 	public final void setUV0(int[] uv, Texture texture) {

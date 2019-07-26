@@ -25,6 +25,7 @@ package com.johnsproject.jgameengine.rasterizer;
 
 import com.johnsproject.jgameengine.library.ColorLibrary;
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
+import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.Shader;
 
 public class GouraudRasterizer extends FlatRasterizer {
@@ -38,9 +39,9 @@ public class GouraudRasterizer extends FlatRasterizer {
 	public GouraudRasterizer(Shader shader) {
 		super(shader);
 		this.colorLibrary = new ColorLibrary();
-		this.red = vectorLibrary.generate();
-		this.green = vectorLibrary.generate();
-		this.blue = vectorLibrary.generate();
+		this.red = VectorLibrary.generate();
+		this.green = VectorLibrary.generate();
+		this.blue = VectorLibrary.generate();
 	}
 	
 	public final void setColor0(int color) {
@@ -62,7 +63,7 @@ public class GouraudRasterizer extends FlatRasterizer {
 	}
 
 	public final int getColor() {
-		return colorLibrary.generate(red[3], green[3], blue[3]);
+		return ColorLibrary.generate(red[3], green[3], blue[3]);
 	}
 	
 	/**

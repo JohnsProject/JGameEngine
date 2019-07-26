@@ -62,7 +62,7 @@ public class MatrixLibrary {
 	 * 
 	 * @return
 	 */
-	public int[] generate() {
+	public static int[] generate() {
 		return new int[] {
 			FP_ONE, 0, 0, 0,
 			0, FP_ONE, 0, 0,

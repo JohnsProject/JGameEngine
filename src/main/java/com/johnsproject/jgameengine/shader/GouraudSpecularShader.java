@@ -24,6 +24,7 @@
 package com.johnsproject.jgameengine.shader;
 
 import com.johnsproject.jgameengine.library.ColorLibrary;
+import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.GeometryBuffer;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
@@ -50,10 +51,10 @@ public class GouraudSpecularShader extends Shader {
 	public GouraudSpecularShader() {
 		this.rasterizer = new PerspectiveGouraudRasterizer(this);
 		this.shaderProperties = new SpecularProperties();
-		this.lightDirection = vectorLibrary.generate();
-		this.lightLocation = vectorLibrary.generate();
-		this.viewDirection = vectorLibrary.generate();
-		this.lightSpaceLocation = vectorLibrary.generate();
+		this.lightDirection = VectorLibrary.generate();
+		this.lightLocation = VectorLibrary.generate();
+		this.viewDirection = VectorLibrary.generate();
+		this.lightSpaceLocation = VectorLibrary.generate();
 	}
 
 	@Override

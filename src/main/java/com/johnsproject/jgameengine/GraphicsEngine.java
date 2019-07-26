@@ -61,7 +61,6 @@ public class GraphicsEngine implements EngineListener {
 	private final int[]	normalVector;
 	private final int[] multiplyVector;
 	private final GraphicsLibrary graphicsLibrary;
-	private final MatrixLibrary matrixLibrary;
 	private final VectorLibrary vectorLibrary;
 	
 	public GraphicsEngine(Scene scene, FrameBuffer frameBuffer) {
@@ -71,13 +70,12 @@ public class GraphicsEngine implements EngineListener {
 		this.scene = scene;
 		this.frameBuffer = frameBuffer;
 		this.graphicsLibrary = new GraphicsLibrary();
-		this.matrixLibrary = new MatrixLibrary();
 		this.vectorLibrary = new VectorLibrary();
-		this.modelMatrix = matrixLibrary.generate();
-		this.normalMatrix = matrixLibrary.generate();
-		this.locationVector = vectorLibrary.generate();
-		this.normalVector = vectorLibrary.generate();
-		this.multiplyVector = vectorLibrary.generate();
+		this.modelMatrix = MatrixLibrary.generate();
+		this.normalMatrix = MatrixLibrary.generate();
+		this.locationVector = VectorLibrary.generate();
+		this.normalVector = VectorLibrary.generate();
+		this.multiplyVector = VectorLibrary.generate();
 		addPreprocessingShader(new ShadowMappingShader());
 	}
 	
