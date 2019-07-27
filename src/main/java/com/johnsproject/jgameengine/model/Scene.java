@@ -28,6 +28,7 @@ import java.util.List;
 
 public class Scene {
 	
+	private Camera mainCamera;
 	private final List<Model> models;
 	private final List<Camera> cameras;
 	private final List<Light> lights;
@@ -91,6 +92,9 @@ public class Scene {
 	}
 	
 	public void addCamera(Camera camera){
+		if(mainCamera == null) {
+			setMainCamera(camera);
+		}
 		cameras.add(camera);
 	}
 	
@@ -114,5 +118,17 @@ public class Scene {
 			}
 		}
 		return null;
+	}
+
+	public Camera getMainCamera() {
+		return mainCamera;
+	}
+
+	public void setMainCamera(Camera mainCamera) {
+		if(this.mainCamera != null) {
+			this.mainCamera.setTag("");
+		}
+		mainCamera.setTag("MainCamera");
+		this.mainCamera = mainCamera;
 	}
 }

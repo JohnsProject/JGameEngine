@@ -24,7 +24,6 @@
 package com.johnsproject.jgameengine;
 
 import java.awt.AWTEvent;
-import java.awt.Component;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
@@ -36,6 +35,7 @@ import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineKeyListener;
 import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.event.EngineMouseListener;
@@ -56,7 +56,6 @@ public class InputEngine implements EngineListener {
 		this.mouseListeners = new ArrayList<EngineMouseListener>();
 		this.wheelListeners = new ArrayList<MouseWheelListener>();
 		this.motionListeners = new ArrayList<MouseMotionListener>();
-		start();
 	}
 
 	public KeyEvent[] getPressedKeys() {
@@ -107,7 +106,7 @@ public class InputEngine implements EngineListener {
 		motionListeners.remove(listener);
 	}
 	
-	public void start() {
+	public void start(EngineEvent e) {
 		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
 			public void eventDispatched(AWTEvent event) {
 				if (event instanceof KeyEvent) {
@@ -130,11 +129,7 @@ public class InputEngine implements EngineListener {
 				+ AWTEvent.MOUSE_WHEEL_EVENT_MASK);
 	}
 	
-	public void update() {
-		
-	}
-
-	public void fixedUpdate() {
+	public void fixedUpdate(EngineEvent e) {
 		for (int i = 0; i < keyEvents.length; i++) {
 			KeyEvent keyEvent = keyEvents[i];
 			if (keyEvent != null) {
@@ -146,18 +141,15 @@ public class InputEngine implements EngineListener {
 		for (int i = 0; i < mouseEvents.length; i++) {
 			MouseEvent mouseEvent = mouseEvents[i];
 			if (mouseEvent != null) {
-				mouseEvent = new MouseEvent((Component) mouseEvent.getSource(),
-														mouseEvent.getID(),
-														mouseEvent.getWhen(),
-														mouseEvent.getModifiers(),
-														(int) mouseLocation.getX(),
-														(int) mouseLocation.getY(),
-														mouseEvent.getClickCount(), false);
 				for (int j = 0; j < mouseListeners.size(); j++) {
 					mouseListeners.get(j).mouseDown(mouseEvent);
 				}
 			}
 		}
+	}
+	
+	public void update(EngineEvent e) {
+		
 	}
 	
 	private void handleKeyEvent(KeyEvent e) {

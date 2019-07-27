@@ -25,15 +25,18 @@ package com.johnsproject.jgameengine.model;
 
 public class SceneObject {
 		
+	protected String tag;
+	protected boolean active;
 	protected final String name;
 	protected final Transform transform;
-//	protected final RigidBody rigidBody;
-	protected boolean active;
+	protected final RigidBody rigidBody;
 	
 	public SceneObject(String name, Transform transform) {
+		this.tag = "";
 		this.name = name;
 		this.transform = transform;
 		this.active = true;
+		this.rigidBody = new RigidBody();
 	}
 
 	public Transform getTransform() {
@@ -43,6 +46,10 @@ public class SceneObject {
 	public String getName() {
 		return name;
 	}
+	
+	public RigidBody getRigidBody() {
+		return rigidBody;
+	}
 
 	public boolean isActive() {
 		return active;
@@ -50,5 +57,13 @@ public class SceneObject {
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
 	}	
 }

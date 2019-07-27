@@ -26,7 +26,9 @@ package com.johnsproject.jgameengine;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
+import com.johnsproject.jgameengine.model.Scene;
 
 public class Engine {
 
@@ -36,6 +38,7 @@ public class Engine {
 		return engine;
 	}
 
+	private Scene scene;
 	private Thread engineThread;
 	private final List<EngineListener> engineListeners;
 	private int maxUpdateSkip;
@@ -44,9 +47,10 @@ public class Engine {
 	private volatile boolean running;
 
 	private Engine() {
+		running = true;
 		updateRate = 30;
 		maxUpdateSkip = 10;
-		limitUpdateRate = false;
+		limitUpdateRate = true;
 		engineListeners = new ArrayList<EngineListener>();
 		startEngineLoop();
 	}
@@ -63,14 +67,12 @@ public class Engine {
 		running = true;
 		engineThread = new Thread(new Runnable() {
 			public void run() {
-				long nextUpateTick = System.currentTimeMillis();
-				long current = System.currentTimeMillis();
-				final int updatesToCatchUp = 1000 / getFixedUpdateRate();
+				long nextUpdateTime = System.currentTimeMillis();
+				long currentTime = 0;
+				long elapsedTime = 0;
+				long sleepTime = 0;
+				final int timePerUpdate = 1000 / getFixedUpdateRate();
 				int loops = 0;
-				int listernerCount = engineListeners.size();
-				for (int i = 0; i < listernerCount; i++) {
-					engineListeners.get(i).start();
-				}
 				while (true) {
 					if (!running) {
 						try {
@@ -81,20 +83,22 @@ public class Engine {
 						}
 					}
 					loops = 0;
-					current = System.currentTimeMillis();
-					listernerCount = engineListeners.size();
-					while (current > nextUpateTick && loops < getMaxUpdateSkip()) {
+					currentTime = System.currentTimeMillis();
+					final int listernerCount = engineListeners.size();
+					final EngineEvent event = new EngineEvent(scene, elapsedTime, sleepTime);
+					while (currentTime > nextUpdateTime && loops < getMaxUpdateSkip()) {
 						for (int i = 0; i < listernerCount; i++) {
-							engineListeners.get(i).fixedUpdate();
+							engineListeners.get(i).fixedUpdate(event);
 						}
-						nextUpateTick += updatesToCatchUp;
+						nextUpdateTime += timePerUpdate;
 						loops++;
 					}
 					for (int i = 0; i < listernerCount; i++) {
-						engineListeners.get(i).update();
+						engineListeners.get(i).update(event);
 					}
+					elapsedTime = System.currentTimeMillis() - currentTime;
 					if((loops == 1) & limitUpdateRate()) {
-						long sleepTime = nextUpateTick - current;
+						sleepTime = nextUpdateTime - currentTime;
 						if (sleepTime > 0) {
 							try {
 								Thread.sleep(sleepTime);
@@ -106,11 +110,12 @@ public class Engine {
 				}
 			}
 		});
-		engineThread.setName("Engine Thread");
+		engineThread.setName("EngineThread");
 		engineThread.start();
 	}
 
 	public void addEngineListener(EngineListener listener) {
+		listener.start(new EngineEvent(scene, 0, 0));
 		engineListeners.add(listener);
 		sortListeners();
 	}
@@ -146,6 +151,14 @@ public class Engine {
 	
 	public void setMaxUpdateSkip(int maxUpdateSkip) {
 		this.maxUpdateSkip = maxUpdateSkip;
+	}
+	
+	public Scene getScene() {
+		return scene;
+	}
+
+	public void setScene(Scene scene) {
+		this.scene = scene;
 	}
 
 	private void sortListeners() {

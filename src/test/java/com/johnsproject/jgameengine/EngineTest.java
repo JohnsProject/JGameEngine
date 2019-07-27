@@ -10,6 +10,7 @@ import com.johnsproject.jgameengine.EngineStatistics;
 import com.johnsproject.jgameengine.EngineWindow;
 import com.johnsproject.jgameengine.GraphicsEngine;
 import com.johnsproject.jgameengine.InputEngine;
+import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineKeyListener;
 import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.importer.SceneImporter;
@@ -25,7 +26,6 @@ import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.shader.FlatSpecularShader;
 import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.PhongSpecularShader;
-import com.johnsproject.jgameengine.shader.ShaderProperties;
 import com.johnsproject.jgameengine.shader.SpecularProperties;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
@@ -55,29 +55,29 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		RENDER_W = (WINDOW_W * 100) / 100;
 		RENDER_H = (WINDOW_H * 100) / 100;
 		this.vectorLibrary = new VectorLibrary();
-		cache = vectorLibrary.generate();
+		cache = VectorLibrary.generate();
+		Engine.getInstance().setScene(loadScene());
+		Engine.getInstance().limitUpdateRate(false);
 		Engine.getInstance().addEngineListener(this);
-		Engine.getInstance().start();
 	}
 	
-	public void start() {
+	public void start(EngineEvent e) {
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
 		EngineWindow window = new EngineWindow(frameBuffer);
 		window.setSize(WINDOW_W, WINDOW_H);
 //		window.setFullscreen(true);
 //		window.setBorders(false);
 		EngineStatistics stats = new EngineStatistics(window);
-		graphicsEngine = new GraphicsEngine(loadScene(), frameBuffer);
+		graphicsEngine = new GraphicsEngine(frameBuffer);
 		inputEngine = new InputEngine();
 		inputEngine.addMouseMotionListener(this);
 		inputEngine.addEngineKeyListener(this);
-		cameraTransform = graphicsEngine.getScene().getCamera(0).getTransform();
+		cameraTransform = Engine.getInstance().getScene().getMainCamera().getTransform();
 		Engine.getInstance().addEngineListener(graphicsEngine);
 		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
 		graphicsEngine.getPreprocessingShaders().clear();
-//		Engine.getInstance().limitUpdateRate(true);
 	}
 	
 	private Scene loadScene() {
@@ -103,11 +103,11 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		return new Scene();
 	}
 
-	public void update() {
-		
+	public void update(EngineEvent e) {
+
 	}
 	
-	public void fixedUpdate() {
+	public void fixedUpdate(EngineEvent e) {
 	}
 
 	public int getLayer() {

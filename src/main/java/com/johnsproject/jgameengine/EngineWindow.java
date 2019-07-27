@@ -30,6 +30,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 
+import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.model.FrameBuffer;
 
@@ -57,7 +58,11 @@ public class EngineWindow extends Frame implements EngineListener {
 		panel.setup();
 	}
 
-	public void update() {
+	public void start(EngineEvent e) {}
+	
+	public void fixedUpdate(EngineEvent e) {}
+	
+	public void update(EngineEvent e) {
 		panel.drawBuffer();
 		if (this.getWidth() != width || this.getHeight() != height) {
 			width = this.getWidth();
@@ -126,10 +131,6 @@ public class EngineWindow extends Frame implements EngineListener {
 			bufferStrategy.show();
 		}
 	}
-
-	public void start() {}
-	
-	public void fixedUpdate() {}
 	
 	public int getLayer() {
 		return GRAPHICS_ENGINE_LAYER + 1;

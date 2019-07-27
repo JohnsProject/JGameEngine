@@ -26,6 +26,7 @@ package com.johnsproject.jgameengine;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MatrixLibrary;
@@ -50,10 +51,8 @@ import com.johnsproject.jgameengine.shader.ShadowMappingShader;
 public class GraphicsEngine implements EngineListener {
 	
 	private final List<Shader> preShaders;
-	private final List<Shader> postShaders;
 	private ShaderBuffer shaderBuffer;
 	private FrameBuffer frameBuffer;
-	private Scene scene;
 	
 	private final int[] modelMatrix;
 	private final int[] normalMatrix;
@@ -63,11 +62,9 @@ public class GraphicsEngine implements EngineListener {
 	private final GraphicsLibrary graphicsLibrary;
 	private final VectorLibrary vectorLibrary;
 	
-	public GraphicsEngine(Scene scene, FrameBuffer frameBuffer) {
+	public GraphicsEngine(FrameBuffer frameBuffer) {
 		this.shaderBuffer = new ForwardShaderBuffer();
 		this.preShaders = new ArrayList<Shader>();
-		this.postShaders = new ArrayList<Shader>();
-		this.scene = scene;
 		this.frameBuffer = frameBuffer;
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.vectorLibrary = new VectorLibrary();
@@ -79,19 +76,31 @@ public class GraphicsEngine implements EngineListener {
 		addPreprocessingShader(new ShadowMappingShader());
 	}
 	
-	public void start() { }
+	public void start(EngineEvent e) { }
 	
-	public void update() {
+	public void fixedUpdate(EngineEvent e) { 
+		Scene scene = e.getScene();
+		for (int m = 0; m < scene.getModels().size(); m++) {
+			scene.getModels().get(m).getArmature().nextFrame();
+		}		
+	}
+	
+	public void update(EngineEvent e) {
+		Scene scene = e.getScene();
 		frameBuffer.getColorBuffer().fill(0);
 		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
 		frameBuffer.getStencilBuffer().fill(0);
-		transformToWorld();
+		transformToWorld(scene);
 		for (int c = 0; c < scene.getCameras().size(); c++) {
 			final Camera camera = scene.getCameras().get(c);
+			if(!camera.isActive())
+				continue;
 			shaderBuffer.setup(camera, scene.getLights(), frameBuffer);
-			applyPreShaders();
+			applyPreShaders(scene);
 			for (int m = 0; m < scene.getModels().size(); m++) {
 				final Model model = scene.getModels().get(m);
+				if(!model.isActive())
+					continue;
 				final Mesh mesh = model.getMesh();
 				for (int v = 0; v < mesh.getVertices().length; v++) {
 					final Vertex vertex = mesh.getVertex(v);
@@ -108,13 +117,14 @@ public class GraphicsEngine implements EngineListener {
 					shader.geometry(face.getBuffer());
 				}
 			}
-			applyPostShaders();
 		}
 	}
 	
-	private void transformToWorld() {
+	private void transformToWorld(Scene scene) {
 		for (int m = 0; m < scene.getModels().size(); m++) {
 			final Model model = scene.getModels().get(m);
+			if(!model.isActive())
+				continue;
 			final Mesh mesh = model.getMesh();
 			final Armature armature = model.getArmature();
 			final AnimationFrame animationFrame = armature.getCurrentAnimationFrame();
@@ -161,11 +171,13 @@ public class GraphicsEngine implements EngineListener {
 		}
 	}
 	
-	private void applyPreShaders() {
+	private void applyPreShaders(Scene scene) {
 		for (int s = 0; s < preShaders.size(); s++) {
 			final Shader shader = preShaders.get(s);
 			for (int m = 0; m < scene.getModels().size(); m++) {
 				final Model model = scene.getModels().get(m);
+				if(!model.isActive())
+					continue;
 				final Mesh mesh = model.getMesh();
 				for (int v = 0; v < mesh.getVertices().length; v++) {
 					final Vertex vertex = mesh.getVertex(v);
@@ -181,34 +193,6 @@ public class GraphicsEngine implements EngineListener {
 				}
 			}
 		}
-	}
-	
-	private void applyPostShaders() {
-		for (int s = 0; s < postShaders.size(); s++) {
-			final Shader shader = postShaders.get(s);
-			for (int m = 0; m < scene.getModels().size(); m++) {
-				final Model model = scene.getModels().get(m);
-				final Mesh mesh = model.getMesh();
-				for (int v = 0; v < mesh.getVertices().length; v++) {
-					final Vertex vertex = mesh.getVertex(v);
-					vertex.getBuffer().reset();
-					shader.setShaderBuffer(shaderBuffer);
-					shader.vertex(vertex.getBuffer());
-				}
-				for (int f = 0; f < mesh.getFaces().length; f++) {
-					final Face face = mesh.getFace(f);
-					face.getBuffer().reset();
-					shader.setShaderBuffer(shaderBuffer);
-					shader.geometry(face.getBuffer());
-				}
-			}
-		}
-	}
-	
-	public void fixedUpdate() { 
-		for (int m = 0; m < scene.getModels().size(); m++) {
-			scene.getModels().get(m).getArmature().nextFrame();
-		}		
 	}
 
 	public int getLayer() {
@@ -231,35 +215,15 @@ public class GraphicsEngine implements EngineListener {
 		return frameBuffer;
 	}
 	
-	public Scene getScene() {
-		return scene;
-	}
-
-	public void setScene(Scene scene) {
-		this.scene = scene;
-	}
-	
 	public List<Shader> getPreprocessingShaders() {
 		return preShaders;
-	}
-	
-	public List<Shader> getPostprocessingShaders() {
-		return postShaders;
 	}
 	
 	public Shader getPreprocessingShader(int index) {
 		return preShaders.get(index);
 	}
 	
-	public Shader getPostprocessingShader(int index) {
-		return postShaders.get(index);
-	}
-	
 	public void addPreprocessingShader(Shader shader) {
 		preShaders.add(shader);
-	}
-	
-	public void addPostprocessingShader(Shader shader) {
-		postShaders.add(shader);
 	}
 }
