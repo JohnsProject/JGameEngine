@@ -25,6 +25,8 @@ package com.johnsproject.jgameengine.model;
 
 public class Model extends SceneObject {
 	
+	public static final String MODEL_TAG = "Model";
+	
 	private final Mesh mesh;
 	private final Armature armature;
 	
@@ -32,6 +34,7 @@ public class Model extends SceneObject {
 		super(name, transform);
 		this.mesh = mesh;
 		this.armature = null;
+		this.tag = MODEL_TAG;
 	}
 	
 	public Model (String name, Transform transform, Mesh mesh, Armature armature) {

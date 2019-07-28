@@ -75,8 +75,10 @@ public class GraphicsEngine implements EngineListener {
 		this.multiplyVector = VectorLibrary.generate();
 		addPreprocessingShader(new ShadowMappingShader());
 	}
+
+	public void start(EngineEvent e) {
 	
-	public void start(EngineEvent e) { }
+	}
 	
 	public void fixedUpdate(EngineEvent e) { 
 		Scene scene = e.getScene();
@@ -149,28 +151,6 @@ public class GraphicsEngine implements EngineListener {
 		}
 	}
 	
-	private void animateVertex(Armature armature, AnimationFrame animationFrame, Vertex vertex, int[] worldLocation, int[] normal) {
-		if(animationFrame != null) {
-			vectorLibrary.copy(locationVector, VectorLibrary.VECTOR_ZERO);
-			vectorLibrary.copy(normalVector, VectorLibrary.VECTOR_ZERO);
-			for (int i = 0; i < armature.getVertexGroups().length; i++) {
-				final VertexGroup vertexGroup = armature.getVertexGroup(i);
-				final int boneWeight = vertexGroup.getWeight(vertex);
-				if(boneWeight != -1) {
-					int[] rotationMatrix = animationFrame.getBoneMatrix(vertexGroup.getBoneIndex());
-					vectorLibrary.matrixMultiply(worldLocation, rotationMatrix, multiplyVector);
-					vectorLibrary.multiply(multiplyVector, boneWeight, multiplyVector);
-					vectorLibrary.add(locationVector, multiplyVector, locationVector);
-					vectorLibrary.matrixMultiply(normal, rotationMatrix, multiplyVector);
-					vectorLibrary.multiply(multiplyVector, boneWeight, multiplyVector);
-					vectorLibrary.add(normalVector, multiplyVector, normalVector);
-				}
-			}
-			vectorLibrary.copy(worldLocation, locationVector);
-			vectorLibrary.copy(normal, normalVector);
-		}
-	}
-	
 	private void applyPreShaders(Scene scene) {
 		for (int s = 0; s < preShaders.size(); s++) {
 			final Shader shader = preShaders.get(s);
@@ -192,6 +172,28 @@ public class GraphicsEngine implements EngineListener {
 					shader.geometry(face.getBuffer());
 				}
 			}
+		}
+	}
+	
+	private void animateVertex(Armature armature, AnimationFrame animationFrame, Vertex vertex, int[] worldLocation, int[] normal) {
+		if(animationFrame != null) {
+			vectorLibrary.copy(locationVector, VectorLibrary.VECTOR_ZERO);
+			vectorLibrary.copy(normalVector, VectorLibrary.VECTOR_ZERO);
+			for (int i = 0; i < armature.getVertexGroups().length; i++) {
+				final VertexGroup vertexGroup = armature.getVertexGroup(i);
+				final int boneWeight = vertexGroup.getWeight(vertex);
+				if(boneWeight != -1) {
+					int[] rotationMatrix = animationFrame.getBoneMatrix(vertexGroup.getBoneIndex());
+					vectorLibrary.matrixMultiply(worldLocation, rotationMatrix, multiplyVector);
+					vectorLibrary.multiply(multiplyVector, boneWeight, multiplyVector);
+					vectorLibrary.add(locationVector, multiplyVector, locationVector);
+					vectorLibrary.matrixMultiply(normal, rotationMatrix, multiplyVector);
+					vectorLibrary.multiply(multiplyVector, boneWeight, multiplyVector);
+					vectorLibrary.add(normalVector, multiplyVector, normalVector);
+				}
+			}
+			vectorLibrary.copy(worldLocation, locationVector);
+			vectorLibrary.copy(normal, normalVector);
 		}
 	}
 

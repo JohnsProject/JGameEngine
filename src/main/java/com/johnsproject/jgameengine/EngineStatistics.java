@@ -118,7 +118,7 @@ public class EngineStatistics implements EngineListener {
 		}
 		averageUpdates += 1000 / elapsedTime;
 		loops++;
-		output += "Avr. Updates / s\t" + (averageUpdates / loops) + "\n";
+		output += "Average U / s\t" + (averageUpdates / loops) + "\n";
 		if(loops >= 400) {
 			averageUpdates = 0;
 			loops = 1;

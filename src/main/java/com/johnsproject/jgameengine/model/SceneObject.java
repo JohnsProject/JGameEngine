@@ -24,7 +24,7 @@
 package com.johnsproject.jgameengine.model;
 
 public class SceneObject {
-		
+	
 	protected String tag;
 	protected boolean active;
 	protected final String name;

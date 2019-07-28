@@ -125,7 +125,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.camera = camera;
 		this.lights = lights;
 		this.frameBuffer = frameBuffer;		
-		if(camera.getTag().equals("MainCamera")) {
+		if(camera.getTag().equals(Camera.MAIN_CAMERA_TAG)) {
 			directionalSetup(camera, lights, frameBuffer);
 			spotSetup(camera, lights, frameBuffer);
 			pointSetup(camera, lights, frameBuffer);

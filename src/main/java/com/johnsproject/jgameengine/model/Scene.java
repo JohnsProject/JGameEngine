@@ -128,7 +128,7 @@ public class Scene {
 		if(this.mainCamera != null) {
 			this.mainCamera.setTag("");
 		}
-		mainCamera.setTag("MainCamera");
+		mainCamera.setTag(Camera.MAIN_CAMERA_TAG);
 		this.mainCamera = mainCamera;
 	}
 }

@@ -27,6 +27,9 @@ import com.johnsproject.jgameengine.library.MathLibrary;
 
 public class Camera extends SceneObject {
 	
+	public static final String MAIN_CAMERA_TAG = "MainCamera";
+	public static final String CAMERA_TAG = "Camera";
+	
 	public static final byte FRUSTUM_LEFT = 0;
 	public static final byte FRUSTUM_RIGHT = 1;
 	public static final byte FRUSTUM_TOP = 2;
@@ -40,13 +43,14 @@ public class Camera extends SceneObject {
 
 	public Camera(String name, Transform transform) {
 		super(name, transform);
+		tag = CAMERA_TAG;
 		this.frustum = new int[6];
-		frustum[FRUSTUM_LEFT] = 0;
-		frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;
-		frustum[FRUSTUM_TOP] = 0;
-		frustum[FRUSTUM_BOTTOM] = MathLibrary.FP_ONE;
-		frustum[FRUSTUM_NEAR] = MathLibrary.FP_ONE / 10;
-		frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 100;
+		this.frustum[FRUSTUM_LEFT] = 0;
+		this.frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;
+		this.frustum[FRUSTUM_TOP] = 0;
+		this.frustum[FRUSTUM_BOTTOM] = MathLibrary.FP_ONE;
+		this.frustum[FRUSTUM_NEAR] = MathLibrary.FP_ONE / 10;
+		this.frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 100;
 	}
 
 	public int[] getFrustum() {

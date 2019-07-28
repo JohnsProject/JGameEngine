@@ -28,6 +28,8 @@ import com.johnsproject.jgameengine.library.VectorLibrary;
 
 public class Light extends SceneObject {
 	
+	public static final String LIGHT_TAG = "Light";
+	
 	private LightType type;
 	private int strength;
 	private int color;
@@ -43,6 +45,7 @@ public class Light extends SceneObject {
 		this.direction = VectorLibrary.VECTOR_DOWN;
 		this.spotSize = 60 * MathLibrary.FP_ONE;
 		this.spotSoftness = 800;
+		this.tag = LIGHT_TAG;
 	}
 
 	public LightType getType() {
