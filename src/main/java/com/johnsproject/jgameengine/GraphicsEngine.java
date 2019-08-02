@@ -83,7 +83,7 @@ public class GraphicsEngine implements EngineListener {
 	public void fixedUpdate(EngineEvent e) { 
 		Scene scene = e.getScene();
 		for (int m = 0; m < scene.getModels().size(); m++) {
-			scene.getModels().get(m).getArmature().nextFrame();
+			scene.getModel(m).getArmature().nextFrame();
 		}		
 	}
 	
@@ -94,13 +94,13 @@ public class GraphicsEngine implements EngineListener {
 		frameBuffer.getStencilBuffer().fill(0);
 		transformToWorld(scene);
 		for (int c = 0; c < scene.getCameras().size(); c++) {
-			final Camera camera = scene.getCameras().get(c);
+			final Camera camera = scene.getCamera(c);
 			if(!camera.isActive())
 				continue;
 			shaderBuffer.setup(camera, scene.getLights(), frameBuffer);
 			applyPreShaders(scene);
 			for (int m = 0; m < scene.getModels().size(); m++) {
-				final Model model = scene.getModels().get(m);
+				final Model model = scene.getModel(m);
 				if(!model.isActive())
 					continue;
 				final Mesh mesh = model.getMesh();
@@ -124,7 +124,7 @@ public class GraphicsEngine implements EngineListener {
 	
 	private void transformToWorld(Scene scene) {
 		for (int m = 0; m < scene.getModels().size(); m++) {
-			final Model model = scene.getModels().get(m);
+			final Model model = scene.getModel(m);
 			if(!model.isActive())
 				continue;
 			final Mesh mesh = model.getMesh();
@@ -155,7 +155,7 @@ public class GraphicsEngine implements EngineListener {
 		for (int s = 0; s < preShaders.size(); s++) {
 			final Shader shader = preShaders.get(s);
 			for (int m = 0; m < scene.getModels().size(); m++) {
-				final Model model = scene.getModels().get(m);
+				final Model model = scene.getModel(m);
 				if(!model.isActive())
 					continue;
 				final Mesh mesh = model.getMesh();

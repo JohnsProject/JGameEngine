@@ -32,12 +32,6 @@ package com.johnsproject.jgameengine.library;
  */
 public class MathLibrary {
 	
-	// sine lookup table containing sine values from 0-90 degrees
-	private static final short[] SIN_LUT = { 0, 18, 36, 54, 71, 89, 107, 125, 143, 160, 178, 195, 213, 230, 248, 265,
-			282, 299, 316, 333, 350, 367, 384, 400, 416, 433, 449, 465, 481, 496, 512, 527, 543, 558, 573, 587, 602,
-			616, 630, 644, 658, 672, 685, 698, 711, 724, 737, 749, 761, 773, 784, 796, 807, 818, 828, 839, 849, 859,
-			868, 878, 887, 896, 904, 912, 920, 928, 935, 943, 949, 956, 962, 968, 974, 979, 984, 989, 994, 998, 1002,
-			1005, 1008, 1011, 1014, 1016, 1018, 1020, 1022, 1023, 1023, 1024, 1024};
 
 	private int random = 545;
 	
@@ -51,14 +45,34 @@ public class MathLibrary {
 	 * This is the integer representation of the default fixed point precision value. 
 	 * It is the same as the fixed point '1'.
 	 */
-	public static final short FP_ONE = 1 << FP_BITS;
+	public static final int FP_ONE = 1 << FP_BITS;
 	
 	/**
 	 * It is the same as the fixed point '0.5'.
 	 */
-	public static final short FP_HALF = FP_ONE >> 1;
+	public static final int FP_HALF = FP_ONE >> 1;
 	
-	public MathLibrary() {}
+	public static final int FP_PI180 = generate((float) (Math.PI / 180.0f));
+	public static final int FP_180PI = generate((float) (180.0f / Math.PI));
+	
+	private int[] sinLUT;
+	
+	public MathLibrary() {
+		sinLUT = new int[91];
+		for (int angle = 0; angle < sinLUT.length; angle++) {
+			sinLUT[angle] = generate(Math.sin(Math.toRadians(angle)));
+		}
+	}
+	
+	/**
+	 * Returns the fixed point representation of value.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public static int generate(double value) {
+		return (int)(value * FP_ONE);
+	}
 	
 	/**
 	 * Returns the fixed point representation of value.
@@ -68,6 +82,27 @@ public class MathLibrary {
 	 */
 	public static int generate(float value) {
 		return (int)(value * FP_ONE);
+	}
+	
+	/**
+	 * Returns the degrees converted to radians.
+	 * 
+	 * @param degrees
+	 * @return
+	 */
+	public int toRadians(int degrees) {
+		return multiply(degrees, FP_PI180);
+	}
+	
+	
+	/**
+	 * Returns the radians converted to degrees.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public int toDegrees(int radians) {
+		return multiply(radians, FP_180PI);
 	}
 	
 	/**
@@ -83,29 +118,29 @@ public class MathLibrary {
 		angle %= 90;
 		if (angle >= 0) {
 			if (quadrant == 1) {
-				return SIN_LUT[angle];
+				return sinLUT[angle];
 			}
 			if (quadrant == 2) {
-				return SIN_LUT[90 - angle];
+				return sinLUT[90 - angle];
 			}
 			if (quadrant == 3) {
-				return -SIN_LUT[angle];
+				return -sinLUT[angle];
 			}
 			if (quadrant == 4) {
-				return -SIN_LUT[90 - angle];
+				return -sinLUT[90 - angle];
 			}
 		} else {
 			if (quadrant == 1) {
-				return -SIN_LUT[angle];
+				return -sinLUT[angle];
 			}
 			if (quadrant == 2) {
-				return -SIN_LUT[90 - angle];
+				return -sinLUT[90 - angle];
 			}
 			if (quadrant == 3) {
-				return SIN_LUT[angle];
+				return sinLUT[angle];
 			}
 			if (quadrant == 4) {
-				return SIN_LUT[90 - angle];
+				return sinLUT[90 - angle];
 			}
 		}
 		return 0;
@@ -123,16 +158,16 @@ public class MathLibrary {
 		int quadrant = (angle / 90) + 1;
 		angle %= 90;
 		if (quadrant == 1) {
-			return SIN_LUT[90 - angle];
+			return sinLUT[90 - angle];
 		}
 		if (quadrant == 2) {
-			return -SIN_LUT[angle];
+			return -sinLUT[angle];
 		}
 		if (quadrant == 3) {
-			return -SIN_LUT[90 - angle];
+			return -sinLUT[90 - angle];
 		}
 		if (quadrant == 4) {
-			return SIN_LUT[angle];
+			return sinLUT[angle];
 		}
 		return 0;
 	}
@@ -226,7 +261,7 @@ public class MathLibrary {
 		}
 		long result = (g << FP_BITS);
 		// fractional part
-		final byte increment = FP_ONE >> 7;
+		final short increment = FP_ONE >> 7;
 		for (; (result * result + FP_HALF) >> FP_BITS <= number; result += increment);
 		result -= increment;
 		return (int)result;

@@ -75,11 +75,11 @@ public class GraphicsLibrary {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		matrixLibrary.scale(matrix, scale, matrix);
-		matrixLibrary.rotateXYZ(matrix, rotation, matrix);
-		matrixLibrary.translate(matrix, location, matrix);
-		return matrix;
+		int[] modelMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		modelMatrix = matrixLibrary.scale(matrix, scale, matrix);
+		modelMatrix = matrixLibrary.rotateXYZ(matrix, rotation, matrix);
+		modelMatrix = matrixLibrary.translate(matrix, location, matrix);
+		return modelMatrix;
 	}
 
 	/**
@@ -93,14 +93,14 @@ public class GraphicsLibrary {
 	public int[] normalMatrix(int[] matrix, Transform transform) {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		matrixLibrary.scale(matrix, scale, matrix);
-		matrixLibrary.rotateXYZ(matrix, rotation, matrix);
+		int[] normalMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		normalMatrix = matrixLibrary.scale(matrix, scale, matrix);
+		normalMatrix = matrixLibrary.rotateXYZ(matrix, rotation, matrix);
 		if ((scale[VECTOR_X] != scale[VECTOR_Y]) | (scale[VECTOR_Y] != scale[VECTOR_Z])) {
-			matrixLibrary.inverse(matrix, matrix);
-			matrixLibrary.transpose(matrix, matrix);
+			normalMatrix = matrixLibrary.inverse(matrix, matrix);
+			normalMatrix = matrixLibrary.transpose(matrix, matrix);
 		}
-		return matrix;
+		return normalMatrix;
 	}
 	
 	/**
@@ -114,14 +114,14 @@ public class GraphicsLibrary {
 	public int[] viewMatrix(int[] matrix, Transform transform) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
-		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		vectorLibrary.invert(location, location);
-		vectorLibrary.invert(rotation, rotation);
-		matrixLibrary.translate(matrix, location, matrix);
-		matrixLibrary.rotateZYX(matrix, rotation, matrix);
-		vectorLibrary.invert(location, location);
-		vectorLibrary.invert(rotation, rotation);
-		return matrix;
+		int[] viewMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		viewMatrix = vectorLibrary.invert(location, location);
+		viewMatrix = vectorLibrary.invert(rotation, rotation);
+		viewMatrix = matrixLibrary.translate(matrix, location, matrix);
+		viewMatrix = matrixLibrary.rotateZYX(matrix, rotation, matrix);
+		viewMatrix = vectorLibrary.invert(location, location);
+		viewMatrix = vectorLibrary.invert(rotation, rotation);
+		return viewMatrix;
 	}
 
 	
@@ -136,13 +136,13 @@ public class GraphicsLibrary {
 	 * @return
 	 */
 	public int[] orthographicMatrix(int[] matrix, int[] cameraFrustum) {
-		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
 		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR] << 2) << PROJECTION_BITS;
-		matrixLibrary.set(matrix, 0, 0, scaleFactor);
-		matrixLibrary.set(matrix, 1, 1, scaleFactor);
-		matrixLibrary.set(matrix, 2, 2, -FP_ONE);
-		matrixLibrary.set(matrix, 3, 3, FP_ONE * -FP_HALF);
-		return matrix;
+		int[] projectionMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		matrixLibrary.set(projectionMatrix, 0, 0, scaleFactor);
+		matrixLibrary.set(projectionMatrix, 1, 1, scaleFactor);
+		matrixLibrary.set(projectionMatrix, 2, 2, -FP_ONE);
+		matrixLibrary.set(projectionMatrix, 3, 3, FP_ONE * -FP_HALF);
+		return projectionMatrix;
 	}
 
 	/**
@@ -156,14 +156,14 @@ public class GraphicsLibrary {
 	 * @return
 	 */
 	public int[] perspectiveMatrix(int[] matrix, int[] cameraFrustum) {
-		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
 		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR]) << (PROJECTION_BITS - 1);
-		matrixLibrary.set(matrix, 0, 0, scaleFactor);
-		matrixLibrary.set(matrix, 1, 1, scaleFactor);
-		matrixLibrary.set(matrix, 2, 2, -FP_ONE);
-		matrixLibrary.set(matrix, 2, 3, FP_ONE);
-		matrixLibrary.set(matrix, 3, 3, 0);
-		return matrix;
+		int[] projectionMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		matrixLibrary.set(projectionMatrix, 0, 0, scaleFactor);
+		matrixLibrary.set(projectionMatrix, 1, 1, scaleFactor);
+		matrixLibrary.set(projectionMatrix, 2, 2, -FP_ONE);
+		matrixLibrary.set(projectionMatrix, 2, 3, FP_ONE);
+		matrixLibrary.set(projectionMatrix, 3, 3, 0);
+		return projectionMatrix;
 	}
 
 	/**

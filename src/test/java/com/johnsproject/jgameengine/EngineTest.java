@@ -41,6 +41,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	private VectorLibrary vectorLibrary;
 	private GraphicsEngine graphicsEngine;
 	private InputEngine inputEngine;
+	private PhysicsEngine physicsEngine;
 	
 	public static void main(String[] args) {
 		new EngineTest();
@@ -59,25 +60,28 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().setScene(loadScene());
 		Engine.getInstance().limitUpdateRate(false);
 		Engine.getInstance().addEngineListener(this);
-	}
-	
-	public void start(EngineEvent e) {
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
 		EngineWindow window = new EngineWindow(frameBuffer);
-		window.setSize(WINDOW_W, WINDOW_H);
-//		window.setFullscreen(true);
-//		window.setBorders(false);
 		EngineStatistics stats = new EngineStatistics(window);
 		graphicsEngine = new GraphicsEngine(frameBuffer);
 		inputEngine = new InputEngine();
+		physicsEngine = new PhysicsEngine();
+		Engine.getInstance().addEngineListener(graphicsEngine);
+		Engine.getInstance().addEngineListener(inputEngine);
+		Engine.getInstance().addEngineListener(physicsEngine);
+		Engine.getInstance().addEngineListener(window);
+		Engine.getInstance().addEngineListener(stats);
+		window.setSize(WINDOW_W, WINDOW_H);
+//		window.setFullscreen(true);
+//		window.setBorders(false);
 		inputEngine.addMouseMotionListener(this);
 		inputEngine.addEngineKeyListener(this);
 		cameraTransform = Engine.getInstance().getScene().getMainCamera().getTransform();
-		Engine.getInstance().addEngineListener(graphicsEngine);
-		Engine.getInstance().addEngineListener(inputEngine);
-		Engine.getInstance().addEngineListener(window);
-		Engine.getInstance().addEngineListener(stats);
-		graphicsEngine.getPreprocessingShaders().clear();
+//		graphicsEngine.getPreprocessingShaders().clear();
+	}
+	
+	public void start(EngineEvent e) {
+		
 	}
 	
 	private Scene loadScene() {

@@ -43,7 +43,7 @@ public class Camera extends SceneObject {
 
 	public Camera(String name, Transform transform) {
 		super(name, transform);
-		tag = CAMERA_TAG;
+		super.tag = CAMERA_TAG;
 		this.frustum = new int[6];
 		this.frustum[FRUSTUM_LEFT] = 0;
 		this.frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;

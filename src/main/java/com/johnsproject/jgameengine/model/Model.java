@@ -32,13 +32,14 @@ public class Model extends SceneObject {
 	
 	public Model (String name, Transform transform, Mesh mesh) {
 		super(name, transform);
+		super.tag = MODEL_TAG;
 		this.mesh = mesh;
 		this.armature = null;
-		this.tag = MODEL_TAG;
 	}
 	
 	public Model (String name, Transform transform, Mesh mesh, Armature armature) {
 		super(name, transform);
+		super.tag = MODEL_TAG;
 		this.mesh = mesh;
 		this.armature = armature;
 	}

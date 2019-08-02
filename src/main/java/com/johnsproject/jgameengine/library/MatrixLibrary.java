@@ -105,14 +105,14 @@ public class MatrixLibrary {
 	 */
 	public int[] add(int[] matrix1, int[] matrix2, int[] result) {
 		// ensures that will return right values if matrix or matrix two is the same as result
-		copy(matrixCache1, matrix1);
-		copy(matrixCache2, matrix2);
+		matrix1 = copy(matrixCache1, matrix1);
+		matrix2 = copy(matrixCache2, matrix2);
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				int res = get(matrixCache1, 0, j) + get(matrixCache2, i, 0);
-				res += get(matrixCache1, 1, j) + get(matrixCache2, i, 1);
-				res += get(matrixCache1, 2, j) + get(matrixCache2, i, 2);
-				res += get(matrixCache1, 3, j) + get(matrixCache2, i, 3);
+				int res = get(matrix1, 0, j) + get(matrix2, i, 0);
+				res += get(matrix1, 1, j) + get(matrix2, i, 1);
+				res += get(matrix1, 2, j) + get(matrix2, i, 2);
+				res += get(matrix1, 3, j) + get(matrix2, i, 3);
 				set(result, i, j, res);
 			}
 		}
@@ -128,14 +128,14 @@ public class MatrixLibrary {
 	 */
 	public int[] subtract(int[] matrix1, int[] matrix2, int[] result) {
 		// ensures that will return right values if matrix or matrix two is the same as result
-		copy(matrixCache1, matrix1);
-		copy(matrixCache2, matrix2);
+		matrix1 = copy(matrixCache1, matrix1);
+		matrix2 = copy(matrixCache2, matrix2);
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				int res = get(matrixCache1, 0, j) - get(matrixCache2, i, 0);
-				res += get(matrixCache1, 1, j) - get(matrixCache2, i, 1);
-				res += get(matrixCache1, 2, j) - get(matrixCache2, i, 2);
-				res += get(matrixCache1, 3, j) - get(matrixCache2, i, 3);
+				int res = get(matrix1, 0, j) - get(matrix2, i, 0);
+				res += get(matrix1, 1, j) - get(matrix2, i, 1);
+				res += get(matrix1, 2, j) - get(matrix2, i, 2);
+				res += get(matrix1, 3, j) - get(matrix2, i, 3);
 				set(result, i, j, res);
 			}
 		}
@@ -151,14 +151,14 @@ public class MatrixLibrary {
 	 */
 	public int[] multiply(int[] matrix1, int[] matrix2, int[] result) {
 		// ensures that will return right values if matrix or matrix two is the same as result
-		copy(matrixCache1, matrix1);
-		copy(matrixCache2, matrix2);
+		matrix1 = copy(matrixCache1, matrix1);
+		matrix2 = copy(matrixCache2, matrix2);
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				int res = mathLibrary.multiply(get(matrixCache1, 0, j), get(matrixCache2, i, 0));
-				res += mathLibrary.multiply(get(matrixCache1, 1, j), get(matrixCache2, i, 1));
-				res += mathLibrary.multiply(get(matrixCache1, 2, j), get(matrixCache2, i, 2));
-				res += mathLibrary.multiply(get(matrixCache1, 3, j), get(matrixCache2, i, 3));
+				int res = mathLibrary.multiply(get(matrix1, 0, j), get(matrix2, i, 0));
+				res += mathLibrary.multiply(get(matrix1, 1, j), get(matrix2, i, 1));
+				res += mathLibrary.multiply(get(matrix1, 2, j), get(matrix2, i, 2));
+				res += mathLibrary.multiply(get(matrix1, 3, j), get(matrix2, i, 3));
 				set(result, i, j, res);
 			}
 		}
@@ -174,14 +174,14 @@ public class MatrixLibrary {
 	 */
 	public int[] divide(int[] matrix1, int[] matrix2, int[] result) {
 		// ensures that will return right values if matrix or matrix two is the same as result
-		copy(matrixCache1, matrix1);
-		copy(matrixCache2, matrix2);
+		matrix1 = copy(matrixCache1, matrix1);
+		matrix2 = copy(matrixCache2, matrix2);
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				int res = mathLibrary.divide(get(matrixCache1, 0, j), get(matrixCache2, i, 0));
-				res += mathLibrary.divide(get(matrixCache1, 1, j), get(matrixCache2, i, 1));
-				res += mathLibrary.divide(get(matrixCache1, 2, j), get(matrixCache2, i, 2));
-				res += mathLibrary.divide(get(matrixCache1, 3, j), get(matrixCache2, i, 3));
+				int res = mathLibrary.divide(get(matrix1, 0, j), get(matrix2, i, 0));
+				res += mathLibrary.divide(get(matrix1, 1, j), get(matrix2, i, 1));
+				res += mathLibrary.divide(get(matrix1, 2, j), get(matrix2, i, 2));
+				res += mathLibrary.divide(get(matrix1, 3, j), get(matrix2, i, 3));
 				set(result, i, j, res);
 			}
 		}
@@ -260,10 +260,10 @@ public class MatrixLibrary {
 	 */
 	public int[] transpose(int[] matrix, int[] result) {
 		// ensures that will return right values if matrix or matrix two is the same as result
-		copy(matrixCache1, matrix);
+		matrix = copy(matrixCache1, matrix);
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				set(result, i, j, get(matrixCache1, j, i));
+				set(result, i, j, get(matrix, j, i));
 			}
 		}
 		return result;
@@ -309,104 +309,104 @@ public class MatrixLibrary {
 	 */
 	public int[] inverse(int[] matrix, int[] result) {
 		// ensures that will return right values if matrix or matrix two is the same as result
-		copy(matrixCache1, matrix);
+		matrix = copy(matrixCache1, matrix);
 		int determinant = determinant(matrixCache1) + 1;
-		set(result, 0, 0, mathLibrary.multiply(get(matrixCache1, 2, 1), mathLibrary.multiply(get(matrixCache1, 3, 2), get(matrixCache1, 1, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 1), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 1, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 3, 1), mathLibrary.multiply(get(matrixCache1, 1, 2), get(matrixCache1, 2, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 1), mathLibrary.multiply(get(matrixCache1, 3, 2), get(matrixCache1, 2, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 1), mathLibrary.multiply(get(matrixCache1, 1, 2), get(matrixCache1, 3, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 1, 1), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 3, 3))));
-		set(result, 1, 0, mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 1, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 2, 3), get(matrixCache1, 1, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 2, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 2, 3), get(matrixCache1, 2, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 3, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 3, 3))));
-		set(result, 2, 0, mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 1, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 1, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 2, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 2, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 3, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 3, 3))));
-		set(result, 3, 0, mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 1, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 1, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 2, 2))) +
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 2, 2))) +
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 3, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 3, 2))));
-		set(result, 0, 1, mathLibrary.multiply(get(matrixCache1, 3, 1), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 1), mathLibrary.multiply(get(matrixCache1, 3, 2), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 1), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 2, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 1), mathLibrary.multiply(get(matrixCache1, 3, 2), get(matrixCache1, 2, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 2, 1), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 3, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 1), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 3, 3))));
-		set(result, 1, 1, mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 3, 2), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 0, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 2, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 3, 2), get(matrixCache1, 2, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 3, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 3, 3))));
-		set(result, 2, 1, mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 2, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 2, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 3, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 3, 3))));
-		set(result, 3, 1, mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 0, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 0, 2))) +
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 2, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 2, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 3, 2))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 3, 2))));
-		set(result, 0, 2, mathLibrary.multiply(get(matrixCache1, 1, 1), mathLibrary.multiply(get(matrixCache1, 3, 2), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 1), mathLibrary.multiply(get(matrixCache1, 1, 2), get(matrixCache1, 0, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 3, 1), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 1, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 1), mathLibrary.multiply(get(matrixCache1, 3, 2), get(matrixCache1, 1, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 1), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 3, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 1), mathLibrary.multiply(get(matrixCache1, 1, 2), get(matrixCache1, 3, 3))));
-		set(result, 1, 2, mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 1, 2), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 3, 2), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 1, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 3, 2), get(matrixCache1, 1, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 3, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 1, 2), get(matrixCache1, 3, 3))));
-		set(result, 2, 2, mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 0, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 1, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 1, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 3, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 3, 3))));
-		set(result, 3, 2, mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 0, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 0, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 3, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 1, 2))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 3, 1), get(matrixCache1, 1, 2))) +
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 3, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 3, 2))));
-		set(result, 0, 3, mathLibrary.multiply(get(matrixCache1, 2, 1), mathLibrary.multiply(get(matrixCache1, 1, 2), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 1), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 1), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 1, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 1), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 1, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 1, 1), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 2, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 1), mathLibrary.multiply(get(matrixCache1, 1, 2), get(matrixCache1, 2, 3))));
-		set(result, 1, 3, mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 1, 2), get(matrixCache1, 0, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 1, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 2, 2), get(matrixCache1, 1, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 0, 2), get(matrixCache1, 2, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 1, 2), get(matrixCache1, 2, 3))));
-		set(result, 2, 3, mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 0, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 1, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 1, 3))) +
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 2, 3))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 2, 3))));
-		set(result, 3, 3, mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 0, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 0, 2))) +
-						mathLibrary.multiply(get(matrixCache1, 2, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 1, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 2, 1), get(matrixCache1, 1, 2))) -
-						mathLibrary.multiply(get(matrixCache1, 1, 0), mathLibrary.multiply(get(matrixCache1, 0, 1), get(matrixCache1, 2, 2))) +
-						mathLibrary.multiply(get(matrixCache1, 0, 0), mathLibrary.multiply(get(matrixCache1, 1, 1), get(matrixCache1, 2, 2))));
+		set(result, 0, 0, mathLibrary.multiply(get(matrix, 2, 1), mathLibrary.multiply(get(matrix, 3, 2), get(matrix, 1, 3))) -
+						mathLibrary.multiply(get(matrix, 3, 1), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 1, 3))) +
+						mathLibrary.multiply(get(matrix, 3, 1), mathLibrary.multiply(get(matrix, 1, 2), get(matrix, 2, 3))) -
+						mathLibrary.multiply(get(matrix, 1, 1), mathLibrary.multiply(get(matrix, 3, 2), get(matrix, 2, 3))) -
+						mathLibrary.multiply(get(matrix, 2, 1), mathLibrary.multiply(get(matrix, 1, 2), get(matrix, 3, 3))) +
+						mathLibrary.multiply(get(matrix, 1, 1), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 3, 3))));
+		set(result, 1, 0, mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 1, 3))) -
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 2, 3), get(matrix, 1, 3))) -
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 2, 3))) +
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 2, 3), get(matrix, 2, 3))) +
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 3, 3))) -
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 3, 3))));
+		set(result, 2, 0, mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 1, 3))) -
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 1, 3))) +
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 2, 3))) -
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 2, 3))) -
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 3, 3))) +
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 3, 3))));
+		set(result, 3, 0, mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 1, 2))) -
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 1, 2))) -
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 2, 2))) +
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 2, 2))) +
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 3, 2))) -
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 3, 2))));
+		set(result, 0, 1, mathLibrary.multiply(get(matrix, 3, 1), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 2, 1), mathLibrary.multiply(get(matrix, 3, 2), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 3, 1), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 2, 3))) +
+						mathLibrary.multiply(get(matrix, 0, 1), mathLibrary.multiply(get(matrix, 3, 2), get(matrix, 2, 3))) +
+						mathLibrary.multiply(get(matrix, 2, 1), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 3, 3))) -
+						mathLibrary.multiply(get(matrix, 0, 1), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 3, 3))));
+		set(result, 1, 1, mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 3, 2), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 0, 3))) +
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 2, 3))) -
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 3, 2), get(matrix, 2, 3))) -
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 3, 3))) +
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 3, 3))));
+		set(result, 2, 1, mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 2, 3))) +
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 2, 3))) +
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 3, 3))) -
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 3, 3))));
+		set(result, 3, 1, mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 0, 2))) -
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 0, 2))) +
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 2, 2))) -
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 2, 2))) -
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 3, 2))) +
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 3, 2))));
+		set(result, 0, 2, mathLibrary.multiply(get(matrix, 1, 1), mathLibrary.multiply(get(matrix, 3, 2), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 3, 1), mathLibrary.multiply(get(matrix, 1, 2), get(matrix, 0, 3))) +
+						mathLibrary.multiply(get(matrix, 3, 1), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 1, 3))) -
+						mathLibrary.multiply(get(matrix, 0, 1), mathLibrary.multiply(get(matrix, 3, 2), get(matrix, 1, 3))) -
+						mathLibrary.multiply(get(matrix, 1, 1), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 3, 3))) +
+						mathLibrary.multiply(get(matrix, 0, 1), mathLibrary.multiply(get(matrix, 1, 2), get(matrix, 3, 3))));
+		set(result, 1, 2, mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 1, 2), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 3, 2), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 1, 3))) +
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 3, 2), get(matrix, 1, 3))) +
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 3, 3))) -
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 1, 2), get(matrix, 3, 3))));
+		set(result, 2, 2, mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 0, 3))) +
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 1, 3))) -
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 1, 3))) -
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 3, 3))) +
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 3, 3))));
+		set(result, 3, 2, mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 0, 2))) -
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 0, 2))) -
+						mathLibrary.multiply(get(matrix, 3, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 1, 2))) +
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 3, 1), get(matrix, 1, 2))) +
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 3, 2))) -
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 3, 2))));
+		set(result, 0, 3, mathLibrary.multiply(get(matrix, 2, 1), mathLibrary.multiply(get(matrix, 1, 2), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 1, 1), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 2, 1), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 1, 3))) +
+						mathLibrary.multiply(get(matrix, 0, 1), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 1, 3))) +
+						mathLibrary.multiply(get(matrix, 1, 1), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 2, 3))) -
+						mathLibrary.multiply(get(matrix, 0, 1), mathLibrary.multiply(get(matrix, 1, 2), get(matrix, 2, 3))));
+		set(result, 1, 3, mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 1, 2), get(matrix, 0, 3))) +
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 1, 3))) -
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 1, 3))) -
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 0, 2), get(matrix, 2, 3))) +
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 1, 2), get(matrix, 2, 3))));
+		set(result, 2, 3, mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 0, 3))) -
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 1, 3))) +
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 1, 3))) +
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 2, 3))) -
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 2, 3))));
+		set(result, 3, 3, mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 0, 2))) -
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 0, 2))) +
+						mathLibrary.multiply(get(matrix, 2, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 1, 2))) -
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 1, 2))) -
+						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 2, 2))) +
+						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 2, 2))));
 		divide(result, determinant, result);
 		return result;
 	}
@@ -421,11 +421,11 @@ public class MatrixLibrary {
 	 * @param result
 	 */
 	public int[] translate(int[] matrix, int[] vector, int[] result) {
-		copy(matrixCache1, MATRIX_IDENTITY);
-		set(matrixCache1, 3, 0, vector[VECTOR_X]);
-		set(matrixCache1, 3, 1, vector[VECTOR_Y]);
-		set(matrixCache1, 3, 2, vector[VECTOR_Z]);
-		multiply(matrixCache1, matrix, result);
+		int[] translationMatrix = copy(matrixCache1, MATRIX_IDENTITY);
+		set(translationMatrix, 3, 0, vector[VECTOR_X]);
+		set(translationMatrix, 3, 1, vector[VECTOR_Y]);
+		set(translationMatrix, 3, 2, vector[VECTOR_Z]);
+		multiply(translationMatrix, matrix, result);
 		return result;
 	}
 
@@ -439,11 +439,11 @@ public class MatrixLibrary {
 	 * @param result
 	 */
 	public int[] scale(int[] matrix, int[] vector, int[] result) {
-		copy(matrixCache1, MATRIX_IDENTITY);
-		set(matrixCache1, 0, 0, vector[VECTOR_X]);
-		set(matrixCache1, 1, 1, vector[VECTOR_Y]);
-		set(matrixCache1, 2, 2, vector[VECTOR_Z]);
-		multiply(matrixCache1, matrix, result);
+		int[] scaleMatrix = copy(matrixCache1, MATRIX_IDENTITY);
+		set(scaleMatrix, 0, 0, vector[VECTOR_X]);
+		set(scaleMatrix, 1, 1, vector[VECTOR_Y]);
+		set(scaleMatrix, 2, 2, vector[VECTOR_Z]);
+		multiply(scaleMatrix, matrix, result);
 		return result;
 	}
 
@@ -456,14 +456,14 @@ public class MatrixLibrary {
 	 * @param result
 	 */
 	public int[] rotateX(int[] matrix, int angle, int[] result) {
-		copy(matrixCache1, MATRIX_IDENTITY);
+		int[] xRotationMatrix = copy(matrixCache1, MATRIX_IDENTITY);
 		int cos = mathLibrary.cos(angle);
 		int sin = mathLibrary.sin(angle);
-		set(matrixCache1, 1, 1, cos);
-		set(matrixCache1, 1, 2, sin);
-		set(matrixCache1, 2, 1, -sin);
-		set(matrixCache1, 2, 2, cos);
-		multiply(matrixCache1, matrix, result);
+		set(xRotationMatrix, 1, 1, cos);
+		set(xRotationMatrix, 1, 2, sin);
+		set(xRotationMatrix, 2, 1, -sin);
+		set(xRotationMatrix, 2, 2, cos);
+		multiply(xRotationMatrix, matrix, result);
 		return result;
 	}
 
@@ -476,14 +476,14 @@ public class MatrixLibrary {
 	 * @param result
 	 */
 	public int[] rotateY(int[] matrix, int angle, int[] result) {
-		copy(matrixCache1, MATRIX_IDENTITY);
+		int[] yRotationMatrix = copy(matrixCache1, MATRIX_IDENTITY);
 		int cos = mathLibrary.cos(-angle);
 		int sin = mathLibrary.sin(-angle);
-		set(matrixCache1, 0, 0, cos);
-		set(matrixCache1, 0, 2, -sin);
-		set(matrixCache1, 2, 0, sin);
-		set(matrixCache1, 2, 2, cos);
-		multiply(matrixCache1, matrix, result);
+		set(yRotationMatrix, 0, 0, cos);
+		set(yRotationMatrix, 0, 2, -sin);
+		set(yRotationMatrix, 2, 0, sin);
+		set(yRotationMatrix, 2, 2, cos);
+		multiply(yRotationMatrix, matrix, result);
 		return result;
 	}
 
@@ -496,14 +496,14 @@ public class MatrixLibrary {
 	 * @param result
 	 */
 	public int[] rotateZ(int[] matrix, int angle, int[] result) {
-		copy(matrixCache1, MATRIX_IDENTITY);
+		int[] zRotationMatrix = copy(matrixCache1, MATRIX_IDENTITY);
 		int cos = mathLibrary.cos(-angle);
 		int sin = mathLibrary.sin(-angle);
-		set(matrixCache1, 0, 0, cos);
-		set(matrixCache1, 0, 1, sin);
-		set(matrixCache1, 1, 0, -sin);
-		set(matrixCache1, 1, 1, cos);
-		multiply(matrixCache1, matrix, result);
+		set(zRotationMatrix, 0, 0, cos);
+		set(zRotationMatrix, 0, 1, sin);
+		set(zRotationMatrix, 1, 0, -sin);
+		set(zRotationMatrix, 1, 1, cos);
+		multiply(zRotationMatrix, matrix, result);
 		return result;
 	}
 

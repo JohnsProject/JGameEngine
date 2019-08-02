@@ -47,7 +47,7 @@ public class Engine {
 	private volatile boolean running;
 
 	private Engine() {
-		running = true;
+		running = false;
 		updateRate = 30;
 		maxUpdateSkip = 10;
 		limitUpdateRate = true;

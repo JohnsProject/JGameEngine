@@ -29,21 +29,43 @@ import java.util.List;
 public class Scene {
 	
 	private Camera mainCamera;
+	private final List<SceneObject> sceneObjects;
 	private final List<Model> models;
 	private final List<Camera> cameras;
 	private final List<Light> lights;
 	
 	public Scene() {
-		models = new ArrayList<Model>();
-		cameras = new ArrayList<Camera>();
-		lights = new ArrayList<Light>();
+		this.sceneObjects = new ArrayList<SceneObject>();
+		this.models = new ArrayList<Model>();
+		this.cameras = new ArrayList<Camera>();
+		this.lights = new ArrayList<Light>();
 	}
 	
+	public List<SceneObject> getSceneObjects() {
+		return sceneObjects;
+	}
+	
+	public SceneObject getSceneObject(int index) {
+		return sceneObjects.get(index);
+	}
+	
+	public SceneObject getSceneObject(String name) {
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			SceneObject sceneObject = sceneObjects.get(i);
+			if (sceneObject.getName().equals(name)) {
+				return sceneObject;
+			}
+		}
+		return null;
+	}
+
 	public void addModel(Model model){
+		sceneObjects.add(model);
 		models.add(model);
 	}
 	
 	public void removeModel(Model model){
+		sceneObjects.remove(model);
 		models.remove(model);
 	}
 	
@@ -66,10 +88,12 @@ public class Scene {
 	}
 	
 	public void addLight(Light light){
+		sceneObjects.add(light);
 		lights.add(light);
 	}
 	
 	public void removeLight(Light light){
+		sceneObjects.remove(light);
 		lights.remove(light);
 	}
 	
@@ -95,10 +119,12 @@ public class Scene {
 		if(mainCamera == null) {
 			setMainCamera(camera);
 		}
+		sceneObjects.add(camera);
 		cameras.add(camera);
 	}
 	
 	public void removeCamera(Camera camera){
+		sceneObjects.remove(camera);
 		cameras.remove(camera);
 	}
 

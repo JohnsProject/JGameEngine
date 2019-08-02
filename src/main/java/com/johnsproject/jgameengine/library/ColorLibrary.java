@@ -56,18 +56,18 @@ public class ColorLibrary {
 	public static final byte COLOR_BITS = 8;
 	
 	/**
+	 * Value representing the range of each color value. (0 - {@value #COLOR_ONE})
+	 */
+	public static final int COLOR_ONE = (1 << COLOR_BITS) - 1;
+	
+	/**
 	 * Number representing the BufferedImage color type that the ColorProcessor handles.
 	 */
 	public static final byte COLOR_TYPE = BufferedImage.TYPE_INT_ARGB;
 	
-	/**
-	 * Value representing the range of each color values. (0 - {@value #COLOR_VALUE})
-	 */
-	public static final int COLOR_VALUE = 0xFF;
-	
-	private static final byte GREENSHIFT = 8;
-	private static final byte REDSHIFT = 16;
-	private static final byte ALPHASHIFT = 24;
+	private static final byte GREENSHIFT = COLOR_BITS;
+	private static final byte REDSHIFT = COLOR_BITS * 2;
+	private static final byte ALPHASHIFT = COLOR_BITS * 3;
 	
 	public ColorLibrary() {	}
 	
@@ -83,10 +83,10 @@ public class ColorLibrary {
 	 */
 	public static int generate(int a, int r, int g, int b) {
 		int color = 0;
-		color |= Math.min(255, Math.max(a, 0)) << ALPHASHIFT;
-		color |= Math.min(255, Math.max(r, 0)) << REDSHIFT;
-		color |= Math.min(255, Math.max(g, 0)) << GREENSHIFT;
-		color |= Math.min(255, Math.max(b, 0));
+		color |= Math.min(COLOR_ONE, Math.max(a, 0)) << ALPHASHIFT;
+		color |= Math.min(COLOR_ONE, Math.max(r, 0)) << REDSHIFT;
+		color |= Math.min(COLOR_ONE, Math.max(g, 0)) << GREENSHIFT;
+		color |= Math.min(COLOR_ONE, Math.max(b, 0));
 		return color;
 	}
 
@@ -102,9 +102,9 @@ public class ColorLibrary {
 	public static int generate(int r, int g, int b) {
 		int color = 0;
 		color |= (255) << ALPHASHIFT;
-		color |= Math.min(255, Math.max(r, 0)) << REDSHIFT;
-		color |= Math.min(255, Math.max(g, 0)) << GREENSHIFT;
-		color |= Math.min(255, Math.max(b, 0));
+		color |= Math.min(COLOR_ONE, Math.max(r, 0)) << REDSHIFT;
+		color |= Math.min(COLOR_ONE, Math.max(g, 0)) << GREENSHIFT;
+		color |= Math.min(COLOR_ONE, Math.max(b, 0));
 		return color;
 	}
 
@@ -116,7 +116,7 @@ public class ColorLibrary {
 	 * @return
 	 */
 	public int getBlue(int color) {
-		return (color) & COLOR_VALUE;
+		return (color) & COLOR_ONE;
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class ColorLibrary {
 	 * @return
 	 */
 	public int getGreen(int color) {
-		return (color >> GREENSHIFT) & COLOR_VALUE;
+		return (color >> GREENSHIFT) & COLOR_ONE;
 	}
 
 	/**
@@ -138,7 +138,7 @@ public class ColorLibrary {
 	 * @return
 	 */
 	public int getRed(int color) {
-		return (color >> REDSHIFT) & COLOR_VALUE;
+		return (color >> REDSHIFT) & COLOR_ONE;
 	}
 
 	/**
@@ -149,13 +149,13 @@ public class ColorLibrary {
 	 * @return
 	 */
 	public int getAlpha(int color) {
-		return (color >> ALPHASHIFT) & COLOR_VALUE;
+		return (color >> ALPHASHIFT) & COLOR_ONE;
 	}
 
 	
 	/**
 	 * Returns the result of the multiplication of color and factor. 
-	 * The factor should be in the range 0-{@value #COLOR_VALUE}.
+	 * The factor should be in the range 0-{@value #COLOR_ONE}.
 	 * This method only changes the RGB values of the color.
 	 * 
 	 * @param color
@@ -165,15 +165,15 @@ public class ColorLibrary {
 	public int multiply(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
 		factor += 1;
-		r = (r * factor) >> 8;
-		g = (g * factor) >> 8;
-		b = (b * factor) >> 8;
+		r = (r * factor) >> COLOR_BITS;
+		g = (g * factor) >> COLOR_BITS;
+		b = (b * factor) >> COLOR_BITS;
 		return generate(a, r, g, b);
 	}
 	
 	/**
 	 * Returns the result of the multiplication of color and factor. 
-	 * The factor should be in the range 0-{@value #COLOR_VALUE}.
+	 * The factor should be in the range 0-{@value #COLOR_ONE}.
 	 * 
 	 * @param color
 	 * @param factor
@@ -182,10 +182,10 @@ public class ColorLibrary {
 	public int multiplyARGB(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
 		factor += 1;
-		r = (r * factor) >> 8;
-		g = (g * factor) >> 8;
-		b = (b * factor) >> 8;
-		a = (a * factor) >> 8;
+		r = (r * factor) >> COLOR_BITS;
+		g = (g * factor) >> COLOR_BITS;
+		b = (b * factor) >> COLOR_BITS;
+		a = (a * factor) >> COLOR_BITS;
 		return generate(a, r, g, b);
 	}
 	
@@ -234,9 +234,9 @@ public class ColorLibrary {
 	public int multiplyColor(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
-		int r = (r1 * r2) >> 8;
-		int g = (g1 * g2) >> 8;
-		int b = (b1 * b2) >> 8;
+		int r = (r1 * r2) >> COLOR_BITS;
+		int g = (g1 * g2) >> COLOR_BITS;
+		int b = (b1 * b2) >> COLOR_BITS;
 		return generate(a1, r, g, b);
 	}
 	
@@ -250,16 +250,16 @@ public class ColorLibrary {
 	public int multiplyColorARGB(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
-		int r = (r1 * r2) >> 8;
-		int g = (g1 * g2) >> 8;
-		int b = (b1 * b2) >> 8;
-		int a = (a1 * a2) >> 8;
+		int r = (r1 * r2) >> COLOR_BITS;
+		int g = (g1 * g2) >> COLOR_BITS;
+		int b = (b1 * b2) >> COLOR_BITS;
+		int a = (a1 * a2) >> COLOR_BITS;
 		return generate(a, r, g, b);
 	}
 	
 	/**
 	 * Returns a color that is the linear interpolation of color1 and color2 by the given factor. 
-	 * The factor should be in the range 0-{@value #COLOR_VALUE}. 
+	 * The factor should be in the range 0-{@value #COLOR_ONE}. 
 	 * This method only changes the RGB values of the color.
 	 * 
 	 * @param color1
@@ -270,15 +270,15 @@ public class ColorLibrary {
 	public int lerp(int color1, int color2, int factor) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
-		int r = (r1 + (((r2 - r1) * factor) >> 8));
-		int g = (g1 + (((g2 - g1) * factor) >> 8));
-		int b = (b1 + (((b2 - b1) * factor) >> 8));
+		int r = (r1 + (((r2 - r1) * factor) >> COLOR_BITS));
+		int g = (g1 + (((g2 - g1) * factor) >> COLOR_BITS));
+		int b = (b1 + (((b2 - b1) * factor) >> COLOR_BITS));
 		return generate(a1, r, g, b);
 	}
 	
 	/**
 	 * Returns a color that is the linear interpolation of color1 and color2 by the given factor. 
-	 * The factor should be in the range 0-{@value #COLOR_VALUE}.
+	 * The factor should be in the range 0-{@value #COLOR_ONE}.
 	 * 
 	 * @param color1
 	 * @param color2
@@ -288,10 +288,10 @@ public class ColorLibrary {
 	public int lerpARGB(int color1, int color2, int factor) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
-		int r = (r1 + (((r2 - r1) * factor) >> 8));
-		int g = (g1 + (((g2 - g1) * factor) >> 8));
-		int b = (b1 + (((b2 - b1) * factor) >> 8));
-		int a = (a1 + (((a2 - a1) * factor) >> 8));
+		int r = (r1 + (((r2 - r1) * factor) >> COLOR_BITS));
+		int g = (g1 + (((g2 - g1) * factor) >> COLOR_BITS));
+		int b = (b1 + (((b2 - b1) * factor) >> COLOR_BITS));
+		int a = (a1 + (((a2 - a1) * factor) >> COLOR_BITS));
 		return generate(a, r, g, b);
 	}
 	

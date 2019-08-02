@@ -30,12 +30,16 @@ public class RigidBody {
 
 	private int mass;
 	private final int[] force;
-	private final int[] velocity;
+	private final int[] torque;
+	private final int[] linearVelocity;
+	private final int[] angularVelocity;
 	
 	public RigidBody() {
 		this.mass = MathLibrary.FP_ONE;
 		this.force = VectorLibrary.generate();
-		this.velocity = VectorLibrary.generate();
+		this.torque = VectorLibrary.generate();
+		this.linearVelocity = VectorLibrary.generate();
+		this.angularVelocity = VectorLibrary.generate();
 	}
 
 	public int getMass() {
@@ -50,7 +54,15 @@ public class RigidBody {
 		return force;
 	}
 
-	public int[] getVelocity() {
-		return velocity;
+	public int[] getTorque() {
+		return torque;
+	}
+
+	public int[] getLinearVelocity() {
+		return linearVelocity;
+	}
+
+	public int[] getAngularVelocity() {
+		return angularVelocity;
 	}
 }

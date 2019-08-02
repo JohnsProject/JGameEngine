@@ -34,9 +34,9 @@ public class VectorLibrary {
 	private static final byte FP_BITS = MathLibrary.FP_BITS;
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	
-	private static final byte NORMALIZE_BITS = FP_BITS << 1;
-	private static final int NORMALIZE_HALF = FP_ONE << FP_BITS;
-	private static final int NORMALIZE_ONE = NORMALIZE_HALF << FP_BITS;
+	private static final byte NORMALIZE_BITS = 25;
+	private static final long NORMALIZE_ONE = 1 << NORMALIZE_BITS;
+	private static final long NORMALIZE_HALF = NORMALIZE_ONE >> 1;
 	
 	public static final byte VECTOR_X = 0;
 	public static final byte VECTOR_Y = 1;
@@ -232,11 +232,11 @@ public class VectorLibrary {
 	public int[] matrixMultiply(int[] vector, int[] matrix, int[] result) {
 		final int rowSize = MatrixLibrary.MATRIX_ROW_SIZE;
 		// ensures that will return right values if vector is the same as result
-		copy(vectorCache1, vector);
+		vector = copy(vectorCache1, vector);
 		for (int i = 0; i < VECTOR_SIZE; i++) {
-			int res = mathLibrary.multiply(matrix[0 + (i * rowSize)], vectorCache1[VECTOR_X]);
-			res += mathLibrary.multiply(matrix[1 + (i * rowSize)], vectorCache1[VECTOR_Y]);
-			res += mathLibrary.multiply(matrix[2 + (i * rowSize)], vectorCache1[VECTOR_Z]);
+			int res = mathLibrary.multiply(matrix[0 + (i * rowSize)], vector[VECTOR_X]);
+			res += mathLibrary.multiply(matrix[1 + (i * rowSize)], vector[VECTOR_Y]);
+			res += mathLibrary.multiply(matrix[2 + (i * rowSize)], vector[VECTOR_Z]);
 			result[i] = res + matrix[3 + (i * rowSize)];
 		}
 		return result;
@@ -293,8 +293,8 @@ public class VectorLibrary {
 	 * @return
 	 */
 	public int distance(int[] vector1, int[] vector2) {
-		subtract(vector2, vector1, vectorCache1);
-		return length(vectorCache1);
+		int[] distance = subtract(vector2, vector1, vectorCache1);
+		return length(distance);
 	}
 	
 	/**
@@ -312,8 +312,8 @@ public class VectorLibrary {
 	 * @return
 	 */
 	public int averagedDistance(int[] vector1, int[] vector2) {
-		subtract(vector2, vector1, vectorCache1);
-		return averagedLength(vectorCache1);
+		int[] distance = subtract(vector2, vector1, vectorCache1);
+		return averagedLength(distance);
 	}
 
 	/**
@@ -325,14 +325,14 @@ public class VectorLibrary {
 	 */
 	public int[] crossProduct(int[] vector1, int[] vector2, int[] result) {
 		// ensures that will return right values if vector is the same as result
-		copy(vectorCache1, vector1);
-		copy(vectorCache2, vector2);
-		result[VECTOR_X] = mathLibrary.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_Z]);
-		result[VECTOR_Y] = mathLibrary.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_X]);
-		result[VECTOR_Z] = mathLibrary.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Y]);
-		result[VECTOR_X] -= mathLibrary.multiply(vectorCache1[VECTOR_Z], vectorCache2[VECTOR_Y]);
-		result[VECTOR_Y] -= mathLibrary.multiply(vectorCache1[VECTOR_X], vectorCache2[VECTOR_Z]);
-		result[VECTOR_Z] -= mathLibrary.multiply(vectorCache1[VECTOR_Y], vectorCache2[VECTOR_X]);
+		vector1 = copy(vectorCache1, vector1);
+		vector2 = copy(vectorCache2, vector2);
+		result[VECTOR_X] = mathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Z]);
+		result[VECTOR_Y] = mathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_X]);
+		result[VECTOR_Z] = mathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_Y]);
+		result[VECTOR_X] -= mathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Y]);
+		result[VECTOR_Y] -= mathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_Z]);
+		result[VECTOR_Z] -= mathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_X]);
 		return result;
 	}
 	
@@ -343,10 +343,10 @@ public class VectorLibrary {
 	 * @param result
 	 */
 	public int[] normalize(int[] vector, int[] result) {
-		final long magnitude = NORMALIZE_ONE / (length(vector) + 1);
-		result[VECTOR_X] = (int)(((long)vector[VECTOR_X] * magnitude + NORMALIZE_HALF) >> NORMALIZE_BITS);
-		result[VECTOR_Y] = (int)(((long)vector[VECTOR_Y] * magnitude + NORMALIZE_HALF) >> NORMALIZE_BITS);
-		result[VECTOR_Z] = (int)(((long)vector[VECTOR_Z] * magnitude + NORMALIZE_HALF) >> NORMALIZE_BITS);
+		final long magnitude = NORMALIZE_ONE / (long)(length(vector) + 1);
+		result[VECTOR_X] = (int)(((((long)vector[VECTOR_X] * magnitude) << FP_BITS) + NORMALIZE_HALF) >> NORMALIZE_BITS);
+		result[VECTOR_Y] = (int)(((((long)vector[VECTOR_Y] * magnitude) << FP_BITS) + NORMALIZE_HALF) >> NORMALIZE_BITS);
+		result[VECTOR_Z] = (int)(((((long)vector[VECTOR_Z] * magnitude) << FP_BITS) + NORMALIZE_HALF) >> NORMALIZE_BITS);
 		return result;
 	}
 	
@@ -358,10 +358,10 @@ public class VectorLibrary {
 	 * @param result
 	 */
 	public int[] reflect(int[] vector, int[] reflectionVector, int[] result) {
-		copy(vectorCache1, reflectionVector);
-		int dot = 2 * dotProduct(vector, vectorCache1);
-		multiply(vectorCache1, dot, vectorCache1);
-		subtract(vector, vectorCache1, result);
+		reflectionVector = copy(vectorCache1, reflectionVector);
+		int dot = 2 * dotProduct(vector, reflectionVector);
+		multiply(reflectionVector, dot, reflectionVector);
+		subtract(vector, reflectionVector, result);
 		return result;
 	}
 
@@ -375,14 +375,14 @@ public class VectorLibrary {
 	 */
 	public int[] rotateX(int[] vector, int angle, int[] result) {
 		// ensures that will return right values if vector is the same as result
-		copy(vectorCache1, vector);
+		vector = copy(vectorCache1, vector);
 		int sin = mathLibrary.sin(angle);
 		int cos = mathLibrary.cos(angle);
 		result[VECTOR_X] = vectorCache1[VECTOR_X];
-		result[VECTOR_Y] = mathLibrary.multiply(vectorCache1[VECTOR_Y], cos);
-		result[VECTOR_Y] -= mathLibrary.multiply(vectorCache1[VECTOR_Z], sin);
-		result[VECTOR_Z] = mathLibrary.multiply(vectorCache1[VECTOR_Z], cos);
-		result[VECTOR_Z] += mathLibrary.multiply(vectorCache1[VECTOR_Y], sin);
+		result[VECTOR_Y] = mathLibrary.multiply(vector[VECTOR_Y], cos);
+		result[VECTOR_Y] -= mathLibrary.multiply(vector[VECTOR_Z], sin);
+		result[VECTOR_Z] = mathLibrary.multiply(vector[VECTOR_Z], cos);
+		result[VECTOR_Z] += mathLibrary.multiply(vector[VECTOR_Y], sin);
 		return result;
 	}
 	
@@ -396,14 +396,14 @@ public class VectorLibrary {
 	 */
 	public int[] rotateY(int[] vector, int angle, int[] result) {
 		// ensures that will return right values if vector is the same as result
-		copy(vectorCache1, vector);
+		vector = copy(vectorCache1, vector);
 		int sin = mathLibrary.sin(-angle);
 		int cos = mathLibrary.cos(-angle);
-		result[VECTOR_X] = mathLibrary.multiply(vectorCache1[VECTOR_X], cos);
-		result[VECTOR_X] -= mathLibrary.multiply(vectorCache1[VECTOR_Z], sin);
-		result[VECTOR_Y] = vectorCache1[VECTOR_Y];
-		result[VECTOR_Z] = mathLibrary.multiply(vectorCache1[VECTOR_Z], cos);
-		result[VECTOR_Z] += mathLibrary.multiply(vectorCache1[VECTOR_X], sin);
+		result[VECTOR_X] = mathLibrary.multiply(vector[VECTOR_X], cos);
+		result[VECTOR_X] -= mathLibrary.multiply(vector[VECTOR_Z], sin);
+		result[VECTOR_Y] = vector[VECTOR_Y];
+		result[VECTOR_Z] = mathLibrary.multiply(vector[VECTOR_Z], cos);
+		result[VECTOR_Z] += mathLibrary.multiply(vector[VECTOR_X], sin);
 		return result;
 	}
 	
@@ -417,14 +417,14 @@ public class VectorLibrary {
 	 */
 	public int[] rotateZ(int[] vector, int angle, int[] result) {
 		// ensures that will return right values if vector is the same as result
-		copy(vectorCache1, vector);
+		vector = copy(vectorCache1, vector);
 		int sin = mathLibrary.sin(-angle);
 		int cos = mathLibrary.cos(-angle);
-		result[VECTOR_X] = mathLibrary.multiply(vectorCache1[VECTOR_X], cos);
-		result[VECTOR_X] -= mathLibrary.multiply(vectorCache1[VECTOR_Y], sin);
-		result[VECTOR_Y] = mathLibrary.multiply(vectorCache1[VECTOR_Y], cos);
-		result[VECTOR_Y] += mathLibrary.multiply(vectorCache1[VECTOR_X], sin);
-		result[VECTOR_Z] = vectorCache1[VECTOR_Z];
+		result[VECTOR_X] = mathLibrary.multiply(vector[VECTOR_X], cos);
+		result[VECTOR_X] -= mathLibrary.multiply(vector[VECTOR_Y], sin);
+		result[VECTOR_Y] = mathLibrary.multiply(vector[VECTOR_Y], cos);
+		result[VECTOR_Y] += mathLibrary.multiply(vector[VECTOR_X], sin);
+		result[VECTOR_Z] = vector[VECTOR_Z];
 		return result;
 	}
 	
