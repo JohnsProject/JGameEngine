@@ -28,6 +28,7 @@ import com.johnsproject.jgameengine.library.VectorLibrary;
 
 public class RigidBody {
 
+	private boolean kinematic;
 	private int mass;
 	private final int[] force;
 	private final int[] torque;
@@ -35,11 +36,20 @@ public class RigidBody {
 	private final int[] angularVelocity;
 	
 	public RigidBody() {
+		this.kinematic = false;
 		this.mass = MathLibrary.FP_ONE;
 		this.force = VectorLibrary.generate();
 		this.torque = VectorLibrary.generate();
 		this.linearVelocity = VectorLibrary.generate();
 		this.angularVelocity = VectorLibrary.generate();
+	}
+
+	public boolean isKinematic() {
+		return kinematic;
+	}
+
+	public void setKinematic(boolean kinematic) {
+		this.kinematic = kinematic;
 	}
 
 	public int getMass() {

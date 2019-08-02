@@ -56,12 +56,25 @@ public class PhysicsEngine implements EngineListener {
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
+	
+	}
+	
+	private void applyForces(SceneObject sceneObject) {
+		final RigidBody rigidBody = sceneObject.getRigidBody();
+		if(!rigidBody.isKinematic()) {
+			rigidBody.getForce()[VECTOR_Z] = mathLibrary.multiply(rigidBody.getMass(), -PhysicsLibrary.FP_EARTH_GRAVITY);
+		}
+	}
+
+	public void update(EngineEvent e) {
 		final Scene scene = e.getScene();
 		for (int i = 0; i < scene.getSceneObjects().size(); i++) {
 			final SceneObject sceneObject = scene.getSceneObject(i);
+			if(!sceneObject.isActive()) 
+				return;
 			final RigidBody rigidBody = sceneObject.getRigidBody();
 			final Transform transform = sceneObject.getTransform();
-			rigidBody.getForce()[VECTOR_Z] = mathLibrary.multiply(rigidBody.getMass(), -PhysicsLibrary.FP_EARTH_GRAVITY);
+			applyForces(sceneObject);
 			int[] linearAcceleration = vectorLibrary.divide(rigidBody.getForce(), rigidBody.getMass(), vectorCache1);
 			int[] linearVelocity = vectorLibrary.add(rigidBody.getLinearVelocity(), linearAcceleration, rigidBody.getLinearVelocity());
 			vectorLibrary.add(transform.getLocation(), linearVelocity, transform.getLocation());
@@ -70,10 +83,6 @@ public class PhysicsEngine implements EngineListener {
 			int[] angularVelocityDegrees = vectorLibrary.multiply(angularVelocity, MathLibrary.FP_PI180, vectorCache1);
 			vectorLibrary.add(transform.getRotation(), angularVelocityDegrees, transform.getRotation());
 		}
-	}
-
-	public void update(EngineEvent e) {
-		
 	}
 
 	public int getLayer() {

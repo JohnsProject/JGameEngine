@@ -64,15 +64,14 @@ public class Engine {
 	}
 	
 	private void startEngineLoop() {
-		running = true;
 		engineThread = new Thread(new Runnable() {
 			public void run() {
-				long nextUpdateTime = System.currentTimeMillis();
-				long currentTime = 0;
+				long currentTime = System.currentTimeMillis();
+				long previousTime = currentTime;
 				long elapsedTime = 0;
+				long lagTime = 0;
 				long sleepTime = 0;
-				final int timePerUpdate = 1000 / getFixedUpdateRate();
-				int loops = 0;
+				long updateTime = 1000 / getFixedUpdateRate();
 				while (true) {
 					if (!running) {
 						try {
@@ -82,23 +81,23 @@ public class Engine {
 							e.printStackTrace();
 						}
 					}
-					loops = 0;
 					currentTime = System.currentTimeMillis();
+					elapsedTime = currentTime - previousTime;
+					previousTime = currentTime;
+					lagTime += elapsedTime;
 					final int listernerCount = engineListeners.size();
 					final EngineEvent event = new EngineEvent(scene, elapsedTime, sleepTime);
-					while (currentTime > nextUpdateTime && loops < getMaxUpdateSkip()) {
+					while (lagTime >= updateTime) {
 						for (int i = 0; i < listernerCount; i++) {
 							engineListeners.get(i).fixedUpdate(event);
 						}
-						nextUpdateTime += timePerUpdate;
-						loops++;
+						lagTime -= updateTime;
 					}
 					for (int i = 0; i < listernerCount; i++) {
 						engineListeners.get(i).update(event);
 					}
-					elapsedTime = System.currentTimeMillis() - currentTime;
-					if((loops == 1) & limitUpdateRate()) {
-						sleepTime = nextUpdateTime - currentTime;
+					if(limitUpdateRate()) {
+						sleepTime = updateTime - elapsedTime;
 						if (sleepTime > 0) {
 							try {
 								Thread.sleep(sleepTime);

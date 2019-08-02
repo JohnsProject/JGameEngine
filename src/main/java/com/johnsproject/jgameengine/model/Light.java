@@ -41,6 +41,7 @@ public class Light extends SceneObject {
 	public Light(String name, Transform transform) {
 		super(name, transform);
 		super.tag = LIGHT_TAG;
+		super.rigidBody.setKinematic(true);
 		this.type = LightType.DIRECTIONAL;
 		this.strength = 100 * MathLibrary.FP_ONE;
 		this.direction = VectorLibrary.VECTOR_DOWN;

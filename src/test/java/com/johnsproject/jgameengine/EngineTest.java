@@ -48,6 +48,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 	
 	EngineTest() {
+		Engine.getInstance().setScene(loadScene());
 //		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 //		WINDOW_W = gd.getDisplayMode().getWidth();
 //		WINDOW_H = gd.getDisplayMode().getHeight();
@@ -57,20 +58,12 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		RENDER_H = (WINDOW_H * 100) / 100;
 		this.vectorLibrary = new VectorLibrary();
 		cache = VectorLibrary.generate();
-		Engine.getInstance().setScene(loadScene());
-		Engine.getInstance().limitUpdateRate(false);
-		Engine.getInstance().addEngineListener(this);
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
 		EngineWindow window = new EngineWindow(frameBuffer);
 		EngineStatistics stats = new EngineStatistics(window);
 		graphicsEngine = new GraphicsEngine(frameBuffer);
 		inputEngine = new InputEngine();
 		physicsEngine = new PhysicsEngine();
-		Engine.getInstance().addEngineListener(graphicsEngine);
-		Engine.getInstance().addEngineListener(inputEngine);
-		Engine.getInstance().addEngineListener(physicsEngine);
-		Engine.getInstance().addEngineListener(window);
-		Engine.getInstance().addEngineListener(stats);
 		window.setSize(WINDOW_W, WINDOW_H);
 //		window.setFullscreen(true);
 //		window.setBorders(false);
@@ -78,6 +71,14 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		inputEngine.addEngineKeyListener(this);
 		cameraTransform = Engine.getInstance().getScene().getMainCamera().getTransform();
 //		graphicsEngine.getPreprocessingShaders().clear();
+		Engine.getInstance().limitUpdateRate(false);
+		Engine.getInstance().addEngineListener(this);
+		Engine.getInstance().addEngineListener(graphicsEngine);
+		Engine.getInstance().addEngineListener(inputEngine);
+//		Engine.getInstance().addEngineListener(physicsEngine);
+		Engine.getInstance().addEngineListener(window);
+		Engine.getInstance().addEngineListener(stats);
+		Engine.getInstance().start();
 	}
 	
 	public void start(EngineEvent e) {
@@ -90,6 +91,10 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
 			for (int i = 0; i < scene.getModels().size(); i++) {
 				Model model = scene.getModel(i);
+				if(model.getName().equals("Ground")) {
+					model.getRigidBody().setKinematic(true);
+					model.getRigidBody().getTorque()[2] = 100;
+				}
 				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
 					Material material = model.getMesh().getMaterial(j);
 					SpecularProperties properties = (SpecularProperties)material.getShader().getProperties();

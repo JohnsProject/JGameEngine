@@ -44,6 +44,7 @@ public class Camera extends SceneObject {
 	public Camera(String name, Transform transform) {
 		super(name, transform);
 		super.tag = CAMERA_TAG;
+		super.rigidBody.setKinematic(true);
 		this.frustum = new int[6];
 		this.frustum[FRUSTUM_LEFT] = 0;
 		this.frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;
