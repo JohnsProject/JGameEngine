@@ -28,24 +28,30 @@ import com.johnsproject.jgameengine.model.Scene;
 public class EngineEvent {
 
 	private final Scene scene;
-	private final long elapsedUpdateTime;
-	private final long sleepTime;
+	private final int elapsedUpdateTime;
+	private final int sleepTime;
+	private final int deltaTime;
 	
-	public EngineEvent(Scene scene, long elapsedUpdateTime, long sleepTime) {
+	public EngineEvent(Scene scene, int elapsedUpdateTime, int sleepTime, int deltaTime) {
 		this.scene = scene;
 		this.elapsedUpdateTime = elapsedUpdateTime;
 		this.sleepTime = sleepTime;
+		this.deltaTime = deltaTime;
 	}
 
 	public Scene getScene() {
 		return scene;
 	}
 
-	public long getElapsedUpdateTime() {
+	public int getElapsedUpdateTime() {
 		return elapsedUpdateTime;
 	}
 
-	public long getSleepTime() {
+	public int getSleepTime() {
 		return sleepTime;
+	}
+
+	public int getDeltaTime() {
+		return deltaTime;
 	}
 }

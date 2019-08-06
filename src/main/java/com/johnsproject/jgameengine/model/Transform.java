@@ -47,6 +47,24 @@ public class Transform {
 		this.scale = scale;
 	}
 	
+	public void setLocation(int x, int y, int z) {
+		location[VECTOR_X] = x;
+		location[VECTOR_Y] = y;
+		location[VECTOR_Z] = z;
+	}
+
+	public void setRotation(int x, int y, int z) {
+		rotation[VECTOR_X] = x;
+		rotation[VECTOR_Y] = y;
+		rotation[VECTOR_Z] = z;
+	}
+	
+	public void setScale(int x, int y, int z) {
+		scale[VECTOR_X] = x;
+		scale[VECTOR_Y] = y;
+		scale[VECTOR_Z] = z;
+	}
+	
 	public void translate(int x, int y, int z) {
 		location[VECTOR_X] += x;
 		location[VECTOR_Y] += y;

@@ -312,4 +312,15 @@ public class MathLibrary {
 		result /= divisor;
 		return (int) result;
 	}
+	
+	/**
+	 * Returns a string containing the data of the given fixed point value.
+	 * 
+	 * @param vector fixed point number.
+	 * @return
+	 */
+	public String toString(int value) {
+		float floatValue = (float)value / FP_ONE;
+		return "" + floatValue;
+	}
 }

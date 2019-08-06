@@ -75,7 +75,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(this);
 		Engine.getInstance().addEngineListener(graphicsEngine);
 		Engine.getInstance().addEngineListener(inputEngine);
-//		Engine.getInstance().addEngineListener(physicsEngine);
+		Engine.getInstance().addEngineListener(physicsEngine);
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
 		Engine.getInstance().start();
@@ -93,7 +93,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 				Model model = scene.getModel(i);
 				if(model.getName().equals("Ground")) {
 					model.getRigidBody().setKinematic(true);
-					model.getRigidBody().getTorque()[2] = 100;
+					model.getRigidBody().getForce()[0] = 10;
 				}
 				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
 					Material material = model.getMesh().getMaterial(j);
@@ -120,7 +120,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	public int getLayer() {
-		return 0;
+		return DEFAULT_LAYER;
 	}
 
 	public void mouseDragged(MouseEvent e) {

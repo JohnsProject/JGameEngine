@@ -28,6 +28,7 @@ import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
+import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.model.Scene;
 
 public class Engine {
@@ -38,20 +39,22 @@ public class Engine {
 		return engine;
 	}
 
+	private final List<EngineListener> engineListeners;
+	private final MathLibrary mathLibrary;
 	private Scene scene;
 	private Thread engineThread;
-	private final List<EngineListener> engineListeners;
 	private int maxUpdateSkip;
 	private int updateRate;
 	private boolean limitUpdateRate;
 	private volatile boolean running;
 
 	private Engine() {
-		running = false;
-		updateRate = 30;
-		maxUpdateSkip = 10;
-		limitUpdateRate = true;
-		engineListeners = new ArrayList<EngineListener>();
+		this.running = false;
+		this.updateRate = 30;
+		this.maxUpdateSkip = 10;
+		this.limitUpdateRate = true;
+		this.engineListeners = new ArrayList<EngineListener>();
+		this.mathLibrary = new MathLibrary();
 		startEngineLoop();
 	}
 
@@ -66,14 +69,17 @@ public class Engine {
 	private void startEngineLoop() {
 		engineThread = new Thread(new Runnable() {
 			public void run() {
-				long currentTime = System.currentTimeMillis();
-				long previousTime = currentTime;
+				long currentTime = 0;
+				long previousTime = 0;
 				long elapsedTime = 0;
 				long lagTime = 0;
 				long sleepTime = 0;
-				long updateTime = 1000 / getFixedUpdateRate();
+				long deltaTime = 1;
+				final long updateTime = 1000 / getFixedUpdateRate();
 				while (true) {
 					if (!running) {
+						currentTime = getTime();
+						previousTime = currentTime;
 						try {
 							Thread.sleep(30);
 							continue;
@@ -81,18 +87,22 @@ public class Engine {
 							e.printStackTrace();
 						}
 					}
-					currentTime = System.currentTimeMillis();
+					currentTime = getTime();
 					elapsedTime = currentTime - previousTime;
 					previousTime = currentTime;
 					lagTime += elapsedTime;
 					final int listernerCount = engineListeners.size();
-					final EngineEvent event = new EngineEvent(scene, elapsedTime, sleepTime);
+					EngineEvent event = new EngineEvent(scene, (int)elapsedTime, (int)sleepTime, 0);
+					sleepTime = 0;
+					deltaTime = 0;
 					while (lagTime >= updateTime) {
 						for (int i = 0; i < listernerCount; i++) {
 							engineListeners.get(i).fixedUpdate(event);
 						}
 						lagTime -= updateTime;
+						deltaTime = mathLibrary.divide(lagTime, updateTime);
 					}
+					event = new EngineEvent(scene, (int)elapsedTime, (int)sleepTime, (int)deltaTime);
 					for (int i = 0; i < listernerCount; i++) {
 						engineListeners.get(i).update(event);
 					}
@@ -112,9 +122,13 @@ public class Engine {
 		engineThread.setName("EngineThread");
 		engineThread.start();
 	}
+	
+	private long getTime() {
+		return System.nanoTime() / 1000000;
+	}
 
 	public void addEngineListener(EngineListener listener) {
-		listener.start(new EngineEvent(scene, 0, 0));
+		listener.start(new EngineEvent(scene, 0, 0, 0));
 		engineListeners.add(listener);
 		sortListeners();
 	}

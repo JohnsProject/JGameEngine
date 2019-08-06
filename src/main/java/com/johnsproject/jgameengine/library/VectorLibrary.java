@@ -378,6 +378,7 @@ public class VectorLibrary {
 		vector = copy(vectorCache1, vector);
 		int sin = mathLibrary.sin(angle);
 		int cos = mathLibrary.cos(angle);
+		result[VECTOR_X] = vectorCache1[VECTOR_X];
 		result[VECTOR_Y] = mathLibrary.multiply(vector[VECTOR_Y], cos);
 		result[VECTOR_Y] -= mathLibrary.multiply(vector[VECTOR_Z], sin);
 		result[VECTOR_Z] = mathLibrary.multiply(vector[VECTOR_Z], cos);
@@ -400,6 +401,7 @@ public class VectorLibrary {
 		int cos = mathLibrary.cos(-angle);
 		result[VECTOR_X] = mathLibrary.multiply(vector[VECTOR_X], cos);
 		result[VECTOR_X] -= mathLibrary.multiply(vector[VECTOR_Z], sin);
+		result[VECTOR_Y] = vectorCache1[VECTOR_Y];
 		result[VECTOR_Z] = mathLibrary.multiply(vector[VECTOR_Z], cos);
 		result[VECTOR_Z] += mathLibrary.multiply(vector[VECTOR_X], sin);
 		return result;
@@ -422,6 +424,7 @@ public class VectorLibrary {
 		result[VECTOR_X] -= mathLibrary.multiply(vector[VECTOR_Y], sin);
 		result[VECTOR_Y] = mathLibrary.multiply(vector[VECTOR_Y], cos);
 		result[VECTOR_Y] += mathLibrary.multiply(vector[VECTOR_X], sin);
+		result[VECTOR_Z] = vectorCache1[VECTOR_Z];
 		return result;
 	}
 	
