@@ -49,17 +49,17 @@ public class MathLibraryTest {
 		}
 	}
 
-	@Test
-	public void tanTest() throws Exception {
-		MathLibrary mathLibrary = new MathLibrary();
-		for (int i = 0; i < 90; i++) {
-			int angle = i;
-			int precision = 1000;
-			int itan = mathLibrary.tan(angle << MathLibrary.FP_BITS);
-			int tan = (int) Math.round(Math.tan(Math.toRadians(angle)) * MathLibrary.FP_ONE);
-			assert (itan >= tan - precision && itan <= tan + precision);
-		}
-	}
+//	@Test
+//	public void tanTest() throws Exception {
+//		MathLibrary mathLibrary = new MathLibrary();
+//		for (int i = 0; i < 90; i++) {
+//			int angle = i;
+//			int precision = 1000;
+//			int itan = mathLibrary.tan(angle << MathLibrary.FP_BITS);
+//			int tan = (int) Math.round(Math.tan(Math.toRadians(angle)) * MathLibrary.FP_ONE);
+//			assert (itan >= tan - precision && itan <= tan + precision);
+//		}
+//	}
 	
 	@Test
 	public void divideTest() throws Exception {

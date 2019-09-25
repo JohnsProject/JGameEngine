@@ -40,7 +40,6 @@ public class Engine {
 	}
 
 	private final List<EngineListener> engineListeners;
-	private final MathLibrary mathLibrary;
 	private Scene scene;
 	private Thread engineThread;
 	private int maxUpdateSkip;
@@ -51,10 +50,9 @@ public class Engine {
 	private Engine() {
 		this.running = false;
 		this.updateRate = 30;
-		this.maxUpdateSkip = 10;
-		this.limitUpdateRate = true;
+		this.maxUpdateSkip = 5;
+		this.limitUpdateRate = false;
 		this.engineListeners = new ArrayList<EngineListener>();
-		this.mathLibrary = new MathLibrary();
 		startEngineLoop();
 	}
 
@@ -72,37 +70,38 @@ public class Engine {
 				long currentTime = 0;
 				long previousTime = 0;
 				long elapsedTime = 0;
-				long lagTime = 0;
 				long sleepTime = 0;
-				long deltaTime = 1;
-				final long updateTime = 1000 / getFixedUpdateRate();
+				int deltaTime = 0;
+				int loops = 0;
+				long updateTime = 1000 / getUpdateRate();
 				while (true) {
 					if (!running) {
-						currentTime = getTime();
-						previousTime = currentTime;
 						try {
+							currentTime = 0;
 							Thread.sleep(30);
 							continue;
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
 					}
-					currentTime = getTime();
-					elapsedTime = currentTime - previousTime;
-					previousTime = currentTime;
-					lagTime += elapsedTime;
+					if(currentTime == 0) {
+						currentTime = getTime();
+					}
+					elapsedTime = getTime() - previousTime;
+					previousTime = getTime();
+					updateTime = 1000 / getUpdateRate();
 					final int listernerCount = engineListeners.size();
-					EngineEvent event = new EngineEvent(scene, (int)elapsedTime, (int)sleepTime, 0);
-					sleepTime = 0;
-					deltaTime = 0;
-					while (lagTime >= updateTime) {
+					EngineEvent event = new EngineEvent(scene, (int) elapsedTime, 0, 0);
+					loops = 0;
+					while (currentTime - getTime() < 0 && loops < getMaxUpdateSkip()) {
 						for (int i = 0; i < listernerCount; i++) {
 							engineListeners.get(i).fixedUpdate(event);
 						}
-						lagTime -= updateTime;
-						deltaTime = mathLibrary.divide(lagTime, updateTime);
+						currentTime += updateTime;
+						loops++;
 					}
-					event = new EngineEvent(scene, (int)elapsedTime, (int)sleepTime, (int)deltaTime);
+					deltaTime = loops << MathLibrary.FP_BITS;
+					event = new EngineEvent(scene, (int) elapsedTime, 0, deltaTime);
 					for (int i = 0; i < listernerCount; i++) {
 						engineListeners.get(i).update(event);
 					}
@@ -124,7 +123,7 @@ public class Engine {
 	}
 	
 	private long getTime() {
-		return System.nanoTime() / 1000000;
+		return System.currentTimeMillis();
 	}
 
 	public void addEngineListener(EngineListener listener) {
@@ -142,11 +141,11 @@ public class Engine {
 		return engineListeners;
 	}
 
-	public int getFixedUpdateRate() {
+	public int getUpdateRate() {
 		return updateRate;
 	}
 	
-	public void setFixedUpdateRate(int updateRate) {
+	public void setUpdateRate(int updateRate) {
 		this.updateRate = updateRate;
 	}
 	

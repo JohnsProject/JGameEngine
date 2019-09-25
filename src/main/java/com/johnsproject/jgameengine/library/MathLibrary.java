@@ -52,8 +52,8 @@ public class MathLibrary {
 	 */
 	public static final int FP_HALF = FP_ONE >> 1;
 	
-	public static final int FP_PI180 = generate((float) (Math.PI / 180.0f));
-	public static final int FP_180PI = generate((float) (180.0f / Math.PI));
+	public static final int FP_DEGREE_RAD = generate((float) (Math.PI / 180.0f));
+	public static final int FP_RAD_DEGREE = generate((float) (180.0f / Math.PI));
 	
 	private int[] sinLUT;
 	
@@ -91,7 +91,7 @@ public class MathLibrary {
 	 * @return
 	 */
 	public int toRadians(int degrees) {
-		return multiply(degrees, FP_PI180);
+		return multiply(degrees, FP_DEGREE_RAD);
 	}
 	
 	
@@ -102,7 +102,7 @@ public class MathLibrary {
 	 * @return
 	 */
 	public int toDegrees(int radians) {
-		return multiply(radians, FP_180PI);
+		return multiply(radians, FP_RAD_DEGREE);
 	}
 	
 	/**

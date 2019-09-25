@@ -35,10 +35,10 @@ import com.johnsproject.jgameengine.rasterizer.PerspectiveFlatRasterizer;
 public class FlatSpecularShader extends Shader {
 	
 	private static final int INITIAL_ATTENUATION = MathLibrary.FP_ONE;
-	private static final int LINEAR_ATTENUATION = 14;
-	private static final int QUADRATIC_ATTENUATION = 7;
+	private static final int LINEAR_ATTENUATION = MathLibrary.generate(0.045);
+	private static final int QUADRATIC_ATTENUATION = MathLibrary.generate(0.0075);
 	
-	private static final int LIGHT_RANGE = MathLibrary.FP_ONE * 150;
+	private static final int LIGHT_RANGE = MathLibrary.generate(150);
 	
 	private SpecularProperties shaderProperties;
 	private ForwardShaderBuffer shaderBuffer;

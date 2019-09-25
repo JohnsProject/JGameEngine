@@ -24,6 +24,7 @@
 package com.johnsproject.jgameengine.shader;
 
 import com.johnsproject.jgameengine.library.ColorLibrary;
+import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.GeometryBuffer;
 import com.johnsproject.jgameengine.model.Light;
@@ -34,10 +35,10 @@ import com.johnsproject.jgameengine.rasterizer.PerspectiveGouraudRasterizer;
 public class GouraudSpecularShader extends Shader {
 
 	private static final int INITIAL_ATTENUATION = FP_ONE;
-	private static final int LINEAR_ATTENUATION = 14;
-	private static final int QUADRATIC_ATTENUATION = 7;
+	private static final int LINEAR_ATTENUATION = MathLibrary.generate(0.045);
+	private static final int QUADRATIC_ATTENUATION = MathLibrary.generate(0.0075);
 	
-	private static final int LIGHT_RANGE = FP_ONE * 150;
+	private static final int LIGHT_RANGE = MathLibrary.generate(150);
 	
 	private SpecularProperties shaderProperties;
 	private ForwardShaderBuffer shaderBuffer;

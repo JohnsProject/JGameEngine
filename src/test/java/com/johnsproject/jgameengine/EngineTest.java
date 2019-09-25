@@ -71,11 +71,11 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		inputEngine.addEngineKeyListener(this);
 		cameraTransform = Engine.getInstance().getScene().getMainCamera().getTransform();
 //		graphicsEngine.getPreprocessingShaders().clear();
-		Engine.getInstance().limitUpdateRate(false);
+//		Engine.getInstance().limitUpdateRate(true);
 		Engine.getInstance().addEngineListener(this);
 		Engine.getInstance().addEngineListener(graphicsEngine);
 		Engine.getInstance().addEngineListener(inputEngine);
-		Engine.getInstance().addEngineListener(physicsEngine);
+//		Engine.getInstance().addEngineListener(physicsEngine);
 		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(stats);
 		Engine.getInstance().start();
@@ -91,9 +91,12 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
 			for (int i = 0; i < scene.getModels().size(); i++) {
 				Model model = scene.getModel(i);
+//				model.getRigidBody().setKinematic(true);
 				if(model.getName().equals("Ground")) {
-					model.getRigidBody().setKinematic(true);
-					model.getRigidBody().getForce()[0] = 10;
+//					model.getRigidBody().setKinematic(true);
+//					model.getRigidBody().setTorque(0, 0, 10); 
+//					model.getRigidBody().addLinearVelocity(1024, 0, 0);
+//					model.getRigidBody().setAngularVelocity(0, 0, 1024);
 				}
 				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
 					Material material = model.getMesh().getMaterial(j);
@@ -113,10 +116,20 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	public void update(EngineEvent e) {
-
+		
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
+		for (int i = 0; i < e.getScene().getModels().size(); i++) {
+			Model model = e.getScene().getModel(i);
+			if(model.getName().equals("Ground")) {
+//				model.getRigidBody().setTorque(0, 0, 10);
+//				model.getRigidBody().setAngularVelocity(0, 0, 1024);
+//				model.getRigidBody().setLinearVelocity(1024, 0, 0);
+//				model.getTransform().rotate(0, 0, 1024);
+//				model.getTransform().setLocation(1024 * 4, 0, 0);
+			}
+		}
 	}
 
 	public int getLayer() {
@@ -158,6 +171,17 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	int startSpeed = MathLibrary.FP_ONE * 2;
 	int speed = startSpeed;
 	public void keyDown(KeyEvent e) {
+		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
+			Model model = Engine.getInstance().getScene().getModel(i);
+			if(model.getName().equals("Ground")) {
+				model.getRigidBody().addForce(0, 0, 10024);
+//				model.getRigidBody().setTorque(0, 0, 10);
+//				model.getRigidBody().setAngularVelocity(0, 0, 1024);
+//				model.getRigidBody().setLinearVelocity(1024, 0, 0);
+//				model.getTransform().rotate(0, 0, 1024);
+//				model.getTransform().setLocation(1024 * 4, 0, 0);
+			}
+		}
 		if(e.getKeyCode() == KeyEvent.VK_W) {
 			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, cameraTransform.getRotation(), cache);
 			vectorLibrary.divide(cache, speed, cache);

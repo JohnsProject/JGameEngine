@@ -81,7 +81,7 @@ public class EngineStatistics implements EngineListener {
 	
 	private String getOutput(EngineEvent e) {
 		final long ramUsage = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) >> 20;
-		final int maxUpdateRate = Engine.getInstance().getFixedUpdateRate();
+		final int maxUpdateRate = Engine.getInstance().getUpdateRate();
 		int frameBufferWidth = 0;
 		int frameBufferHeight = 0;
 		int verticesCount = 0;

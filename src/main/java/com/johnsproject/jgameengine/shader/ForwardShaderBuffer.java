@@ -38,7 +38,7 @@ import com.johnsproject.jgameengine.model.Transform;
 
 public class ForwardShaderBuffer implements ShaderBuffer {
 	
-	private static final int LIGHT_RANGE = MathLibrary.FP_ONE * 300;
+	private static final int LIGHT_RANGE = MathLibrary.generate(300);
 	
 	private static final int FP_ONE = MathLibrary.FP_ONE;
 	
@@ -88,8 +88,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.directionalLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		this.directionalLightFrustum[Camera.FRUSTUM_TOP] = 0;
 		this.directionalLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.directionalLightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 15;
-		this.directionalLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
+		this.directionalLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 15f);
+		this.directionalLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(10000);
 		this.directionalLightMatrix = MatrixLibrary.generate();
 		this.directionalShadowMap = new Texture(128, 128);
 		
@@ -100,8 +100,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.spotLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		this.spotLightFrustum[Camera.FRUSTUM_TOP] = 0;
 		this.spotLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.spotLightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 50;
-		this.spotLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
+		this.spotLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 50f);
+		this.spotLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(10000);
 		this.spotLightMatrix = MatrixLibrary.generate();
 		this.spotShadowMap = new Texture(64, 64);
 		
@@ -112,8 +112,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.pointLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		this.pointLightFrustum[Camera.FRUSTUM_TOP] = 0;
 		this.pointLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.pointLightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE / 50;
-		this.pointLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
+		this.pointLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 50f);
+		this.pointLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(10000);
 		this.pointLightMatrices = new int[6][MatrixLibrary.MATRIX_SIZE];
 		this.pointShadowMaps = new Texture[6];
 		for (int i = 0; i < pointShadowMaps.length; i++) {
@@ -229,32 +229,33 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 				}
 			}
 			if (pointLightIndex != -1) {
+				final int fixedPoint90 = MathLibrary.generate(90);
 				Transform lightTransform = lights.get(pointLightIndex).getTransform();
 				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
 				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
 				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[0]);
-				lightTransform.rotate(0, 0, 90);
+				lightTransform.rotate(0, 0, fixedPoint90);
 				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
 				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
 				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[1]);
-				lightTransform.rotate(0, 0, 90);
+				lightTransform.rotate(0, 0, fixedPoint90);
 				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
 				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
 				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[2]);
-				lightTransform.rotate(0, 0, 90);
+				lightTransform.rotate(0, 0, fixedPoint90);
 				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
 				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
 				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[3]);
-				lightTransform.rotate(0, 0, -270);
-				lightTransform.rotate(90, 0, 0);
+				lightTransform.rotate(0, 0, -fixedPoint90 * 3);
+				lightTransform.rotate(fixedPoint90, 0, 0);
 				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
 				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
 				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[4]);
-				lightTransform.rotate(-180, 0, 0);
+				lightTransform.rotate(-fixedPoint90 * 2, 0, 0);
 				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
 				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
 				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[5]);
-				lightTransform.rotate(90, 0, 0);
+				lightTransform.rotate(fixedPoint90, 0, 0);
 			}
 		}
 	}
