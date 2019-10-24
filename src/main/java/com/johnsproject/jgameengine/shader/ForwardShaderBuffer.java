@@ -88,8 +88,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.directionalLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		this.directionalLightFrustum[Camera.FRUSTUM_TOP] = 0;
 		this.directionalLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.directionalLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 15f);
-		this.directionalLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(10000);
+		this.directionalLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 1.5f);
+		this.directionalLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(100000);
 		this.directionalLightMatrix = MatrixLibrary.generate();
 		this.directionalShadowMap = new Texture(128, 128);
 		
@@ -100,8 +100,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.spotLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		this.spotLightFrustum[Camera.FRUSTUM_TOP] = 0;
 		this.spotLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.spotLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 50f);
-		this.spotLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(10000);
+		this.spotLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 5f);
+		this.spotLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(100000);
 		this.spotLightMatrix = MatrixLibrary.generate();
 		this.spotShadowMap = new Texture(64, 64);
 		
@@ -112,8 +112,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.pointLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		this.pointLightFrustum[Camera.FRUSTUM_TOP] = 0;
 		this.pointLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.pointLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 50f);
-		this.pointLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(10000);
+		this.pointLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 5f);
+		this.pointLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(100000);
 		this.pointLightMatrices = new int[6][MatrixLibrary.MATRIX_SIZE];
 		this.pointShadowMaps = new Texture[6];
 		for (int i = 0; i < pointShadowMaps.length; i++) {

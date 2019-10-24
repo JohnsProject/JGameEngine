@@ -28,13 +28,10 @@ import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.Shader;
 
+import static com.johnsproject.jgameengine.library.MathLibrary.*;
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+
 public class FlatRasterizer {
-
-	protected static final byte VECTOR_X = VectorLibrary.VECTOR_X;
-	protected static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
-	protected static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
-
-	protected static final int FP_BITS = MathLibrary.FP_BITS;
 	
 	protected static final int PERSPECTIVE_BITS = 25;
 	protected static final int PERSPECTIVE_ONE = 1 << PERSPECTIVE_BITS;
@@ -129,7 +126,7 @@ public class FlatRasterizer {
 	}
 	
 	private void drawBottomTriangle(int[] cameraFrustum) {
-		int xShifted = location0[VECTOR_X] << FP_BITS;
+		int xShifted = location0[VECTOR_X] << FP_BIT;
 		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
@@ -144,7 +141,7 @@ public class FlatRasterizer {
         	int dz = mathLibrary.divide(dz2 - dz1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location0[VECTOR_Z] << FP_BITS;
+            int z = location0[VECTOR_Z] << FP_BIT;
 	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
 	        	drawScanline(x1, x2, y, z, dz, cameraFrustum);
 	            x1 += dx1;
@@ -157,7 +154,7 @@ public class FlatRasterizer {
         	int dz = mathLibrary.divide(dz1 - dz2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location0[VECTOR_Z] << FP_BITS;
+            int z = location0[VECTOR_Z] << FP_BIT;
         	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
         		drawScanline(x1, x2, y, z, dz, cameraFrustum);
 	            x1 += dx2;
@@ -168,7 +165,7 @@ public class FlatRasterizer {
     }
     
 	private void drawTopTriangle(int[] cameraFrustum) {
-		int xShifted = location2[VECTOR_X] << FP_BITS;
+		int xShifted = location2[VECTOR_X] << FP_BIT;
 		int y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
@@ -183,7 +180,7 @@ public class FlatRasterizer {
 			int dz = mathLibrary.divide(dz1 - dz2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location2[VECTOR_Z] << FP_BITS;
+			int z = location2[VECTOR_Z] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, dz, cameraFrustum);
 	            x1 -= dx1;
@@ -196,7 +193,7 @@ public class FlatRasterizer {
 			int dz = mathLibrary.divide(dz2 - dz1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location2[VECTOR_Z] << FP_BITS;
+			int z = location2[VECTOR_Z] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, dz, cameraFrustum);
 	            x1 -= dx2;
@@ -207,12 +204,12 @@ public class FlatRasterizer {
     }
 	
 	private void drawScanline(int x1, int x2, int y, int z, int dz, int[] cameraFrustum) {
-		x1 >>= FP_BITS;
-		x2 >>= FP_BITS;
+		x1 >>= FP_BIT;
+		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {
 			pixelCache[VECTOR_X] = x1;
 			pixelCache[VECTOR_Y] = y;
-			pixelCache[VECTOR_Z] = z >> FP_BITS;
+			pixelCache[VECTOR_Z] = z >> FP_BIT;
 			shader.fragment(pixelCache);
 			z += dz;
 		}

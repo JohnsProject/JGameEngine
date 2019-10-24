@@ -50,8 +50,8 @@ public class Camera extends SceneObject {
 		this.frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;
 		this.frustum[FRUSTUM_TOP] = 0;
 		this.frustum[FRUSTUM_BOTTOM] = MathLibrary.FP_ONE;
-		this.frustum[FRUSTUM_NEAR] = MathLibrary.FP_ONE / 10;
-		this.frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 100;
+		this.frustum[FRUSTUM_NEAR] = MathLibrary.FP_ONE;
+		this.frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 1000;
 	}
 
 	public int[] getFrustum() {

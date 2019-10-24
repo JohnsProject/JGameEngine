@@ -37,15 +37,15 @@ public class MathLibrary {
 	
 	/**
 	 * This is the bit representation of the default fixed point precision value. 
-	 * That means that the 'point' is at the {@value #FP_BITS}th bit of the integer.
+	 * That means that the 'point' is at the {@value #FP_BIT}th bit of the integer.
 	 */
-	public static final byte FP_BITS = 10;
+	public static final byte FP_BIT = 10;
 	
 	/**
 	 * This is the integer representation of the default fixed point precision value. 
 	 * It is the same as the fixed point '1'.
 	 */
-	public static final int FP_ONE = 1 << FP_BITS;
+	public static final int FP_ONE = 1 << FP_BIT;
 	
 	/**
 	 * It is the same as the fixed point '0.5'.
@@ -112,7 +112,7 @@ public class MathLibrary {
 	 * @return
 	 */
 	public int sin(int angle) {
-		angle >>= FP_BITS;
+		angle >>= FP_BIT;
 		angle = ((angle % 360) + 360) % 360;
 		int quadrant = (angle / 90) + 1;
 		angle %= 90;
@@ -153,7 +153,7 @@ public class MathLibrary {
 	 * @return
 	 */
 	public int cos(int angle) {
-		angle >>= FP_BITS;
+		angle >>= FP_BIT;
 		angle = ((angle % 360) + 360) % 360;
 		int quadrant = (angle / 90) + 1;
 		angle %= 90;
@@ -179,7 +179,7 @@ public class MathLibrary {
 	 * @return
 	 */
 	public int tan(int angle) {
-		return (sin(angle) << FP_BITS) / cos(angle);
+		return (sin(angle) << FP_BIT) / cos(angle);
 	}
 
 	/**
@@ -239,7 +239,7 @@ public class MathLibrary {
 	 */
 	public int sqrt(int number) {
 		// integral part
-		int num = number >> FP_BITS;
+		int num = number >> FP_BIT;
 		int c = 1 << 15;
 		int g = c;
 		if (g * g > num) {
@@ -259,10 +259,10 @@ public class MathLibrary {
 			}
 			g |= c;
 		}
-		long result = (g << FP_BITS);
+		long result = (g << FP_BIT);
 		// fractional part
 		final short increment = FP_ONE >> 7;
-		for (; (result * result + FP_HALF) >> FP_BITS <= number; result += increment);
+		for (; (result * result + FP_HALF) >> FP_BIT <= number; result += increment);
 		result -= increment;
 		return (int)result;
 	}
@@ -275,15 +275,15 @@ public class MathLibrary {
 	 * @return fixed point result.
 	 */
 	public int pow(int base, int exp) {
-		exp >>= FP_BITS;
+		exp >>= FP_BIT;
 		long lBase = base;
 		long result = FP_ONE;
 		while (exp != 0) {
 			if ((exp & 1) == 1) {
-				result = (result * lBase + FP_HALF) >> FP_BITS;
+				result = (result * lBase + FP_HALF) >> FP_BIT;
 			}
 			exp >>= 1;
-			lBase = (lBase * lBase + FP_HALF) >> FP_BITS;
+			lBase = (lBase * lBase + FP_HALF) >> FP_BIT;
 		}
 		return (int) result;
 	}
@@ -297,7 +297,7 @@ public class MathLibrary {
 	 */
 	public int multiply(long value1, long value2) {
 		long result = value1 * value2 + FP_HALF;
-		return (int) (result >> FP_BITS);
+		return (int) (result >> FP_BIT);
 	}
 
 	/**
@@ -308,7 +308,7 @@ public class MathLibrary {
 	 * @return fixed point result.
 	 */
 	public int divide(long dividend, long divisor) {
-		long result = dividend << FP_BITS;
+		long result = dividend << FP_BIT;
 		result /= divisor;
 		return (int) result;
 	}

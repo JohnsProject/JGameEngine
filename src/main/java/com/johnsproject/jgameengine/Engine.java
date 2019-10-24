@@ -100,7 +100,7 @@ public class Engine {
 						currentTime += updateTime;
 						loops++;
 					}
-					deltaTime = loops << MathLibrary.FP_BITS;
+					deltaTime = loops << MathLibrary.FP_BIT;
 					event = new EngineEvent(scene, (int) elapsedTime, 0, deltaTime);
 					for (int i = 0; i < listernerCount; i++) {
 						engineListeners.get(i).update(event);

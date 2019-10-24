@@ -32,6 +32,9 @@ import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.VertexBuffer;
 import com.johnsproject.jgameengine.rasterizer.PerspectivePhongRasterizer;
 
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+import static com.johnsproject.jgameengine.library.MathLibrary.*;
+
 public class PhongSpecularShader extends Shader {
 
 	private static final int INITIAL_ATTENUATION = MathLibrary.FP_ONE;
@@ -103,90 +106,90 @@ public class PhongSpecularShader extends Shader {
 		int x = location[VECTOR_X];
 		int y = location[VECTOR_Y];
 		int z = location[VECTOR_Z];
-		int[] worldLocation = rasterizer.getWorldLocation();
-		int[] normal = rasterizer.getNormal();
-		int lightColor = ColorLibrary.BLACK;
-		int[] cameraLocation = shaderBuffer.getCamera().getTransform().getLocation();	
-		vectorLibrary.subtract(cameraLocation, worldLocation, viewDirection);
-		vectorLibrary.normalize(viewDirection, viewDirection);
-		for (int i = 0; i < shaderBuffer.getLights().size(); i++) {
-			Light light = shaderBuffer.getLights().get(i);
-			int currentFactor = 0;
-			int attenuation = 0;
-			int[] lightPosition = light.getTransform().getLocation();
-			switch (light.getType()) {
-			case DIRECTIONAL:
-				vectorLibrary.invert(light.getDirection(), lightDirection);
-				currentFactor = getLightFactor(normal, lightDirection, viewDirection);
-				if (i == shaderBuffer.getDirectionalLightIndex()) {
-					int[] lightMatrix = shaderBuffer.getDirectionalLightMatrix();
-					int[] lightFrustum = shaderBuffer.getDirectionalLightFrustum();
-					Texture shadowMap = shaderBuffer.getDirectionalShadowMap();
-					if(inShadow(worldLocation, lightMatrix, lightFrustum, shadowMap)) {
-						currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
-					}
-				}
-				break;
-			case POINT:
-				if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
-					continue;
-				vectorLibrary.subtract(lightPosition, worldLocation, lightLocation);
-				attenuation = getAttenuation(lightLocation);
-				vectorLibrary.normalize(lightLocation, lightLocation);
-				currentFactor = getLightFactor(normal, lightLocation, viewDirection);
-				currentFactor = mathLibrary.divide(currentFactor, attenuation);
-				if ((i == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
-					for (int j = 0; j < shaderBuffer.getPointLightMatrices().length; j++) {
-						int[] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
-						int[] lightFrustum = shaderBuffer.getPointLightFrustum();
-						Texture shadowMap = shaderBuffer.getPointShadowMaps()[j];
-						if(inShadow(worldLocation, lightMatrix, lightFrustum, shadowMap)) {
-							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
-						}
-					}
-				}
-				break;
-			case SPOT:				
-				if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
-					continue;
-				vectorLibrary.invert(light.getDirection(), lightDirection);
-				vectorLibrary.subtract(lightPosition, worldLocation, lightLocation);
-				attenuation = getAttenuation(lightLocation);
-				vectorLibrary.normalize(lightLocation, lightLocation);
-				int theta = vectorLibrary.dotProduct(lightLocation, lightDirection);
-				int phi = mathLibrary.cos(light.getSpotSize() >> 1);
-				if(theta > phi) {
-					int intensity = -mathLibrary.divide(phi - theta, light.getSpotSoftness() + 1);
-					intensity = mathLibrary.clamp(intensity, 1, FP_ONE);
-					currentFactor = getLightFactor(normal, lightDirection, viewDirection);
-					currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
-					currentFactor = mathLibrary.divide(currentFactor, attenuation);
-					if ((i == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
-						int[] lightMatrix = shaderBuffer.getSpotLightMatrix();
-						int[] lightFrustum = shaderBuffer.getSpotLightFrustum();
-						Texture shadowMap = shaderBuffer.getSpotShadowMap();
-						if(inShadow(worldLocation, lightMatrix, lightFrustum, shadowMap)) {
-							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
-						}
-					}
-				}
-				break;
-			}
-			currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
-			currentFactor = mathLibrary.multiply(currentFactor, 255);
-			lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
-		}
-		if (texture != null) {
-			int[] uv = rasterizer.getUV();
-			int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
-			if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
-				return;
-			color = texel;
-		}
-		modelColor = colorLibrary.multiplyColor(color, lightColor);
 		Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
 		Texture depthBuffer = shaderBuffer.getFrameBuffer().getDepthBuffer();
 		if (depthBuffer.getPixel(x, y) > z) {
+			int[] worldLocation = rasterizer.getWorldLocation();
+			int[] normal = rasterizer.getNormal();
+			int lightColor = ColorLibrary.BLACK;
+			int[] cameraLocation = shaderBuffer.getCamera().getTransform().getLocation();	
+			vectorLibrary.subtract(cameraLocation, worldLocation, viewDirection);
+			vectorLibrary.normalize(viewDirection, viewDirection);
+			for (int i = 0; i < shaderBuffer.getLights().size(); i++) {
+				Light light = shaderBuffer.getLights().get(i);
+				int currentFactor = 0;
+				int attenuation = 0;
+				int[] lightPosition = light.getTransform().getLocation();
+				switch (light.getType()) {
+				case DIRECTIONAL:
+					vectorLibrary.invert(light.getDirection(), lightDirection);
+					currentFactor = getLightFactor(normal, lightDirection, viewDirection);
+					if (i == shaderBuffer.getDirectionalLightIndex()) {
+						int[] lightMatrix = shaderBuffer.getDirectionalLightMatrix();
+						int[] lightFrustum = shaderBuffer.getDirectionalLightFrustum();
+						Texture shadowMap = shaderBuffer.getDirectionalShadowMap();
+						if(inShadow(worldLocation, lightMatrix, lightFrustum, shadowMap)) {
+							currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
+						}
+					}
+					break;
+				case POINT:
+					if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
+						continue;
+					vectorLibrary.subtract(lightPosition, worldLocation, lightLocation);
+					attenuation = getAttenuation(lightLocation);
+					vectorLibrary.normalize(lightLocation, lightLocation);
+					currentFactor = getLightFactor(normal, lightLocation, viewDirection);
+					currentFactor = mathLibrary.divide(currentFactor, attenuation);
+					if ((i == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
+						for (int j = 0; j < shaderBuffer.getPointLightMatrices().length; j++) {
+							int[] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
+							int[] lightFrustum = shaderBuffer.getPointLightFrustum();
+							Texture shadowMap = shaderBuffer.getPointShadowMaps()[j];
+							if(inShadow(worldLocation, lightMatrix, lightFrustum, shadowMap)) {
+								currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
+							}
+						}
+					}
+					break;
+				case SPOT:				
+					if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
+						continue;
+					vectorLibrary.invert(light.getDirection(), lightDirection);
+					vectorLibrary.subtract(lightPosition, worldLocation, lightLocation);
+					attenuation = getAttenuation(lightLocation);
+					vectorLibrary.normalize(lightLocation, lightLocation);
+					int theta = vectorLibrary.dotProduct(lightLocation, lightDirection);
+					int phi = mathLibrary.cos(light.getSpotSize() >> 1);
+					if(theta > phi) {
+						int intensity = -mathLibrary.divide(phi - theta, light.getSpotSoftness() + 1);
+						intensity = mathLibrary.clamp(intensity, 1, FP_ONE);
+						currentFactor = getLightFactor(normal, lightDirection, viewDirection);
+						currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
+						currentFactor = mathLibrary.divide(currentFactor, attenuation);
+						if ((i == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
+							int[] lightMatrix = shaderBuffer.getSpotLightMatrix();
+							int[] lightFrustum = shaderBuffer.getSpotLightFrustum();
+							Texture shadowMap = shaderBuffer.getSpotShadowMap();
+							if(inShadow(worldLocation, lightMatrix, lightFrustum, shadowMap)) {
+								currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
+							}
+						}
+					}
+					break;
+				}
+				currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
+				currentFactor = mathLibrary.multiply(currentFactor, 255);
+				lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
+			}
+			if (texture != null) {
+				int[] uv = rasterizer.getUV();
+				int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
+				if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
+					return;
+				color = texel;
+			}
+			modelColor = colorLibrary.multiplyColor(color, lightColor);
 			depthBuffer.setPixel(x, y, z);
 			colorBuffer.setPixel(x, y, modelColor);
 		}

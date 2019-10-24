@@ -15,14 +15,15 @@ public class MathLibraryTest {
 	
 	@Test
 	public void test() throws Exception {
+		System.out.println(1 << 6);
 		// just tests with fixed point math
-		assert(((2 << MathLibrary.FP_BITS) + (2 << MathLibrary.FP_BITS)) >> MathLibrary.FP_BITS == 4);
-		assert(((2 << MathLibrary.FP_BITS) + (2 << MathLibrary.FP_BITS) + (2 << MathLibrary.FP_BITS)) >> MathLibrary.FP_BITS == 6);
-		assert(((4 << MathLibrary.FP_BITS) - (2 << MathLibrary.FP_BITS)) >> MathLibrary.FP_BITS == 2);
-		assert(((2 << MathLibrary.FP_BITS) * (2 << MathLibrary.FP_BITS)) >> (MathLibrary.FP_BITS * 2) == 4);
-		assert(((2 << MathLibrary.FP_BITS) * 2) >> MathLibrary.FP_BITS == 4);
-		assert(((4 << MathLibrary.FP_BITS) / 2) >> MathLibrary.FP_BITS == 2);
-		assert((1 << MathLibrary.FP_BITS) / 500 == 2);
+		assert(((2 << MathLibrary.FP_BIT) + (2 << MathLibrary.FP_BIT)) >> MathLibrary.FP_BIT == 4);
+		assert(((2 << MathLibrary.FP_BIT) + (2 << MathLibrary.FP_BIT) + (2 << MathLibrary.FP_BIT)) >> MathLibrary.FP_BIT == 6);
+		assert(((4 << MathLibrary.FP_BIT) - (2 << MathLibrary.FP_BIT)) >> MathLibrary.FP_BIT == 2);
+		assert(((2 << MathLibrary.FP_BIT) * (2 << MathLibrary.FP_BIT)) >> (MathLibrary.FP_BIT * 2) == 4);
+		assert(((2 << MathLibrary.FP_BIT) * 2) >> MathLibrary.FP_BIT == 4);
+		assert(((4 << MathLibrary.FP_BIT) / 2) >> MathLibrary.FP_BIT == 2);
+		assert((1 << MathLibrary.FP_BIT) / 500 == 2);
 	}
 
 	@Test
@@ -31,7 +32,7 @@ public class MathLibraryTest {
 		for (int i = 0; i < 90; i++) {
 			int angle = i;
 			int precision = 10;
-			int isin = mathLibrary.sin(angle << MathLibrary.FP_BITS);
+			int isin = mathLibrary.sin(angle << MathLibrary.FP_BIT);
 			int sin = (int) Math.round(Math.sin(Math.toRadians(angle)) * MathLibrary.FP_ONE);
 			assert (isin >= sin - precision && isin <= sin + precision);
 		}
@@ -43,7 +44,7 @@ public class MathLibraryTest {
 		for (int i = 0; i < 90; i++) {
 			int angle = i;
 			int precision = 10;
-			int icos = mathLibrary.cos(angle << MathLibrary.FP_BITS);
+			int icos = mathLibrary.cos(angle << MathLibrary.FP_BIT);
 			int cos = (int) Math.round(Math.cos(Math.toRadians(angle)) * MathLibrary.FP_ONE);
 			assert (icos >= cos - precision && icos <= cos + precision);
 		}
@@ -64,13 +65,13 @@ public class MathLibraryTest {
 	@Test
 	public void divideTest() throws Exception {
 		MathLibrary mathLibrary = new MathLibrary();
-		assert(mathLibrary.divide(10 << MathLibrary.FP_BITS, 2 << MathLibrary.FP_BITS) == 5 << MathLibrary.FP_BITS);
+		assert(mathLibrary.divide(10 << MathLibrary.FP_BIT, 2 << MathLibrary.FP_BIT) == 5 << MathLibrary.FP_BIT);
 	}
 	
 	@Test
 	public void powTest() throws Exception {
 		MathLibrary mathLibrary = new MathLibrary();
-		assert(mathLibrary.pow(5 << MathLibrary.FP_BITS, 10 << MathLibrary.FP_BITS) == 9765625 << MathLibrary.FP_BITS);
+		assert(mathLibrary.pow(5 << MathLibrary.FP_BIT, 10 << MathLibrary.FP_BIT) == 9765625 << MathLibrary.FP_BIT);
 	}
 	
 	@Test
@@ -78,7 +79,7 @@ public class MathLibraryTest {
 		MathLibrary mathLibrary = new MathLibrary();
 		System.out.println((mathLibrary.sqrt(256)) + ", " + (Math.sqrt(((double)0.25)) * MathLibrary.FP_ONE));
 		System.out.println((mathLibrary.sqrt(512)) + ", " + (Math.sqrt(((double)0.5)) * MathLibrary.FP_ONE));
-		assert(mathLibrary.sqrt(25 << MathLibrary.FP_BITS) == 5 << MathLibrary.FP_BITS);
+		assert(mathLibrary.sqrt(25 << MathLibrary.FP_BIT) == 5 << MathLibrary.FP_BIT);
 	}
 
 }

@@ -39,6 +39,8 @@ import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.SpecularProperties;
 
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+
 /**
  * The SOMImporter class imports .som (Scene Object Mesh) files exported 
  * by Blender SOMExporter included in the Exporters folder.
@@ -47,10 +49,6 @@ import com.johnsproject.jgameengine.shader.SpecularProperties;
  *
  */
 public class SOMImporter {
-	
-	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
-	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
-	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
 	
 	public SOMImporter() {	}
 	

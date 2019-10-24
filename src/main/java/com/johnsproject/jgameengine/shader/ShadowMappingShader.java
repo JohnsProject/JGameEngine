@@ -28,6 +28,8 @@ import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.VertexBuffer;
 import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
 
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+
 public class ShadowMappingShader extends Shader {
 	
 	private static final short SHADOW_BIAS = 500;

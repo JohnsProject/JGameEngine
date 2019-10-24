@@ -35,6 +35,9 @@ import com.johnsproject.jgameengine.rasterizer.PerspectiveGouraudRasterizer;
 import com.johnsproject.jgameengine.rasterizer.PerspectivePhongRasterizer;
 import com.johnsproject.jgameengine.rasterizer.PhongRasterizer;
 
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+import static com.johnsproject.jgameengine.library.MathLibrary.*;
+
 /**
  * The GraphicsLibrary class contains methods for generating matrices needed to move 
  * vectors between spaces and triangle drawing algorithms.
@@ -42,16 +45,6 @@ import com.johnsproject.jgameengine.rasterizer.PhongRasterizer;
  * @author John Ferraz Salomon
  */
 public class GraphicsLibrary {
-	
-	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
-	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
-	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
-	private static final byte VECTOR_W = VectorLibrary.VECTOR_W;
-
-	private static final int FP_ONE = MathLibrary.FP_ONE;
-	private static final int FP_HALF = MathLibrary.FP_HALF;
-	
-	private static final byte PROJECTION_BITS = 10;
 	
 	private final MathLibrary mathLibrary;
 	private final MatrixLibrary matrixLibrary;
@@ -96,7 +89,7 @@ public class GraphicsLibrary {
 		int[] normalMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
 		normalMatrix = matrixLibrary.scale(normalMatrix, scale, normalMatrix);
 		normalMatrix = matrixLibrary.rotateXYZ(normalMatrix, rotation, normalMatrix);
-		if ((scale[VECTOR_X] != scale[VECTOR_Y]) | (scale[VECTOR_Y] != scale[VECTOR_Z])) {
+		if ((scale[VECTOR_X] != scale[VECTOR_Y]) || (scale[VECTOR_Y] != scale[VECTOR_Z])) {
 			normalMatrix = matrixLibrary.inverse(normalMatrix, normalMatrix);
 			normalMatrix = matrixLibrary.transpose(normalMatrix, normalMatrix);
 		}
@@ -136,12 +129,12 @@ public class GraphicsLibrary {
 	 * @return
 	 */
 	public int[] orthographicMatrix(int[] matrix, int[] cameraFrustum) {
-		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR] << 2) << PROJECTION_BITS;
+		int scaleFactor = cameraFrustum[Camera.FRUSTUM_NEAR];
 		int[] projectionMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
 		matrixLibrary.set(projectionMatrix, 0, 0, scaleFactor);
 		matrixLibrary.set(projectionMatrix, 1, 1, scaleFactor);
 		matrixLibrary.set(projectionMatrix, 2, 2, -FP_ONE);
-		matrixLibrary.set(projectionMatrix, 3, 3, FP_ONE * -FP_HALF);
+		matrixLibrary.set(projectionMatrix, 3, 3, -FP_ONE << 4);
 		return projectionMatrix;
 	}
 
@@ -156,7 +149,7 @@ public class GraphicsLibrary {
 	 * @return
 	 */
 	public int[] perspectiveMatrix(int[] matrix, int[] cameraFrustum) {
-		int scaleFactor = (cameraFrustum[Camera.FRUSTUM_NEAR]) << (PROJECTION_BITS - 1);
+		int scaleFactor = cameraFrustum[Camera.FRUSTUM_NEAR];
 		int[] projectionMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
 		matrixLibrary.set(projectionMatrix, 0, 0, scaleFactor);
 		matrixLibrary.set(projectionMatrix, 1, 1, scaleFactor);
@@ -183,12 +176,14 @@ public class GraphicsLibrary {
 		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
 		int left = cameraFrustum[Camera.FRUSTUM_LEFT];
 		int right = cameraFrustum[Camera.FRUSTUM_RIGHT];
-		int scaleFactor = ((bottom - top) >> 6) + 1;
+		int scaleFactor = bottom - top + 1;
 		int halfX = left + ((right - left) >> 1);
 		int halfY = top + ((bottom - top) >> 1);
 		int w = Math.min(-1, location[VECTOR_W]);
-		result[VECTOR_X] = (mathLibrary.divide(location[VECTOR_X] * scaleFactor, w) >> PROJECTION_BITS) + halfX;
-		result[VECTOR_Y] = (mathLibrary.divide(location[VECTOR_Y] * scaleFactor, w) >> PROJECTION_BITS) + halfY;
+		result[VECTOR_X] = mathLibrary.multiply(location[VECTOR_X], scaleFactor);
+		result[VECTOR_X] = mathLibrary.divide(result[VECTOR_X], w) + halfX;
+		result[VECTOR_Y] = mathLibrary.multiply(location[VECTOR_Y], scaleFactor);
+		result[VECTOR_Y] = mathLibrary.divide(result[VECTOR_Y], w) + halfY;
 		return result;
 	}
 
@@ -358,20 +353,20 @@ public class GraphicsLibrary {
 			int right = cameraFrustum[Camera.FRUSTUM_RIGHT];
 			int top = cameraFrustum[Camera.FRUSTUM_TOP];
 			int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
-			int near = cameraFrustum[Camera.FRUSTUM_NEAR] * 10;
-			int far = cameraFrustum[Camera.FRUSTUM_FAR] * 10;
-			boolean insideWidth1 = (location1[VECTOR_X] > left) & (location1[VECTOR_X] < right);
-			boolean insideWidth2 = (location2[VECTOR_X] > left) & (location2[VECTOR_X] < right);
-			boolean insideWidth3 = (location3[VECTOR_X] > left) & (location3[VECTOR_X] < right);
-			boolean insideHeight1 = (location1[VECTOR_Y] > top) & (location1[VECTOR_Y] < bottom);
-			boolean insideHeight2 = (location2[VECTOR_Y] > top) & (location2[VECTOR_Y] < bottom);
-			boolean insideHeight3 = (location3[VECTOR_Y] > top) & (location3[VECTOR_Y] < bottom);
-			boolean insideDepth1 = (location1[VECTOR_Z] > near) & (location1[VECTOR_Z] < far);
-			boolean insideDepth2 = (location2[VECTOR_Z] > near) & (location2[VECTOR_Z] < far);
-			boolean insideDepth3 = (location3[VECTOR_Z] > near) & (location3[VECTOR_Z] < far);
-			if ((!insideDepth1 | !insideDepth2 | !insideDepth3) 
-					| (!insideHeight1 & !insideHeight2 & !insideHeight3)
-						| (!insideWidth1 & !insideWidth2 & !insideWidth3)) {
+			int near = cameraFrustum[Camera.FRUSTUM_NEAR];
+			int far = cameraFrustum[Camera.FRUSTUM_FAR];
+			boolean insideWidth1 = (location1[VECTOR_X] > left) && (location1[VECTOR_X] < right);
+			boolean insideWidth2 = (location2[VECTOR_X] > left) && (location2[VECTOR_X] < right);
+			boolean insideWidth3 = (location3[VECTOR_X] > left) && (location3[VECTOR_X] < right);
+			boolean insideHeight1 = (location1[VECTOR_Y] > top) && (location1[VECTOR_Y] < bottom);
+			boolean insideHeight2 = (location2[VECTOR_Y] > top) && (location2[VECTOR_Y] < bottom);
+			boolean insideHeight3 = (location3[VECTOR_Y] > top) && (location3[VECTOR_Y] < bottom);
+			boolean insideDepth1 = (location1[VECTOR_Z] > near) && (location1[VECTOR_Z] < far);
+			boolean insideDepth2 = (location2[VECTOR_Z] > near) && (location2[VECTOR_Z] < far);
+			boolean insideDepth3 = (location3[VECTOR_Z] > near) && (location3[VECTOR_Z] < far);
+			if ((!insideDepth1 || !insideDepth2 || !insideDepth3) 
+					|| (!insideHeight1 && !insideHeight2 && !insideHeight3)
+						|| (!insideWidth1 && !insideWidth2 && !insideWidth3)) {
 						return true;
 			}
 		}

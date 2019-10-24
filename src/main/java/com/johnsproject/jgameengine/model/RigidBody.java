@@ -27,11 +27,9 @@ import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 
-public class RigidBody {
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
 
-	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
-	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
-	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
+public class RigidBody {
 	
 	private boolean kinematic;
 	private int mass;

@@ -32,6 +32,9 @@ import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.VertexBuffer;
 import com.johnsproject.jgameengine.rasterizer.PerspectiveGouraudRasterizer;
 
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+import static com.johnsproject.jgameengine.library.MathLibrary.*;
+
 public class GouraudSpecularShader extends Shader {
 
 	private static final int INITIAL_ATTENUATION = FP_ONE;
@@ -164,23 +167,23 @@ public class GouraudSpecularShader extends Shader {
 
 	@Override
 	public void fragment(int[] location) {
-		int color = shaderProperties.getDiffuseColor();
-		Texture texture = shaderProperties.getTexture();
-		int lightColor = rasterizer.getColor();
-		if (texture != null) {
-			int[] uv = rasterizer.getUV();
-			int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
-			if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
-				return;
-			color = texel;
-		}
-		color = colorLibrary.multiplyColor(color, lightColor);
-		Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
 		Texture depthBuffer = shaderBuffer.getFrameBuffer().getDepthBuffer();
+		Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
 		int x = location[VECTOR_X];
 		int y = location[VECTOR_Y];
 		int z = location[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
+			int color = shaderProperties.getDiffuseColor();
+			Texture texture = shaderProperties.getTexture();
+			int lightColor = rasterizer.getColor();
+			if (texture != null) {
+				int[] uv = rasterizer.getUV();
+				int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
+				if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
+					return;
+				color = texel;
+			}
+			color = colorLibrary.multiplyColor(color, lightColor);
 			depthBuffer.setPixel(x, y, z);
 			colorBuffer.setPixel(x, y, color);
 		}

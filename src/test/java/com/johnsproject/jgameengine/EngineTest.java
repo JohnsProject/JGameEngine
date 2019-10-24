@@ -87,8 +87,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	
 	private Scene loadScene() {
 		try {
-			Scene scene = new SceneImporter().load("C:/Development/test.scene");
-			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
+			Scene scene = new SceneImporter().load("E:/Development/Blender/Test.scene");
+			//Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
 			for (int i = 0; i < scene.getModels().size(); i++) {
 				Model model = scene.getModel(i);
 //				model.getRigidBody().setKinematic(true);
@@ -101,10 +101,10 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
 					Material material = model.getMesh().getMaterial(j);
 					SpecularProperties properties = (SpecularProperties)material.getShader().getProperties();
-//					material.setShader(new FlatSpecularShader());
-//					material.setShader(new PhongSpecularShader());
-//					material.getShader().setProperties(properties);
-					properties.setTexture(texture);
+					//material.setShader(new FlatSpecularShader());
+					//material.setShader(new PhongSpecularShader());
+					//material.getShader().setProperties(properties);
+					//properties.setTexture(texture);
 				}
 				model.getArmature().playAnimation("Walk", true);
 			}
@@ -138,8 +138,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 
 	public void mouseDragged(MouseEvent e) {
 		int[] rotation = cameraTransform.getRotation();
-		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BITS;
-		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BITS;
+		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BIT;
+		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BIT;
 	}
 
 	public void mouseMoved(MouseEvent e) {
@@ -168,7 +168,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		}
 	}
 
-	int startSpeed = MathLibrary.FP_ONE * 2;
+	int startSpeed = MathLibrary.FP_ONE * 10;
 	int speed = startSpeed;
 	public void keyDown(KeyEvent e) {
 		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {

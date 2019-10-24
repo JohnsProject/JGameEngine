@@ -33,14 +33,6 @@ import com.johnsproject.jgameengine.model.VertexBuffer;
 
 public abstract class Shader {
 	
-	protected static final byte VECTOR_X = VectorLibrary.VECTOR_X;
-	protected static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
-	protected static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
-	
-	protected static final byte FP_BITS = MathLibrary.FP_BITS;
-	protected static final int FP_ONE = MathLibrary.FP_ONE;
-	protected static final int FP_HALF = MathLibrary.FP_HALF;
-	
 	protected final GraphicsLibrary graphicsLibrary;
 	protected final MathLibrary mathLibrary;
 	protected final MatrixLibrary matrixLibrary;

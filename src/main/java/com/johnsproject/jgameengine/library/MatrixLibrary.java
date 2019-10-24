@@ -23,6 +23,9 @@
  */
 package com.johnsproject.jgameengine.library;
 
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+import static com.johnsproject.jgameengine.library.MathLibrary.*;
+
 /**
  * The MatrixLibrary class contains methods for generating matrices and performing matrix 
  * operations such as multiply, translate, scale, rotate.
@@ -30,12 +33,6 @@ package com.johnsproject.jgameengine.library;
  * @author John Ferraz Salomon
  */
 public class MatrixLibrary {
-
-	private static final int FP_ONE = MathLibrary.FP_ONE;
-	
-	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
-	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
-	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
 	
 	public static final byte MATRIX_ROW_SIZE = 4;
 	public static final byte MATRIX_COLUMN_SIZE = 4;

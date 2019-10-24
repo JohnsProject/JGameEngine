@@ -49,6 +49,8 @@ import com.johnsproject.jgameengine.model.VertexGroup;
 import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.SpecularProperties;
 
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+
 /**
  * The SceneImporter class imports .scene files exported 
  * by Blender SceneExporter included in the Exporters folder.
@@ -57,10 +59,6 @@ import com.johnsproject.jgameengine.shader.SpecularProperties;
  *
  */
 public class SceneImporter {
-	
-	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
-	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
-	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
 
 	private final VectorLibrary vectorLibrary;
 	private final MatrixLibrary matrixLibrary;

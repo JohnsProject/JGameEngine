@@ -35,11 +35,6 @@ import com.johnsproject.jgameengine.model.Transform;
 
 public class PhysicsEngine implements EngineListener {
 	
-//	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
-//	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
-//	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
-//	private static final byte VECTOR_W = VectorLibrary.VECTOR_W;
-	
 	private final MathLibrary mathLibrary;
 	private final VectorLibrary vectorLibrary;
 	

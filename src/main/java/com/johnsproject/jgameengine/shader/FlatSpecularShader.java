@@ -32,6 +32,9 @@ import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.VertexBuffer;
 import com.johnsproject.jgameengine.rasterizer.PerspectiveFlatRasterizer;
 
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+import static com.johnsproject.jgameengine.library.MathLibrary.*;
+
 public class FlatSpecularShader extends Shader {
 	
 	private static final int INITIAL_ATTENUATION = MathLibrary.FP_ONE;
@@ -75,7 +78,7 @@ public class FlatSpecularShader extends Shader {
 		int[] location3 = geometryBuffer.getVertexDataBuffer(2).getLocation();
 		vectorLibrary.add(location1, location2, faceLocation);
 		vectorLibrary.add(faceLocation, location3, faceLocation);
-		vectorLibrary.divide(faceLocation, 3 << FP_BITS, faceLocation);	
+		vectorLibrary.divide(faceLocation, 3 << FP_BIT, faceLocation);	
 		lightColor = ColorLibrary.BLACK;		
 		int[] cameraLocation = shaderBuffer.getCamera().getTransform().getLocation();		
 		vectorLibrary.normalize(normal, normal);
@@ -183,22 +186,22 @@ public class FlatSpecularShader extends Shader {
 
 	@Override
 	public void fragment(int[] location) {
-		Texture texture = shaderProperties.getTexture();
-		int color = shaderProperties.getDiffuseColor();
-		if (texture != null) {
-			int[] uv = rasterizer.getUV();
-			int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
-			if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
-				return;
-			color = texel;
-		}
-		color = colorLibrary.multiplyColor(color, lightColor);
-		Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
 		Texture depthBuffer = shaderBuffer.getFrameBuffer().getDepthBuffer();
+		Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
 		int x = location[VECTOR_X];
 		int y = location[VECTOR_Y];
 		int z = location[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
+			Texture texture = shaderProperties.getTexture();
+			int color = shaderProperties.getDiffuseColor();
+			if (texture != null) {
+				int[] uv = rasterizer.getUV();
+				int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
+				if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
+					return;
+				color = texel;
+			}
+			color = colorLibrary.multiplyColor(color, lightColor);
 			depthBuffer.setPixel(x, y, z);
 			colorBuffer.setPixel(x, y, color);
 		}

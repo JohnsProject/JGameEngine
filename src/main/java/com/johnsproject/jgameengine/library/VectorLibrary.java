@@ -23,6 +23,8 @@
  */
 package com.johnsproject.jgameengine.library;
 
+import static com.johnsproject.jgameengine.library.MathLibrary.*;
+
 /**
  * The VectorLibrary class contains methods for generating vectors and performing vector 
  * operations such as add, subtract, multiply, divide, cross product, normalize, rotate, swap.
@@ -30,9 +32,6 @@ package com.johnsproject.jgameengine.library;
  * @author John Ferraz Salomon
  */
 public class VectorLibrary {
-
-	private static final byte FP_BITS = MathLibrary.FP_BITS;
-	private static final int FP_ONE = MathLibrary.FP_ONE;
 	
 	private static final byte NORMALIZE_BITS = 25;
 	private static final long NORMALIZE_ONE = 1 << NORMALIZE_BITS;
@@ -344,9 +343,9 @@ public class VectorLibrary {
 	 */
 	public int[] normalize(int[] vector, int[] result) {
 		final long magnitude = NORMALIZE_ONE / (long)(length(vector) + 1);
-		result[VECTOR_X] = (int)(((((long)vector[VECTOR_X] * magnitude) << FP_BITS) + NORMALIZE_HALF) >> NORMALIZE_BITS);
-		result[VECTOR_Y] = (int)(((((long)vector[VECTOR_Y] * magnitude) << FP_BITS) + NORMALIZE_HALF) >> NORMALIZE_BITS);
-		result[VECTOR_Z] = (int)(((((long)vector[VECTOR_Z] * magnitude) << FP_BITS) + NORMALIZE_HALF) >> NORMALIZE_BITS);
+		result[VECTOR_X] = (int)(((((long)vector[VECTOR_X] * magnitude) << FP_BIT) + NORMALIZE_HALF) >> NORMALIZE_BITS);
+		result[VECTOR_Y] = (int)(((((long)vector[VECTOR_Y] * magnitude) << FP_BIT) + NORMALIZE_HALF) >> NORMALIZE_BITS);
+		result[VECTOR_Z] = (int)(((((long)vector[VECTOR_Z] * magnitude) << FP_BIT) + NORMALIZE_HALF) >> NORMALIZE_BITS);
 		return result;
 	}
 	

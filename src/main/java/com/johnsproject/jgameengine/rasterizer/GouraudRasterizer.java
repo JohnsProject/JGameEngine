@@ -28,6 +28,9 @@ import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.Shader;
 
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+import static com.johnsproject.jgameengine.library.MathLibrary.*;
+
 public class GouraudRasterizer extends FlatRasterizer {
 	
 	protected final int[] red;
@@ -139,7 +142,7 @@ public class GouraudRasterizer extends FlatRasterizer {
 	}
 	
 	private void drawBottomTriangle(int[] cameraFrustum) {
-		int xShifted = location0[VECTOR_X] << FP_BITS;
+		int xShifted = location0[VECTOR_X] << FP_BIT;
 		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
@@ -163,10 +166,10 @@ public class GouraudRasterizer extends FlatRasterizer {
         	int db = mathLibrary.divide(db2 - db1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location0[VECTOR_Z] << FP_BITS;
-            int r = red[0] << FP_BITS;
-            int g = green[0] << FP_BITS;
-            int b = blue[0] << FP_BITS;
+            int z = location0[VECTOR_Z] << FP_BIT;
+            int r = red[0] << FP_BIT;
+            int g = green[0] << FP_BIT;
+            int b = blue[0] << FP_BIT;
 	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
 	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, cameraFrustum);
 	            x1 += dx1;
@@ -185,10 +188,10 @@ public class GouraudRasterizer extends FlatRasterizer {
         	int db = mathLibrary.divide(db1 - db2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
-            int z = location0[VECTOR_Z] << FP_BITS;
-            int r = red[0] << FP_BITS;
-            int g = green[0] << FP_BITS;
-            int b = blue[0] << FP_BITS;
+            int z = location0[VECTOR_Z] << FP_BIT;
+            int r = red[0] << FP_BIT;
+            int g = green[0] << FP_BIT;
+            int b = blue[0] << FP_BIT;
         	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
         		drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, cameraFrustum);
 	            x1 += dx2;
@@ -202,7 +205,7 @@ public class GouraudRasterizer extends FlatRasterizer {
     }
     
 	private void drawTopTriangle(int[] cameraFrustum) {
-		int xShifted = location2[VECTOR_X] << FP_BITS;
+		int xShifted = location2[VECTOR_X] << FP_BIT;
 		int y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
@@ -226,10 +229,10 @@ public class GouraudRasterizer extends FlatRasterizer {
 			int db = mathLibrary.divide(db1 - db2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location2[VECTOR_Z] << FP_BITS;
-			int r = red[2] << FP_BITS;
-			int g = green[2] << FP_BITS;
-			int b = blue[2] << FP_BITS;
+			int z = location2[VECTOR_Z] << FP_BIT;
+			int r = red[2] << FP_BIT;
+			int g = green[2] << FP_BIT;
+			int b = blue[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, cameraFrustum);
 	            x1 -= dx1;
@@ -248,10 +251,10 @@ public class GouraudRasterizer extends FlatRasterizer {
 			int db = mathLibrary.divide(db2 - db1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
-			int z = location2[VECTOR_Z] << FP_BITS;
-			int r = red[2] << FP_BITS;
-			int g = green[2] << FP_BITS;
-			int b = blue[2] << FP_BITS;
+			int z = location2[VECTOR_Z] << FP_BIT;
+			int r = red[2] << FP_BIT;
+			int g = green[2] << FP_BIT;
+			int b = blue[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db, cameraFrustum);
 	            x1 -= dx2;
@@ -265,15 +268,15 @@ public class GouraudRasterizer extends FlatRasterizer {
     }
 	
 	private void drawScanline(int x1, int x2, int y, int z, int r, int g, int b, int dz, int dr, int dg, int db, int[] cameraFrustum) {
-		x1 >>= FP_BITS;
-		x2 >>= FP_BITS;
+		x1 >>= FP_BIT;
+		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {
 			pixelCache[VECTOR_X] = x1;
 			pixelCache[VECTOR_Y] = y;
-			pixelCache[VECTOR_Z] = z >> FP_BITS;
-			red[3] = r >> FP_BITS;
-			green[3] = g >> FP_BITS;
-			blue[3] = b >> FP_BITS;
+			pixelCache[VECTOR_Z] = z >> FP_BIT;
+			red[3] = r >> FP_BIT;
+			green[3] = g >> FP_BIT;
+			blue[3] = b >> FP_BIT;
 			shader.fragment(pixelCache);
 			z += dz;
 			r += dr;

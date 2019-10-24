@@ -25,11 +25,9 @@ package com.johnsproject.jgameengine.model;
 
 import com.johnsproject.jgameengine.library.VectorLibrary;
 
-public class Transform {
+import static com.johnsproject.jgameengine.library.VectorLibrary.*;
 
-	private static final byte VECTOR_X = VectorLibrary.VECTOR_X;
-	private static final byte VECTOR_Y = VectorLibrary.VECTOR_Y;
-	private static final byte VECTOR_Z = VectorLibrary.VECTOR_Z;
+public class Transform {
 	
 	private final int[] location;
 	private final int[] rotation;
