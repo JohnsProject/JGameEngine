@@ -37,11 +37,9 @@ import static com.johnsproject.jgameengine.library.MathLibrary.*;
 
 public class FlatSpecularShader extends Shader {
 	
-	private static final int INITIAL_ATTENUATION = MathLibrary.FP_ONE;
+	private static final int INITIAL_ATTENUATION = FP_ONE;
 	private static final int LINEAR_ATTENUATION = MathLibrary.generate(0.045);
 	private static final int QUADRATIC_ATTENUATION = MathLibrary.generate(0.0075);
-	
-	private static final int LIGHT_RANGE = MathLibrary.generate(150);
 	
 	private SpecularProperties shaderProperties;
 	private ForwardShaderBuffer shaderBuffer;
@@ -87,6 +85,8 @@ public class FlatSpecularShader extends Shader {
 		boolean inShadow = false;
 		for (int i = 0; i < shaderBuffer.getLights().size(); i++) {
 			Light light = shaderBuffer.getLights().get(i);
+			if(light.isCulled())
+				continue;
 			int currentFactor = 0;
 			int attenuation = 0;
 			int[] lightPosition = light.getTransform().getLocation();
@@ -104,8 +104,6 @@ public class FlatSpecularShader extends Shader {
 				}
 				break;
 			case POINT:
-				if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
-					continue;
 				vectorLibrary.subtract(lightPosition, faceLocation, lightLocation);
 				// attenuation
 				attenuation = getAttenuation(lightLocation);
@@ -124,9 +122,7 @@ public class FlatSpecularShader extends Shader {
 					}
 				}
 				break;
-			case SPOT:				
-				if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
-					continue;
+			case SPOT:
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				vectorLibrary.subtract(lightPosition, faceLocation, lightLocation);
 				// attenuation

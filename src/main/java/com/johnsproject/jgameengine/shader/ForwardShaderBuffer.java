@@ -36,11 +36,11 @@ import com.johnsproject.jgameengine.model.LightType;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
 
+import static com.johnsproject.jgameengine.library.MathLibrary.*;
+
 public class ForwardShaderBuffer implements ShaderBuffer {
 	
-	private static final int LIGHT_RANGE = MathLibrary.generate(300);
-	
-	private static final int FP_ONE = MathLibrary.FP_ONE;
+	private static final int LIGHT_RANGE = MathLibrary.generate(150);
 	
 	private final GraphicsLibrary graphicsLibrary;
 	private final MatrixLibrary matrixLibrary;
@@ -130,10 +130,10 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 			spotSetup(camera, lights, frameBuffer);
 			pointSetup(camera, lights, frameBuffer);
 		}
-		usualSetup(camera, lights, frameBuffer);
+		renderSetup(camera, lights, frameBuffer);
 	}
 	
-	private void usualSetup(Camera camera, List<Light> lights, FrameBuffer frameBuffer) {
+	private void renderSetup(Camera camera, List<Light> lights, FrameBuffer frameBuffer) {
 		int portWidth = frameBuffer.getWidth();
 		int portHeight = frameBuffer.getHeight();
 		graphicsLibrary.viewMatrix(viewMatrix, camera.getTransform());
@@ -164,10 +164,11 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 				lightTransform = light.getTransform();
 				int[] lightPosition = lightTransform.getLocation();
 				int dist = vectorLibrary.averagedDistance(cameraLocation, lightPosition);
-				if ((light.getType() == LightType.DIRECTIONAL) & (dist < distance) & (dist < LIGHT_RANGE)) {
+				if ((light.getType() == LightType.DIRECTIONAL) && (dist < distance) && (dist < LIGHT_RANGE)) {
 					distance = dist;
 					directionalLightIndex = i;
 				}
+				light.setCulled(dist > LIGHT_RANGE);
 			}
 			if (directionalLightIndex != -1) {
 				lightTransform = lights.get(directionalLightIndex).getTransform();
@@ -193,7 +194,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 				lightTransform = light.getTransform();
 				int[] lightPosition = lightTransform.getLocation();
 				int dist = vectorLibrary.averagedDistance(cameraLocation, lightPosition);
-				if ((light.getType() == LightType.SPOT) & (dist < distance) & (dist < LIGHT_RANGE)) {
+				if ((light.getType() == LightType.SPOT) && (dist < distance) && (dist < LIGHT_RANGE)) {
 					distance = dist;
 					spotLightIndex = i;
 				}
@@ -220,12 +221,14 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 			int distance = Integer.MAX_VALUE;
 			for (int i = 0; i < lights.size(); i++) {
 				Light light = lights.get(i);
-				Transform lightTransform = light.getTransform();
-				int[] lightLocation = lightTransform.getLocation();
-				int dist = vectorLibrary.averagedDistance(cameraLocation, lightLocation);
-				if ((light.getType() == LightType.POINT) & (dist < distance) & (dist < LIGHT_RANGE)) {
-					distance = dist;
-					pointLightIndex = i;
+				if(light.isActive()) {
+					Transform lightTransform = light.getTransform();
+					int[] lightLocation = lightTransform.getLocation();
+					int dist = vectorLibrary.averagedDistance(cameraLocation, lightLocation);
+					if ((light.getType() == LightType.POINT) && (dist < distance) && (dist < LIGHT_RANGE)) {
+						distance = dist;
+						pointLightIndex = i;
+					}
 				}
 			}
 			if (pointLightIndex != -1) {

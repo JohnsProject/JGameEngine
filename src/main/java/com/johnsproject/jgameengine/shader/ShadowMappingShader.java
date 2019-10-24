@@ -51,53 +51,47 @@ public class ShadowMappingShader extends Shader {
 
 	@Override
 	public void geometry(GeometryBuffer geometryBuffer) {
-		if(shaderProperties.directionalShadows()) {
-			if (shaderBuffer.getDirectionalLightIndex() != -1) {
-				currentShadowMap = shaderBuffer.getDirectionalShadowMap();
-				for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
-					geometryBuffer.getVertexDataBuffer(i).reset();
-					int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
-					vectorLibrary.matrixMultiply(vertexLocation, shaderBuffer.getDirectionalLightMatrix(), vertexLocation);
-					graphicsLibrary.screenportVector(vertexLocation, shaderBuffer.getDirectionalLightFrustum(), vertexLocation);
-				}
-				rasterizer.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
-				rasterizer.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
-				rasterizer.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
-				graphicsLibrary.drawFlatTriangle(rasterizer, true, 1, shaderBuffer.getDirectionalLightFrustum());
+		if(shaderProperties.directionalShadows() && (shaderBuffer.getDirectionalLightIndex() != -1)) {
+			currentShadowMap = shaderBuffer.getDirectionalShadowMap();
+			for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
+				geometryBuffer.getVertexDataBuffer(i).reset();
+				int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
+				vectorLibrary.matrixMultiply(vertexLocation, shaderBuffer.getDirectionalLightMatrix(), vertexLocation);
+				graphicsLibrary.screenportVector(vertexLocation, shaderBuffer.getDirectionalLightFrustum(), vertexLocation);
 			}
+			rasterizer.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
+			rasterizer.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
+			rasterizer.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
+			graphicsLibrary.drawFlatTriangle(rasterizer, true, 1, shaderBuffer.getDirectionalLightFrustum());
 		}
 		
-		if(shaderProperties.spotShadows()) {
-			if (shaderBuffer.getSpotLightIndex() != -1) {
-				currentShadowMap = shaderBuffer.getSpotShadowMap();
-				for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
-					geometryBuffer.getVertexDataBuffer(i).reset();
-					int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
-					vectorLibrary.matrixMultiply(vertexLocation, shaderBuffer.getSpotLightMatrix(), vertexLocation);
-					graphicsLibrary.screenportVector(vertexLocation, shaderBuffer.getSpotLightFrustum(), vertexLocation);
+		if(shaderProperties.spotShadows() && (shaderBuffer.getSpotLightIndex() != -1)) {
+			currentShadowMap = shaderBuffer.getSpotShadowMap();
+			for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
+				geometryBuffer.getVertexDataBuffer(i).reset();
+				int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
+				vectorLibrary.matrixMultiply(vertexLocation, shaderBuffer.getSpotLightMatrix(), vertexLocation);
+				graphicsLibrary.screenportVector(vertexLocation, shaderBuffer.getSpotLightFrustum(), vertexLocation);
+			}
+			rasterizer.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
+			rasterizer.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
+			rasterizer.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
+			graphicsLibrary.drawFlatTriangle(rasterizer, true, 1, shaderBuffer.getSpotLightFrustum());
+		}
+		if(shaderProperties.pointShadows() && (shaderBuffer.getPointLightIndex() != -1)) {
+			int[][] lightMatrices = shaderBuffer.getPointLightMatrices();
+			for (int i = 0; i < lightMatrices.length; i++) {
+				currentShadowMap = shaderBuffer.getPointShadowMaps()[i];
+				for (int j = 0; j < geometryBuffer.getVertexDataBuffers().length; j++) {
+					geometryBuffer.getVertexDataBuffer(j).reset();
+					int[] vertexLocation = geometryBuffer.getVertexDataBuffer(j).getLocation();
+					vectorLibrary.matrixMultiply(vertexLocation, lightMatrices[i], vertexLocation);
+					graphicsLibrary.screenportVector(vertexLocation, shaderBuffer.getPointLightFrustum(), vertexLocation);
 				}
 				rasterizer.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
 				rasterizer.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
 				rasterizer.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
-				graphicsLibrary.drawFlatTriangle(rasterizer, true, 1, shaderBuffer.getSpotLightFrustum());
-			}
-		}
-		if(shaderProperties.pointShadows()) {
-			if (shaderBuffer.getPointLightIndex() != -1) {
-				int[][] lightMatrices = shaderBuffer.getPointLightMatrices();
-				for (int i = 0; i < lightMatrices.length; i++) {
-					currentShadowMap = shaderBuffer.getPointShadowMaps()[i];
-					for (int j = 0; j < geometryBuffer.getVertexDataBuffers().length; j++) {
-						geometryBuffer.getVertexDataBuffer(j).reset();
-						int[] vertexLocation = geometryBuffer.getVertexDataBuffer(j).getLocation();
-						vectorLibrary.matrixMultiply(vertexLocation, lightMatrices[i], vertexLocation);
-						graphicsLibrary.screenportVector(vertexLocation, shaderBuffer.getPointLightFrustum(), vertexLocation);
-					}
-					rasterizer.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
-					rasterizer.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
-					rasterizer.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
-					graphicsLibrary.drawFlatTriangle(rasterizer, true, 1, shaderBuffer.getPointLightFrustum());
-				}
+				graphicsLibrary.drawFlatTriangle(rasterizer, true, 1, shaderBuffer.getPointLightFrustum());
 			}
 		}
 	}

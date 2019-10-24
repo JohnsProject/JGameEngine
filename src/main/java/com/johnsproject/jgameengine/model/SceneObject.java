@@ -27,6 +27,7 @@ public class SceneObject {
 	
 	protected String tag;
 	protected boolean active;
+	protected boolean culled;
 	protected final String name;
 	protected final Transform transform;
 	protected final RigidBody rigidBody;
@@ -36,6 +37,7 @@ public class SceneObject {
 		this.name = name;
 		this.transform = transform;
 		this.active = true;
+		this.culled = false;
 		this.rigidBody = new RigidBody();
 	}
 
@@ -65,5 +67,13 @@ public class SceneObject {
 
 	public void setTag(String tag) {
 		this.tag = tag;
-	}	
+	}
+
+	public boolean isCulled() {
+		return culled;
+	}
+
+	public void setCulled(boolean culled) {
+		this.culled = culled;
+	}
 }

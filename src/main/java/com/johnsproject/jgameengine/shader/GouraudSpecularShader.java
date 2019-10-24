@@ -41,8 +41,6 @@ public class GouraudSpecularShader extends Shader {
 	private static final int LINEAR_ATTENUATION = MathLibrary.generate(0.045);
 	private static final int QUADRATIC_ATTENUATION = MathLibrary.generate(0.0075);
 	
-	private static final int LIGHT_RANGE = MathLibrary.generate(150);
-	
 	private SpecularProperties shaderProperties;
 	private ForwardShaderBuffer shaderBuffer;
 	private final PerspectiveGouraudRasterizer rasterizer;
@@ -72,6 +70,8 @@ public class GouraudSpecularShader extends Shader {
 		vectorLibrary.normalize(viewDirection, viewDirection);
 		for (int i = 0; i < shaderBuffer.getLights().size(); i++) {
 			Light light = shaderBuffer.getLights().get(i);
+			if(light.isCulled())
+				continue;
 			int currentFactor = 0;
 			int attenuation = 0;
 			int[] lightPosition = light.getTransform().getLocation();
@@ -89,8 +89,6 @@ public class GouraudSpecularShader extends Shader {
 				}
 				break;
 			case POINT:
-				if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
-					continue;
 				vectorLibrary.subtract(lightPosition, location, lightLocation);
 				attenuation = getAttenuation(lightLocation);
 				vectorLibrary.normalize(lightLocation, lightLocation);
@@ -108,8 +106,6 @@ public class GouraudSpecularShader extends Shader {
 				}
 				break;
 			case SPOT:				
-				if (vectorLibrary.averagedDistance(cameraLocation, lightPosition) > LIGHT_RANGE)
-					continue;
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				vectorLibrary.subtract(lightPosition, location, lightLocation);
 				attenuation = getAttenuation(lightLocation);
