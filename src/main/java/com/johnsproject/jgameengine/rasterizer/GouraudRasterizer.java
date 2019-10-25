@@ -79,21 +79,15 @@ public class GouraudRasterizer extends FlatRasterizer {
 		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
-			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
+			swapVector(red, green, blue, 0, 1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
 			vectorLibrary.swap(location1, location2);
-			tmp = red[2]; red[2] = red[1]; red[1] = tmp;
-			tmp = green[2]; green[2] = green[1]; green[1] = tmp;
-			tmp = blue[2]; blue[2] = blue[1]; blue[1] = tmp;
+			swapVector(red, green, blue, 2, 1);
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
-			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
+			swapVector(red, green, blue, 0, 1);
 		}
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
         	drawBottomTriangle(cameraFrustum);

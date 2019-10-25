@@ -75,27 +75,18 @@ public class AffineGouraudRasterizer extends GouraudRasterizer {
 		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
-			tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
-			tmp = this.v[0]; this.v[0] = this.v[1]; this.v[1] = tmp;
-			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
+			swapVector(u, v, 0, 1);
+			swapVector(red, green, blue, 0, 1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
 			vectorLibrary.swap(location1, location2);
-			tmp = this.u[2]; this.u[2] = this.u[1]; this.u[1] = tmp;
-			tmp = this.v[2]; this.v[2] = this.v[1]; this.v[1] = tmp;
-			tmp = red[2]; red[2] = red[1]; red[1] = tmp;
-			tmp = green[2]; green[2] = green[1]; green[1] = tmp;
-			tmp = blue[2]; blue[2] = blue[1]; blue[1] = tmp;
+			swapVector(u, v, 2, 1);
+			swapVector(red, green, blue, 2, 1);
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
-			tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
-			tmp = this.v[0]; this.v[0] = this.v[1]; this.v[1] = tmp;
-			tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-			tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-			tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
+			swapVector(u, v, 0, 1);
+			swapVector(red, green, blue, 0, 1);
 		}
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
             drawBottomTriangle(cameraFrustum);

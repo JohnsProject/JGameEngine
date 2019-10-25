@@ -17,6 +17,7 @@ import com.johnsproject.jgameengine.importer.SceneImporter;
 import com.johnsproject.jgameengine.library.FileLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Model;
@@ -54,8 +55,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 //		WINDOW_H = gd.getDisplayMode().getHeight();
 		WINDOW_W = 1024;
 		WINDOW_H = 768;
-		RENDER_W = (WINDOW_W * 100) / 100;
-		RENDER_H = (WINDOW_H * 100) / 100;
+		RENDER_W = (WINDOW_W * 50) / 100;
+		RENDER_H = (WINDOW_H * 50) / 100;
 		this.vectorLibrary = new VectorLibrary();
 		cache = VectorLibrary.generate();
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
@@ -88,7 +89,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	private Scene loadScene() {
 		try {
 			Scene scene = new SceneImporter().load("E:/Development/Blender/Test.scene");
-			//Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JohnsProject.png"));
+			Texture texture = new Texture(new FileLibrary().loadImage("E:/Development/Blender/JohnsProject.png"));
 			for (int i = 0; i < scene.getModels().size(); i++) {
 				Model model = scene.getModel(i);
 //				model.getRigidBody().setKinematic(true);
@@ -102,9 +103,9 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 					Material material = model.getMesh().getMaterial(j);
 					SpecularProperties properties = (SpecularProperties)material.getShader().getProperties();
 					//material.setShader(new FlatSpecularShader());
-					//material.setShader(new PhongSpecularShader());
-					//material.getShader().setProperties(properties);
-					//properties.setTexture(texture);
+					material.setShader(new PhongSpecularShader());
+					material.getShader().setProperties(properties);
+					properties.setTexture(texture);
 				}
 				model.getArmature().playAnimation("Walk", true);
 			}

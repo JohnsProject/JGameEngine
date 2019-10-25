@@ -30,9 +30,15 @@ import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
 
 import static com.johnsproject.jgameengine.library.VectorLibrary.*;
 
+import com.johnsproject.jgameengine.library.MathLibrary;
+
 public class ShadowMappingShader extends Shader {
 	
-	private static final short SHADOW_BIAS = 500;
+	private static final int DIRECTIONAL_BIAS = MathLibrary.generate(0.5f);
+	private static final int SPOT_BIAS = MathLibrary.generate(0.25f);
+	private static final int POINT_BIAS = MathLibrary.generate(0.35f);
+	
+	private int shadowBias = 0;
 	
 	private ShadowMappingProperties shaderProperties;
 	private ForwardShaderBuffer shaderBuffer;
@@ -52,6 +58,7 @@ public class ShadowMappingShader extends Shader {
 	@Override
 	public void geometry(GeometryBuffer geometryBuffer) {
 		if(shaderProperties.directionalShadows() && (shaderBuffer.getDirectionalLightIndex() != -1)) {
+			shadowBias = DIRECTIONAL_BIAS;
 			currentShadowMap = shaderBuffer.getDirectionalShadowMap();
 			for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
 				geometryBuffer.getVertexDataBuffer(i).reset();
@@ -59,13 +66,14 @@ public class ShadowMappingShader extends Shader {
 				vectorLibrary.matrixMultiply(vertexLocation, shaderBuffer.getDirectionalLightMatrix(), vertexLocation);
 				graphicsLibrary.screenportVector(vertexLocation, shaderBuffer.getDirectionalLightFrustum(), vertexLocation);
 			}
+			shadowBias = DIRECTIONAL_BIAS;
 			rasterizer.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
 			rasterizer.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
 			rasterizer.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
-			graphicsLibrary.drawFlatTriangle(rasterizer, true, 1, shaderBuffer.getDirectionalLightFrustum());
+			graphicsLibrary.drawFlatTriangle(rasterizer, false, 1, shaderBuffer.getDirectionalLightFrustum());
 		}
-		
 		if(shaderProperties.spotShadows() && (shaderBuffer.getSpotLightIndex() != -1)) {
+			shadowBias = SPOT_BIAS;
 			currentShadowMap = shaderBuffer.getSpotShadowMap();
 			for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
 				geometryBuffer.getVertexDataBuffer(i).reset();
@@ -79,6 +87,7 @@ public class ShadowMappingShader extends Shader {
 			graphicsLibrary.drawFlatTriangle(rasterizer, true, 1, shaderBuffer.getSpotLightFrustum());
 		}
 		if(shaderProperties.pointShadows() && (shaderBuffer.getPointLightIndex() != -1)) {
+			shadowBias = POINT_BIAS;
 			int[][] lightMatrices = shaderBuffer.getPointLightMatrices();
 			for (int i = 0; i < lightMatrices.length; i++) {
 				currentShadowMap = shaderBuffer.getPointShadowMaps()[i];
@@ -100,7 +109,7 @@ public class ShadowMappingShader extends Shader {
 	public void fragment(int[] location) {
 		int x = location[VECTOR_X];
 		int y = location[VECTOR_Y];
-		int z = location[VECTOR_Z] + SHADOW_BIAS;
+		int z = location[VECTOR_Z] + shadowBias;
 		if (currentShadowMap.getPixel(x, y) > z) {
 			currentShadowMap.setPixel(x, y, z);
 		}

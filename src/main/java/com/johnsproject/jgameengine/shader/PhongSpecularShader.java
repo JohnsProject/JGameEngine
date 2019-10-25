@@ -140,9 +140,9 @@ public class PhongSpecularShader extends Shader {
 					currentFactor = getLightFactor(normal, lightLocation, viewDirection);
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
 					if ((i == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
+						int[] lightFrustum = shaderBuffer.getPointLightFrustum();
 						for (int j = 0; j < shaderBuffer.getPointLightMatrices().length; j++) {
 							int[] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
-							int[] lightFrustum = shaderBuffer.getPointLightFrustum();
 							Texture shadowMap = shaderBuffer.getPointShadowMaps()[j];
 							if(inShadow(worldLocation, lightMatrix, lightFrustum, shadowMap)) {
 								currentFactor = colorLibrary.multiplyColor(currentFactor, light.getShadowColor());
@@ -222,6 +222,7 @@ public class PhongSpecularShader extends Shader {
 		int x = lightSpaceLocation[VECTOR_X];
 		int y = lightSpaceLocation[VECTOR_Y];
 		int depth = shadowMap.getPixel(x, y);
+		
 		return depth < lightSpaceLocation[VECTOR_Z];
 	}
 

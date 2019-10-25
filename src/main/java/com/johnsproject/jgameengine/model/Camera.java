@@ -23,6 +23,8 @@
  */
 package com.johnsproject.jgameengine.model;
 
+import static com.johnsproject.jgameengine.library.MathLibrary.FP_ONE;
+
 import com.johnsproject.jgameengine.library.MathLibrary;
 
 public class Camera extends SceneObject {
@@ -40,17 +42,20 @@ public class Camera extends SceneObject {
 	
 	private CameraType type;
 	private final int[] frustum;
+	private int focalLength;
 
 	public Camera(String name, Transform transform) {
 		super(name, transform);
 		super.tag = CAMERA_TAG;
 		super.rigidBody.setKinematic(true);
+		this.type = CameraType.PERSPECTIVE;
+		this.focalLength = MathLibrary.FP_ONE;
 		this.frustum = new int[6];
 		this.frustum[FRUSTUM_LEFT] = 0;
 		this.frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;
 		this.frustum[FRUSTUM_TOP] = 0;
 		this.frustum[FRUSTUM_BOTTOM] = MathLibrary.FP_ONE;
-		this.frustum[FRUSTUM_NEAR] = MathLibrary.FP_ONE;
+		this.frustum[FRUSTUM_NEAR] = FP_ONE;
 		this.frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 1000;
 	}
 
@@ -64,5 +69,13 @@ public class Camera extends SceneObject {
 
 	public void setType(CameraType type) {
 		this.type = type;
+	}
+
+	public int getFocalLength() {
+		return focalLength;
+	}
+
+	public void setFocalLength(int focalLength) {
+		this.focalLength = focalLength;
 	}
 }

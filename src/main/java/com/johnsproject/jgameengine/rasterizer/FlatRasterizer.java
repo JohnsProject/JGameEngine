@@ -221,4 +221,23 @@ public class FlatRasterizer {
 		long result = a * b + PERSPECTIVE_HALF;
 		return (int) (result >> PERSPECTIVE_BITS);
 	}
+	
+	protected void swapVector(int[] vector1, int[] vector2, int currentIndex, int indexToSet) {
+		int tmp = 0;
+		tmp = vector1[currentIndex]; vector1[currentIndex] = vector1[indexToSet]; vector1[indexToSet] = tmp;
+		tmp = vector2[currentIndex]; vector2[currentIndex] = vector2[indexToSet]; vector2[indexToSet] = tmp;
+	}
+	
+	protected void swapVector(int[] vector1, int[] vector2, int[] vector3, int currentIndex, int indexToSet) {
+		int tmp = 0;
+		tmp = vector1[currentIndex]; vector1[currentIndex] = vector1[indexToSet]; vector1[indexToSet] = tmp;
+		tmp = vector2[currentIndex]; vector2[currentIndex] = vector2[indexToSet]; vector2[indexToSet] = tmp;
+		tmp = vector3[currentIndex]; vector3[currentIndex] = vector3[indexToSet]; vector3[indexToSet] = tmp;
+	}
+	
+	protected void zMultiply(int[] vector) {
+		vector[0] = mathLibrary.multiply(vector[0], location0[VECTOR_Z]);
+		vector[1] = mathLibrary.multiply(vector[1], location1[VECTOR_Z]);
+		vector[2] = mathLibrary.multiply(vector[2], location2[VECTOR_Z]);
+	}
 }

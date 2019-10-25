@@ -119,40 +119,36 @@ public class GraphicsLibrary {
 
 	
 	/**
-	 * Fills the given matrix with the values of the projection matrix of the given cameraFrustum.
+	 * Fills the given matrix with the values of the projection matrix of the given focal length.
 	 * This matrix can be used to orthographic project location vectors from view/camera to projection space.
 	 * To get the vectors into screen space it's needed to {@link #screenportVector} them.
-	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param matrix
-	 * @param cameraFrustum
+	 * @param focalLength
 	 * @return
 	 */
-	public int[] orthographicMatrix(int[] matrix, int[] cameraFrustum) {
-		int scaleFactor = cameraFrustum[Camera.FRUSTUM_NEAR];
+	public int[] orthographicMatrix(int[] matrix, int focalLength) {
 		int[] projectionMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		matrixLibrary.set(projectionMatrix, 0, 0, scaleFactor);
-		matrixLibrary.set(projectionMatrix, 1, 1, scaleFactor);
+		matrixLibrary.set(projectionMatrix, 0, 0, focalLength);
+		matrixLibrary.set(projectionMatrix, 1, 1, focalLength);
 		matrixLibrary.set(projectionMatrix, 2, 2, -FP_ONE);
 		matrixLibrary.set(projectionMatrix, 3, 3, -FP_ONE << 4);
 		return projectionMatrix;
 	}
 
 	/**
-	 * Fills the given matrix with the values of the projection matrix of the given cameraFrustum.
+	 * Fills the given matrix with the values of the projection matrix of the given focal length.
 	 * This matrix can be used to perspective project location vectors from view/camera to projection space.
 	 * To get the vectors into screen space it's needed to {@link #screenportVector} them.
-	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
 	 * 
 	 * @param matrix
-	 * @param cameraFrustum
+	 * @param focalLength
 	 * @return
 	 */
-	public int[] perspectiveMatrix(int[] matrix, int[] cameraFrustum) {
-		int scaleFactor = cameraFrustum[Camera.FRUSTUM_NEAR];
+	public int[] perspectiveMatrix(int[] matrix, int focalLength) {
 		int[] projectionMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		matrixLibrary.set(projectionMatrix, 0, 0, scaleFactor);
-		matrixLibrary.set(projectionMatrix, 1, 1, scaleFactor);
+		matrixLibrary.set(projectionMatrix, 0, 0, focalLength);
+		matrixLibrary.set(projectionMatrix, 1, 1, focalLength);
 		matrixLibrary.set(projectionMatrix, 2, 2, -FP_ONE);
 		matrixLibrary.set(projectionMatrix, 2, 3, FP_ONE);
 		matrixLibrary.set(projectionMatrix, 3, 3, 0);
@@ -180,10 +176,11 @@ public class GraphicsLibrary {
 		int halfX = left + ((right - left) >> 1);
 		int halfY = top + ((bottom - top) >> 1);
 		int w = Math.min(-1, location[VECTOR_W]);
+		w = mathLibrary.divide(FP_ONE << 10, w);
 		result[VECTOR_X] = mathLibrary.multiply(location[VECTOR_X], scaleFactor);
-		result[VECTOR_X] = mathLibrary.divide(result[VECTOR_X], w) + halfX;
+		result[VECTOR_X] = ((mathLibrary.multiply(result[VECTOR_X], w) + 512) >> 10) + halfX;
 		result[VECTOR_Y] = mathLibrary.multiply(location[VECTOR_Y], scaleFactor);
-		result[VECTOR_Y] = mathLibrary.divide(result[VECTOR_Y], w) + halfY;
+		result[VECTOR_Y] = ((mathLibrary.multiply(result[VECTOR_Y], w) + 512) >> 10) + halfY;
 		return result;
 	}
 

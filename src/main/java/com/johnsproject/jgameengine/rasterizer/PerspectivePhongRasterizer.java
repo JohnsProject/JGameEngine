@@ -45,63 +45,32 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 		location0[VECTOR_Z] = PERSPECTIVE_ONE / location0[VECTOR_Z];
 		location1[VECTOR_Z] = PERSPECTIVE_ONE / location1[VECTOR_Z];
 		location2[VECTOR_Z] = PERSPECTIVE_ONE / location2[VECTOR_Z];
-		this.u[0] = mathLibrary.multiply(this.u[0], location0[VECTOR_Z]);
-		this.u[1] = mathLibrary.multiply(this.u[1], location1[VECTOR_Z]);
-		this.u[2] = mathLibrary.multiply(this.u[2], location2[VECTOR_Z]);
-		this.v[0] = mathLibrary.multiply(this.v[0], location0[VECTOR_Z]);
-		this.v[1] = mathLibrary.multiply(this.v[1], location1[VECTOR_Z]);
-		this.v[2] = mathLibrary.multiply(this.v[2], location2[VECTOR_Z]);
-		this.worldX[0] = mathLibrary.multiply(worldX[0], location0[VECTOR_Z]);
-		this.worldX[1] = mathLibrary.multiply(worldX[1], location1[VECTOR_Z]);
-		this.worldX[2] = mathLibrary.multiply(worldX[2], location2[VECTOR_Z]);
-		this.worldY[0] = mathLibrary.multiply(worldY[0], location0[VECTOR_Z]);
-		this.worldY[1] = mathLibrary.multiply(worldY[1], location1[VECTOR_Z]);
-		this.worldY[2] = mathLibrary.multiply(worldY[2], location2[VECTOR_Z]);
-		this.worldZ[0] = mathLibrary.multiply(worldZ[0], location0[VECTOR_Z]);
-		this.worldZ[1] = mathLibrary.multiply(worldZ[1], location1[VECTOR_Z]);
-		this.worldZ[2] = mathLibrary.multiply(worldZ[2], location2[VECTOR_Z]);
-		this.normalX[0] = mathLibrary.multiply(normalX[0], location0[VECTOR_Z]);
-		this.normalX[1] = mathLibrary.multiply(normalX[1], location1[VECTOR_Z]);
-		this.normalX[2] = mathLibrary.multiply(normalX[2], location2[VECTOR_Z]);
-		this.normalY[0] = mathLibrary.multiply(normalY[0], location0[VECTOR_Z]);
-		this.normalY[1] = mathLibrary.multiply(normalY[1], location1[VECTOR_Z]);
-		this.normalY[2] = mathLibrary.multiply(normalY[2], location2[VECTOR_Z]);
-		this.normalZ[0] = mathLibrary.multiply(normalZ[0], location0[VECTOR_Z]);
-		this.normalZ[1] = mathLibrary.multiply(normalZ[1], location1[VECTOR_Z]);
-		this.normalZ[2] = mathLibrary.multiply(normalZ[2], location2[VECTOR_Z]);
+		zMultiply(u);
+		zMultiply(v);
+		zMultiply(worldX);
+		zMultiply(worldY);
+		zMultiply(worldZ);
+		zMultiply(normalX);
+		zMultiply(normalY);
+		zMultiply(normalZ);
 		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
-			tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
-			tmp = this.v[0]; this.v[0] = this.v[1]; this.v[1] = tmp;
-			tmp = worldX[0]; worldX[0] = worldX[1]; worldX[1] = tmp;
-			tmp = worldY[0]; worldY[0] = worldY[1]; worldY[1] = tmp;
-			tmp = worldZ[0]; worldZ[0] = worldZ[1]; worldZ[1] = tmp;
-			tmp = normalX[0]; normalX[0] = normalX[1]; normalX[1] = tmp;
-			tmp = normalY[0]; normalY[0] = normalY[1]; normalY[1] = tmp;
-			tmp = normalZ[0]; normalZ[0] = normalZ[1]; normalZ[1] = tmp;
+			swapVector(u, v, 0, 1);
+			swapVector(worldX, worldY, worldZ, 0, 1);
+			swapVector(normalX, normalY, normalZ, 0, 1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
 			vectorLibrary.swap(location1, location2);
-			tmp = this.u[2]; this.u[2] = this.u[1]; this.u[1] = tmp;
-			tmp = this.v[2]; this.v[2] = this.v[1]; this.v[1] = tmp;
-			tmp = worldX[2]; worldX[2] = worldX[1]; worldX[1] = tmp;
-			tmp = worldY[2]; worldY[2] = worldY[1]; worldY[1] = tmp;
-			tmp = worldZ[2]; worldZ[2] = worldZ[1]; worldZ[1] = tmp;
-			tmp = normalX[2]; normalX[2] = normalX[1]; normalX[1] = tmp;
-			tmp = normalY[2]; normalY[2] = normalY[1]; normalY[1] = tmp;
-			tmp = normalZ[2]; normalZ[2] = normalZ[1]; normalZ[1] = tmp;
+			swapVector(u, v, 2, 1);
+			swapVector(worldX, worldY, worldZ, 2, 1);
+			swapVector(normalX, normalY, normalZ, 2, 1);
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
-			tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
-			tmp = this.v[0]; this.v[0] = this.v[1]; this.v[1] = tmp;
-			tmp = worldX[0]; worldX[0] = worldX[1]; worldX[1] = tmp;
-			tmp = worldY[0]; worldY[0] = worldY[1]; worldY[1] = tmp;
-			tmp = worldZ[0]; worldZ[0] = worldZ[1]; worldZ[1] = tmp;
-			tmp = normalX[0]; normalX[0] = normalX[1]; normalX[1] = tmp;
-			tmp = normalY[0]; normalY[0] = normalY[1]; normalY[1] = tmp;
-			tmp = normalZ[0]; normalZ[0] = normalZ[1]; normalZ[1] = tmp;
+			swapVector(u, v, 0, 1);
+			swapVector(worldX, worldY, worldZ, 0, 1);
+			swapVector(normalX, normalY, normalZ, 0, 1);
 		}
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
         	drawBottomTriangle(cameraFrustum);

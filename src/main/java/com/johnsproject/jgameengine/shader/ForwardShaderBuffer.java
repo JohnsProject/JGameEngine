@@ -32,7 +32,6 @@ import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.Light;
-import com.johnsproject.jgameengine.model.LightType;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
 
@@ -55,18 +54,21 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 	private final int[] portedFrustum;
 	
 	private int directionalLightIndex;
+	private int directionalFocalLength;
 	private final int[] directionalLightFrustum;
 	private final int[] portedDirectionalLightFrustum;
 	private final int[] directionalLightMatrix;
 	private final Texture directionalShadowMap;
 	
 	private int spotLightIndex;
+	private int spotFocalLength;
 	private final int[] spotLightFrustum;
 	private final int[] portedSpotLightFrustum;
 	private final int[] spotLightMatrix;
 	private final Texture spotShadowMap;
 	
 	private int pointLightIndex;
+	private int pointFocalLength;
 	private final int[] portedPointLightFrustum;
 	private final int[] pointLightFrustum;
 	private final int[][] pointLightMatrices;
@@ -82,42 +84,45 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.portedFrustum = new int[Camera.FRUSTUM_SIZE];
 		
 		this.directionalLightIndex = -1;
+		this.directionalFocalLength = FP_ONE >> 3;
 		this.portedDirectionalLightFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.directionalLightFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.directionalLightFrustum[Camera.FRUSTUM_LEFT] = 0;
 		this.directionalLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		this.directionalLightFrustum[Camera.FRUSTUM_TOP] = 0;
 		this.directionalLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.directionalLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 1.5f);
-		this.directionalLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(100000);
+		this.directionalLightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE;
+		this.directionalLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
 		this.directionalLightMatrix = MatrixLibrary.generate();
-		this.directionalShadowMap = new Texture(128, 128);
+		this.directionalShadowMap = new Texture(512, 512);
 		
 		this.spotLightIndex = -1;
+		this.spotFocalLength = FP_HALF;
 		this.portedSpotLightFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.spotLightFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.spotLightFrustum[Camera.FRUSTUM_LEFT] = 0;
 		this.spotLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		this.spotLightFrustum[Camera.FRUSTUM_TOP] = 0;
 		this.spotLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.spotLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 5f);
-		this.spotLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(100000);
+		this.spotLightFrustum[Camera.FRUSTUM_NEAR] = FP_HALF;
+		this.spotLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 1000;
 		this.spotLightMatrix = MatrixLibrary.generate();
-		this.spotShadowMap = new Texture(64, 64);
+		this.spotShadowMap = new Texture(256, 256);
 		
 		this.pointLightIndex = -1;
+		this.pointFocalLength = FP_ONE >> 5;
 		this.portedPointLightFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.pointLightFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.pointLightFrustum[Camera.FRUSTUM_LEFT] = 0;
 		this.pointLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
 		this.pointLightFrustum[Camera.FRUSTUM_TOP] = 0;
 		this.pointLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.pointLightFrustum[Camera.FRUSTUM_NEAR] = MathLibrary.generate(1.0f / 5f);
-		this.pointLightFrustum[Camera.FRUSTUM_FAR] = MathLibrary.generate(100000);
+		this.pointLightFrustum[Camera.FRUSTUM_NEAR] = 0;
+		this.pointLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 1000;
 		this.pointLightMatrices = new int[6][MatrixLibrary.MATRIX_SIZE];
 		this.pointShadowMaps = new Texture[6];
 		for (int i = 0; i < pointShadowMaps.length; i++) {
-			pointShadowMaps[i] = new Texture(64, 64);
+			pointShadowMaps[i] = new Texture(256, 256);
 		}
 	}
 	
@@ -125,6 +130,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.camera = camera;
 		this.lights = lights;
 		this.frameBuffer = frameBuffer;		
+		shadowLightsSetup(camera, lights);
 		if(camera.getTag().equals(Camera.MAIN_CAMERA_TAG)) {
 			directionalSetup(camera, lights, frameBuffer);
 			spotSetup(camera, lights, frameBuffer);
@@ -140,12 +146,51 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		graphicsLibrary.screenportFrustum(camera.getFrustum(), portWidth, portHeight, portedFrustum);
 		switch (camera.getType()) {
 		case ORTHOGRAPHIC:
-			graphicsLibrary.orthographicMatrix(projectionMatrix, portedFrustum);
+			graphicsLibrary.orthographicMatrix(projectionMatrix, camera.getFocalLength());
 			break;
 
 		case PERSPECTIVE:
-			graphicsLibrary.perspectiveMatrix(projectionMatrix, portedFrustum);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, camera.getFocalLength());
 			break;
+		}
+		for (int i = 0; i < lights.size(); i++) {
+			Light light = lights.get(i);
+			Transform lightTransform = light.getTransform();
+			int[] lightPosition = lightTransform.getLocation();
+			int dist = vectorLibrary.averagedDistance(camera.getTransform().getLocation(), lightPosition);
+			light.setCulled(dist > LIGHT_RANGE);
+		}
+	}
+	
+	private void shadowLightsSetup(Camera camera, List<Light> lights) {
+		directionalLightIndex = -1;
+		spotLightIndex = -1;
+		pointLightIndex = -1;
+		int[] cameraLocation = camera.getTransform().getLocation();		
+		int distance = Integer.MAX_VALUE;
+		for (int i = 0; i < lights.size(); i++) {
+			Light light = lights.get(i);
+			if(light.isActive()) {
+				Transform lightTransform = light.getTransform();
+				int[] lightLocation = lightTransform.getLocation();
+				int dist = vectorLibrary.averagedDistance(cameraLocation, lightLocation);
+				if((dist < distance) && (dist < LIGHT_RANGE)) {
+					switch (light.getType()) {
+					case DIRECTIONAL:
+						distance = dist;
+						directionalLightIndex = i;
+						break;
+					case SPOT:
+						distance = dist;
+						spotLightIndex = i;
+						break;
+					case POINT:
+						distance = dist;
+						pointLightIndex = i;
+						break;					
+					}
+				}
+			}
 		}
 	}
 	
@@ -154,29 +199,12 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		int portHeight = directionalShadowMap.getHeight();
 		graphicsLibrary.screenportFrustum(directionalLightFrustum, portWidth, portHeight, portedDirectionalLightFrustum);
 		directionalShadowMap.fill(Integer.MAX_VALUE);
-		directionalLightIndex = -1;
-		if(lights.size() > 0) {
-			Transform lightTransform = lights.get(0).getTransform();
-			int[] cameraLocation = camera.getTransform().getLocation();		
-			int distance = Integer.MAX_VALUE;
-			for (int i = 0; i < lights.size(); i++) {
-				Light light = lights.get(i);
-				lightTransform = light.getTransform();
-				int[] lightPosition = lightTransform.getLocation();
-				int dist = vectorLibrary.averagedDistance(cameraLocation, lightPosition);
-				if ((light.getType() == LightType.DIRECTIONAL) && (dist < distance) && (dist < LIGHT_RANGE)) {
-					distance = dist;
-					directionalLightIndex = i;
-				}
-				light.setCulled(dist > LIGHT_RANGE);
-			}
-			if (directionalLightIndex != -1) {
-				lightTransform = lights.get(directionalLightIndex).getTransform();
-				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-				graphicsLibrary.orthographicMatrix(projectionMatrix, portedDirectionalLightFrustum);
-				matrixLibrary.multiply(projectionMatrix, viewMatrix, directionalLightMatrix);
-			}
-		}	
+		if (directionalLightIndex != -1) {
+			Transform lightTransform = lights.get(directionalLightIndex).getTransform();
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.orthographicMatrix(projectionMatrix, directionalFocalLength);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, directionalLightMatrix);
+		}
 	}
 	
 	private void spotSetup(Camera camera, List<Light> lights, FrameBuffer frameBuffer) {
@@ -184,27 +212,11 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		int portHeight = spotShadowMap.getHeight();
 		graphicsLibrary.screenportFrustum(spotLightFrustum, portWidth, portHeight, portedSpotLightFrustum);
 		spotShadowMap.fill(Integer.MAX_VALUE);
-		spotLightIndex = -1;
-		if(lights.size() > 0) {
-			Transform lightTransform = lights.get(0).getTransform();
-			int[] cameraLocation = camera.getTransform().getLocation();		
-			int distance = Integer.MAX_VALUE;
-			for (int i = 0; i < lights.size(); i++) {
-				Light light = lights.get(i);
-				lightTransform = light.getTransform();
-				int[] lightPosition = lightTransform.getLocation();
-				int dist = vectorLibrary.averagedDistance(cameraLocation, lightPosition);
-				if ((light.getType() == LightType.SPOT) && (dist < distance) && (dist < LIGHT_RANGE)) {
-					distance = dist;
-					spotLightIndex = i;
-				}
-			}
-			if (spotLightIndex != -1) {
-				lightTransform = lights.get(spotLightIndex).getTransform();
-				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedSpotLightFrustum);
-				matrixLibrary.multiply(projectionMatrix, viewMatrix, spotLightMatrix);
-			}
+		if (spotLightIndex != -1) {
+			Transform lightTransform = lights.get(spotLightIndex).getTransform();
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, spotFocalLength);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, spotLightMatrix);
 		}
 	}
 	
@@ -215,51 +227,34 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		for (int i = 0; i < pointShadowMaps.length; i++) {
 			pointShadowMaps[i].fill(Integer.MAX_VALUE);
 		}
-		pointLightIndex = -1;
-		if(lights.size() > 0) {
-			int[] cameraLocation = camera.getTransform().getLocation();		
-			int distance = Integer.MAX_VALUE;
-			for (int i = 0; i < lights.size(); i++) {
-				Light light = lights.get(i);
-				if(light.isActive()) {
-					Transform lightTransform = light.getTransform();
-					int[] lightLocation = lightTransform.getLocation();
-					int dist = vectorLibrary.averagedDistance(cameraLocation, lightLocation);
-					if ((light.getType() == LightType.POINT) && (dist < distance) && (dist < LIGHT_RANGE)) {
-						distance = dist;
-						pointLightIndex = i;
-					}
-				}
-			}
-			if (pointLightIndex != -1) {
-				final int fixedPoint90 = MathLibrary.generate(90);
-				Transform lightTransform = lights.get(pointLightIndex).getTransform();
-				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
-				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[0]);
-				lightTransform.rotate(0, 0, fixedPoint90);
-				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
-				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[1]);
-				lightTransform.rotate(0, 0, fixedPoint90);
-				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
-				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[2]);
-				lightTransform.rotate(0, 0, fixedPoint90);
-				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
-				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[3]);
-				lightTransform.rotate(0, 0, -fixedPoint90 * 3);
-				lightTransform.rotate(fixedPoint90, 0, 0);
-				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
-				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[4]);
-				lightTransform.rotate(-fixedPoint90 * 2, 0, 0);
-				graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
-				graphicsLibrary.perspectiveMatrix(projectionMatrix, portedPointLightFrustum);
-				matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[5]);
-				lightTransform.rotate(fixedPoint90, 0, 0);
-			}
+		if (pointLightIndex != -1) {
+			final int fixedPoint90 = MathLibrary.generate(90);
+			Transform lightTransform = lights.get(pointLightIndex).getTransform();
+			lightTransform.setRotation(0, fixedPoint90, 0);
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, pointFocalLength);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[0]);
+			lightTransform.rotate(0, 0, fixedPoint90);
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, pointFocalLength);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[1]);
+			lightTransform.rotate(0, 0, fixedPoint90);
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, pointFocalLength);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[2]);
+			lightTransform.rotate(0, 0, fixedPoint90);
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, pointFocalLength);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[3]);
+			lightTransform.rotate(0, 0, -fixedPoint90 * 3);
+			lightTransform.rotate(0, fixedPoint90, 0);
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, pointFocalLength);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[4]);
+			lightTransform.rotate(0, -fixedPoint90 * 2, 0);
+			graphicsLibrary.viewMatrix(viewMatrix, lightTransform);
+			graphicsLibrary.perspectiveMatrix(projectionMatrix, pointFocalLength);
+			matrixLibrary.multiply(projectionMatrix, viewMatrix, pointLightMatrices[5]);
 		}
 	}
 	
