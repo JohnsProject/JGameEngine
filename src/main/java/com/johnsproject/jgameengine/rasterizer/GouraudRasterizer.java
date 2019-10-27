@@ -36,6 +36,7 @@ public class GouraudRasterizer extends FlatRasterizer {
 	protected final int[] red;
 	protected final int[] green;
 	protected final int[] blue;
+	protected final int[] colorCache;
 	
 	protected final ColorLibrary colorLibrary;
 	
@@ -45,24 +46,25 @@ public class GouraudRasterizer extends FlatRasterizer {
 		this.red = VectorLibrary.generate();
 		this.green = VectorLibrary.generate();
 		this.blue = VectorLibrary.generate();
+		this.colorCache = VectorLibrary.generate();
 	}
 	
 	public final void setColor0(int color) {
-		red[0] = colorLibrary.getRed(color);
-		green[0] = colorLibrary.getGreen(color);
-		blue[0] = colorLibrary.getBlue(color);
+		red[0] = colorLibrary.getRed(color) << INTERPOLATE_BIT;
+		green[0] = colorLibrary.getGreen(color) << INTERPOLATE_BIT;
+		blue[0] = colorLibrary.getBlue(color) << INTERPOLATE_BIT;
 	}
 	
 	public final void setColor1(int color) {
-		red[1] = colorLibrary.getRed(color);
-		green[1] = colorLibrary.getGreen(color);
-		blue[1] = colorLibrary.getBlue(color);
+		red[1] = colorLibrary.getRed(color) << INTERPOLATE_BIT;
+		green[1] = colorLibrary.getGreen(color) << INTERPOLATE_BIT;
+		blue[1] = colorLibrary.getBlue(color) << INTERPOLATE_BIT;
 	}
 	
 	public final void setColor2(int color) {
-		red[2] = colorLibrary.getRed(color);
-		green[2] = colorLibrary.getGreen(color);
-		blue[2] = colorLibrary.getBlue(color);
+		red[2] = colorLibrary.getRed(color) << INTERPOLATE_BIT;
+		green[2] = colorLibrary.getGreen(color) << INTERPOLATE_BIT;
+		blue[2] = colorLibrary.getBlue(color) << INTERPOLATE_BIT;
 	}
 
 	public final int getColor() {
@@ -76,7 +78,6 @@ public class GouraudRasterizer extends FlatRasterizer {
 	 * @param cameraFrustum
 	 */
 	public final void drawGouraudTriangle(int[] cameraFrustum) {
-		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
 			swapVector(red, green, blue, 0, 1);
@@ -95,42 +96,37 @@ public class GouraudRasterizer extends FlatRasterizer {
         	drawTopTriangle(cameraFrustum);
         } else {
             int x = location0[VECTOR_X];
+            int y = location1[VECTOR_Y];
+            int z = location0[VECTOR_Z];
+            int r = red[0];
+            int g = green[0];
+            int b = blue[0];
             int dy = mathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
             int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
             x += mathLibrary.multiply(dy, multiplier);
-            int y = location1[VECTOR_Y];
-            int z = location0[VECTOR_Z];
             multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
             z += mathLibrary.multiply(dy, multiplier);
-            int r = red[0];
             multiplier = red[2] - red[0];
             r += mathLibrary.multiply(dy, multiplier);
-            int g = green[0];
             multiplier = green[2] - green[0];
             g += mathLibrary.multiply(dy, multiplier);
-            int b = blue[0];
             multiplier = blue[2] - blue[0];
             b += mathLibrary.multiply(dy, multiplier);
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
+            colorCache[0] = r;
+            colorCache[1] = g;
+            colorCache[2] = b;
             vectorLibrary.swap(vectorCache, location2);
-            tmp = red[2]; red[2] = r; r = tmp;
-            tmp = green[2]; green[2] = g; g = tmp;
-            tmp = blue[2]; blue[2] = b; b = tmp;
+            swapCache(red, green, blue, colorCache, 2);
             drawBottomTriangle(cameraFrustum);
             vectorLibrary.swap(vectorCache, location2);
             vectorLibrary.swap(location0, location1);
             vectorLibrary.swap(location1, vectorCache);
-            tmp = red[2]; red[2] = r; r = tmp;
-            tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-            tmp = red[1]; red[1] = r; r = tmp;
-            tmp = green[2]; green[2] = g; g = tmp;
-            tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-            tmp = green[1]; green[1] = g; g = tmp;
-            tmp = blue[2]; blue[2] = b; b = tmp;
-            tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
-            tmp = blue[1]; blue[1] = b; b = tmp;
+            swapCache(red, green, blue, colorCache, 2);
+            swapVector(red, green, blue, 0, 1);
+            swapCache(red, green, blue, colorCache, 1);
             drawTopTriangle(cameraFrustum);
         }
 	}
@@ -268,9 +264,9 @@ public class GouraudRasterizer extends FlatRasterizer {
 			pixelCache[VECTOR_X] = x1;
 			pixelCache[VECTOR_Y] = y;
 			pixelCache[VECTOR_Z] = z >> FP_BIT;
-			red[3] = r >> FP_BIT;
-			green[3] = g >> FP_BIT;
-			blue[3] = b >> FP_BIT;
+			red[3] = r >> FP_PLUS_INTERPOLATE_BIT;
+			green[3] = g >> FP_PLUS_INTERPOLATE_BIT;
+			blue[3] = b >> FP_PLUS_INTERPOLATE_BIT;
 			shader.fragment(pixelCache);
 			z += dz;
 			r += dr;

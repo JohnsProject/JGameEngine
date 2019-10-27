@@ -98,7 +98,7 @@ public class GraphicsEngine implements EngineListener {
 			if(!camera.isActive())
 				continue;
 			shaderBuffer.setup(camera, scene.getLights(), frameBuffer);
-			applyPreShaders(scene);
+			callShaders(scene, preShaders);
 			for (int m = 0; m < scene.getModels().size(); m++) {
 				final Model model = scene.getModel(m);
 				if(!model.isActive())
@@ -114,6 +114,30 @@ public class GraphicsEngine implements EngineListener {
 				for (int f = 0; f < mesh.getFaces().length; f++) {
 					final Face face = mesh.getFace(f);
 					final Shader shader = face.getMaterial().getShader();
+					face.getBuffer().reset();
+					shader.setShaderBuffer(shaderBuffer);
+					shader.geometry(face.getBuffer());
+				}
+			}
+		}
+	}
+	
+	private void callShaders(Scene scene, List<Shader> shaders) {
+		for (int s = 0; s < shaders.size(); s++) {
+			final Shader shader = shaders.get(s);
+			for (int m = 0; m < scene.getModels().size(); m++) {
+				final Model model = scene.getModel(m);
+				if(!model.isActive())
+					continue;
+				final Mesh mesh = model.getMesh();
+				for (int v = 0; v < mesh.getVertices().length; v++) {
+					final Vertex vertex = mesh.getVertex(v);
+					vertex.getBuffer().reset();
+					shader.setShaderBuffer(shaderBuffer);
+					shader.vertex(vertex.getBuffer());
+				}
+				for (int f = 0; f < mesh.getFaces().length; f++) {
+					final Face face = mesh.getFace(f);
 					face.getBuffer().reset();
 					shader.setShaderBuffer(shaderBuffer);
 					shader.geometry(face.getBuffer());
@@ -147,30 +171,6 @@ public class GraphicsEngine implements EngineListener {
 				geometryBuffer.resetAll();
 				int[] worldNormal = geometryBuffer.getWorldNormal();
 				vectorLibrary.matrixMultiply(worldNormal, normalMatrix, worldNormal);
-			}
-		}
-	}
-	
-	private void applyPreShaders(Scene scene) {
-		for (int s = 0; s < preShaders.size(); s++) {
-			final Shader shader = preShaders.get(s);
-			for (int m = 0; m < scene.getModels().size(); m++) {
-				final Model model = scene.getModel(m);
-				if(!model.isActive())
-					continue;
-				final Mesh mesh = model.getMesh();
-				for (int v = 0; v < mesh.getVertices().length; v++) {
-					final Vertex vertex = mesh.getVertex(v);
-					vertex.getBuffer().reset();
-					shader.setShaderBuffer(shaderBuffer);
-					shader.vertex(vertex.getBuffer());
-				}
-				for (int f = 0; f < mesh.getFaces().length; f++) {
-					final Face face = mesh.getFace(f);
-					face.getBuffer().reset();
-					shader.setShaderBuffer(shaderBuffer);
-					shader.geometry(face.getBuffer());
-				}
 			}
 		}
 	}

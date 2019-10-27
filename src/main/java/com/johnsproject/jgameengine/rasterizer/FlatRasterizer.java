@@ -33,9 +33,9 @@ import static com.johnsproject.jgameengine.library.VectorLibrary.*;
 
 public class FlatRasterizer {
 	
-	protected static final int PERSPECTIVE_BITS = 25;
-	protected static final int PERSPECTIVE_ONE = 1 << PERSPECTIVE_BITS;
-	protected static final int PERSPECTIVE_HALF = PERSPECTIVE_ONE >> 1;
+	public static final byte INTERPOLATE_BIT = 5;
+	public static final byte INTERPOLATE_ONE = 1 << INTERPOLATE_BIT;
+	public static final byte FP_PLUS_INTERPOLATE_BIT = FP_BIT + INTERPOLATE_BIT;
 	
 	protected final int[] vectorCache;
 	protected final int[] pixelCache;
@@ -106,11 +106,11 @@ public class FlatRasterizer {
         	drawTopTriangle(cameraFrustum);
         } else {
             int x = location0[VECTOR_X];
+            int y = location1[VECTOR_Y];
+            int z = location0[VECTOR_Z];
             int dy = mathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
             int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
             x += mathLibrary.multiply(dy, multiplier);
-            int y = location1[VECTOR_Y];
-            int z = location0[VECTOR_Z];
             multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
             z += mathLibrary.multiply(dy, multiplier);
             vectorCache[VECTOR_X] = x;
@@ -215,11 +215,16 @@ public class FlatRasterizer {
 		}
 	}
 	
-	protected int multiply(int value1, int value2) {
-		long a = value1;
-		long b = value2;
-		long result = a * b + PERSPECTIVE_HALF;
-		return (int) (result >> PERSPECTIVE_BITS);
+	protected void divideOneByZ() {
+		location0[VECTOR_Z] = mathLibrary.divide(INTERPOLATE_ONE, location0[VECTOR_Z]);
+		location1[VECTOR_Z] = mathLibrary.divide(INTERPOLATE_ONE, location1[VECTOR_Z]);
+		location2[VECTOR_Z] = mathLibrary.divide(INTERPOLATE_ONE, location2[VECTOR_Z]);
+	}
+	
+	protected void zMultiply(int[] vector) {
+		vector[0] = mathLibrary.multiply(vector[0], location0[VECTOR_Z]);
+		vector[1] = mathLibrary.multiply(vector[1], location1[VECTOR_Z]);
+		vector[2] = mathLibrary.multiply(vector[2], location2[VECTOR_Z]);
 	}
 	
 	protected void swapVector(int[] vector1, int[] vector2, int currentIndex, int indexToSet) {
@@ -235,9 +240,16 @@ public class FlatRasterizer {
 		tmp = vector3[currentIndex]; vector3[currentIndex] = vector3[indexToSet]; vector3[indexToSet] = tmp;
 	}
 	
-	protected void zMultiply(int[] vector) {
-		vector[0] = mathLibrary.multiply(vector[0], location0[VECTOR_Z]);
-		vector[1] = mathLibrary.multiply(vector[1], location1[VECTOR_Z]);
-		vector[2] = mathLibrary.multiply(vector[2], location2[VECTOR_Z]);
+	protected void swapCache(int[] vector1, int[] vector2, int[] vector3, int[] cache, int indexToSet) {
+		int tmp = 0;
+		tmp = cache[0]; cache[0] = vector1[indexToSet]; vector1[indexToSet] = tmp;
+		tmp = cache[1]; cache[1] = vector2[indexToSet]; vector2[indexToSet] = tmp;
+		tmp = cache[2]; cache[2] = vector3[indexToSet]; vector3[indexToSet] = tmp;
+	}
+	
+	protected void swapCache(int[] vector1, int[] vector2, int[] cache, int indexToSet) {
+		int tmp = 0;
+		tmp = cache[0]; cache[0] = vector1[indexToSet]; vector1[indexToSet] = tmp;
+		tmp = cache[1]; cache[1] = vector2[indexToSet]; vector2[indexToSet] = tmp;
 	}
 }

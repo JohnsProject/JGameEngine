@@ -42,9 +42,7 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 	 * @param cameraFrustum
 	 */
 	public final void drawPerspectivePhongTriangle(int[] cameraFrustum) {
-		location0[VECTOR_Z] = PERSPECTIVE_ONE / location0[VECTOR_Z];
-		location1[VECTOR_Z] = PERSPECTIVE_ONE / location1[VECTOR_Z];
-		location2[VECTOR_Z] = PERSPECTIVE_ONE / location2[VECTOR_Z];
+		divideOneByZ();
 		zMultiply(u);
 		zMultiply(v);
 		zMultiply(worldX);
@@ -53,7 +51,6 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 		zMultiply(normalX);
 		zMultiply(normalY);
 		zMultiply(normalZ);
-		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
 			swapVector(u, v, 0, 1);
@@ -77,78 +74,66 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
         } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
         	drawTopTriangle(cameraFrustum);
         } else {
-            int x = location0[VECTOR_X];
+        	int x = location0[VECTOR_X];
+            int y = location1[VECTOR_Y];
+            int z = location0[VECTOR_Z];
+            int uvx = u[0];
+            int uvy = v[0];
+            int wx = worldX[0];
+            int wy = worldY[0];
+            int wz = worldZ[0];
+            int nx = normalX[0];
+            int ny = normalY[0];
+            int nz = normalZ[0];
             int dy = mathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
             int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
             x += mathLibrary.multiply(dy, multiplier);
-            int y = location1[VECTOR_Y];
-            int z = location0[VECTOR_Z];
             multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
             z += mathLibrary.multiply(dy, multiplier);
-            int uvx = this.u[0];
-            multiplier = this.u[2] - this.u[0];
+            multiplier = u[2] - u[0];
             uvx += mathLibrary.multiply(dy, multiplier);
-            int uvy = this.v[0];
-            multiplier = this.v[2] - this.v[0];
+            multiplier = v[2] - v[0];
             uvy += mathLibrary.multiply(dy, multiplier);
-            int wx = worldX[0];
             multiplier = worldX[2] - worldX[0];
             wx += mathLibrary.multiply(dy, multiplier);
-            int wy = worldY[0];
             multiplier = worldY[2] - worldY[0];
             wy += mathLibrary.multiply(dy, multiplier);
-            int wz = worldZ[0];
             multiplier = worldZ[2] - worldZ[0];
             wz += mathLibrary.multiply(dy, multiplier);
-            int nx = normalX[0];
             multiplier = normalX[2] - normalX[0];
             nx += mathLibrary.multiply(dy, multiplier);
-            int ny = normalY[0];
             multiplier = normalY[2] - normalY[0];
             ny += mathLibrary.multiply(dy, multiplier);
-            int nz = normalZ[0];
             multiplier = normalZ[2] - normalZ[0];
             nz += mathLibrary.multiply(dy, multiplier);
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
+            uvCache[VECTOR_X] = uvx;
+            uvCache[VECTOR_Y] = uvy;
+            worldCache[VECTOR_X] = wx;
+            worldCache[VECTOR_Y] = wy;
+            worldCache[VECTOR_Z] = wz;
+            normalCache[VECTOR_X] = nx;
+            normalCache[VECTOR_Y] = ny;
+            normalCache[VECTOR_Z] = nz;
             vectorLibrary.swap(vectorCache, location2);
-            tmp = this.u[2]; this.u[2] = uvx; uvx = tmp;
-            tmp = this.v[2]; this.v[2] = uvy; uvy = tmp;
-            tmp = worldX[2]; worldX[2] = wx; wx = tmp;
-            tmp = worldY[2]; worldY[2] = wy; wy = tmp;
-            tmp = worldZ[2]; worldZ[2] = wz; wz = tmp;
-            tmp = normalX[2]; normalX[2] = nx; nx = tmp;
-            tmp = normalY[2]; normalY[2] = ny; ny = tmp;
-            tmp = normalZ[2]; normalZ[2] = nz; nz = tmp;
+            swapCache(u, v, uvCache, 2);
+            swapCache(worldX, worldY, worldZ, worldCache, 2);
+            swapCache(normalX, normalY, normalZ, normalCache, 2);
             drawBottomTriangle(cameraFrustum);
             vectorLibrary.swap(vectorCache, location2);
             vectorLibrary.swap(location0, location1);
             vectorLibrary.swap(location1, vectorCache);
-            tmp = this.u[2]; this.u[2] = uvx; uvx = tmp;
-            tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
-            tmp = this.u[1]; this.u[1] = uvx; uvx = tmp;
-            tmp = this.v[2]; this.v[2] = uvy; uvy = tmp;
-            tmp = this.v[0]; this.v[0] = this.v[1]; this.v[1] = tmp;
-            tmp = this.v[1]; this.v[1] = uvy; uvy = tmp;
-            tmp = worldX[2]; worldX[2] = wx; wx = tmp;
-            tmp = worldX[0]; worldX[0] = worldX[1]; worldX[1] = tmp;
-            tmp = worldX[1]; worldX[1] = wx; wx = tmp;
-            tmp = worldY[2]; worldY[2] = wy; wy = tmp;
-            tmp = worldY[0]; worldY[0] = worldY[1]; worldY[1] = tmp;
-            tmp = worldY[1]; worldY[1] = wy; wy = tmp;
-            tmp = worldZ[2]; worldZ[2] = wz; wz = tmp;
-            tmp = worldZ[0]; worldZ[0] = worldZ[1]; worldZ[1] = tmp;
-            tmp = worldZ[1]; worldZ[1] = wz; wz = tmp;
-            tmp = normalX[2]; normalX[2] = nx; nx = tmp;
-            tmp = normalX[0]; normalX[0] = normalX[1]; normalX[1] = tmp;
-            tmp = normalX[1]; normalX[1] = nx; nx = tmp;
-            tmp = normalY[2]; normalY[2] = ny; ny = tmp;
-            tmp = normalY[0]; normalY[0] = normalY[1]; normalY[1] = tmp;
-            tmp = normalY[1]; normalY[1] = ny; ny = tmp;
-            tmp = normalZ[2]; normalZ[2] = nz; nz = tmp;
-            tmp = normalZ[0]; normalZ[0] = normalZ[1]; normalZ[1] = tmp;
-            tmp = normalZ[1]; normalZ[1] = nz; nz = tmp;
+            swapCache(u, v, uvCache, 2);
+            swapVector(u, v, 0, 1);
+            swapCache(u, v, uvCache, 1);
+            swapCache(worldX, worldY, worldZ, worldCache, 2);
+            swapVector(worldX, worldY, worldZ, 0, 1);
+            swapCache(worldX, worldY, worldZ, worldCache, 1);
+            swapCache(normalX, normalY, normalZ, normalCache, 2);
+            swapVector(normalX, normalY, normalZ, 0, 1);
+            swapCache(normalX, normalY, normalZ, normalCache, 1);
             drawTopTriangle(cameraFrustum);
         }
 	}
@@ -359,23 +344,26 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 		}
     }
 	
+	private static final int DIVISION_ONE = FP_ONE << FP_BIT;
+	private static final int INTERPOLATE_BIT_2 = INTERPOLATE_BIT * 2;
 	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int wx, int wy, int wz, int nx, int ny, int nz,
 							int dz, int du, int dv, int dwx, int dwy, int dwz, int dnx, int dny, int dnz, int[] cameraFrustum) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
+        int oneByZ;
 		for (; x1 <= x2; x1++) {
 			pixelCache[VECTOR_X] = x1;
 			pixelCache[VECTOR_Y] = y;
-			pixelCache[VECTOR_Z] = z >> FP_BIT;
-			pixelCache[VECTOR_Z] = PERSPECTIVE_ONE / pixelCache[VECTOR_Z];
-			this.u[3] = multiply(u, pixelCache[VECTOR_Z]);
-			this.v[3] = multiply(v, pixelCache[VECTOR_Z]);
-			worldX[3] = multiply(wx, pixelCache[VECTOR_Z]);
-			worldY[3] = multiply(wy, pixelCache[VECTOR_Z]);
-			worldZ[3] = multiply(wz, pixelCache[VECTOR_Z]);
-			normalX[3] = multiply(nx, pixelCache[VECTOR_Z]);
-			normalY[3] = multiply(ny, pixelCache[VECTOR_Z]);
-			normalZ[3] = multiply(nz, pixelCache[VECTOR_Z]);
+			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
+			pixelCache[VECTOR_Z] = oneByZ;
+			this.u[3] = mathLibrary.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
+			this.v[3] = mathLibrary.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
+			worldX[3] = mathLibrary.multiply(wx, oneByZ) >> INTERPOLATE_BIT;
+			worldY[3] = mathLibrary.multiply(wy, oneByZ) >> INTERPOLATE_BIT;
+			worldZ[3] = mathLibrary.multiply(wz, oneByZ) >> INTERPOLATE_BIT;
+			normalX[3] = mathLibrary.multiply(nx, oneByZ) >> INTERPOLATE_BIT;
+			normalY[3] = mathLibrary.multiply(ny, oneByZ) >> INTERPOLATE_BIT;
+			normalZ[3] = mathLibrary.multiply(nz, oneByZ) >> INTERPOLATE_BIT;
 			shader.fragment(pixelCache);
 			z += dz;
 			u += du;

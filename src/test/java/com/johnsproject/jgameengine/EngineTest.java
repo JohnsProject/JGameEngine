@@ -55,8 +55,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 //		WINDOW_H = gd.getDisplayMode().getHeight();
 		WINDOW_W = 1024;
 		WINDOW_H = 768;
-		RENDER_W = (WINDOW_W * 50) / 100;
-		RENDER_H = (WINDOW_H * 50) / 100;
+		RENDER_W = (WINDOW_W * 100) / 100;
+		RENDER_H = (WINDOW_H * 100) / 100;
 		this.vectorLibrary = new VectorLibrary();
 		cache = VectorLibrary.generate();
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
@@ -103,7 +103,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 					Material material = model.getMesh().getMaterial(j);
 					SpecularProperties properties = (SpecularProperties)material.getShader().getProperties();
 					//material.setShader(new FlatSpecularShader());
-					material.setShader(new PhongSpecularShader());
+					//material.setShader(new PhongSpecularShader());
 					material.getShader().setProperties(properties);
 					properties.setTexture(texture);
 				}

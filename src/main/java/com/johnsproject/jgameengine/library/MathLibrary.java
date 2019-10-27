@@ -39,7 +39,7 @@ public class MathLibrary {
 	 * This is the bit representation of the default fixed point precision value. 
 	 * That means that the 'point' is at the {@value #FP_BIT}th bit of the integer.
 	 */
-	public static final byte FP_BIT = 10;
+	public static final byte FP_BIT = 15;
 	
 	/**
 	 * This is the integer representation of the default fixed point precision value. 
@@ -262,7 +262,7 @@ public class MathLibrary {
 		long result = (g << FP_BIT);
 		// fractional part
 		final short increment = FP_ONE >> 7;
-		for (; (result * result + FP_HALF) >> FP_BIT <= number; result += increment);
+		for (; (result * result + FP_HALF) >> FP_BIT < number; result += increment);
 		result -= increment;
 		return (int)result;
 	}

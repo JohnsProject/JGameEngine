@@ -42,15 +42,12 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 	 * @param cameraFrustum
 	 */
 	public final void drawPerspectiveGouraudTriangle(int[] cameraFrustum) {
-		location0[VECTOR_Z] = PERSPECTIVE_ONE / location0[VECTOR_Z];
-		location1[VECTOR_Z] = PERSPECTIVE_ONE / location1[VECTOR_Z];
-		location2[VECTOR_Z] = PERSPECTIVE_ONE / location2[VECTOR_Z];
+		divideOneByZ();
 		zMultiply(u);
 		zMultiply(v);
 		zMultiply(red);
 		zMultiply(green);
 		zMultiply(blue);
-		int tmp = 0;
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
 			swapVector(u, v, 0, 1);
@@ -71,57 +68,50 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
         } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
             drawTopTriangle(cameraFrustum);
         } else {
-            int x = location0[VECTOR_X];
+        	int x = location0[VECTOR_X];
+            int y = location1[VECTOR_Y];
+            int z = location0[VECTOR_Z];
+            int r = red[0];
+            int g = green[0];
+            int b = blue[0];
+            int uvx = u[0];
+            int uvy = v[0];
             int dy = mathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
             int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
             x += mathLibrary.multiply(dy, multiplier);
-            int y = location1[VECTOR_Y];
-            int z = location0[VECTOR_Z];
             multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
             z += mathLibrary.multiply(dy, multiplier);
-            int uvx = this.u[0];
-            multiplier = this.u[2] - this.u[0];
+            multiplier = u[2] - u[0];
             uvx += mathLibrary.multiply(dy, multiplier);
-            int uvy = this.v[0];
-            multiplier = this.v[2] - this.v[0];
+            multiplier = v[2] - v[0];
             uvy += mathLibrary.multiply(dy, multiplier);
-            int r = red[0];
             multiplier = red[2] - red[0];
             r += mathLibrary.multiply(dy, multiplier);
-            int g = green[0];
             multiplier = green[2] - green[0];
             g += mathLibrary.multiply(dy, multiplier);
-            int b = blue[0];
             multiplier = blue[2] - blue[0];
             b += mathLibrary.multiply(dy, multiplier);
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
+            colorCache[0] = r;
+            colorCache[1] = g;
+            colorCache[2] = b;
+            uvCache[VECTOR_X] = uvx;
+            uvCache[VECTOR_Y] = uvy;
             vectorLibrary.swap(vectorCache, location2);
-            tmp = this.u[2]; this.u[2] = uvx; uvx = tmp;
-            tmp = this.v[2]; this.v[2] = uvy; uvy = tmp;
-            tmp = red[2]; red[2] = r; r = tmp;
-            tmp = green[2]; green[2] = g; g = tmp;
-            tmp = blue[2]; blue[2] = b; b = tmp;
+            swapCache(red, green, blue, colorCache, 2);
+            swapCache(u, v, uvCache, 2);
             drawBottomTriangle(cameraFrustum);
             vectorLibrary.swap(vectorCache, location2);
             vectorLibrary.swap(location0, location1);
             vectorLibrary.swap(location1, vectorCache);
-            tmp = this.u[2]; this.u[2] = uvx; uvx = tmp;
-            tmp = this.u[0]; this.u[0] = this.u[1]; this.u[1] = tmp;
-            tmp = this.u[1]; this.u[1] = uvx; uvx = tmp;
-            tmp = this.v[2]; this.v[2] = uvy; uvy = tmp;
-            tmp = this.v[0]; this.v[0] = this.v[1]; this.v[1] = tmp;
-            tmp = this.v[1]; this.v[1] = uvy; uvy = tmp;
-            tmp = red[2]; red[2] = r; r = tmp;
-            tmp = red[0]; red[0] = red[1]; red[1] = tmp;
-            tmp = red[1]; red[1] = r; r = tmp;
-            tmp = green[2]; green[2] = g; g = tmp;
-            tmp = green[0]; green[0] = green[1]; green[1] = tmp;
-            tmp = green[1]; green[1] = g; g = tmp;
-            tmp = blue[2]; blue[2] = b; b = tmp;
-            tmp = blue[0]; blue[0] = blue[1]; blue[1] = tmp;
-            tmp = blue[1]; blue[1] = b; b = tmp;
+            swapCache(red, green, blue, colorCache, 2);
+            swapVector(red, green, blue, 0, 1);
+            swapCache(red, green, blue, colorCache, 1);
+            swapCache(u, v, uvCache, 2);
+            swapVector(u, v, 0, 1);
+            swapCache(u, v, uvCache, 1);
             drawTopTriangle(cameraFrustum);
         }
 	}
@@ -284,19 +274,22 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		}
     }
 	
+	private static final int DIVISION_ONE = FP_ONE << FP_BIT;
+	private static final int INTERPOLATE_BIT_2 = INTERPOLATE_BIT * 2;
 	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int r, int g, int b, int dz, int du, int dv, int dr, int dg, int db, int[] cameraFrustum) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
+		int oneByZ;
 		for (; x1 <= x2; x1++) {
 			pixelCache[VECTOR_X] = x1;
 			pixelCache[VECTOR_Y] = y;
-			pixelCache[VECTOR_Z] = z >> FP_BIT;
-			pixelCache[VECTOR_Z] = PERSPECTIVE_ONE / pixelCache[VECTOR_Z];
-			this.u[3] = multiply(u, pixelCache[VECTOR_Z]);
-			this.v[3] = multiply(v, pixelCache[VECTOR_Z]);
-			this.red[3] = multiply(r, pixelCache[VECTOR_Z]);
-			this.green[3] = multiply(g, pixelCache[VECTOR_Z]);
-			this.blue[3] = multiply(b, pixelCache[VECTOR_Z]);
+			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
+			pixelCache[VECTOR_Z] = oneByZ;
+			this.u[3] = mathLibrary.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
+			this.v[3] = mathLibrary.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
+			red[3] = mathLibrary.multiply(r, oneByZ) >> INTERPOLATE_BIT_2;
+			green[3] = mathLibrary.multiply(g, oneByZ) >> INTERPOLATE_BIT_2;
+			blue[3] = mathLibrary.multiply(b, oneByZ) >> INTERPOLATE_BIT_2;
 			shader.fragment(pixelCache);
 			z += dz;
 			u += du;

@@ -176,11 +176,12 @@ public class GraphicsLibrary {
 		int halfX = left + ((right - left) >> 1);
 		int halfY = top + ((bottom - top) >> 1);
 		int w = Math.min(-1, location[VECTOR_W]);
-		w = mathLibrary.divide(FP_ONE << 10, w);
+		w = mathLibrary.divide(FP_ONE, w);
 		result[VECTOR_X] = mathLibrary.multiply(location[VECTOR_X], scaleFactor);
-		result[VECTOR_X] = ((mathLibrary.multiply(result[VECTOR_X], w) + 512) >> 10) + halfX;
+		result[VECTOR_X] = mathLibrary.multiply(result[VECTOR_X], w) + halfX;
 		result[VECTOR_Y] = mathLibrary.multiply(location[VECTOR_Y], scaleFactor);
-		result[VECTOR_Y] = ((mathLibrary.multiply(result[VECTOR_Y], w) + 512) >> 10) + halfY;
+		result[VECTOR_Y] = mathLibrary.multiply(result[VECTOR_Y], w) + halfY;
+		result[VECTOR_Z] = mathLibrary.divide(result[VECTOR_Z] - Camera.FRUSTUM_NEAR, cameraFrustum[Camera.FRUSTUM_FAR]);
 		return result;
 	}
 
@@ -350,8 +351,8 @@ public class GraphicsLibrary {
 			int right = cameraFrustum[Camera.FRUSTUM_RIGHT];
 			int top = cameraFrustum[Camera.FRUSTUM_TOP];
 			int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
-			int near = cameraFrustum[Camera.FRUSTUM_NEAR];
-			int far = cameraFrustum[Camera.FRUSTUM_FAR];
+			int near = 1;
+			int far = FP_ONE;
 			boolean insideWidth1 = (location1[VECTOR_X] > left) && (location1[VECTOR_X] < right);
 			boolean insideWidth2 = (location2[VECTOR_X] > left) && (location2[VECTOR_X] < right);
 			boolean insideWidth3 = (location3[VECTOR_X] > left) && (location3[VECTOR_X] < right);
@@ -362,15 +363,13 @@ public class GraphicsLibrary {
 			boolean insideDepth2 = (location2[VECTOR_Z] > near) && (location2[VECTOR_Z] < far);
 			boolean insideDepth3 = (location3[VECTOR_Z] > near) && (location3[VECTOR_Z] < far);
 			if ((!insideDepth1 || !insideDepth2 || !insideDepth3) 
-					|| (!insideHeight1 && !insideHeight2 && !insideHeight3)
-						|| (!insideWidth1 && !insideWidth2 && !insideWidth3)) {
+					|| (!insideHeight1 || !insideHeight2 || !insideHeight3)
+						|| (!insideWidth1 || !insideWidth2 || !insideWidth3)) {
 						return true;
 			}
 		}
-		int size = -((location2[VECTOR_X] - location1[VECTOR_X]) * (location3[VECTOR_Y] - location1[VECTOR_Y])
-				- (location3[VECTOR_X] - location1[VECTOR_X]) * (location2[VECTOR_Y] - location1[VECTOR_Y]));
-		if(size * backfaceCull < 0)
-			return true;
-		return false;
+		int size = (location2[VECTOR_X] - location1[VECTOR_X]) * (location3[VECTOR_Y] - location1[VECTOR_Y])
+				- (location3[VECTOR_X] - location1[VECTOR_X]) * (location2[VECTOR_Y] - location1[VECTOR_Y]);
+		return size * backfaceCull > 0;
 	}
 }
