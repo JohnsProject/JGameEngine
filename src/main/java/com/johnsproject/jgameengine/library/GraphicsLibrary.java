@@ -362,9 +362,9 @@ public class GraphicsLibrary {
 			boolean insideDepth1 = (location1[VECTOR_Z] > near) && (location1[VECTOR_Z] < far);
 			boolean insideDepth2 = (location2[VECTOR_Z] > near) && (location2[VECTOR_Z] < far);
 			boolean insideDepth3 = (location3[VECTOR_Z] > near) && (location3[VECTOR_Z] < far);
-			if ((!insideDepth1 || !insideDepth2 || !insideDepth3) 
-					|| (!insideHeight1 || !insideHeight2 || !insideHeight3)
-						|| (!insideWidth1 || !insideWidth2 || !insideWidth3)) {
+			if ((!insideDepth1 && !insideDepth2 && !insideDepth3) 
+					|| (!insideHeight1 && !insideHeight2 && !insideHeight3)
+						|| (!insideWidth1 && !insideWidth2 && !insideWidth3)) {
 						return true;
 			}
 		}

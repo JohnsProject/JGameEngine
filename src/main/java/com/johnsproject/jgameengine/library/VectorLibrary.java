@@ -344,10 +344,10 @@ public class VectorLibrary {
 	 * @param result
 	 */
 	public int[] normalize(int[] vector, int[] result) {
-		int magnitude = mathLibrary.divide(FP_ONE << 10, length(vector) + 1);
-		result[VECTOR_X] = (mathLibrary.multiply(vector[VECTOR_X], magnitude) + 512) >> 10;
-		result[VECTOR_Y] = (mathLibrary.multiply(vector[VECTOR_Y], magnitude) + 512) >> 10;
-		result[VECTOR_Z] = (mathLibrary.multiply(vector[VECTOR_Z], magnitude) + 512) >> 10;
+		int magnitude = mathLibrary.divide(FP_ONE, length(vector) + 1);
+		result[VECTOR_X] = mathLibrary.multiply(vector[VECTOR_X], magnitude);
+		result[VECTOR_Y] = mathLibrary.multiply(vector[VECTOR_Y], magnitude);
+		result[VECTOR_Z] = mathLibrary.multiply(vector[VECTOR_Z], magnitude);
 		/*
 		final long magnitude = NORMALIZE_ONE / (long)(length(vector) + 1);
 		result[VECTOR_X] = (int)(((((long)vector[VECTOR_X] * magnitude) << FP_BIT) + NORMALIZE_HALF) >> NORMALIZE_BITS);

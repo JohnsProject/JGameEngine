@@ -23,6 +23,8 @@
  */
 package com.johnsproject.jgameengine.model;
 
+import com.johnsproject.jgameengine.shader.VertexBuffer;
+
 public class Vertex {
 	
 	private final int index;

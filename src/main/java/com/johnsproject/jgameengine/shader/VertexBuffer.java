@@ -21,7 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.model;
+package com.johnsproject.jgameengine.shader;
+
+import com.johnsproject.jgameengine.model.Vertex;
 
 public class VertexBuffer {
 

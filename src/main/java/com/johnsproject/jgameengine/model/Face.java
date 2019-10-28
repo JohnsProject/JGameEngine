@@ -23,6 +23,8 @@
  */
 package com.johnsproject.jgameengine.model;
 
+import com.johnsproject.jgameengine.shader.GeometryBuffer;
+
 public class Face {
 		
 	private final int index;

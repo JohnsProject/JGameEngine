@@ -28,8 +28,6 @@ import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.MatrixLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
-import com.johnsproject.jgameengine.model.GeometryBuffer;
-import com.johnsproject.jgameengine.model.VertexBuffer;
 
 public abstract class Shader {
 	

@@ -36,17 +36,17 @@ import com.johnsproject.jgameengine.model.Armature;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.FrameBuffer;
-import com.johnsproject.jgameengine.model.GeometryBuffer;
 import com.johnsproject.jgameengine.model.Mesh;
 import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Vertex;
-import com.johnsproject.jgameengine.model.VertexBuffer;
 import com.johnsproject.jgameengine.model.VertexGroup;
 import com.johnsproject.jgameengine.shader.ForwardShaderBuffer;
+import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
 import com.johnsproject.jgameengine.shader.ShaderBuffer;
 import com.johnsproject.jgameengine.shader.ShadowMappingShader;
+import com.johnsproject.jgameengine.shader.VertexBuffer;
 
 public class GraphicsEngine implements EngineListener {
 	

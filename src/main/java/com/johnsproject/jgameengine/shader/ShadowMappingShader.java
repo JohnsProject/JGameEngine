@@ -23,9 +23,7 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.model.GeometryBuffer;
 import com.johnsproject.jgameengine.model.Texture;
-import com.johnsproject.jgameengine.model.VertexBuffer;
 import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
 
 import static com.johnsproject.jgameengine.library.VectorLibrary.*;

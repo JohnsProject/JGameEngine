@@ -26,10 +26,12 @@ package com.johnsproject.jgameengine.rasterizer;
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.shader.Shader;
 
 import static com.johnsproject.jgameengine.library.MathLibrary.*;
 import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+
 
 public class FlatRasterizer {
 	
@@ -128,9 +130,8 @@ public class FlatRasterizer {
 	private void drawBottomTriangle(int[] cameraFrustum) {
 		int xShifted = location0[VECTOR_X] << FP_BIT;
 		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
-		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
-		y3y1 = y3y1 == 0 ? 1 : y3y1;
+		int y3y1 = y2y1;
         int dx1 = mathLibrary.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
         int dx2 = mathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
         int dz1 = mathLibrary.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
@@ -142,8 +143,21 @@ public class FlatRasterizer {
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
-	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
-	        	drawScanline(x1, x2, y, z, dz, cameraFrustum);
+            int y1 = location0[VECTOR_Y];
+            int y2 = location1[VECTOR_Y];
+	        if (y1 < cameraFrustum[Camera.FRUSTUM_TOP]) {
+	        	int step = cameraFrustum[Camera.FRUSTUM_TOP] - y1;
+	        	y1 += step;
+		    	x1 += dx1 * step;
+	            x2 += dx2 * step;
+	            z += dz1 * step;
+	    	}
+	        if(cameraFrustum[Camera.FRUSTUM_BOTTOM] < y2)
+		    	y2 = cameraFrustum[Camera.FRUSTUM_BOTTOM];
+	        for (; y1 <= y2; y1++) {
+	        	if(z < FP_ONE)
+	        		continue;
+	        	drawScanline(x1, x2, y1, z, dz, cameraFrustum);
 	            x1 += dx1;
 	            x2 += dx2;
 	            z += dz1;
@@ -155,8 +169,21 @@ public class FlatRasterizer {
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
-        	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
-        		drawScanline(x1, x2, y, z, dz, cameraFrustum);
+            int y1 = location0[VECTOR_Y];
+            int y2 = location1[VECTOR_Y];
+            if (y1 < cameraFrustum[Camera.FRUSTUM_TOP]) {
+	        	int step = cameraFrustum[Camera.FRUSTUM_TOP] - y1;
+	        	y1 += step;
+		    	x1 += dx2 * step;
+	            x2 += dx1 * step;
+	            z += dz2 * step;
+	    	}
+            if(cameraFrustum[Camera.FRUSTUM_BOTTOM] < y2)
+		    	y2 = cameraFrustum[Camera.FRUSTUM_BOTTOM];
+        	for (; y1 <= y2; y1++) {
+        		if(z < FP_ONE)
+	        		continue;
+        		drawScanline(x1, x2, y1, z, dz, cameraFrustum);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
@@ -181,8 +208,21 @@ public class FlatRasterizer {
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
-	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, dz, cameraFrustum);
+			int y1 = location2[VECTOR_Y];
+	        int y2 = location0[VECTOR_Y];
+	        if (y1 > cameraFrustum[Camera.FRUSTUM_BOTTOM]) {
+	        	int step = y1 - cameraFrustum[Camera.FRUSTUM_BOTTOM];
+	        	y1 -= step;
+		        x1 -= dx1 * step;
+		        x2 -= dx2 * step;
+		        z -= dz1 * step;
+	    	}
+	        if(cameraFrustum[Camera.FRUSTUM_TOP] > y2)
+		    	y2 = cameraFrustum[Camera.FRUSTUM_TOP];
+	        for (; y1 > y2; y1--) {
+	        	if(z < FP_ONE)
+	        		continue;
+	        	drawScanline(x1, x2, y1, z, dz, cameraFrustum);
 	            x1 -= dx1;
 	            x2 -= dx2;
 	            z -= dz1;
@@ -194,8 +234,21 @@ public class FlatRasterizer {
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
-	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, dz, cameraFrustum);
+			int y1 = location2[VECTOR_Y];
+	        int y2 = location0[VECTOR_Y];
+	        if (y1 > cameraFrustum[Camera.FRUSTUM_BOTTOM]) {
+	        	int step = y1 - cameraFrustum[Camera.FRUSTUM_BOTTOM];
+	        	y1 -= step;
+		        x1 -= dx2 * step;
+		        x2 -= dx1 * step;
+		        z -= dz2 * step;
+	    	}
+	        if(cameraFrustum[Camera.FRUSTUM_TOP] > y2)
+		    	y2 = cameraFrustum[Camera.FRUSTUM_TOP];
+	        for (; y1 > y2; y1--) {
+	        	if(z < FP_ONE)
+	        		continue;
+	        	drawScanline(x1, x2, y1, z, dz, cameraFrustum);
 	            x1 -= dx2;
 	            x2 -= dx1;
 	            z -= dz2;
@@ -206,7 +259,16 @@ public class FlatRasterizer {
 	private void drawScanline(int x1, int x2, int y, int z, int dz, int[] cameraFrustum) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
+	    if (x1 < cameraFrustum[Camera.FRUSTUM_LEFT]) {
+	    	int step = cameraFrustum[Camera.FRUSTUM_LEFT] - x1;
+	    	x1 += step;
+	    	z += dz * step;
+	    }
+	    if(cameraFrustum[Camera.FRUSTUM_RIGHT] < x2)
+	    	x2 = cameraFrustum[Camera.FRUSTUM_RIGHT];
 		for (; x1 <= x2; x1++) {
+			if(z < FP_ONE)
+        		continue;
 			pixelCache[VECTOR_X] = x1;
 			pixelCache[VECTOR_Y] = y;
 			pixelCache[VECTOR_Z] = z >> FP_BIT;
