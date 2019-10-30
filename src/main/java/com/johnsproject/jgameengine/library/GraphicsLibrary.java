@@ -172,6 +172,8 @@ public class GraphicsLibrary {
 		int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
 		int left = cameraFrustum[Camera.FRUSTUM_LEFT];
 		int right = cameraFrustum[Camera.FRUSTUM_RIGHT];
+		int near = cameraFrustum[Camera.FRUSTUM_NEAR];
+		int far = cameraFrustum[Camera.FRUSTUM_FAR];
 		int scaleFactor = bottom - top + 1;
 		int halfX = left + ((right - left) >> 1);
 		int halfY = top + ((bottom - top) >> 1);
@@ -181,7 +183,7 @@ public class GraphicsLibrary {
 		result[VECTOR_X] = mathLibrary.multiply(result[VECTOR_X], w) + halfX;
 		result[VECTOR_Y] = mathLibrary.multiply(location[VECTOR_Y], scaleFactor);
 		result[VECTOR_Y] = mathLibrary.multiply(result[VECTOR_Y], w) + halfY;
-		result[VECTOR_Z] = mathLibrary.divide(result[VECTOR_Z] - Camera.FRUSTUM_NEAR, cameraFrustum[Camera.FRUSTUM_FAR]);
+		result[VECTOR_Z] = mathLibrary.divide(result[VECTOR_Z] - near, far - near);
 		return result;
 	}
 
@@ -362,11 +364,11 @@ public class GraphicsLibrary {
 			boolean insideDepth1 = (location1[VECTOR_Z] > near) && (location1[VECTOR_Z] < far);
 			boolean insideDepth2 = (location2[VECTOR_Z] > near) && (location2[VECTOR_Z] < far);
 			boolean insideDepth3 = (location3[VECTOR_Z] > near) && (location3[VECTOR_Z] < far);
-			if ((!insideDepth1 && !insideDepth2 && !insideDepth3) 
+			/*if ((!insideDepth1 && !insideDepth2 && !insideDepth3) 
 					|| (!insideHeight1 && !insideHeight2 && !insideHeight3)
 						|| (!insideWidth1 && !insideWidth2 && !insideWidth3)) {
 						return true;
-			}
+			}*/
 		}
 		int size = (location2[VECTOR_X] - location1[VECTOR_X]) * (location3[VECTOR_Y] - location1[VECTOR_Y])
 				- (location3[VECTOR_X] - location1[VECTOR_X]) * (location2[VECTOR_Y] - location1[VECTOR_Y]);

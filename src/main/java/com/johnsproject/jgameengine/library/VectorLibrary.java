@@ -283,7 +283,7 @@ public class VectorLibrary {
 		int x = mathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
 		int y = mathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
 		int z = mathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
-		return (int)((x + y + z));
+		return x + y + z;
 	}
 	
 	/**

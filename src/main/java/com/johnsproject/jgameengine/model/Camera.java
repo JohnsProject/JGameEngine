@@ -25,8 +25,6 @@ package com.johnsproject.jgameengine.model;
 
 import static com.johnsproject.jgameengine.library.MathLibrary.FP_ONE;
 
-import com.johnsproject.jgameengine.library.MathLibrary;
-
 public class Camera extends SceneObject {
 	
 	public static final String MAIN_CAMERA_TAG = "MainCamera";
@@ -49,14 +47,14 @@ public class Camera extends SceneObject {
 		super.tag = CAMERA_TAG;
 		super.rigidBody.setKinematic(true);
 		this.type = CameraType.PERSPECTIVE;
-		this.focalLength = MathLibrary.FP_ONE;
+		this.focalLength = FP_ONE;
 		this.frustum = new int[6];
 		this.frustum[FRUSTUM_LEFT] = 0;
-		this.frustum[FRUSTUM_RIGHT] = MathLibrary.FP_ONE;
+		this.frustum[FRUSTUM_RIGHT] = FP_ONE;
 		this.frustum[FRUSTUM_TOP] = 0;
-		this.frustum[FRUSTUM_BOTTOM] = MathLibrary.FP_ONE;
+		this.frustum[FRUSTUM_BOTTOM] = FP_ONE;
 		this.frustum[FRUSTUM_NEAR] = FP_ONE;
-		this.frustum[FRUSTUM_FAR] = MathLibrary.FP_ONE * 1000;
+		this.frustum[FRUSTUM_FAR] = FP_ONE * 1000;
 	}
 
 	public int[] getFrustum() {

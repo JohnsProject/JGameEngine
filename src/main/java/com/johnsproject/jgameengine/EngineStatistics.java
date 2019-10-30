@@ -59,6 +59,7 @@ public class EngineStatistics implements EngineListener {
 	
 	
 	public void start(EngineEvent e) {
+		
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
@@ -119,8 +120,8 @@ public class EngineStatistics implements EngineListener {
 		averageUpdates += 1000 / elapsedTime;
 		loops++;
 		output += "Average U / s\t" + (averageUpdates / loops) + "\n";
-		if(loops >= 400) {
-			averageUpdates = 0;
+		if(loops >= 100) {
+			averageUpdates = averageUpdates / loops;
 			loops = 1;
 		}
 		output += "Framebuffer\t" + frameBufferWidth + "x" + frameBufferHeight + "\n";
