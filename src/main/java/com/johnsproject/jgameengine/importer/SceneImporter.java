@@ -179,6 +179,10 @@ public class SceneImporter {
 			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, transform.getRotation(), direction);
 			direction[VECTOR_X] = -direction[VECTOR_X];
 			direction[VECTOR_Z] = -direction[VECTOR_Z];
+			int x = transform.getRotation()[VECTOR_X];
+			int y = transform.getRotation()[VECTOR_Y];
+			int z = transform.getRotation()[VECTOR_Z];
+			transform.setRotation(-(90 << MathLibrary.FP_BIT) - x, y, z);
 			Light light = new Light(name, transform);
 			if (typeData.equals("SUN")) {
 				light.setType(LightType.DIRECTIONAL);

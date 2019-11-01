@@ -32,6 +32,9 @@ import static com.johnsproject.jgameengine.library.MathLibrary.*;
 
 public class PhongRasterizer extends FlatRasterizer {
 	
+	// in phong rasterizer it's needed to decrease precision or a overflow will happen.
+	public static final byte FP_MINUS_INTERPOLATE_BIT = FP_BIT - INTERPOLATE_BIT;
+	
 	protected final int[] worldX;
 	protected final int[] worldY;
 	protected final int[] worldZ;
@@ -58,21 +61,21 @@ public class PhongRasterizer extends FlatRasterizer {
 	}
 	
 	public void setWorldLocation0(int[] location) {
-		worldX[0] = location[VECTOR_X];
-		worldY[0] = location[VECTOR_Y];
-		worldZ[0] = location[VECTOR_Z];
+		worldX[0] = location[VECTOR_X] >> INTERPOLATE_BIT;
+		worldY[0] = location[VECTOR_Y] >> INTERPOLATE_BIT;
+		worldZ[0] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
 	
 	public void setWorldLocation1(int[] location) {
-		worldX[1] = location[VECTOR_X];
-		worldY[1] = location[VECTOR_Y];
-		worldZ[1] = location[VECTOR_Z];
+		worldX[1] = location[VECTOR_X] >> INTERPOLATE_BIT;
+		worldY[1] = location[VECTOR_Y] >> INTERPOLATE_BIT;
+		worldZ[1] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
 	
 	public void setWorldLocation2(int[] location) {
-		worldX[2] = location[VECTOR_X];
-		worldY[2] = location[VECTOR_Y];
-		worldZ[2] = location[VECTOR_Z];
+		worldX[2] = location[VECTOR_X] >> INTERPOLATE_BIT;
+		worldY[2] = location[VECTOR_Y] >> INTERPOLATE_BIT;
+		worldZ[2] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
 	
 	public int[] getWorldLocation() {
@@ -83,21 +86,21 @@ public class PhongRasterizer extends FlatRasterizer {
 	}
 	
 	public void setNormal0(int[] location) {
-		normalX[0] = location[VECTOR_X];
-		normalY[0] = location[VECTOR_Y];
-		normalZ[0] = location[VECTOR_Z];
+		normalX[0] = location[VECTOR_X] >> INTERPOLATE_BIT;
+		normalY[0] = location[VECTOR_Y] >> INTERPOLATE_BIT;
+		normalZ[0] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
 	
 	public void setNormal1(int[] location) {
-		normalX[1] = location[VECTOR_X];
-		normalY[1] = location[VECTOR_Y];
-		normalZ[1] = location[VECTOR_Z];
+		normalX[1] = location[VECTOR_X] >> INTERPOLATE_BIT;
+		normalY[1] = location[VECTOR_Y] >> INTERPOLATE_BIT;
+		normalZ[1] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
 	
 	public void setNormal2(int[] location) {
-		normalX[2] = location[VECTOR_X];
-		normalY[2] = location[VECTOR_Y];
-		normalZ[2] = location[VECTOR_Z];
+		normalX[2] = location[VECTOR_X] >> INTERPOLATE_BIT;
+		normalY[2] = location[VECTOR_Y] >> INTERPOLATE_BIT;
+		normalZ[2] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
 	
 	public int[] getNormal() {
@@ -368,12 +371,12 @@ public class PhongRasterizer extends FlatRasterizer {
 			pixelCache[VECTOR_X] = x1;
 			pixelCache[VECTOR_Y] = y;
 			pixelCache[VECTOR_Z] = z >> FP_BIT;
-			worldX[3] = wx >> FP_BIT;
-        	worldY[3] = wy >> FP_BIT;
-        	worldZ[3] = wz >> FP_BIT;
-			normalX[3] = nx >> FP_BIT;
-			normalY[3] = ny >> FP_BIT;
-            normalZ[3] = nz >> FP_BIT;
+			worldX[3] = wx >> FP_MINUS_INTERPOLATE_BIT;
+        	worldY[3] = wy >> FP_MINUS_INTERPOLATE_BIT;
+        	worldZ[3] = wz >> FP_MINUS_INTERPOLATE_BIT;
+			normalX[3] = nx >> FP_MINUS_INTERPOLATE_BIT;
+			normalY[3] = ny >> FP_MINUS_INTERPOLATE_BIT;
+            normalZ[3] = nz >> FP_MINUS_INTERPOLATE_BIT;
 			shader.fragment(pixelCache);
 			z += dz;
 			wx += dwx;

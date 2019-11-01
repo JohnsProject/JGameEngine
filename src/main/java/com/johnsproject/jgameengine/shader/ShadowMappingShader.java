@@ -84,6 +84,7 @@ public class ShadowMappingShader extends Shader {
 			int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
 			vectorLibrary.matrixMultiply(vertexLocation, lightMatrix, vertexLocation);
 			graphicsLibrary.screenportVector(vertexLocation, lightFrustum, vertexLocation);
+			System.out.println(vertexLocation[VECTOR_Z]);
 		}
 	}
 	
@@ -98,7 +99,7 @@ public class ShadowMappingShader extends Shader {
 	public void fragment(int[] location) {
 		int x = location[VECTOR_X];
 		int y = location[VECTOR_Y];
-		int z = location[VECTOR_Z] + shadowBias;
+		int z = location[VECTOR_Z];
 		if (currentShadowMap.getPixel(x, y) > z) {
 			currentShadowMap.setPixel(x, y, z);
 		}

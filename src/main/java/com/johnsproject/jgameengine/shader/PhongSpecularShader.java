@@ -95,6 +95,15 @@ public class PhongSpecularShader extends Shader {
 			rasterizer.setUV2(geometryBuffer.getUV(2), texture);
 			graphicsLibrary.drawPerspectivePhongTriangle(rasterizer, true, 1, shaderBuffer.getPortedFrustum());
 		}
+		/*Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
+		Texture shadowMap = shaderBuffer.getSpotShadowMap();
+		for (int y = 0; y < shadowMap.getWidth(); y++) {
+			for (int x = 0; x < shadowMap.getHeight(); x++) {
+				int depth = shadowMap.getPixel(x, y);
+				int color = ColorLibrary.generate(depth, depth, depth);
+				colorBuffer.setPixel(x, y, color);
+			}
+		}*/
 	}
 
 	@Override
@@ -221,7 +230,6 @@ public class PhongSpecularShader extends Shader {
 		int x = lightSpaceLocation[VECTOR_X];
 		int y = lightSpaceLocation[VECTOR_Y];
 		int depth = shadowMap.getPixel(x, y);
-		
 		return depth < lightSpaceLocation[VECTOR_Z];
 	}
 

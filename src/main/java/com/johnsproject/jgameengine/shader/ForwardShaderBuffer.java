@@ -24,7 +24,6 @@
 package com.johnsproject.jgameengine.shader;
 
 import java.util.Collection;
-import java.util.List;
 
 import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;

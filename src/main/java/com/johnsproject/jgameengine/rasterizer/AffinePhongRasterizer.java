@@ -377,12 +377,12 @@ public class AffinePhongRasterizer extends PhongRasterizer {
 			pixelCache[VECTOR_Z] = z >> FP_BIT;
 			this.u[3] = u >> FP_PLUS_INTERPOLATE_BIT;
 			this.v[3] = v >> FP_PLUS_INTERPOLATE_BIT;
-			worldX[3] = wx >> FP_BIT;
-        	worldY[3] = wy >> FP_BIT;
-        	worldZ[3] = wz >> FP_BIT;
-			normalX[3] = nx >> FP_BIT;
-			normalY[3] = ny >> FP_BIT;
-            normalZ[3] = nz >> FP_BIT;
+			worldX[3] = wx >> FP_MINUS_INTERPOLATE_BIT;
+        	worldY[3] = wy >> FP_MINUS_INTERPOLATE_BIT;
+        	worldZ[3] = wz >> FP_MINUS_INTERPOLATE_BIT;
+			normalX[3] = nx >> FP_MINUS_INTERPOLATE_BIT;
+			normalY[3] = ny >> FP_MINUS_INTERPOLATE_BIT;
+            normalZ[3] = nz >> FP_MINUS_INTERPOLATE_BIT;
 			shader.fragment(pixelCache);
 			z += dz;
 			u += du;

@@ -358,12 +358,12 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 			pixelCache[VECTOR_Z] = oneByZ;
 			this.u[3] = mathLibrary.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
 			this.v[3] = mathLibrary.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
-			worldX[3] = mathLibrary.multiply(wx, oneByZ) >> INTERPOLATE_BIT;
-			worldY[3] = mathLibrary.multiply(wy, oneByZ) >> INTERPOLATE_BIT;
-			worldZ[3] = mathLibrary.multiply(wz, oneByZ) >> INTERPOLATE_BIT;
-			normalX[3] = mathLibrary.multiply(nx, oneByZ) >> INTERPOLATE_BIT;
-			normalY[3] = mathLibrary.multiply(ny, oneByZ) >> INTERPOLATE_BIT;
-			normalZ[3] = mathLibrary.multiply(nz, oneByZ) >> INTERPOLATE_BIT;
+			worldX[3] = mathLibrary.multiply(wx, oneByZ);
+			worldY[3] = mathLibrary.multiply(wy, oneByZ);
+			worldZ[3] = mathLibrary.multiply(wz, oneByZ);
+			normalX[3] = mathLibrary.multiply(nx, oneByZ);
+			normalY[3] = mathLibrary.multiply(ny, oneByZ);
+			normalZ[3] = mathLibrary.multiply(nz, oneByZ);
 			shader.fragment(pixelCache);
 			z += dz;
 			u += du;
