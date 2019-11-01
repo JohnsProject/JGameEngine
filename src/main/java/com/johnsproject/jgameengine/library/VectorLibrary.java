@@ -33,24 +33,18 @@ import static com.johnsproject.jgameengine.library.MathLibrary.*;
  */
 public class VectorLibrary {
 	
-	/*
-	private static final byte NORMALIZE_BITS = 25;
-	private static final long NORMALIZE_ONE = 1 << NORMALIZE_BITS;
-	private static final long NORMALIZE_HALF = NORMALIZE_ONE >> 1;
-	*/
-	
 	public static final byte VECTOR_X = 0;
 	public static final byte VECTOR_Y = 1;
 	public static final byte VECTOR_Z = 2;
 	public static final byte VECTOR_W = 3;
 	public static final byte VECTOR_SIZE = 4;
 	
-	public static final int[] VECTOR_UP = new int[] {0, 0, FP_ONE, FP_ONE};
-	public static final int[] VECTOR_DOWN = new int[] {0, 0, -FP_ONE, FP_ONE};
-	public static final int[] VECTOR_RIGHT = new int[] {-FP_ONE, 0, 0, FP_ONE};
-	public static final int[] VECTOR_LEFT = new int[] {FP_ONE, 0, 0, FP_ONE};
-	public static final int[] VECTOR_FORWARD = new int[] {0, FP_ONE, 0, FP_ONE};
-	public static final int[] VECTOR_BACK = new int[] {0, -FP_ONE, 0, FP_ONE};
+	public static final int[] VECTOR_UP = new int[] {0, FP_ONE, 0, FP_ONE};
+	public static final int[] VECTOR_DOWN = new int[] {0, -FP_ONE, 0, FP_ONE};
+	public static final int[] VECTOR_RIGHT = new int[] {FP_ONE, 0, 0, FP_ONE};
+	public static final int[] VECTOR_LEFT = new int[] {-FP_ONE, 0, 0, FP_ONE};
+	public static final int[] VECTOR_FORWARD = new int[] {0, 0, -FP_ONE, FP_ONE};
+	public static final int[] VECTOR_BACK = new int[] {0, 0, FP_ONE, FP_ONE};
 	public static final int[] VECTOR_ONE = new int[] {FP_ONE, FP_ONE, FP_ONE, FP_ONE};
 	public static final int[] VECTOR_ZERO = new int[] {0, 0, 0, FP_ONE};
 	
@@ -348,12 +342,6 @@ public class VectorLibrary {
 		result[VECTOR_X] = mathLibrary.multiply(vector[VECTOR_X], magnitude);
 		result[VECTOR_Y] = mathLibrary.multiply(vector[VECTOR_Y], magnitude);
 		result[VECTOR_Z] = mathLibrary.multiply(vector[VECTOR_Z], magnitude);
-		/*
-		final long magnitude = NORMALIZE_ONE / (long)(length(vector) + 1);
-		result[VECTOR_X] = (int)(((((long)vector[VECTOR_X] * magnitude) << FP_BIT) + NORMALIZE_HALF) >> NORMALIZE_BITS);
-		result[VECTOR_Y] = (int)(((((long)vector[VECTOR_Y] * magnitude) << FP_BIT) + NORMALIZE_HALF) >> NORMALIZE_BITS);
-		result[VECTOR_Z] = (int)(((((long)vector[VECTOR_Z] * magnitude) << FP_BIT) + NORMALIZE_HALF) >> NORMALIZE_BITS);
-		*/
 		return result;
 	}
 	
@@ -546,10 +534,10 @@ public class VectorLibrary {
 	 */
 	public String toString(int[] vector) {
 		String result = "(";
-		result += vector[0] + ", ";
-		result += vector[1] + ", ";
-		result += vector[2] + ", ";
-		result += vector[3];
+		result += MathLibrary.generate(vector[0]) + ", ";
+		result += MathLibrary.generate(vector[1]) + ", ";
+		result += MathLibrary.generate(vector[2]) + ", ";
+		result += MathLibrary.generate(vector[3]);
 		result += ")";
 		return result;
 	}

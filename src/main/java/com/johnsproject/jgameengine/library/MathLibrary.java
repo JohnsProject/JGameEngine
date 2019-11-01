@@ -85,6 +85,16 @@ public class MathLibrary {
 	}
 	
 	/**
+	 * Returns the floating point representation of value.
+	 * 
+	 * @param value fixed point value.
+	 * @return
+	 */
+	public static float generate(int value) {
+		return (float)value / FP_ONE;
+	}
+	
+	/**
 	 * Returns the degrees converted to radians.
 	 * 
 	 * @param degrees

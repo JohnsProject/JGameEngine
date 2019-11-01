@@ -66,8 +66,8 @@ public class GouraudSpecularShader extends Shader {
 		vectorLibrary.normalize(normal, normal);
 		vectorLibrary.subtract(cameraLocation, location, viewDirection);
 		vectorLibrary.normalize(viewDirection, viewDirection);
-		for (int i = 0; i < shaderBuffer.getLights().size(); i++) {
-			Light light = shaderBuffer.getLights().get(i);
+		int lightIndex = 0;
+		for (Light light: shaderBuffer.getLights()) {
 			if(light.isCulled())
 				continue;
 			int currentFactor = 0;
@@ -77,7 +77,7 @@ public class GouraudSpecularShader extends Shader {
 			case DIRECTIONAL:
 				vectorLibrary.invert(light.getDirection(), lightDirection);
 				currentFactor = getLightFactor(normal, lightDirection, viewDirection);
-				if (i == shaderBuffer.getDirectionalLightIndex()) {
+				if (lightIndex == shaderBuffer.getDirectionalLightIndex()) {
 					int[] lightMatrix = shaderBuffer.getDirectionalLightMatrix();
 					int[] lightFrustum = shaderBuffer.getDirectionalLightFrustum();
 					Texture shadowMap = shaderBuffer.getDirectionalShadowMap();
@@ -92,7 +92,7 @@ public class GouraudSpecularShader extends Shader {
 				vectorLibrary.normalize(lightLocation, lightLocation);
 				currentFactor = getLightFactor(normal, lightLocation, viewDirection);
 				currentFactor = mathLibrary.divide(currentFactor, attenuation);
-				if ((i == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
+				if ((lightIndex == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
 					for (int j = 0; j < shaderBuffer.getPointLightMatrices().length; j++) {
 						int[] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
 						int[] lightFrustum = shaderBuffer.getPointLightFrustum();
@@ -116,7 +116,7 @@ public class GouraudSpecularShader extends Shader {
 					currentFactor = getLightFactor(normal, lightDirection, viewDirection);
 					currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
-					if ((i == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
+					if ((lightIndex == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
 						int[] lightMatrix = shaderBuffer.getSpotLightMatrix();
 						int[] lightFrustum = shaderBuffer.getSpotLightFrustum();
 						Texture shadowMap = shaderBuffer.getSpotShadowMap();
@@ -130,6 +130,7 @@ public class GouraudSpecularShader extends Shader {
 			currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
 			currentFactor = mathLibrary.multiply(currentFactor, 255);
 			lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
+			lightIndex++;
 		}
 		vertexBuffer.setLightColor(lightColor);
 		vectorLibrary.matrixMultiply(location, shaderBuffer.getViewMatrix(), location);

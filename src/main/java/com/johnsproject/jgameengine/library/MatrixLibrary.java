@@ -474,8 +474,8 @@ public class MatrixLibrary {
 	 */
 	public int[] rotateY(int[] matrix, int angle, int[] result) {
 		int[] yRotationMatrix = copy(matrixCache1, MATRIX_IDENTITY);
-		int cos = mathLibrary.cos(-angle);
-		int sin = mathLibrary.sin(-angle);
+		int cos = mathLibrary.cos(angle);
+		int sin = mathLibrary.sin(angle);
 		set(yRotationMatrix, 0, 0, cos);
 		set(yRotationMatrix, 0, 2, -sin);
 		set(yRotationMatrix, 2, 0, sin);
@@ -494,8 +494,8 @@ public class MatrixLibrary {
 	 */
 	public int[] rotateZ(int[] matrix, int angle, int[] result) {
 		int[] zRotationMatrix = copy(matrixCache1, MATRIX_IDENTITY);
-		int cos = mathLibrary.cos(-angle);
-		int sin = mathLibrary.sin(-angle);
+		int cos = mathLibrary.cos(angle);
+		int sin = mathLibrary.sin(angle);
 		set(zRotationMatrix, 0, 0, cos);
 		set(zRotationMatrix, 0, 1, sin);
 		set(zRotationMatrix, 1, 0, -sin);
@@ -575,7 +575,7 @@ public class MatrixLibrary {
 		for (int i = 0; i < MATRIX_ROW_SIZE; i++) {
 			result += '|';
 			for (int j = 0; j < MATRIX_COLUMN_SIZE; j++) {
-				result += get(matrix, j, i) + ",";
+				result += MathLibrary.generate(get(matrix, j, i)) + ",";
 			}
 			result += "|\n";
 		}

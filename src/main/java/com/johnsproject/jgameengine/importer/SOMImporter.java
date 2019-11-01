@@ -152,7 +152,7 @@ public class SOMImporter {
 			int[] uv3 = VectorLibrary.generate();
 			uv3[VECTOR_X] = MathLibrary.generate(getFloat(fUV3Data[(i / 3) + VECTOR_X]));
 			uv3[VECTOR_Y] = MathLibrary.generate(getFloat(fUV3Data[(i / 3) + VECTOR_Y]));
-			faces[i / 6] = new Face(i / 6, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], normal, uv1, uv2, uv3);
+			faces[i / 6] = new Face(i / 6, normal, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], uv1, uv2, uv3);
 		}
 		return faces;
 	}

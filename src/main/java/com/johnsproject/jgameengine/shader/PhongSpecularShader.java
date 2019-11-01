@@ -111,8 +111,8 @@ public class PhongSpecularShader extends Shader {
 			int[] cameraLocation = shaderBuffer.getCamera().getTransform().getLocation();	
 			vectorLibrary.subtract(cameraLocation, worldLocation, viewDirection);
 			vectorLibrary.normalize(viewDirection, viewDirection);
-			for (int i = 0; i < shaderBuffer.getLights().size(); i++) {
-				Light light = shaderBuffer.getLights().get(i);
+			int lightIndex = 0;
+			for (Light light: shaderBuffer.getLights()) {
 				if(light.isCulled())
 					continue;
 				int currentFactor = 0;
@@ -122,7 +122,7 @@ public class PhongSpecularShader extends Shader {
 				case DIRECTIONAL:
 					vectorLibrary.invert(light.getDirection(), lightDirection);
 					currentFactor = getLightFactor(normal, lightDirection, viewDirection);
-					if (i == shaderBuffer.getDirectionalLightIndex()) {
+					if (lightIndex == shaderBuffer.getDirectionalLightIndex()) {
 						int[] lightMatrix = shaderBuffer.getDirectionalLightMatrix();
 						int[] lightFrustum = shaderBuffer.getDirectionalLightFrustum();
 						Texture shadowMap = shaderBuffer.getDirectionalShadowMap();
@@ -137,7 +137,7 @@ public class PhongSpecularShader extends Shader {
 					vectorLibrary.normalize(lightLocation, lightLocation);
 					currentFactor = getLightFactor(normal, lightLocation, viewDirection);
 					currentFactor = mathLibrary.divide(currentFactor, attenuation);
-					if ((i == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
+					if ((lightIndex == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
 						int[] lightFrustum = shaderBuffer.getPointLightFrustum();
 						for (int j = 0; j < shaderBuffer.getPointLightMatrices().length; j++) {
 							int[] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
@@ -161,7 +161,7 @@ public class PhongSpecularShader extends Shader {
 						currentFactor = getLightFactor(normal, lightDirection, viewDirection);
 						currentFactor = mathLibrary.multiply(currentFactor, intensity * 2);
 						currentFactor = mathLibrary.divide(currentFactor, attenuation);
-						if ((i == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
+						if ((lightIndex == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
 							int[] lightMatrix = shaderBuffer.getSpotLightMatrix();
 							int[] lightFrustum = shaderBuffer.getSpotLightFrustum();
 							Texture shadowMap = shaderBuffer.getSpotShadowMap();
@@ -175,6 +175,7 @@ public class PhongSpecularShader extends Shader {
 				currentFactor = mathLibrary.multiply(currentFactor, light.getStrength());
 				currentFactor = mathLibrary.multiply(currentFactor, 255);
 				lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
+				lightIndex++;
 			}
 			if (texture != null) {
 				int[] uv = rasterizer.getUV();

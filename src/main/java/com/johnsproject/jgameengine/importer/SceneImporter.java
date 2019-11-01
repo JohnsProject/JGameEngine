@@ -148,6 +148,10 @@ public class SceneImporter {
 			String name = cameraData.split("name<")[1].split(">name")[0];
 			String typeData = cameraData.split("type<")[1].split(">type")[0];
 			Transform transform = parseTransform(cameraData.split("transform<")[1].split(">transform")[0].split(","));
+			int x = transform.getRotation()[VECTOR_X];
+			int y = transform.getRotation()[VECTOR_Y];
+			int z = transform.getRotation()[VECTOR_Z];
+			transform.setRotation(-(90 << MathLibrary.FP_BIT) - x, y, z);
 			Camera camera = new Camera(name, transform);
 			if (typeData.equals("ORTHO"))
 				camera.setType(CameraType.ORTHOGRAPHIC);
@@ -173,6 +177,8 @@ public class SceneImporter {
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
 			int[] direction = VectorLibrary.generate(0, 0, 0, 0);
 			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, transform.getRotation(), direction);
+			direction[VECTOR_X] = -direction[VECTOR_X];
+			direction[VECTOR_Z] = -direction[VECTOR_Z];
 			Light light = new Light(name, transform);
 			if (typeData.equals("SUN")) {
 				light.setType(LightType.DIRECTIONAL);
@@ -202,16 +208,16 @@ public class SceneImporter {
 
 	private Transform parseTransform(String[] transformData) {
 		int x = MathLibrary.generate(Float.parseFloat(transformData[VECTOR_X]));
-		int y = MathLibrary.generate(Float.parseFloat(transformData[VECTOR_Y]));
-		int z = MathLibrary.generate(Float.parseFloat(transformData[VECTOR_Z]));
-		int[] location = VectorLibrary.generate(-x, y, z);
+		int y = MathLibrary.generate(Float.parseFloat(transformData[VECTOR_Z]));
+		int z = MathLibrary.generate(Float.parseFloat(transformData[VECTOR_Y]));
+		int[] location = VectorLibrary.generate(x, y, -z);
 		x = MathLibrary.generate(Float.parseFloat(transformData[3 + VECTOR_X]));
-		y = MathLibrary.generate(Float.parseFloat(transformData[3 + VECTOR_Y]));
-		z = MathLibrary.generate(Float.parseFloat(transformData[3 + VECTOR_Z]));
-		int[] rotation = VectorLibrary.generate(x, y, z);
+		y = MathLibrary.generate(Float.parseFloat(transformData[3 + VECTOR_Z]));
+		z = MathLibrary.generate(Float.parseFloat(transformData[3 + VECTOR_Y]));
+		int[] rotation = VectorLibrary.generate(-x, y, -z);
 		x = MathLibrary.generate(Float.parseFloat(transformData[6 + VECTOR_X]));
-		y = MathLibrary.generate(Float.parseFloat(transformData[6 + VECTOR_Y]));
-		z = MathLibrary.generate(Float.parseFloat(transformData[6 + VECTOR_Z]));
+		y = MathLibrary.generate(Float.parseFloat(transformData[6 + VECTOR_Z]));
+		z = MathLibrary.generate(Float.parseFloat(transformData[6 + VECTOR_Y]));
 		int[] scale = VectorLibrary.generate(x, y, z);
 		return new Transform(location, rotation, scale);
 	}
@@ -221,13 +227,13 @@ public class SceneImporter {
 		for (int i = 0; i < vertices.length; i++) {
 			String[] vertexData = verticesData[i].split(",");
 			int x = MathLibrary.generate(Float.parseFloat(vertexData[VECTOR_X]));
-			int y = MathLibrary.generate(Float.parseFloat(vertexData[VECTOR_Y]));
-			int z = MathLibrary.generate(Float.parseFloat(vertexData[VECTOR_Z]));
-			int[] location = VectorLibrary.generate(-x, y, z);
+			int y = MathLibrary.generate(Float.parseFloat(vertexData[VECTOR_Z]));
+			int z = MathLibrary.generate(Float.parseFloat(vertexData[VECTOR_Y]));
+			int[] location = VectorLibrary.generate(x, y, -z);
 			x = MathLibrary.generate(Float.parseFloat(vertexData[3 + VECTOR_X]));
-			y = MathLibrary.generate(Float.parseFloat(vertexData[3 + VECTOR_Y]));
-			z = MathLibrary.generate(Float.parseFloat(vertexData[3 + VECTOR_Z]));
-			int[] normal = VectorLibrary.generate(-x, y, z, 0);
+			y = MathLibrary.generate(Float.parseFloat(vertexData[3 + VECTOR_Z]));
+			z = MathLibrary.generate(Float.parseFloat(vertexData[3 + VECTOR_Y]));
+			int[] normal = VectorLibrary.generate(x, y, -z);
 			int material = Integer.parseInt(vertexData[6]);
 			vertices[i] = new Vertex(i, location, normal, materials[material]);
 		}
@@ -242,9 +248,9 @@ public class SceneImporter {
 			int vertex2 = Integer.parseInt(faceData[1]);
 			int vertex3 = Integer.parseInt(faceData[2]);
 			int x = MathLibrary.generate(Float.parseFloat(faceData[3 + VECTOR_X]));
-			int y = MathLibrary.generate(Float.parseFloat(faceData[3 + VECTOR_Y]));
-			int z = MathLibrary.generate(Float.parseFloat(faceData[3 + VECTOR_Z]));
-			int[] normal = VectorLibrary.generate(-x, y, z, 0);
+			int y = MathLibrary.generate(Float.parseFloat(faceData[3 + VECTOR_Z]));
+			int z = MathLibrary.generate(Float.parseFloat(faceData[3 + VECTOR_Y]));
+			int[] normal = VectorLibrary.generate(x, y, -z);
 			x = MathLibrary.generate(Float.parseFloat(faceData[6 + VECTOR_X]));
 			y = MathLibrary.generate(Float.parseFloat(faceData[6 + VECTOR_Y]));
 			int[] uv1 = VectorLibrary.generate(x, MathLibrary.FP_ONE - y);
@@ -255,7 +261,7 @@ public class SceneImporter {
 			y = MathLibrary.generate(Float.parseFloat(faceData[10 + VECTOR_Y]));
 			int[] uv3 = VectorLibrary.generate(x, MathLibrary.FP_ONE - y);
 			int material = Integer.parseInt(faceData[12]);
-			faces[i] = new Face(i, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], normal, uv1, uv2, uv3);
+			faces[i] = new Face(i, normal, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], uv1, uv2, uv3);
 		}
 		return faces;
 	}

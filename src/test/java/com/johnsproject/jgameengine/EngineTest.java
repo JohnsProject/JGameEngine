@@ -19,15 +19,20 @@ import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
+import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Material;
+import com.johnsproject.jgameengine.model.Mesh;
 import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
+import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.shader.FlatSpecularShader;
 import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.PhongSpecularShader;
 import com.johnsproject.jgameengine.shader.SpecularProperties;
+
+import static com.johnsproject.jgameengine.library.MathLibrary.*;
 
 public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
@@ -87,11 +92,58 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 	
 	private Scene loadScene() {
+		/*
+		Scene scene = new Scene();
+		// Create camera
+		Camera camera = new Camera("MyCamera", new Transform());
+		camera.getTransform().translate(0, 0, FP_ONE * 10);
+		// Create light
+		Light light = new Light("MyLight", new Transform());
+		light.getTransform().translate(0, FP_ONE * 5, FP_ONE * 5);
+		// Create mesh components
+		int[][] materials = new int[][] {
+			// a, r, g, b
+			{255, 150, 150, 150},
+		};
+		int[][] vertices = new int[][] {
+			// x, y, z, w, material
+			{FP_ONE, FP_ONE, FP_ONE, FP_ONE, 0},
+			{-FP_ONE, FP_ONE, FP_ONE, FP_ONE, 0},
+			{FP_ONE, -FP_ONE, FP_ONE, FP_ONE, 0},
+			{-FP_ONE, -FP_ONE, FP_ONE, FP_ONE, 0},
+			{FP_ONE, FP_ONE, -FP_ONE, FP_ONE, 0},
+			{-FP_ONE, FP_ONE, -FP_ONE, FP_ONE, 0},
+			{FP_ONE, -FP_ONE, -FP_ONE, FP_ONE, 0},
+			{-FP_ONE, -FP_ONE, -FP_ONE, FP_ONE, 0},
+		};
+		int[][] faces = new int[][] {
+			// vertex1, vertex2, vertex3, material
+			{0, 1, 2, 0},
+			{1, 3, 2, 0},
+			{6, 4, 0, 0},
+			{0, 2, 6, 0},
+			{7, 3, 1, 0},
+			{1, 5, 7, 0},
+			{5, 4, 6, 0},
+			{6, 7, 5, 0},
+		};
+		// Create mesh
+		Mesh mesh = new Mesh(vertices, faces, materials);
+		// Create model
+		Model model = new Model("MyModel", new Transform(), mesh);
+		// Add scene objects
+		scene.addCamera(camera);
+		scene.addLight(light);
+		scene.addModel(model);
+		return scene;
+		*/
+		
 		try {
 			Scene scene = new SceneImporter().load("E:/Development/Blender/Test.scene");
+			//scene.getMainCamera().getTransform().setLocation(0, 0, FP_ONE * 10);
+			//scene.getMainCamera().getTransform().setRotation(0, 0, 0);
 			Texture texture = new Texture(new FileLibrary().loadImage("E:/Development/Blender/JohnsProject.png"));
-			for (int i = 0; i < scene.getModels().size(); i++) {
-				Model model = scene.getModel(i);
+			for (Model model : scene.getModels().values()) {
 //				model.getRigidBody().setKinematic(true);
 				if(model.getName().equals("Ground")) {
 //					model.getRigidBody().setKinematic(true);
@@ -102,8 +154,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
 					Material material = model.getMesh().getMaterial(j);
 					SpecularProperties properties = (SpecularProperties)material.getShader().getProperties();
-					material.setShader(new FlatSpecularShader());
-					//material.setShader(new PhongSpecularShader());
+					//material.setShader(new FlatSpecularShader());
+					material.setShader(new PhongSpecularShader());
 					material.getShader().setProperties(properties);
 					//properties.setTexture(texture);
 				}
@@ -117,19 +169,20 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	public void update(EngineEvent e) {
-		
+		Model model = e.getScene().getModel("MyModel");
+		if(model != null) {
+			//model.getTransform().rotate(e.getDeltaTime(), 0, 0);
+		}
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
-		for (int i = 0; i < e.getScene().getModels().size(); i++) {
-			Model model = e.getScene().getModel(i);
-			if(model.getName().equals("Ground")) {
-//				model.getRigidBody().setTorque(0, 0, 10);
-//				model.getRigidBody().setAngularVelocity(0, 0, 1024);
-//				model.getRigidBody().setLinearVelocity(1024, 0, 0);
-//				model.getTransform().rotate(0, 0, 1024);
-//				model.getTransform().setLocation(1024 * 4, 0, 0);
-			}
+		Model model = e.getScene().getModel("Ground");
+		if(model != null) {
+			model.getRigidBody().setTorque(0, 0, 10);
+	//		model.getRigidBody().setAngularVelocity(0, 0, 1024);
+	//		model.getRigidBody().setLinearVelocity(1024, 0, 0);
+	//		model.getTransform().rotate(0, 0, 1024);
+	//		model.getTransform().setLocation(1024 * 4, 0, 0);
 		}
 	}
 
@@ -138,9 +191,9 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		int[] rotation = cameraTransform.getRotation();
-		rotation[2] = -((e.getX() - (WINDOW_W >> 1)) >> 1) << MathLibrary.FP_BIT;
-		rotation[0] = -(((e.getY() - (WINDOW_H >> 1)) >> 1) - 90) << MathLibrary.FP_BIT;
+		int y = -((e.getX() - (WINDOW_W >> 1)) >> 1) << FP_BIT;
+		int x = -((e.getY() - (WINDOW_H >> 1)) >> 1) << FP_BIT;
+		cameraTransform.setRotation(x, y, 0);
 	}
 
 	public void mouseMoved(MouseEvent e) {
@@ -154,7 +207,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	
 	public void keyPressed(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-			speed = MathLibrary.FP_ONE / 4;
+			speed = FP_ONE / 4;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_P) {
 			Engine.getInstance().stop();
@@ -169,38 +222,37 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		}
 	}
 
-	int startSpeed = MathLibrary.FP_ONE * 10;
+	int startSpeed = FP_ONE / 10;
 	int speed = startSpeed;
 	public void keyDown(KeyEvent e) {
-		for (int i = 0; i < Engine.getInstance().getScene().getModels().size(); i++) {
-			Model model = Engine.getInstance().getScene().getModel(i);
-			if(model.getName().equals("Ground")) {
-				model.getRigidBody().addForce(0, 0, 10024);
-//				model.getRigidBody().setTorque(0, 0, 10);
-//				model.getRigidBody().setAngularVelocity(0, 0, 1024);
-//				model.getRigidBody().setLinearVelocity(1024, 0, 0);
-//				model.getTransform().rotate(0, 0, 1024);
-//				model.getTransform().setLocation(1024 * 4, 0, 0);
-			}
-		}
 		if(e.getKeyCode() == KeyEvent.VK_W) {
-			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, cameraTransform.getRotation(), cache);
-			vectorLibrary.divide(cache, speed, cache);
+			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_FORWARD, cameraTransform.getRotation(), cache);
+			vectorLibrary.multiply(cache, speed, cache);
 			cameraTransform.translate(cache);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_A) {
 			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_LEFT, cameraTransform.getRotation(), cache);
-			vectorLibrary.divide(cache, speed, cache);
+			vectorLibrary.multiply(cache, speed, cache);
 			cameraTransform.translate(cache);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_D) {
 			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_RIGHT, cameraTransform.getRotation(), cache);
-			vectorLibrary.divide(cache, speed, cache);
+			vectorLibrary.multiply(cache, speed, cache);
 			cameraTransform.translate(cache);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_S) {
+			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_BACK, cameraTransform.getRotation(), cache);
+			vectorLibrary.multiply(cache, speed, cache);
+			cameraTransform.translate(cache);
+		}
+		if(e.getKeyCode() == KeyEvent.VK_E) {
 			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_UP, cameraTransform.getRotation(), cache);
-			vectorLibrary.divide(cache, speed, cache);
+			vectorLibrary.multiply(cache, speed, cache);
+			cameraTransform.translate(cache);
+		}
+		if(e.getKeyCode() == KeyEvent.VK_Y) {
+			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, cameraTransform.getRotation(), cache);
+			vectorLibrary.multiply(cache, speed, cache);
 			cameraTransform.translate(cache);
 		}
 	}

@@ -147,7 +147,7 @@ public class GraphicsLibrary {
 	 */
 	public int[] perspectiveMatrix(int[] matrix, int focalLength) {
 		int[] projectionMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		matrixLibrary.set(projectionMatrix, 0, 0, focalLength);
+		matrixLibrary.set(projectionMatrix, 0, 0, -focalLength);
 		matrixLibrary.set(projectionMatrix, 1, 1, focalLength);
 		matrixLibrary.set(projectionMatrix, 2, 2, -FP_ONE);
 		matrixLibrary.set(projectionMatrix, 2, 3, FP_ONE);
@@ -177,13 +177,14 @@ public class GraphicsLibrary {
 		int scaleFactor = bottom - top + 1;
 		int halfX = left + ((right - left) >> 1);
 		int halfY = top + ((bottom - top) >> 1);
-		int w = Math.min(-1, location[VECTOR_W]);
-		w = mathLibrary.divide(FP_ONE, w);
+		int w = location[VECTOR_W];
+		w = mathLibrary.divide(FP_ONE, w == 0 ? 1 : w);
 		result[VECTOR_X] = mathLibrary.multiply(location[VECTOR_X], scaleFactor);
 		result[VECTOR_X] = mathLibrary.multiply(result[VECTOR_X], w) + halfX;
 		result[VECTOR_Y] = mathLibrary.multiply(location[VECTOR_Y], scaleFactor);
 		result[VECTOR_Y] = mathLibrary.multiply(result[VECTOR_Y], w) + halfY;
-		result[VECTOR_Z] = mathLibrary.divide(result[VECTOR_Z] - near, far - near);
+		result[VECTOR_Z] = mathLibrary.divide(location[VECTOR_Z] - near, far - near);
+		result[VECTOR_W] = FP_ONE;
 		return result;
 	}
 
@@ -364,11 +365,11 @@ public class GraphicsLibrary {
 			boolean insideDepth1 = (location1[VECTOR_Z] > near) && (location1[VECTOR_Z] < far);
 			boolean insideDepth2 = (location2[VECTOR_Z] > near) && (location2[VECTOR_Z] < far);
 			boolean insideDepth3 = (location3[VECTOR_Z] > near) && (location3[VECTOR_Z] < far);
-			/*if ((!insideDepth1 && !insideDepth2 && !insideDepth3) 
+			if ((!insideDepth1 && !insideDepth2 && !insideDepth3) 
 					|| (!insideHeight1 && !insideHeight2 && !insideHeight3)
 						|| (!insideWidth1 && !insideWidth2 && !insideWidth3)) {
 						return true;
-			}*/
+			}
 		}
 		int size = (location2[VECTOR_X] - location1[VECTOR_X]) * (location3[VECTOR_Y] - location1[VECTOR_Y])
 				- (location3[VECTOR_X] - location1[VECTOR_X]) * (location2[VECTOR_Y] - location1[VECTOR_Y]);

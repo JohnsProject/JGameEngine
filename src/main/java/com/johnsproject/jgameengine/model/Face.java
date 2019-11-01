@@ -23,6 +23,7 @@
  */
 package com.johnsproject.jgameengine.model;
 
+import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.shader.GeometryBuffer;
 
 public class Face {
@@ -34,7 +35,7 @@ public class Face {
 	private final Material material;
 	private GeometryBuffer buffer;
 
-	public Face(int index, Vertex vertex1, Vertex vertex2, Vertex vertex3, Material material, int[] normal, int[] uv1, int[] uv2, int[] uv3) {
+	public Face(int index, int[] normal, Vertex vertex1, Vertex vertex2, Vertex vertex3, Material material, int[] uv1, int[] uv2, int[] uv3) {
 		this.index = index;
 		this.vertices = new Vertex[3];
 		this.vertices[0] = vertex1;
@@ -45,6 +46,21 @@ public class Face {
 		this.uvs[0] = uv1;
 		this.uvs[1] = uv2;
 		this.uvs[2] = uv3;
+		this.material = material;
+		this.buffer = new GeometryBuffer(this);
+	}
+	
+	public Face(int index, int[] normal, Vertex vertex1, Vertex vertex2, Vertex vertex3, Material material) {
+		this.index = index;
+		this.vertices = new Vertex[3];
+		this.vertices[0] = vertex1;
+		this.vertices[1] = vertex2;
+		this.vertices[2] = vertex3;
+		this.normal = normal;
+		this.uvs = new int[3][4];
+		this.uvs[0] = VectorLibrary.generate();
+		this.uvs[1] = VectorLibrary.generate();
+		this.uvs[2] = VectorLibrary.generate();
 		this.material = material;
 		this.buffer = new GeometryBuffer(this);
 	}

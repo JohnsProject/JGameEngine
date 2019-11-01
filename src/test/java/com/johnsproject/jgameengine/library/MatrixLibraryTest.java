@@ -29,6 +29,22 @@ public class MatrixLibraryTest {
 		assert(matrixLibrary.get(out, 3, 2) == 4096 * 3);
 	}
 	
+	@Test
+	public void multiplyTest2() throws Exception {
+		MatrixLibrary matrixLibrary = new MatrixLibrary();
+		int[] out = matrixLibrary.generate();
+		int[] matrix1 = matrixLibrary.generate();
+		matrixLibrary.copy(matrix1, MatrixLibrary.MATRIX_IDENTITY);
+		matrixLibrary.rotateX(matrix1, 50 << MathLibrary.FP_BIT, out);
+		System.out.println(matrixLibrary.toString(out));
+		matrixLibrary.copy(matrix1, MatrixLibrary.MATRIX_IDENTITY);
+		matrixLibrary.rotateY(matrix1, 50 << MathLibrary.FP_BIT, out);
+		System.out.println(matrixLibrary.toString(out));
+		matrixLibrary.copy(matrix1, MatrixLibrary.MATRIX_IDENTITY);
+		matrixLibrary.rotateZ(matrix1, 50 << MathLibrary.FP_BIT, out);
+		System.out.println(matrixLibrary.toString(out));
+	}
+	
 //	@Test
 //	public void inverseTest() throws Exception {
 //		MatrixLibrary matrixLibrary = new MatrixLibrary();

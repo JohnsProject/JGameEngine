@@ -82,8 +82,11 @@ public class GraphicsEngine implements EngineListener {
 	
 	public void fixedUpdate(EngineEvent e) { 
 		Scene scene = e.getScene();
-		for (int m = 0; m < scene.getModels().size(); m++) {
-			scene.getModel(m).getArmature().nextFrame();
+		for (Model model : scene.getModels().values()) {
+			final Armature armature = model.getArmature();
+			if(armature != null) {
+				armature.nextFrame();
+			}
 		}		
 	}
 	
@@ -93,14 +96,12 @@ public class GraphicsEngine implements EngineListener {
 		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
 		frameBuffer.getStencilBuffer().fill(0);
 		transformToWorld(scene);
-		for (int c = 0; c < scene.getCameras().size(); c++) {
-			final Camera camera = scene.getCamera(c);
+		for (Camera camera : scene.getCameras().values()) {
 			if(!camera.isActive())
 				continue;
-			shaderBuffer.setup(camera, scene.getLights(), frameBuffer);
+			shaderBuffer.setup(camera, scene.getLights().values(), frameBuffer);
 			callShaders(scene, preShaders);
-			for (int m = 0; m < scene.getModels().size(); m++) {
-				final Model model = scene.getModel(m);
+			for (Model model : scene.getModels().values()) {
 				if(!model.isActive())
 					continue;
 				final Mesh mesh = model.getMesh();
@@ -125,8 +126,7 @@ public class GraphicsEngine implements EngineListener {
 	private void callShaders(Scene scene, List<Shader> shaders) {
 		for (int s = 0; s < shaders.size(); s++) {
 			final Shader shader = shaders.get(s);
-			for (int m = 0; m < scene.getModels().size(); m++) {
-				final Model model = scene.getModel(m);
+			for (Model model : scene.getModels().values()) {
 				if(!model.isActive())
 					continue;
 				final Mesh mesh = model.getMesh();
@@ -147,13 +147,15 @@ public class GraphicsEngine implements EngineListener {
 	}
 	
 	private void transformToWorld(Scene scene) {
-		for (int m = 0; m < scene.getModels().size(); m++) {
-			final Model model = scene.getModel(m);
+		for (Model model : scene.getModels().values()) {
 			if(!model.isActive())
 				continue;
 			final Mesh mesh = model.getMesh();
 			final Armature armature = model.getArmature();
-			final AnimationFrame animationFrame = armature.getCurrentAnimationFrame();
+			AnimationFrame animationFrame = null;
+			if(armature != null) {
+				animationFrame = armature.getCurrentAnimationFrame();
+			}
 			graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
 			graphicsLibrary.normalMatrix(normalMatrix, model.getTransform());
 			for (int v = 0; v < mesh.getVertices().length; v++) {
