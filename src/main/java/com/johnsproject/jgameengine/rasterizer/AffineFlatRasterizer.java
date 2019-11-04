@@ -23,9 +23,9 @@
  */
 package com.johnsproject.jgameengine.rasterizer;
 
-import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.Texture;
+import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
 
 import static com.johnsproject.jgameengine.library.VectorLibrary.*;
@@ -46,34 +46,41 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		uvCache = VectorLibrary.generate();
 	}
 	
-	public final void setUV0(int[] uv, Texture texture) {
+	protected final void setUV0(int[] uv, Texture texture) {
 		u[0] = mathLibrary.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
 		v[0] = mathLibrary.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
 	}
 	
-	public final void setUV1(int[] uv, Texture texture) {
+	protected final void setUV1(int[] uv, Texture texture) {
 		u[1] = mathLibrary.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
 		v[1] = mathLibrary.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
 	}
 	
-	public final void setUV2(int[] uv, Texture texture) {
+	protected final void setUV2(int[] uv, Texture texture) {
 		u[2] = mathLibrary.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
 		v[2] = mathLibrary.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
 	}
 	
-	public final int[] getUV() {
-		uv[VECTOR_X] = u[3];
-		uv[VECTOR_Y] = v[3];
-		return uv;
-	}
-	
 	/**
-	 * THIS METHOD SHOULD NOT BE CALLED. 
-	 * Use the triangle drawing methods in {@link GraphicsLibrary} class.
+	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
+	 * This rasterizer draws a triangle using the x, y coordinates of each vertex of the geometryBuffer. 
+	 * It uses linear interpolation to find out the z and the uv coordinate for each pixel.
+	 * While rasterizing the geometryBuffer, for each pixel/fragment the {@link Shader#fragment} 
+	 * method of this rasterizer's {@link Shader} will be called.
 	 * 
-	 * @param cameraFrustum
+	 * @param geometryBuffer
 	 */
-	public final void drawAffineFlatTriangle(int[] cameraFrustum) {
+	public void affineDraw(GeometryBuffer geometryBuffer, Texture texture) {
+		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getPortedFrustum());
+		vectorLibrary.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
+		vectorLibrary.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
+		vectorLibrary.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		if(cull()) {
+			return;
+		}
+		setUV0(geometryBuffer.getUV(0), texture);
+		setUV1(geometryBuffer.getUV(1), texture);
+		setUV2(geometryBuffer.getUV(2), texture);
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
 			swapVector(u, v, 0, 1);
@@ -237,12 +244,12 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {
-			pixelCache[VECTOR_X] = x1;
-			pixelCache[VECTOR_Y] = y;
-			pixelCache[VECTOR_Z] = z >> FP_BIT;
-			this.u[3] = u >> FP_PLUS_INTERPOLATE_BIT;
-			this.v[3] = v >> FP_PLUS_INTERPOLATE_BIT;
-			shader.fragment(pixelCache);
+			fragmentBuffer.getLocation()[VECTOR_X] = x1;
+			fragmentBuffer.getLocation()[VECTOR_Y] = y;
+			fragmentBuffer.getLocation()[VECTOR_Z] = z >> FP_BIT;
+			fragmentBuffer.getUV()[VECTOR_X] = u >> FP_PLUS_INTERPOLATE_BIT;
+			fragmentBuffer.getUV()[VECTOR_Y] = v >> FP_PLUS_INTERPOLATE_BIT;
+			shader.fragment(fragmentBuffer);
 			z += dz;
 			u += du;
 			v += dv;

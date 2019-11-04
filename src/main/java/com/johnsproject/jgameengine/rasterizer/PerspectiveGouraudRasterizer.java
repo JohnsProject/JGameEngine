@@ -23,10 +23,14 @@
  */
 package com.johnsproject.jgameengine.rasterizer;
 
-import com.johnsproject.jgameengine.library.GraphicsLibrary;
+import com.johnsproject.jgameengine.model.Texture;
+import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
 
 import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+
+import com.johnsproject.jgameengine.library.ColorLibrary;
+
 import static com.johnsproject.jgameengine.library.MathLibrary.*;
 
 public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
@@ -36,12 +40,28 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 	}
 	
 	/**
-	 * THIS METHOD SHOULD NOT BE CALLED. 
-	 * Use the triangle drawing methods in {@link GraphicsLibrary} class.
+	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
+	 * This rasterizer draws a triangle using the x, y coordinates of each vertex of the geometryBuffer. 
+	 * It uses perspective interpolation to find out the z and the uv coordinate, as well as the colors for each pixel.
+	 * While rasterizing the geometryBuffer, for each pixel/fragment the {@link Shader#fragment} 
+	 * method of this rasterizer's {@link Shader} will be called.
 	 * 
-	 * @param cameraFrustum
+	 * @param geometryBuffer
 	 */
-	public final void drawPerspectiveGouraudTriangle(int[] cameraFrustum) {
+	public void perspectiveDraw(GeometryBuffer geometryBuffer, Texture texture) {
+		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getPortedFrustum());
+		vectorLibrary.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
+		vectorLibrary.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
+		vectorLibrary.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		if(cull()) {
+			return;
+		}
+		setColor0(geometryBuffer.getVertexBuffer(0).getColor());
+		setColor1(geometryBuffer.getVertexBuffer(1).getColor());
+		setColor2(geometryBuffer.getVertexBuffer(2).getColor());
+		setUV0(geometryBuffer.getUV(0), texture);
+		setUV1(geometryBuffer.getUV(1), texture);
+		setUV2(geometryBuffer.getUV(2), texture);
 		divideOneByZ();
 		zMultiply(u);
 		zMultiply(v);
@@ -279,18 +299,19 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int r, int g, int b, int dz, int du, int dv, int dr, int dg, int db, int[] cameraFrustum) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
-		int oneByZ;
+		int oneByZ, cr, cg, cb;
 		for (; x1 <= x2; x1++) {
-			pixelCache[VECTOR_X] = x1;
-			pixelCache[VECTOR_Y] = y;
+			fragmentBuffer.getLocation()[VECTOR_X] = x1;
+			fragmentBuffer.getLocation()[VECTOR_Y] = y;
 			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
-			pixelCache[VECTOR_Z] = oneByZ;
-			this.u[3] = mathLibrary.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
-			this.v[3] = mathLibrary.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
-			red[3] = mathLibrary.multiply(r, oneByZ) >> INTERPOLATE_BIT_2;
-			green[3] = mathLibrary.multiply(g, oneByZ) >> INTERPOLATE_BIT_2;
-			blue[3] = mathLibrary.multiply(b, oneByZ) >> INTERPOLATE_BIT_2;
-			shader.fragment(pixelCache);
+			fragmentBuffer.getLocation()[VECTOR_Z] = oneByZ;
+			fragmentBuffer.getUV()[VECTOR_X] = mathLibrary.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
+			fragmentBuffer.getUV()[VECTOR_Y] = mathLibrary.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
+			cr = mathLibrary.multiply(r, oneByZ) >> INTERPOLATE_BIT_2;
+			cg = mathLibrary.multiply(g, oneByZ) >> INTERPOLATE_BIT_2;
+			cb = mathLibrary.multiply(b, oneByZ) >> INTERPOLATE_BIT_2;
+			fragmentBuffer.setColor(ColorLibrary.generate(cr, cg, cb));
+			shader.fragment(fragmentBuffer);
 			z += dz;
 			u += du;
 			v += dv;

@@ -66,7 +66,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		cache = VectorLibrary.generate();
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
 		EngineWindow window = new EngineWindow(frameBuffer);
-		//EngineStatistics stats = new EngineStatistics(window);
+		EngineStatistics stats = new EngineStatistics(window);
 		graphicsEngine = new GraphicsEngine(frameBuffer);
 		inputEngine = new InputEngine();
 		physicsEngine = new PhysicsEngine();
@@ -83,7 +83,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(inputEngine);
 //		Engine.getInstance().addEngineListener(physicsEngine);
 		Engine.getInstance().addEngineListener(window);
-		//Engine.getInstance().addEngineListener(stats);
+		Engine.getInstance().addEngineListener(stats);
 		Engine.getInstance().start();
 	}
 	
@@ -155,9 +155,9 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 					Material material = model.getMesh().getMaterial(j);
 					SpecularProperties properties = (SpecularProperties)material.getShader().getProperties();
 					//material.setShader(new FlatSpecularShader());
-					material.setShader(new PhongSpecularShader());
+					//material.setShader(new PhongSpecularShader());
 					material.getShader().setProperties(properties);
-					properties.setTexture(texture);
+					//properties.setTexture(texture);
 				}
 				model.getArmature().playAnimation("Walk", true);
 			}

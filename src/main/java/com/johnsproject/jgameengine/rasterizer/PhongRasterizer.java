@@ -23,8 +23,8 @@
  */
 package com.johnsproject.jgameengine.rasterizer;
 
-import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
 
 import static com.johnsproject.jgameengine.library.VectorLibrary.*;
@@ -60,63 +60,65 @@ public class PhongRasterizer extends FlatRasterizer {
 		normalCache = VectorLibrary.generate();
 	}
 	
-	public void setWorldLocation0(int[] location) {
+	protected void setWorldLocation0(int[] location) {
 		worldX[0] = location[VECTOR_X] >> INTERPOLATE_BIT;
 		worldY[0] = location[VECTOR_Y] >> INTERPOLATE_BIT;
 		worldZ[0] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
 	
-	public void setWorldLocation1(int[] location) {
+	protected void setWorldLocation1(int[] location) {
 		worldX[1] = location[VECTOR_X] >> INTERPOLATE_BIT;
 		worldY[1] = location[VECTOR_Y] >> INTERPOLATE_BIT;
 		worldZ[1] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
 	
-	public void setWorldLocation2(int[] location) {
+	protected void setWorldLocation2(int[] location) {
 		worldX[2] = location[VECTOR_X] >> INTERPOLATE_BIT;
 		worldY[2] = location[VECTOR_Y] >> INTERPOLATE_BIT;
 		worldZ[2] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
 	
-	public int[] getWorldLocation() {
-		worldLocation[VECTOR_X] = worldX[3];
-		worldLocation[VECTOR_Y] = worldY[3];
-		worldLocation[VECTOR_Z] = worldZ[3];
-		return worldLocation;
-	}
-	
-	public void setNormal0(int[] location) {
+	protected void setNormal0(int[] location) {
 		normalX[0] = location[VECTOR_X] >> INTERPOLATE_BIT;
 		normalY[0] = location[VECTOR_Y] >> INTERPOLATE_BIT;
 		normalZ[0] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
 	
-	public void setNormal1(int[] location) {
+	protected void setNormal1(int[] location) {
 		normalX[1] = location[VECTOR_X] >> INTERPOLATE_BIT;
 		normalY[1] = location[VECTOR_Y] >> INTERPOLATE_BIT;
 		normalZ[1] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
 	
-	public void setNormal2(int[] location) {
+	protected void setNormal2(int[] location) {
 		normalX[2] = location[VECTOR_X] >> INTERPOLATE_BIT;
 		normalY[2] = location[VECTOR_Y] >> INTERPOLATE_BIT;
 		normalZ[2] = location[VECTOR_Z] >> INTERPOLATE_BIT;
 	}
-	
-	public int[] getNormal() {
-		normal[VECTOR_X] = normalX[3];
-		normal[VECTOR_Y] = normalY[3];
-		normal[VECTOR_Z] = normalZ[3];
-		return normal;
-	}
 
 	/**
-	 * THIS METHOD SHOULD NOT BE CALLED. 
-	 * Use the triangle drawing methods in {@link GraphicsLibrary} class.
+	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
+	 * This rasterizer draws a triangle using the x, y coordinates of each vertex of the geometryBuffer. 
+	 * It uses linear interpolation to find out the z coordinate, the world coordinates and the normals for each pixel.
+	 * While rasterizing the geometryBuffer, for each pixel/fragment the {@link Shader#fragment} 
+	 * method of this rasterizer's {@link Shader} will be called.
 	 * 
-	 * @param cameraFrustum
+	 * @param geometryBuffer
 	 */
-	public final void drawPhongTriangle(int[] cameraFrustum) {
+	public void draw(GeometryBuffer geometryBuffer) {
+		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getPortedFrustum());
+		vectorLibrary.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
+		vectorLibrary.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
+		vectorLibrary.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		if(cull()) {
+			return;
+		}
+		setWorldLocation0(geometryBuffer.getVertexBuffer(0).getWorldLocation());
+		setWorldLocation1(geometryBuffer.getVertexBuffer(1).getWorldLocation());
+		setWorldLocation2(geometryBuffer.getVertexBuffer(2).getWorldLocation());
+		setNormal0(geometryBuffer.getVertexBuffer(0).getWorldNormal());
+		setNormal1(geometryBuffer.getVertexBuffer(1).getWorldNormal());
+		setNormal2(geometryBuffer.getVertexBuffer(2).getWorldNormal());
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
 			swapVector(worldX, worldY, worldZ, 0, 1);
@@ -368,16 +370,16 @@ public class PhongRasterizer extends FlatRasterizer {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {
-			pixelCache[VECTOR_X] = x1;
-			pixelCache[VECTOR_Y] = y;
-			pixelCache[VECTOR_Z] = z >> FP_BIT;
-			worldX[3] = wx >> FP_MINUS_INTERPOLATE_BIT;
-        	worldY[3] = wy >> FP_MINUS_INTERPOLATE_BIT;
-        	worldZ[3] = wz >> FP_MINUS_INTERPOLATE_BIT;
-			normalX[3] = nx >> FP_MINUS_INTERPOLATE_BIT;
-			normalY[3] = ny >> FP_MINUS_INTERPOLATE_BIT;
-            normalZ[3] = nz >> FP_MINUS_INTERPOLATE_BIT;
-			shader.fragment(pixelCache);
+			fragmentBuffer.getLocation()[VECTOR_X] = x1;
+			fragmentBuffer.getLocation()[VECTOR_Y] = y;
+			fragmentBuffer.getLocation()[VECTOR_Z] = z >> FP_BIT;
+			fragmentBuffer.getWorldLocation()[VECTOR_X] = wx >> FP_MINUS_INTERPOLATE_BIT;
+            fragmentBuffer.getWorldLocation()[VECTOR_Y] = wy >> FP_MINUS_INTERPOLATE_BIT;
+            fragmentBuffer.getWorldLocation()[VECTOR_Z] = wz >> FP_MINUS_INTERPOLATE_BIT;
+			fragmentBuffer.getWorldNormal()[VECTOR_X] = nx >> FP_MINUS_INTERPOLATE_BIT;
+			fragmentBuffer.getWorldNormal()[VECTOR_Y] = ny >> FP_MINUS_INTERPOLATE_BIT;
+            fragmentBuffer.getWorldNormal()[VECTOR_Z] = nz >> FP_MINUS_INTERPOLATE_BIT;
+			shader.fragment(fragmentBuffer);
 			z += dz;
 			wx += dwx;
 			wy += dwy;

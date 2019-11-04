@@ -23,56 +23,39 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.model.Vertex;
+import com.johnsproject.jgameengine.library.VectorLibrary;
 
 public class VertexBuffer {
 
-	private final Vertex vertex;
 	private final int[] location;
-	private final int[] normal;
-	private int lightColor;
+	private final int[] worldNormal;
 	private final int[] worldLocation;
+	private int color;
 	
-	public VertexBuffer(Vertex vertex) {
-		this.vertex = vertex;
-		this.location = vertex.getLocation().clone();
-		this.normal = vertex.getNormal().clone();
-		this.lightColor = 0;
-		this.worldLocation = vertex.getLocation().clone();
+	public VertexBuffer() {
+		this.location = VectorLibrary.generate();
+		this.worldNormal = VectorLibrary.generate();
+		this.worldLocation = VectorLibrary.generate();
+		this.color = 0;
 	}
 	
 	public int[] getLocation() {
 		return location;
 	}
 	
-	public int[] getNormal() {
-		return normal;
-	}
-
-	public int getLightColor() {
-		return lightColor;
-	}
-
-	public void setLightColor(int lightColor) {
-		this.lightColor = lightColor;
+	public int[] getWorldNormal() {
+		return worldNormal;
 	}
 
 	public int[] getWorldLocation() {
 		return worldLocation;
 	}
-
-	public void reset() {
-		for (int i = 0; i < location.length; i++) {
-			location[i] = worldLocation[i];
-		}
-		lightColor = 0;
-	}
 	
-	public void resetAll() {
-		for (int i = 0; i < location.length; i++) {
-			worldLocation[i] = vertex.getLocation()[i];
-			normal[i] = vertex.getNormal()[i];
-			location[i] = worldLocation[i];
-		}
+	public int getColor() {
+		return color;
+	}
+
+	public void setColor(int color) {
+		this.color = color;
 	}
 }

@@ -23,34 +23,27 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.model.Face;
+import com.johnsproject.jgameengine.library.VectorLibrary;
 
 public class GeometryBuffer {
 
-	private final Face face;
-	private final int[] normal;
 	private final int[] worldNormal;
 	private final int[][] uvs;
-	private final VertexBuffer[] vertexDataBuffers;
+	private final VertexBuffer[] vertexBuffers;
 	
-	public GeometryBuffer(Face face) {
-		this.face = face;
-		this.normal = face.getNormal().clone();
-		this.worldNormal = face.getNormal().clone();
-		this.uvs = face.getUVs().clone();
-		this.uvs[0] = face.getUV(0).clone();
-		this.uvs[0] = face.getUV(1).clone();
-		this.uvs[0] = face.getUV(2).clone();
-		this.vertexDataBuffers = new VertexBuffer[3];
-		this.vertexDataBuffers[0] = face.getVertex(0).getBuffer();
-		this.vertexDataBuffers[1] = face.getVertex(1).getBuffer();
-		this.vertexDataBuffers[2] = face.getVertex(2).getBuffer();
+	public GeometryBuffer() {
+		this.worldNormal = VectorLibrary.generate();
+		this.uvs = new int[3][VectorLibrary.VECTOR_SIZE];
+		this.uvs[0] = VectorLibrary.generate();
+		this.uvs[1] = VectorLibrary.generate();
+		this.uvs[2] = VectorLibrary.generate();
+		this.vertexBuffers = new VertexBuffer[3];
 	}
 
-	public int[] getNormal() {
-		return normal;
+	public int[] getWorldNormal() {
+		return worldNormal;
 	}
-
+	
 	public int[] getUV(int index) {
 		return uvs[index];
 	}
@@ -59,34 +52,11 @@ public class GeometryBuffer {
 		return uvs;
 	}
 
-	public VertexBuffer getVertexDataBuffer(int index) {
-		return vertexDataBuffers[index];
+	public VertexBuffer getVertexBuffer(int index) {
+		return vertexBuffers[index];
 	}
 	
-	public VertexBuffer[] getVertexDataBuffers() {
-		return vertexDataBuffers;
-	}
-	
-	public int[] getWorldNormal() {
-		return worldNormal;
-	}
-	
-	public void reset() {
-		for (int i = 0; i < normal.length; i++) {
-			normal[i] = worldNormal[i];
-			uvs[0][i] = face.getUV(0)[i];
-			uvs[1][i] = face.getUV(1)[i];
-			uvs[2][i] = face.getUV(2)[i];
-		}
-	}
-	
-	public void resetAll() {
-		for (int i = 0; i < normal.length; i++) {
-			worldNormal[i] = face.getNormal()[i];
-			normal[i] = worldNormal[i];
-			uvs[0][i] = face.getUV(0)[i];
-			uvs[1][i] = face.getUV(1)[i];
-			uvs[2][i] = face.getUV(2)[i];
-		}
+	public VertexBuffer[] getVertexBuffers() {
+		return vertexBuffers;
 	}
 }

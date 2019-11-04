@@ -60,7 +60,7 @@ public class GouraudSpecularShader extends Shader {
 	@Override
 	public void vertex(VertexBuffer vertexBuffer) {
 		int[] location = vertexBuffer.getLocation();
-		int[] normal = vertexBuffer.getNormal();
+		int[] normal = vertexBuffer.getWorldNormal();
 		int lightColor = ColorLibrary.BLACK;
 		int[] cameraLocation = shaderBuffer.getCamera().getTransform().getLocation();	
 		vectorLibrary.normalize(normal, normal);
@@ -132,7 +132,7 @@ public class GouraudSpecularShader extends Shader {
 			lightColor = colorLibrary.lerp(lightColor, light.getColor(), currentFactor);
 			lightIndex++;
 		}
-		vertexBuffer.setLightColor(lightColor);
+		vertexBuffer.setColor(lightColor);
 		vectorLibrary.matrixMultiply(location, shaderBuffer.getViewMatrix(), location);
 		vectorLibrary.matrixMultiply(location, shaderBuffer.getProjectionMatrix(), location);
 		graphicsLibrary.screenportVector(location, shaderBuffer.getPortedFrustum(), location);
@@ -141,38 +141,26 @@ public class GouraudSpecularShader extends Shader {
 	@Override
 	public void geometry(GeometryBuffer geometryBuffer) {
 		Texture texture = shaderProperties.getTexture();
-		VertexBuffer dataBuffer0 = geometryBuffer.getVertexDataBuffer(0);
-		VertexBuffer dataBuffer1 = geometryBuffer.getVertexDataBuffer(1);
-		VertexBuffer dataBuffer2 = geometryBuffer.getVertexDataBuffer(2);
-		rasterizer.setLocation0(dataBuffer0.getLocation());
-		rasterizer.setLocation1(dataBuffer1.getLocation());
-		rasterizer.setLocation2(dataBuffer2.getLocation());
-		rasterizer.setColor0(dataBuffer0.getLightColor());
-		rasterizer.setColor1(dataBuffer1.getLightColor());
-		rasterizer.setColor2(dataBuffer2.getLightColor());
 		if (texture == null) {
-			graphicsLibrary.drawGouraudTriangle(rasterizer, true, 1, shaderBuffer.getPortedFrustum());
+			rasterizer.draw(geometryBuffer);
 		} else {
-			rasterizer.setUV0(geometryBuffer.getUV(0), texture);
-			rasterizer.setUV1(geometryBuffer.getUV(1), texture);
-			rasterizer.setUV2(geometryBuffer.getUV(2), texture);
-			graphicsLibrary.drawPerspectiveGouraudTriangle(rasterizer, true, 1, shaderBuffer.getPortedFrustum());
+			rasterizer.perspectiveDraw(geometryBuffer, texture);
 		}
 	}
 
 	@Override
-	public void fragment(int[] location) {
+	public void fragment(FragmentBuffer fragmentBuffer) {
 		Texture depthBuffer = shaderBuffer.getFrameBuffer().getDepthBuffer();
 		Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
-		int x = location[VECTOR_X];
-		int y = location[VECTOR_Y];
-		int z = location[VECTOR_Z];
+		int x = fragmentBuffer.getLocation()[VECTOR_X];
+		int y = fragmentBuffer.getLocation()[VECTOR_Y];
+		int z = fragmentBuffer.getLocation()[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
 			int color = shaderProperties.getDiffuseColor();
 			Texture texture = shaderProperties.getTexture();
-			int lightColor = rasterizer.getColor();
+			int lightColor = fragmentBuffer.getColor();
 			if (texture != null) {
-				int[] uv = rasterizer.getUV();
+				int[] uv = fragmentBuffer.getUV();
 				int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
 				if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
 					return;

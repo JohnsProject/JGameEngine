@@ -59,13 +59,15 @@ public class ShadowMappingShader extends Shader {
 			shadowBias = DIRECTIONAL_BIAS;
 			currentShadowMap = shaderBuffer.getDirectionalShadowMap();
 			transformVertices(geometryBuffer, shaderBuffer.getDirectionalLightMatrix(), shaderBuffer.getDirectionalLightFrustum());
-			drawTriangle(geometryBuffer, false, shaderBuffer.getDirectionalLightFrustum());
+			rasterizer.setFrustumCull(false);
+			rasterizer.draw(geometryBuffer);
 		}
 		if(shaderProperties.spotShadows() && (shaderBuffer.getSpotLightIndex() != -1)) {
 			shadowBias = SPOT_BIAS;
 			currentShadowMap = shaderBuffer.getSpotShadowMap();
 			transformVertices(geometryBuffer, shaderBuffer.getSpotLightMatrix(), shaderBuffer.getSpotLightFrustum());
-			drawTriangle(geometryBuffer, true, shaderBuffer.getSpotLightFrustum());
+			rasterizer.setFrustumCull(true);
+			rasterizer.draw(geometryBuffer);
 		}
 		if(shaderProperties.pointShadows() && (shaderBuffer.getPointLightIndex() != -1)) {
 			shadowBias = POINT_BIAS;
@@ -73,33 +75,26 @@ public class ShadowMappingShader extends Shader {
 			for (int i = 0; i < lightMatrices.length; i++) {
 				currentShadowMap = shaderBuffer.getPointShadowMaps()[i];
 				transformVertices(geometryBuffer, lightMatrices[i], shaderBuffer.getPointLightFrustum());
-				drawTriangle(geometryBuffer, true, shaderBuffer.getPointLightFrustum());
+				rasterizer.setFrustumCull(true);
+				rasterizer.draw(geometryBuffer);
 			}
 		}
 	}
 	
 	private void transformVertices(GeometryBuffer geometryBuffer, int[] lightMatrix, int[] lightFrustum) {
-		for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
-			geometryBuffer.getVertexDataBuffer(i).reset();
-			int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
+		for (int i = 0; i < geometryBuffer.getVertexBuffers().length; i++) {
+			int[] vertexLocation = geometryBuffer.getVertexBuffer(i).getLocation();
+			vectorLibrary.copy(vertexLocation, geometryBuffer.getVertexBuffer(i).getWorldLocation());
 			vectorLibrary.matrixMultiply(vertexLocation, lightMatrix, vertexLocation);
 			graphicsLibrary.screenportVector(vertexLocation, lightFrustum, vertexLocation);
-			System.out.println(vertexLocation[VECTOR_Z]);
 		}
-	}
-	
-	private void drawTriangle(GeometryBuffer geometryBuffer, boolean frustumCull, int[] lightFrustum) {
-		rasterizer.setLocation0(geometryBuffer.getVertexDataBuffer(0).getLocation());
-		rasterizer.setLocation1(geometryBuffer.getVertexDataBuffer(1).getLocation());
-		rasterizer.setLocation2(geometryBuffer.getVertexDataBuffer(2).getLocation());
-		graphicsLibrary.drawFlatTriangle(rasterizer, frustumCull, 1, lightFrustum);
 	}
 
 	@Override
-	public void fragment(int[] location) {
-		int x = location[VECTOR_X];
-		int y = location[VECTOR_Y];
-		int z = location[VECTOR_Z];
+	public void fragment(FragmentBuffer fragmentBuffer) {
+		int x = fragmentBuffer.getLocation()[VECTOR_X];
+		int y = fragmentBuffer.getLocation()[VECTOR_Y];
+		int z = fragmentBuffer.getLocation()[VECTOR_Z] + shadowBias;
 		if (currentShadowMap.getPixel(x, y) > z) {
 			currentShadowMap.setPixel(x, y, z);
 		}

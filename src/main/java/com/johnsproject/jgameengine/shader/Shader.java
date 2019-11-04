@@ -49,7 +49,7 @@ public abstract class Shader {
 	
 	public abstract void geometry(GeometryBuffer geometryBuffer);
 	
-	public abstract void fragment(int[] location);
+	public abstract void fragment(FragmentBuffer fragmentBuffer);
 
 	public abstract ShaderBuffer getShaderBuffer();
 

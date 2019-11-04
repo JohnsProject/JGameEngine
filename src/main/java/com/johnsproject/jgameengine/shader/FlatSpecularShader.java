@@ -47,7 +47,6 @@ public class FlatSpecularShader extends Shader {
 	private final int[] lightDirection;
 	private final int[] viewDirection;
 	private final int[] faceLocation;
-	private final int[][] vertexLocations;
 	private final int[] lightSpaceLocation;
 	
 	private int lightColor;
@@ -59,19 +58,23 @@ public class FlatSpecularShader extends Shader {
 		this.lightDirection = VectorLibrary.generate();
 		this.viewDirection = VectorLibrary.generate();
 		this.faceLocation = VectorLibrary.generate();
-		this.vertexLocations = new int[3][4];
 		this.lightSpaceLocation = VectorLibrary.generate();
 	}
 
 	@Override
-	public void vertex(VertexBuffer vertexBuffer) {	}
+	public void vertex(VertexBuffer vertexBuffer) {
+		int[] location = vertexBuffer.getLocation();
+		vectorLibrary.matrixMultiply(location, shaderBuffer.getViewMatrix(), location);
+		vectorLibrary.matrixMultiply(location, shaderBuffer.getProjectionMatrix(), location);
+		graphicsLibrary.screenportVector(location, shaderBuffer.getPortedFrustum(), location);
+	}
 
 	@Override
 	public void geometry(GeometryBuffer geometryBuffer) {
-		int[] normal = geometryBuffer.getNormal();
-		int[] location1 = geometryBuffer.getVertexDataBuffer(0).getLocation();
-		int[] location2 = geometryBuffer.getVertexDataBuffer(1).getLocation();
-		int[] location3 = geometryBuffer.getVertexDataBuffer(2).getLocation();
+		int[] normal = geometryBuffer.getWorldNormal();
+		int[] location1 = geometryBuffer.getVertexBuffer(0).getWorldLocation();
+		int[] location2 = geometryBuffer.getVertexBuffer(1).getWorldLocation();
+		int[] location3 = geometryBuffer.getVertexBuffer(2).getWorldLocation();
 		vectorLibrary.add(location1, location2, faceLocation);
 		vectorLibrary.add(faceLocation, location3, faceLocation);
 		vectorLibrary.divide(faceLocation, 3 << FP_BIT, faceLocation);	
@@ -154,43 +157,26 @@ public class FlatSpecularShader extends Shader {
 			}
 			lightIndex++;
 		}
-		for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
-			int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
-			vectorLibrary.copy(vertexLocations[i], vertexLocation);
-			vectorLibrary.matrixMultiply(vertexLocation, shaderBuffer.getViewMatrix(), vertexLocation);
-			vectorLibrary.matrixMultiply(vertexLocation, shaderBuffer.getProjectionMatrix(), vertexLocation);
-			graphicsLibrary.screenportVector(vertexLocation, shaderBuffer.getPortedFrustum(), vertexLocation);
-		}
 		Texture texture = shaderProperties.getTexture();
-		rasterizer.setLocation0(location1);
-		rasterizer.setLocation1(location2);
-		rasterizer.setLocation2(location3);
 		if (texture == null) {
-			graphicsLibrary.drawFlatTriangle(rasterizer, true, 1, shaderBuffer.getPortedFrustum());
+			rasterizer.draw(geometryBuffer);
 		} else {
-			rasterizer.setUV0(geometryBuffer.getUV(0), texture);
-			rasterizer.setUV1(geometryBuffer.getUV(1), texture);
-			rasterizer.setUV2(geometryBuffer.getUV(2), texture);
-			graphicsLibrary.drawPerspectiveFlatTriangle(rasterizer, true, 1, shaderBuffer.getPortedFrustum());
-		}
-		for (int i = 0; i < geometryBuffer.getVertexDataBuffers().length; i++) {
-			int[] vertexLocation = geometryBuffer.getVertexDataBuffer(i).getLocation();
-			vectorLibrary.copy(vertexLocation, vertexLocations[i]);
+			rasterizer.perspectiveDraw(geometryBuffer, texture);
 		}
 	}
 
 	@Override
-	public void fragment(int[] location) {
+	public void fragment(FragmentBuffer fragmentBuffer) {
 		Texture depthBuffer = shaderBuffer.getFrameBuffer().getDepthBuffer();
 		Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
-		int x = location[VECTOR_X];
-		int y = location[VECTOR_Y];
-		int z = location[VECTOR_Z];
+		int x = fragmentBuffer.getLocation()[VECTOR_X];
+		int y = fragmentBuffer.getLocation()[VECTOR_Y];
+		int z = fragmentBuffer.getLocation()[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
 			Texture texture = shaderProperties.getTexture();
 			int color = shaderProperties.getDiffuseColor();
 			if (texture != null) {
-				int[] uv = rasterizer.getUV();
+				int[] uv = fragmentBuffer.getUV();
 				int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
 				if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
 					return;

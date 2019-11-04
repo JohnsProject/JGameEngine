@@ -23,10 +23,11 @@
  */
 package com.johnsproject.jgameengine.rasterizer;
 
-import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.Camera;
+import com.johnsproject.jgameengine.shader.FragmentBuffer;
+import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
 
 import static com.johnsproject.jgameengine.library.MathLibrary.*;
@@ -39,60 +40,82 @@ public class FlatRasterizer {
 	public static final byte INTERPOLATE_ONE = 1 << INTERPOLATE_BIT;
 	public static final byte FP_PLUS_INTERPOLATE_BIT = FP_BIT + INTERPOLATE_BIT;
 	
-	protected final int[] vectorCache;
-	protected final int[] pixelCache;
-	
 	protected final MathLibrary mathLibrary;
 	protected final VectorLibrary vectorLibrary;
-	
+	protected final Shader shader;
+	protected final FragmentBuffer fragmentBuffer;
 	protected final int[] location0;
 	protected final int[] location1;
 	protected final int[] location2;
-	
-	protected final Shader shader;
+	protected final int[] cameraFrustum;
+	protected final int[] vectorCache;
+	protected boolean frustumCull;
+	protected int faceCull;
 	
 	public FlatRasterizer(Shader shader) {
 		this.shader = shader;
 		this.mathLibrary = new MathLibrary();
 		this.vectorLibrary = new VectorLibrary();
+		this.fragmentBuffer = new FragmentBuffer();
 		this.vectorCache = VectorLibrary.generate();
-		this.pixelCache = VectorLibrary.generate();
 		this.location0 = VectorLibrary.generate();
 		this.location1 = VectorLibrary.generate();
 		this.location2 = VectorLibrary.generate();
-	}
-	
-	public final void setLocation0(int[] location) {
-		vectorLibrary.copy(location0, location);
-	}
-	
-	public final void setLocation1(int[] location) {
-		vectorLibrary.copy(location1, location);
-	}
-	
-	public final void setLocation2(int[] location) {
-		vectorLibrary.copy(location2, location);
-	}
-	
-	public final int[] getLocation0() {
-		return location0;
+		this.cameraFrustum = new int[Camera.FRUSTUM_SIZE];
+		this.frustumCull = true;
+		this.faceCull = -1;
 	}
 
-	public final int[] getLocation1() {
-		return location1;
-	}
-
-	public final int[] getLocation2() {
-		return location2;
+	/**
+	 * Sets if the rasterizer should cull the triangles that are outside of the view frustum. 
+	 * Note that this method only sets if the rasterizer culls the whole triangle before even 
+	 * beginning the rasterization process, a per pixel culling will still happen even if 
+	 * frustumCull is set to false. 
+	 * 
+	 * @param frustumCull
+	 */
+	public void setFrustumCull(boolean frustumCull) {
+		this.frustumCull = frustumCull;
 	}
 	
 	/**
-	 * THIS METHOD SHOULD NOT BE CALLED. 
-	 * Use the triangle drawing methods in {@link GraphicsLibrary} class.
+	 * Sets if the rasterizer should cull the triangle based on it's facing direction.
 	 * 
-	 * @param cameraFrustum
+	 * @param faceCull -1 = backface culling, 0 = no culling and 1 = frontface culling.
 	 */
-	public final void drawFlatTriangle(int[] cameraFrustum) {
+	public void setFaceCull(int faceCull) {
+		this.faceCull = faceCull;
+	}
+
+	protected final void setLocation0(int[] location) {
+		vectorLibrary.copy(location0, location);
+	}
+	
+	protected final void setLocation1(int[] location) {
+		vectorLibrary.copy(location1, location);
+	}
+	
+	protected final void setLocation2(int[] location) {
+		vectorLibrary.copy(location2, location);
+	}
+	
+	/**
+	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
+	 * This rasterizer draws a triangle using the x, y coordinates of each vertex of the geometryBuffer. 
+	 * It uses linear interpolation to find out the z coordinate for each pixel.
+	 * While rasterizing the geometryBuffer, for each pixel/fragment the {@link Shader#fragment} 
+	 * method of this rasterizer's {@link Shader} will be called.
+	 * 
+	 * @param geometryBuffer
+	 */
+	public void draw(GeometryBuffer geometryBuffer) {
+		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getPortedFrustum());
+		vectorLibrary.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
+		vectorLibrary.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
+		vectorLibrary.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		if(cull()) {
+			return;
+		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
 		}
@@ -103,9 +126,9 @@ public class FlatRasterizer {
 			vectorLibrary.swap(location0, location1);
 		}
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-        	drawBottomTriangle(cameraFrustum);
+        	drawBottomTriangle();
         } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
-        	drawTopTriangle(cameraFrustum);
+        	drawTopTriangle();
         } else {
             int x = location0[VECTOR_X];
             int y = location1[VECTOR_Y];
@@ -119,15 +142,15 @@ public class FlatRasterizer {
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
             vectorLibrary.swap(vectorCache, location2);
-            drawBottomTriangle(cameraFrustum);
+            drawBottomTriangle();
             vectorLibrary.swap(vectorCache, location2);
             vectorLibrary.swap(location0, location1);
             vectorLibrary.swap(location1, vectorCache);
-            drawTopTriangle(cameraFrustum);
+            drawTopTriangle();
         }
 	}
 	
-	private void drawBottomTriangle(int[] cameraFrustum) {
+	private void drawBottomTriangle() {
 		int xShifted = location0[VECTOR_X] << FP_BIT;
 		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		int z2z1 = location1[VECTOR_Z] - location0[VECTOR_Z];
@@ -157,7 +180,7 @@ public class FlatRasterizer {
 	            z += dz1 * step;
 	    	}
 	        for (; y1 <= y2; y1++) {
-	        	drawScanline(x1, x2, y1, z, dz, cameraFrustum);
+	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 += dx1;
 	            x2 += dx2;
 	            z += dz1;
@@ -174,7 +197,7 @@ public class FlatRasterizer {
 	            z += dz2 * step;
 	    	}
         	for (; y1 <= y2; y1++) {
-        		drawScanline(x1, x2, y1, z, dz, cameraFrustum);
+        		drawScanline(x1, x2, y1, z, dz);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
@@ -182,7 +205,7 @@ public class FlatRasterizer {
         }
     }
     
-	private void drawTopTriangle(int[] cameraFrustum) {
+	private void drawTopTriangle() {
 		int xShifted = location2[VECTOR_X] << FP_BIT;
 		int y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
@@ -215,7 +238,7 @@ public class FlatRasterizer {
 		        z -= dz1 * step;
 	    	}
 	        for (; y1 > y2; y1--) {
-	        	drawScanline(x1, x2, y1, z, dz, cameraFrustum);
+	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 -= dx1;
 	            x2 -= dx2;
 	            z -= dz1;
@@ -232,7 +255,7 @@ public class FlatRasterizer {
 		        z -= dz2 * step;
 	    	}
 	        for (; y1 > y2; y1--) {
-	        	drawScanline(x1, x2, y1, z, dz, cameraFrustum);
+	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 -= dx2;
 	            x2 -= dx1;
 	            z -= dz2;
@@ -240,7 +263,7 @@ public class FlatRasterizer {
 		}
     }
 	
-	private void drawScanline(int x1, int x2, int y, int z, int dz, int[] cameraFrustum) {
+	private void drawScanline(int x1, int x2, int y, int z, int dz) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
 	    if (x1 < cameraFrustum[Camera.FRUSTUM_LEFT]) {
@@ -251,12 +274,40 @@ public class FlatRasterizer {
 	    if(cameraFrustum[Camera.FRUSTUM_RIGHT] < x2)
 	    	x2 = cameraFrustum[Camera.FRUSTUM_RIGHT];
 		for (; x1 <= x2; x1++) {
-			pixelCache[VECTOR_X] = x1;
-			pixelCache[VECTOR_Y] = y;
-			pixelCache[VECTOR_Z] = z >> FP_BIT;
-			shader.fragment(pixelCache);
+			fragmentBuffer.getLocation()[VECTOR_X] = x1;
+			fragmentBuffer.getLocation()[VECTOR_Y] = y;
+			fragmentBuffer.getLocation()[VECTOR_Z] = z >> FP_BIT;
+			shader.fragment(fragmentBuffer);
 			z += dz;
 		}
+	}
+	
+	protected boolean cull() {
+		if(frustumCull) {
+			int left = cameraFrustum[Camera.FRUSTUM_LEFT];
+			int right = cameraFrustum[Camera.FRUSTUM_RIGHT];
+			int top = cameraFrustum[Camera.FRUSTUM_TOP];
+			int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
+			int near = 1;
+			int far = FP_ONE;
+			boolean insideWidth1 = (location0[VECTOR_X] > left) && (location0[VECTOR_X] < right);
+			boolean insideWidth2 = (location1[VECTOR_X] > left) && (location1[VECTOR_X] < right);
+			boolean insideWidth3 = (location2[VECTOR_X] > left) && (location2[VECTOR_X] < right);
+			boolean insideHeight1 = (location0[VECTOR_Y] > top) && (location0[VECTOR_Y] < bottom);
+			boolean insideHeight2 = (location1[VECTOR_Y] > top) && (location1[VECTOR_Y] < bottom);
+			boolean insideHeight3 = (location2[VECTOR_Y] > top) && (location2[VECTOR_Y] < bottom);
+			boolean insideDepth1 = (location0[VECTOR_Z] > near) && (location0[VECTOR_Z] < far);
+			boolean insideDepth2 = (location1[VECTOR_Z] > near) && (location1[VECTOR_Z] < far);
+			boolean insideDepth3 = (location2[VECTOR_Z] > near) && (location2[VECTOR_Z] < far);
+			if ((!insideDepth1 && !insideDepth2 && !insideDepth3) 
+					|| (!insideHeight1 && !insideHeight2 && !insideHeight3)
+						|| (!insideWidth1 && !insideWidth2 && !insideWidth3)) {
+						return true;
+			}
+		}
+		int size = (location1[VECTOR_X] - location0[VECTOR_X]) * (location2[VECTOR_Y] - location0[VECTOR_Y])
+				- (location2[VECTOR_X] - location0[VECTOR_X]) * (location1[VECTOR_Y] - location0[VECTOR_Y]);
+		return size * faceCull < 0;
 	}
 	
 	protected void divideOneByZ() {
@@ -271,29 +322,35 @@ public class FlatRasterizer {
 		vector[2] = mathLibrary.multiply(vector[2], location2[VECTOR_Z]);
 	}
 	
-	protected void swapVector(int[] vector1, int[] vector2, int currentIndex, int indexToSet) {
+	protected void copyFrustum(int[] target, int[] source) {
+		for (int i = 0; i < Camera.FRUSTUM_SIZE; i++) {
+			target[i] = source[i];
+		}
+	}
+	
+	protected void swapVector(int[] vector0, int[] vector1, int currentIndex, int indexToSet) {
 		int tmp = 0;
+		tmp = vector0[currentIndex]; vector0[currentIndex] = vector0[indexToSet]; vector0[indexToSet] = tmp;
+		tmp = vector1[currentIndex]; vector1[currentIndex] = vector1[indexToSet]; vector1[indexToSet] = tmp;
+	}
+	
+	protected void swapVector(int[] vector0, int[] vector1, int[] vector2, int currentIndex, int indexToSet) {
+		int tmp = 0;
+		tmp = vector0[currentIndex]; vector0[currentIndex] = vector0[indexToSet]; vector0[indexToSet] = tmp;
 		tmp = vector1[currentIndex]; vector1[currentIndex] = vector1[indexToSet]; vector1[indexToSet] = tmp;
 		tmp = vector2[currentIndex]; vector2[currentIndex] = vector2[indexToSet]; vector2[indexToSet] = tmp;
 	}
 	
-	protected void swapVector(int[] vector1, int[] vector2, int[] vector3, int currentIndex, int indexToSet) {
+	protected void swapCache(int[] vector0, int[] vector1, int[] cache, int indexToSet) {
 		int tmp = 0;
-		tmp = vector1[currentIndex]; vector1[currentIndex] = vector1[indexToSet]; vector1[indexToSet] = tmp;
-		tmp = vector2[currentIndex]; vector2[currentIndex] = vector2[indexToSet]; vector2[indexToSet] = tmp;
-		tmp = vector3[currentIndex]; vector3[currentIndex] = vector3[indexToSet]; vector3[indexToSet] = tmp;
+		tmp = cache[0]; cache[0] = vector0[indexToSet]; vector0[indexToSet] = tmp;
+		tmp = cache[1]; cache[1] = vector1[indexToSet]; vector1[indexToSet] = tmp;
 	}
 	
-	protected void swapCache(int[] vector1, int[] vector2, int[] vector3, int[] cache, int indexToSet) {
+	protected void swapCache(int[] vector0, int[] vector1, int[] vector2, int[] cache, int indexToSet) {
 		int tmp = 0;
-		tmp = cache[0]; cache[0] = vector1[indexToSet]; vector1[indexToSet] = tmp;
-		tmp = cache[1]; cache[1] = vector2[indexToSet]; vector2[indexToSet] = tmp;
-		tmp = cache[2]; cache[2] = vector3[indexToSet]; vector3[indexToSet] = tmp;
-	}
-	
-	protected void swapCache(int[] vector1, int[] vector2, int[] cache, int indexToSet) {
-		int tmp = 0;
-		tmp = cache[0]; cache[0] = vector1[indexToSet]; vector1[indexToSet] = tmp;
-		tmp = cache[1]; cache[1] = vector2[indexToSet]; vector2[indexToSet] = tmp;
+		tmp = cache[0]; cache[0] = vector0[indexToSet]; vector0[indexToSet] = tmp;
+		tmp = cache[1]; cache[1] = vector1[indexToSet]; vector1[indexToSet] = tmp;
+		tmp = cache[2]; cache[2] = vector2[indexToSet]; vector2[indexToSet] = tmp;
 	}
 }

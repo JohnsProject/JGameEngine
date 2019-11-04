@@ -38,7 +38,7 @@ public class Vertex {
 		this.location = location;
 		this.normal = normal;
 		this.material = material;
-		this.buffer = new VertexBuffer(this);
+		this.buffer = new VertexBuffer();
 	}
 
 	public int getIndex() {

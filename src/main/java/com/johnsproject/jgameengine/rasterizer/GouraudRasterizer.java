@@ -24,8 +24,8 @@
 package com.johnsproject.jgameengine.rasterizer;
 
 import com.johnsproject.jgameengine.library.ColorLibrary;
-import com.johnsproject.jgameengine.library.GraphicsLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
 
 import static com.johnsproject.jgameengine.library.VectorLibrary.*;
@@ -49,35 +49,44 @@ public class GouraudRasterizer extends FlatRasterizer {
 		this.colorCache = VectorLibrary.generate();
 	}
 	
-	public final void setColor0(int color) {
+	protected final void setColor0(int color) {
 		red[0] = colorLibrary.getRed(color) << INTERPOLATE_BIT;
 		green[0] = colorLibrary.getGreen(color) << INTERPOLATE_BIT;
 		blue[0] = colorLibrary.getBlue(color) << INTERPOLATE_BIT;
 	}
 	
-	public final void setColor1(int color) {
+	protected final void setColor1(int color) {
 		red[1] = colorLibrary.getRed(color) << INTERPOLATE_BIT;
 		green[1] = colorLibrary.getGreen(color) << INTERPOLATE_BIT;
 		blue[1] = colorLibrary.getBlue(color) << INTERPOLATE_BIT;
 	}
 	
-	public final void setColor2(int color) {
+	protected final void setColor2(int color) {
 		red[2] = colorLibrary.getRed(color) << INTERPOLATE_BIT;
 		green[2] = colorLibrary.getGreen(color) << INTERPOLATE_BIT;
 		blue[2] = colorLibrary.getBlue(color) << INTERPOLATE_BIT;
 	}
-
-	public final int getColor() {
-		return ColorLibrary.generate(red[3], green[3], blue[3]);
-	}
 	
 	/**
-	 * THIS METHOD SHOULD NOT BE CALLED. 
-	 * Use the triangle drawing methods in {@link GraphicsLibrary} class.
+	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
+	 * This rasterizer draws a triangle using the x, y coordinates of each vertex of the geometryBuffer. 
+	 * It uses linear interpolation to find out the z coordinate and the colors for each pixel.
+	 * While rasterizing the geometryBuffer, for each pixel/fragment the {@link Shader#fragment} 
+	 * method of this rasterizer's {@link Shader} will be called.
 	 * 
-	 * @param cameraFrustum
+	 * @param geometryBuffer
 	 */
-	public final void drawGouraudTriangle(int[] cameraFrustum) {
+	public void draw(GeometryBuffer geometryBuffer) {
+		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getPortedFrustum());
+		vectorLibrary.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
+		vectorLibrary.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
+		vectorLibrary.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		if(cull()) {
+			return;
+		}
+		setColor0(geometryBuffer.getVertexBuffer(0).getColor());
+		setColor1(geometryBuffer.getVertexBuffer(1).getColor());
+		setColor2(geometryBuffer.getVertexBuffer(2).getColor());
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			vectorLibrary.swap(location0, location1);
 			swapVector(red, green, blue, 0, 1);
@@ -260,14 +269,16 @@ public class GouraudRasterizer extends FlatRasterizer {
 	private void drawScanline(int x1, int x2, int y, int z, int r, int g, int b, int dz, int dr, int dg, int db, int[] cameraFrustum) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
+		int cr, cg, cb;
 		for (; x1 <= x2; x1++) {
-			pixelCache[VECTOR_X] = x1;
-			pixelCache[VECTOR_Y] = y;
-			pixelCache[VECTOR_Z] = z >> FP_BIT;
-			red[3] = r >> FP_PLUS_INTERPOLATE_BIT;
-			green[3] = g >> FP_PLUS_INTERPOLATE_BIT;
-			blue[3] = b >> FP_PLUS_INTERPOLATE_BIT;
-			shader.fragment(pixelCache);
+			fragmentBuffer.getLocation()[VECTOR_X] = x1;
+			fragmentBuffer.getLocation()[VECTOR_Y] = y;
+			fragmentBuffer.getLocation()[VECTOR_Z] = z >> FP_BIT;
+			cr = r >> FP_PLUS_INTERPOLATE_BIT;
+			cg = g >> FP_PLUS_INTERPOLATE_BIT;
+			cb = b >> FP_PLUS_INTERPOLATE_BIT;
+			fragmentBuffer.setColor(ColorLibrary.generate(cr, cg, cb));
+			shader.fragment(fragmentBuffer);
 			z += dz;
 			r += dr;
 			g += dg;

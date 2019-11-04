@@ -47,7 +47,7 @@ public class Face {
 		this.uvs[1] = uv2;
 		this.uvs[2] = uv3;
 		this.material = material;
-		this.buffer = new GeometryBuffer(this);
+		this.buffer = new GeometryBuffer();
 	}
 	
 	public Face(int index, int[] normal, Vertex vertex1, Vertex vertex2, Vertex vertex3, Material material) {
@@ -62,7 +62,7 @@ public class Face {
 		this.uvs[1] = VectorLibrary.generate();
 		this.uvs[2] = VectorLibrary.generate();
 		this.material = material;
-		this.buffer = new GeometryBuffer(this);
+		this.buffer = new GeometryBuffer();
 	}
 
 	public int getIndex() {

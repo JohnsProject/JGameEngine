@@ -125,12 +125,12 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 			pointShadowMaps[i] = new Texture(256, 256);
 		}
 	}
-	
+
 	public void setup(Camera camera, Collection<Light> lights, FrameBuffer frameBuffer) {
 		this.camera = camera;
 		this.lights = lights;
 		this.frameBuffer = frameBuffer;		
-		shadowLightsSetup(camera, lights);
+		//shadowLightsSetup(camera, lights);
 		renderSetup(camera, lights, frameBuffer);
 	}
 	

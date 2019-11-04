@@ -33,4 +33,16 @@ public interface ShaderBuffer {
 
 	public void setup(Camera camera, Collection<Light> lights, FrameBuffer frameBuffer);
 	
+	public Collection<Light> getLights();
+	
+	public FrameBuffer getFrameBuffer();
+	
+	public Camera getCamera();
+	
+	public int[] getProjectionMatrix();
+	
+	public int[] getPortedFrustum();
+	
+	public int[] getViewMatrix();
+	
 }

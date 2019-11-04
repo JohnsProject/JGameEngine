@@ -64,7 +64,7 @@ public class PhongSpecularShader extends Shader {
 	@Override
 	public void vertex(VertexBuffer vertexBuffer) {
 		int[] location = vertexBuffer.getLocation();
-		int[] normal = vertexBuffer.getNormal();
+		int[] normal = vertexBuffer.getWorldNormal();
 		vectorLibrary.normalize(normal, normal);
 		vectorLibrary.matrixMultiply(location, shaderBuffer.getViewMatrix(), location);
 		vectorLibrary.matrixMultiply(location, shaderBuffer.getProjectionMatrix(), location);
@@ -75,25 +75,10 @@ public class PhongSpecularShader extends Shader {
 	public void geometry(GeometryBuffer geometryBuffer) {
 		color = shaderProperties.getDiffuseColor();
 		texture = shaderProperties.getTexture();
-		VertexBuffer dataBuffer0 = geometryBuffer.getVertexDataBuffer(0);
-		VertexBuffer dataBuffer1 = geometryBuffer.getVertexDataBuffer(1);
-		VertexBuffer dataBuffer2 = geometryBuffer.getVertexDataBuffer(2);
-		rasterizer.setLocation0(dataBuffer0.getLocation());
-		rasterizer.setLocation1(dataBuffer1.getLocation());
-		rasterizer.setLocation2(dataBuffer2.getLocation());
-		rasterizer.setWorldLocation0(dataBuffer0.getWorldLocation());
-		rasterizer.setWorldLocation1(dataBuffer1.getWorldLocation());
-		rasterizer.setWorldLocation2(dataBuffer2.getWorldLocation());
-		rasterizer.setNormal0(dataBuffer0.getNormal());
-		rasterizer.setNormal1(dataBuffer1.getNormal());
-		rasterizer.setNormal2(dataBuffer2.getNormal());
 		if (texture == null) {
-			graphicsLibrary.drawPhongTriangle(rasterizer, true, 1, shaderBuffer.getPortedFrustum());
+			rasterizer.draw(geometryBuffer);
 		} else {
-			rasterizer.setUV0(geometryBuffer.getUV(0), texture);
-			rasterizer.setUV1(geometryBuffer.getUV(1), texture);
-			rasterizer.setUV2(geometryBuffer.getUV(2), texture);
-			graphicsLibrary.drawPerspectivePhongTriangle(rasterizer, true, 1, shaderBuffer.getPortedFrustum());
+			rasterizer.perspectiveDraw(geometryBuffer, texture);
 		}
 		/*Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
 		Texture shadowMap = shaderBuffer.getSpotShadowMap();
@@ -107,15 +92,15 @@ public class PhongSpecularShader extends Shader {
 	}
 
 	@Override
-	public void fragment(int[] location) {
-		int x = location[VECTOR_X];
-		int y = location[VECTOR_Y];
-		int z = location[VECTOR_Z];
+	public void fragment(FragmentBuffer fragmentBuffer) {
+		int x = fragmentBuffer.getLocation()[VECTOR_X];
+		int y = fragmentBuffer.getLocation()[VECTOR_Y];
+		int z = fragmentBuffer.getLocation()[VECTOR_Z];
 		Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
 		Texture depthBuffer = shaderBuffer.getFrameBuffer().getDepthBuffer();
 		if (depthBuffer.getPixel(x, y) > z) {
-			int[] worldLocation = rasterizer.getWorldLocation();
-			int[] normal = rasterizer.getNormal();
+			int[] worldLocation = fragmentBuffer.getWorldLocation();
+			int[] normal = fragmentBuffer.getWorldNormal();
 			int lightColor = ColorLibrary.BLACK;
 			int[] cameraLocation = shaderBuffer.getCamera().getTransform().getLocation();	
 			vectorLibrary.subtract(cameraLocation, worldLocation, viewDirection);
@@ -187,7 +172,7 @@ public class PhongSpecularShader extends Shader {
 				lightIndex++;
 			}
 			if (texture != null) {
-				int[] uv = rasterizer.getUV();
+				int[] uv = fragmentBuffer.getUV();
 				int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
 				if (colorLibrary.getAlpha(texel) == 0) // discard pixel if alpha = 0
 					return;
