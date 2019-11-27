@@ -66,6 +66,7 @@ public class PhongSpecularShader extends Shader {
 		int[] location = vertexBuffer.getLocation();
 		int[] normal = vertexBuffer.getWorldNormal();
 		vectorLibrary.normalize(normal, normal);
+		vectorLibrary.copy(location, vertexBuffer.getWorldLocation());
 		vectorLibrary.matrixMultiply(location, shaderBuffer.getViewMatrix(), location);
 		vectorLibrary.matrixMultiply(location, shaderBuffer.getProjectionMatrix(), location);
 		graphicsLibrary.screenportVector(location, shaderBuffer.getPortedFrustum(), location);
@@ -80,15 +81,6 @@ public class PhongSpecularShader extends Shader {
 		} else {
 			rasterizer.perspectiveDraw(geometryBuffer, texture);
 		}
-		/*Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
-		Texture shadowMap = shaderBuffer.getSpotShadowMap();
-		for (int y = 0; y < shadowMap.getWidth(); y++) {
-			for (int x = 0; x < shadowMap.getHeight(); x++) {
-				int depth = shadowMap.getPixel(x, y);
-				int color = ColorLibrary.generate(depth, depth, depth);
-				colorBuffer.setPixel(x, y, color);
-			}
-		}*/
 	}
 
 	@Override

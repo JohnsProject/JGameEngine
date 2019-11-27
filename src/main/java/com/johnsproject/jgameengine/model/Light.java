@@ -29,6 +29,9 @@ import com.johnsproject.jgameengine.library.VectorLibrary;
 public class Light extends SceneObject {
 	
 	public static final String LIGHT_TAG = "Light";
+	public static final String MAIN_DIRECTIONAL_LIGHT_TAG = "MainDirectionalLight";
+	public static final String MAIN_SPOT_LIGHT_TAG = "MainSpotLight";
+	public static final String MAIN_POINT_LIGHT_TAG = "MainPointLight";
 	
 	private LightType type;
 	private int strength;

@@ -23,24 +23,25 @@
  */
 package com.johnsproject.jgameengine.model;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 
 public class Scene {
 	
 	private Camera mainCamera;
-	private final Hashtable<String, SceneObject> sceneObjects;
-	private final Hashtable<String, Model> models;
-	private final Hashtable<String, Camera> cameras;
-	private final Hashtable<String, Light> lights;
+	private Light mainLight;
+	private final HashMap<String, SceneObject> sceneObjects;
+	private final HashMap<String, Model> models;
+	private final HashMap<String, Camera> cameras;
+	private final HashMap<String, Light> lights;
 	
 	public Scene() {
-		this.sceneObjects = new Hashtable<String, SceneObject>();
-		this.models = new Hashtable<String, Model>();
-		this.cameras = new Hashtable<String, Camera>();
-		this.lights = new Hashtable<String, Light>();
+		this.sceneObjects = new HashMap<String, SceneObject>();
+		this.models = new HashMap<String, Model>();
+		this.cameras = new HashMap<String, Camera>();
+		this.lights = new HashMap<String, Light>();
 	}
 	
-	public Hashtable<String, SceneObject> getSceneObjects() {
+	public HashMap<String, SceneObject> getSceneObjects() {
 		return sceneObjects;
 	}
 	
@@ -58,7 +59,7 @@ public class Scene {
 		models.remove(name);
 	}
 	
-	public Hashtable<String, Model> getModels() {
+	public HashMap<String, Model> getModels() {
 		return models;
 	}
 	
@@ -67,6 +68,9 @@ public class Scene {
 	}
 	
 	public void addLight(Light light){
+		if(mainLight == null) {
+			setMainDirectionalLight(light);
+		}
 		sceneObjects.put(light.getName(), light);
 		lights.put(light.getName(), light);
 	}
@@ -76,12 +80,24 @@ public class Scene {
 		lights.remove(name);
 	}
 	
-	public Hashtable<String, Light> getLights() {
+	public HashMap<String, Light> getLights() {
 		return lights;
 	}
 	
 	public Light getLight(String name) {
 		return lights.get(name);
+	}
+	
+	public Light getMainDirectionalLight() {
+		return mainLight;
+	}
+
+	public void setMainDirectionalLight(Light mainLight) {
+		if(this.mainLight != null) {
+			this.mainLight.setTag(Light.LIGHT_TAG);
+		}
+		mainLight.setTag(Light.MAIN_DIRECTIONAL_LIGHT_TAG);
+		this.mainLight = mainLight;
 	}
 	
 	public void addCamera(Camera camera){
@@ -97,7 +113,7 @@ public class Scene {
 		cameras.remove(name);
 	}
 
-	public Hashtable<String, Camera> getCameras() {
+	public HashMap<String, Camera> getCameras() {
 		return cameras;
 	}
 	

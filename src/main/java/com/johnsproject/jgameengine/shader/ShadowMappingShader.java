@@ -28,13 +28,14 @@ import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
 
 import static com.johnsproject.jgameengine.library.VectorLibrary.*;
 
+import com.johnsproject.jgameengine.library.ColorLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 
 public class ShadowMappingShader extends Shader {
 	
-	private static final int DIRECTIONAL_BIAS = MathLibrary.generate(0.5f);
-	private static final int SPOT_BIAS = MathLibrary.generate(0.25f);
-	private static final int POINT_BIAS = MathLibrary.generate(0.35f);
+	private static final int DIRECTIONAL_BIAS = MathLibrary.generate(0.00005f);
+	private static final int SPOT_BIAS = MathLibrary.generate(0.00025f);
+	private static final int POINT_BIAS = MathLibrary.generate(0.00035f);
 	
 	private int shadowBias = 0;
 	
@@ -71,10 +72,9 @@ public class ShadowMappingShader extends Shader {
 		}
 		if(shaderProperties.pointShadows() && (shaderBuffer.getPointLightIndex() != -1)) {
 			shadowBias = POINT_BIAS;
-			int[][] lightMatrices = shaderBuffer.getPointLightMatrices();
-			for (int i = 0; i < lightMatrices.length; i++) {
+			for (int i = 0; i < shaderBuffer.getPointLightMatrices().length; i++) {
 				currentShadowMap = shaderBuffer.getPointShadowMaps()[i];
-				transformVertices(geometryBuffer, lightMatrices[i], shaderBuffer.getPointLightFrustum());
+				transformVertices(geometryBuffer, shaderBuffer.getPointLightMatrices()[i], shaderBuffer.getPointLightFrustum());
 				rasterizer.setFrustumCull(true);
 				rasterizer.draw(geometryBuffer);
 			}
@@ -97,6 +97,33 @@ public class ShadowMappingShader extends Shader {
 		int z = fragmentBuffer.getLocation()[VECTOR_Z] + shadowBias;
 		if (currentShadowMap.getPixel(x, y) > z) {
 			currentShadowMap.setPixel(x, y, z);
+			// debug shadow maps
+			/*if(shadowBias == DIRECTIONAL_BIAS) {
+				int depth = z >> 1;
+				int color = ColorLibrary.generate(depth, depth, depth);
+				shaderBuffer.getFrameBuffer().getColorBuffer().setPixel(x, y, color);				
+			}*/
+			/*if(shadowBias == SPOT_BIAS) {
+				int depth = z >> 1;
+				int color = ColorLibrary.generate(depth, depth, depth);
+				shaderBuffer.getFrameBuffer().getColorBuffer().setPixel(x, y, color);				
+			}*/
+			// fix rasterizer culling to fix point shadows
+			/*if(shadowBias == POINT_BIAS) {
+				for (int i = 0; i < shaderBuffer.getPointShadowMaps().length; i++) {
+					if(shaderBuffer.getPointShadowMaps()[i] == currentShadowMap) {
+						int frameBufferX = x + (currentShadowMap.getWidth() * (i + 1));
+						int frameBufferY = y;
+						if(i >= 3) {
+							frameBufferX = x + (currentShadowMap.getWidth() * ((i - 5) + 1));
+							frameBufferY += currentShadowMap.getHeight();
+						}
+						int depth = z >> 1;
+						int color = ColorLibrary.generate(depth, depth, depth);
+						shaderBuffer.getFrameBuffer().getColorBuffer().setPixel(frameBufferX, frameBufferY, color);	
+					}
+				}	
+			}*/
 		}
 	}
 

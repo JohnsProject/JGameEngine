@@ -66,7 +66,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		cache = VectorLibrary.generate();
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
 		EngineWindow window = new EngineWindow(frameBuffer);
-		EngineStatistics stats = new EngineStatistics(window);
+		//EngineStatistics stats = new EngineStatistics(window);
 		graphicsEngine = new GraphicsEngine(frameBuffer);
 		inputEngine = new InputEngine();
 		physicsEngine = new PhysicsEngine();
@@ -83,7 +83,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(inputEngine);
 //		Engine.getInstance().addEngineListener(physicsEngine);
 		Engine.getInstance().addEngineListener(window);
-		Engine.getInstance().addEngineListener(stats);
+		//Engine.getInstance().addEngineListener(stats);
 		Engine.getInstance().start();
 	}
 	
@@ -139,10 +139,10 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		*/
 		
 		try {
-			Scene scene = new SceneImporter().load("E:/Development/Blender/Test.scene");
+			Scene scene = new SceneImporter().load("C:/Development/JGameEngineTests/Test.scene");
 			//scene.getMainCamera().getTransform().setLocation(0, 0, FP_ONE * 10);
 			//scene.getMainCamera().getTransform().setRotation(0, 0, 0);
-			Texture texture = new Texture(new FileLibrary().loadImage("E:/Development/Blender/JohnsProject.png"));
+			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JGameEngineTests/JohnsProject.png"));
 			for (Model model : scene.getModels().values()) {
 //				model.getRigidBody().setKinematic(true);
 				if(model.getName().equals("Ground")) {

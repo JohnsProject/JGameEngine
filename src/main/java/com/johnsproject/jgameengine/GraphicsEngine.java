@@ -164,7 +164,6 @@ public class GraphicsEngine implements EngineListener {
 				animateVertex(armature, animationFrame, vertex, worldLocation, worldNormal);
 				vectorLibrary.matrixMultiply(worldLocation, modelMatrix, worldLocation);
 				vectorLibrary.matrixMultiply(worldNormal, normalMatrix, worldNormal);
-				vectorLibrary.copy(vertexBuffer.getLocation(), worldLocation);
 			}
 			for (int f = 0; f < mesh.getFaces().length; f++) {
 				final Face face = mesh.getFace(f);

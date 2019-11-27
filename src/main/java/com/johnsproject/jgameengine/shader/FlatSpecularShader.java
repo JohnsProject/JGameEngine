@@ -64,6 +64,7 @@ public class FlatSpecularShader extends Shader {
 	@Override
 	public void vertex(VertexBuffer vertexBuffer) {
 		int[] location = vertexBuffer.getLocation();
+		vectorLibrary.copy(location, vertexBuffer.getWorldLocation());
 		vectorLibrary.matrixMultiply(location, shaderBuffer.getViewMatrix(), location);
 		vectorLibrary.matrixMultiply(location, shaderBuffer.getProjectionMatrix(), location);
 		graphicsLibrary.screenportVector(location, shaderBuffer.getPortedFrustum(), location);

@@ -62,7 +62,8 @@ public class GouraudSpecularShader extends Shader {
 		int[] location = vertexBuffer.getLocation();
 		int[] normal = vertexBuffer.getWorldNormal();
 		int lightColor = ColorLibrary.BLACK;
-		int[] cameraLocation = shaderBuffer.getCamera().getTransform().getLocation();	
+		int[] cameraLocation = shaderBuffer.getCamera().getTransform().getLocation();
+		vectorLibrary.copy(location, vertexBuffer.getWorldLocation());
 		vectorLibrary.normalize(normal, normal);
 		vectorLibrary.subtract(cameraLocation, location, viewDirection);
 		vectorLibrary.normalize(viewDirection, viewDirection);
