@@ -28,7 +28,7 @@ import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.library.MathLibrary;
+import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.model.Scene;
 
 public class Engine {
@@ -100,7 +100,7 @@ public class Engine {
 						currentTime += updateTime;
 						loops++;
 					}
-					deltaTime = loops << MathLibrary.FP_BIT;
+					deltaTime = loops << FixedPointMath.FP_BIT;
 					event = new EngineEvent(scene, (int) elapsedTime, 0, deltaTime);
 					for (int i = 0; i < listernerCount; i++) {
 						engineListeners.get(i).update(event);

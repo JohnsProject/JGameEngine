@@ -21,15 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.importer;
+package com.johnsproject.jgameengine.io;
+
+import static com.johnsproject.jgameengine.math.VectorMath.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.johnsproject.jgameengine.library.ColorLibrary;
-import com.johnsproject.jgameengine.library.FileLibrary;
-import com.johnsproject.jgameengine.library.MathLibrary;
-import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.math.ColorMath;
+import com.johnsproject.jgameengine.math.FixedPointMath;
+import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Mesh;
@@ -39,8 +40,6 @@ import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.SpecularProperties;
 
-import static com.johnsproject.jgameengine.library.VectorLibrary.*;
-
 /**
  * The SOMImporter class imports .som (Scene Object Mesh) files exported 
  * by Blender SOMExporter included in the Exporters folder.
@@ -48,9 +47,9 @@ import static com.johnsproject.jgameengine.library.VectorLibrary.*;
  * @author John Ferraz Salomon
  *
  */
-public class SOMImporter {
+public final class SOMImporter {
 	
-	public SOMImporter() {	}
+	private SOMImporter() {	}
 	
 	/**
 	 * Loads the .som file at the given path and returns a {@link Model} 
@@ -60,8 +59,8 @@ public class SOMImporter {
 	 * @return
 	 * @throws IOException
 	 */
-	public Model load(String path) throws IOException {
-		String content = FileLibrary.readFile(path);
+	public static Model load(String path) throws IOException {
+		String content = FileIO.readFile(path);
 		return loadFromRaw(content);
 	}
 
@@ -73,8 +72,8 @@ public class SOMImporter {
 	 * @return
 	 * @throws IOException
 	 */
-	public Model load(InputStream stream) throws IOException {
-		String content = FileLibrary.readStream(stream);
+	public static Model load(InputStream stream) throws IOException {
+		String content = FileIO.readStream(stream);
 		return loadFromRaw(content);
 	}
 
@@ -86,15 +85,15 @@ public class SOMImporter {
 	 * @return
 	 * @throws IOException
 	 */
-	public Model loadFromRaw(String data) throws IOException {
+	public static Model loadFromRaw(String data) throws IOException {
 		String rawData = data.replace(" ", "").replace("\n", "");
 		Material[] materials = parseMaterials(rawData);
 		Vertex[] vertices = parseVertices(rawData, materials);
 		Face[] faces = parseFaces(rawData, vertices, materials);
-		int[] location = VectorLibrary.generate();
-		int[] rotation = VectorLibrary.generate();
-		int one = MathLibrary.FP_ONE;
-		int[] scale = VectorLibrary.generate(one, one, one);
+		int[] location = VectorMath.toVector();
+		int[] rotation = VectorMath.toVector();
+		int one = FixedPointMath.FP_ONE;
+		int[] scale = VectorMath.toVector(one, one, one);
 		Transform transform = new Transform(location, rotation, scale);
 		Mesh mesh = new Mesh(vertices, faces, materials);
 		Model result = new Model("Model", transform, mesh);
@@ -102,28 +101,28 @@ public class SOMImporter {
 		return result;
 	}
 	
-	private Vertex[] parseVertices(String rawData, Material[] materials) throws IOException {
+	private static Vertex[] parseVertices(String rawData, Material[] materials) throws IOException {
 		String vCountData = rawData.split("vCount<")[1].split(">vCount", 2)[0];
 		Vertex[] vertices = new Vertex[getint(vCountData)];
 		String[] vLocationData = rawData.split("vPosition<")[1].split(">vPosition", 2)[0].split(",");
 		String[] vNormalData = rawData.split("vNormal<")[1].split(">vNormal", 2)[0].split(",");
 		String[] vMaterialData = rawData.split("vMaterial<")[1].split(">vMaterial", 2)[0].split(",");
 		for (int i = 0; i < vertices.length * 3; i += 3) {
-			int[] location = VectorLibrary.generate();
-			location[VECTOR_X] = -MathLibrary.generate(getFloat(vLocationData[i + VECTOR_X]));
-			location[VECTOR_Y] = -MathLibrary.generate(getFloat(vLocationData[i + VECTOR_Y]));
-			location[VECTOR_Z] = -MathLibrary.generate(getFloat(vLocationData[i + VECTOR_Z]));
-			int[] normal = VectorLibrary.generate();
-			normal[VECTOR_X] = MathLibrary.generate(getFloat(vNormalData[i + VECTOR_X]));
-			normal[VECTOR_Y] = MathLibrary.generate(getFloat(vNormalData[i + VECTOR_Y]));
-			normal[VECTOR_Z] = MathLibrary.generate(getFloat(vNormalData[i + VECTOR_Z]));
+			int[] location = VectorMath.toVector();
+			location[VECTOR_X] = -FixedPointMath.toFixedPoint(getFloat(vLocationData[i + VECTOR_X]));
+			location[VECTOR_Y] = -FixedPointMath.toFixedPoint(getFloat(vLocationData[i + VECTOR_Y]));
+			location[VECTOR_Z] = -FixedPointMath.toFixedPoint(getFloat(vLocationData[i + VECTOR_Z]));
+			int[] normal = VectorMath.toVector();
+			normal[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(vNormalData[i + VECTOR_X]));
+			normal[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(vNormalData[i + VECTOR_Y]));
+			normal[VECTOR_Z] = FixedPointMath.toFixedPoint(getFloat(vNormalData[i + VECTOR_Z]));
 			int material = getint(vMaterialData[i / 3]);
 			vertices[i / 3] = new Vertex(i / 3, location, normal, materials[material]);
 		}
 		return vertices;
 	}
 	
-	private Face[] parseFaces(String rawData, Vertex[] vertices, Material[] materials) throws IOException {
+	private static Face[] parseFaces(String rawData, Vertex[] vertices, Material[] materials) throws IOException {
 		String fCountData = rawData.split("fCount<")[1].split(">fCount", 2)[0];
 		Face[] faces = new Face[getint(fCountData)];
 		String[] fVertex1Data = rawData.split("fVertex1<")[1].split(">fVertex1", 2)[0].split(",");
@@ -139,25 +138,25 @@ public class SOMImporter {
 			int vertex2 = getint(fVertex2Data[i / 6]);
 			int vertex3 = getint(fVertex3Data[i / 6]);
 			int material = getint(fMaterialData[i / 6]);
-			int[] normal = VectorLibrary.generate();
-			normal[VECTOR_X] = MathLibrary.generate(getFloat(fNormalData[(i / 2) + VECTOR_X]));
-			normal[VECTOR_Y] = MathLibrary.generate(getFloat(fNormalData[(i / 2) + VECTOR_Y]));
-			normal[VECTOR_Z] = MathLibrary.generate(getFloat(fNormalData[(i / 2) + VECTOR_Z]));
-			int[] uv1 = VectorLibrary.generate();
-			uv1[VECTOR_X] = MathLibrary.generate(getFloat(fUV1Data[(i / 3) + VECTOR_X]));
-			uv1[VECTOR_Y] = MathLibrary.generate(getFloat(fUV1Data[(i / 3) + VECTOR_Y]));
-			int[] uv2 = VectorLibrary.generate();
-			uv2[VECTOR_X] = MathLibrary.generate(getFloat(fUV2Data[(i / 3) + VECTOR_X]));
-			uv2[VECTOR_Y] = MathLibrary.generate(getFloat(fUV2Data[(i / 3) + VECTOR_Y]));
-			int[] uv3 = VectorLibrary.generate();
-			uv3[VECTOR_X] = MathLibrary.generate(getFloat(fUV3Data[(i / 3) + VECTOR_X]));
-			uv3[VECTOR_Y] = MathLibrary.generate(getFloat(fUV3Data[(i / 3) + VECTOR_Y]));
+			int[] normal = VectorMath.toVector();
+			normal[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_X]));
+			normal[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_Y]));
+			normal[VECTOR_Z] = FixedPointMath.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_Z]));
+			int[] uv1 = VectorMath.toVector();
+			uv1[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fUV1Data[(i / 3) + VECTOR_X]));
+			uv1[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fUV1Data[(i / 3) + VECTOR_Y]));
+			int[] uv2 = VectorMath.toVector();
+			uv2[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fUV2Data[(i / 3) + VECTOR_X]));
+			uv2[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fUV2Data[(i / 3) + VECTOR_Y]));
+			int[] uv3 = VectorMath.toVector();
+			uv3[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fUV3Data[(i / 3) + VECTOR_X]));
+			uv3[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fUV3Data[(i / 3) + VECTOR_Y]));
 			faces[i / 6] = new Face(i / 6, normal, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], uv1, uv2, uv3);
 		}
 		return faces;
 	}
 	
-	private Material[] parseMaterials(String rawData){
+	private static Material[] parseMaterials(String rawData){
 		String mCountData = rawData.split("mCount<")[1].split(">mCount", 2)[0];
 		Material[] materials = new Material[getint(mCountData)];
 		String[] mDiffuseColorData = rawData.split("mDiffuseColor<")[1].split(">mDiffuseColor", 2)[0].split(",");
@@ -165,15 +164,15 @@ public class SOMImporter {
 		String[] mSpecularIntensityData = rawData.split("mSpecularIntensity<")[1].split(">mSpecularIntensity", 2)[0].split(",");
 		for (int i = 0; i < materials.length * 4; i+=4) {
 			// * 256 to get int rgb values
-			int r = MathLibrary.generate(getFloat(mDiffuseColorData[i]) * 256);
-			int	g = MathLibrary.generate(getFloat(mDiffuseColorData[i+1]) * 256);
-			int	b = MathLibrary.generate(getFloat(mDiffuseColorData[i+2]) * 256);
-			int	a = MathLibrary.generate(getFloat(mDiffuseColorData[i+3]) * 256);
-			int diffuseIntensity = MathLibrary.generate(getFloat(mDiffuseIntensityData[i / 4]));
-			int specularIntensity = MathLibrary.generate(getFloat(mSpecularIntensityData[i / 4]));
+			int r = FixedPointMath.toFixedPoint(getFloat(mDiffuseColorData[i]) * 256);
+			int	g = FixedPointMath.toFixedPoint(getFloat(mDiffuseColorData[i+1]) * 256);
+			int	b = FixedPointMath.toFixedPoint(getFloat(mDiffuseColorData[i+2]) * 256);
+			int	a = FixedPointMath.toFixedPoint(getFloat(mDiffuseColorData[i+3]) * 256);
+			int diffuseIntensity = FixedPointMath.toFixedPoint(getFloat(mDiffuseIntensityData[i / 4]));
+			int specularIntensity = FixedPointMath.toFixedPoint(getFloat(mSpecularIntensityData[i / 4]));
 			GouraudSpecularShader shader = new GouraudSpecularShader();
 			SpecularProperties properties = (SpecularProperties) shader.getProperties();
-			properties.setDiffuseColor(ColorLibrary.generate(a, r, g, b));
+			properties.setDiffuseColor(ColorMath.toColor(a, r, g, b));
 			properties.setDiffuseIntensity(diffuseIntensity);
 			properties.setSpecularIntensity(specularIntensity);
 			materials[i/4] = new Material(i/4, "", shader);
@@ -181,11 +180,11 @@ public class SOMImporter {
 		return materials;
 	}
 	
-	private int getint(String string) {
+	private static int getint(String string) {
 		return Integer.parseInt(string);
 	}
 	
-	private float getFloat(String string) {
+	private static float getFloat(String string) {
 		return Float.parseFloat(string);
 	}
 }

@@ -23,16 +23,14 @@
  */
 package com.johnsproject.jgameengine.rasterizer;
 
-import com.johnsproject.jgameengine.library.VectorLibrary;
+import static com.johnsproject.jgameengine.math.FixedPointMath.*;
+import static com.johnsproject.jgameengine.math.VectorMath.*;
+
+import com.johnsproject.jgameengine.math.FixedPointMath;
+import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
-
-import static com.johnsproject.jgameengine.library.VectorLibrary.*;
-
-import com.johnsproject.jgameengine.library.MathLibrary;
-
-import static com.johnsproject.jgameengine.library.MathLibrary.*;
 
 public class AffineFlatRasterizer extends FlatRasterizer {
 	
@@ -43,25 +41,25 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 	
 	public AffineFlatRasterizer(Shader shader) {
 		super(shader);
-		u = VectorLibrary.generate();
-		v = VectorLibrary.generate();
-		uv = VectorLibrary.generate();
-		uvCache = VectorLibrary.generate();
+		u = VectorMath.toVector();
+		v = VectorMath.toVector();
+		uv = VectorMath.toVector();
+		uvCache = VectorMath.toVector();
 	}
 	
 	protected final void setUV0(int[] uv, Texture texture) {
-		u[0] = MathLibrary.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
-		v[0] = MathLibrary.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+		u[0] = FixedPointMath.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[0] = FixedPointMath.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
 	}
 	
 	protected final void setUV1(int[] uv, Texture texture) {
-		u[1] = MathLibrary.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
-		v[1] = MathLibrary.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+		u[1] = FixedPointMath.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[1] = FixedPointMath.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
 	}
 	
 	protected final void setUV2(int[] uv, Texture texture) {
-		u[2] = MathLibrary.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
-		v[2] = MathLibrary.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+		u[2] = FixedPointMath.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[2] = FixedPointMath.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
 	}
 	
 	/**
@@ -75,9 +73,9 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 	 */
 	public void affineDraw(GeometryBuffer geometryBuffer, Texture texture) {
 		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getPortedFrustum());
-		VectorLibrary.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
-		VectorLibrary.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
-		VectorLibrary.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		VectorMath.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
+		VectorMath.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
+		VectorMath.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
 		if(cull()) {
 			return;
 		}
@@ -85,15 +83,15 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		setUV1(geometryBuffer.getUV(1), texture);
 		setUV2(geometryBuffer.getUV(2), texture);
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorLibrary.swap(location0, location1);
+			VectorMath.swap(location0, location1);
 			swapVector(u, v, 0, 1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			VectorLibrary.swap(location1, location2);
+			VectorMath.swap(location1, location2);
 			swapVector(u, v, 2, 1);
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorLibrary.swap(location0, location1);
+			VectorMath.swap(location0, location1);
 			swapVector(u, v, 0, 1);
 		}
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
@@ -106,26 +104,26 @@ public class AffineFlatRasterizer extends FlatRasterizer {
             int z = location0[VECTOR_Z];
             int uvx = u[0];
             int uvy = v[0];
-            int dy = MathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
+            int dy = FixedPointMath.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
             int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
-            x += MathLibrary.multiply(dy, multiplier);
+            x += FixedPointMath.multiply(dy, multiplier);
             multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
-            z += MathLibrary.multiply(dy, multiplier);
+            z += FixedPointMath.multiply(dy, multiplier);
             multiplier = u[2] - u[0];
-            uvx += MathLibrary.multiply(dy, multiplier);
+            uvx += FixedPointMath.multiply(dy, multiplier);
             multiplier = v[2] - v[0];
-            uvy += MathLibrary.multiply(dy, multiplier);
+            uvy += FixedPointMath.multiply(dy, multiplier);
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
             uvCache[VECTOR_X] = uvx;
             uvCache[VECTOR_Y] = uvy;
-            VectorLibrary.swap(vectorCache, location2);
+            VectorMath.swap(vectorCache, location2);
             swapCache(u, v, uvCache, 2);
             drawBottomTriangle(cameraFrustum);
-            VectorLibrary.swap(vectorCache, location2);
-            VectorLibrary.swap(location0, location1);
-            VectorLibrary.swap(location1, vectorCache);
+            VectorMath.swap(vectorCache, location2);
+            VectorMath.swap(location0, location1);
+            VectorMath.swap(location1, vectorCache);
             swapCache(u, v, uvCache, 2);
             swapVector(u, v, 0, 1);
             swapCache(u, v, uvCache, 1);
@@ -139,20 +137,20 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = MathLibrary.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
-        int dx2 = MathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-        int dz1 = MathLibrary.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
-        int dz2 = MathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-        int du1 = MathLibrary.divide(u[1] - u[0], y2y1);
-        int du2 = MathLibrary.divide(u[2] - u[0], y3y1);
-        int dv1 = MathLibrary.divide(v[1] - v[0], y2y1);
-        int dv2 = MathLibrary.divide(v[2] - v[0], y3y1);
+        int dx1 = FixedPointMath.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+        int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+        int dz1 = FixedPointMath.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+        int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+        int du1 = FixedPointMath.divide(u[1] - u[0], y2y1);
+        int du2 = FixedPointMath.divide(u[2] - u[0], y3y1);
+        int dv1 = FixedPointMath.divide(v[1] - v[0], y2y1);
+        int dv2 = FixedPointMath.divide(v[2] - v[0], y3y1);
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = MathLibrary.divide(dz2 - dz1, dxdx);
-        	int du = MathLibrary.divide(du2 - du1, dxdx);
-        	int dv = MathLibrary.divide(dv2 - dv1, dxdx);
+        	int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
+        	int du = FixedPointMath.divide(du2 - du1, dxdx);
+        	int dv = FixedPointMath.divide(dv2 - dv1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -169,9 +167,9 @@ public class AffineFlatRasterizer extends FlatRasterizer {
         } else {
         	int dxdx = dx1 - dx2;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = MathLibrary.divide(dz1 - dz2, dxdx);
-        	int du = MathLibrary.divide(du1 - du2, dxdx);
-        	int dv = MathLibrary.divide(dv1 - dv2, dxdx);
+        	int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
+        	int du = FixedPointMath.divide(du1 - du2, dxdx);
+        	int dv = FixedPointMath.divide(dv1 - dv2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -194,20 +192,20 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = MathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-		int dx2 = MathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
-		int dz1 = MathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-		int dz2 = MathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
-		int du1 = MathLibrary.divide(u[2] - u[0], y3y1);
-		int du2 = MathLibrary.divide(u[2] - u[1], y3y2);
-		int dv1 = MathLibrary.divide(v[2] - v[0], y3y1);
-		int dv2 = MathLibrary.divide(v[2] - v[1], y3y2);
+		int dx1 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		int dz1 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
+		int du1 = FixedPointMath.divide(u[2] - u[0], y3y1);
+		int du2 = FixedPointMath.divide(u[2] - u[1], y3y2);
+		int dv1 = FixedPointMath.divide(v[2] - v[0], y3y1);
+		int dv2 = FixedPointMath.divide(v[2] - v[1], y3y2);
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = MathLibrary.divide(dz1 - dz2, dxdx);
-			int du = MathLibrary.divide(du1 - du2, dxdx);
-			int dv = MathLibrary.divide(dv1 - dv2, dxdx);
+			int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
+			int du = FixedPointMath.divide(du1 - du2, dxdx);
+			int dv = FixedPointMath.divide(dv1 - dv2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
@@ -224,9 +222,9 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		} else {
 			int dxdx = dx2 - dx1;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = MathLibrary.divide(dz2 - dz1, dxdx);
-			int du = MathLibrary.divide(du2 - du1, dxdx);
-			int dv = MathLibrary.divide(dv2 - dv1, dxdx);
+			int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
+			int du = FixedPointMath.divide(du2 - du1, dxdx);
+			int dv = FixedPointMath.divide(dv2 - dv1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;

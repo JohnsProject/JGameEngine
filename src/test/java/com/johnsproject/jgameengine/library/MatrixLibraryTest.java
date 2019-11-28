@@ -2,20 +2,21 @@ package com.johnsproject.jgameengine.library;
 
 import org.junit.Test;
 
-import com.johnsproject.jgameengine.library.MatrixLibrary;
+import com.johnsproject.jgameengine.math.FixedPointMath;
+import com.johnsproject.jgameengine.math.MatrixMath;
 
 public class MatrixLibraryTest {
 	
 	@Test
 	public void multiplyTest() throws Exception {
-		MatrixLibrary matrixLibrary = new MatrixLibrary();
+		MatrixMath matrixLibrary = new MatrixMath();
 		int[] out = new int[16];
-		int[] matrix1 = matrixLibrary.generate();
+		int[] matrix1 = matrixLibrary.indentityMatrix();
 		matrixLibrary.set(matrix1, 3, 0, 4096);
 		matrixLibrary.set(matrix1, 3, 1, 4096 * 2);
 		matrixLibrary.set(matrix1, 3, 2, 4096 * 3);
 		matrixLibrary.set(matrix1, 3, 3, 4096);
-		int[] matrix2 = matrixLibrary.generate();
+		int[] matrix2 = matrixLibrary.indentityMatrix();
 		matrixLibrary.set(matrix2, 0, 0, 4096 * 2);
 		matrixLibrary.set(matrix2, 1, 1, 4096 * 2);
 		matrixLibrary.set(matrix2, 2, 2, 4096 * 2);
@@ -31,17 +32,17 @@ public class MatrixLibraryTest {
 	
 	@Test
 	public void multiplyTest2() throws Exception {
-		MatrixLibrary matrixLibrary = new MatrixLibrary();
-		int[] out = matrixLibrary.generate();
-		int[] matrix1 = matrixLibrary.generate();
-		matrixLibrary.copy(matrix1, MatrixLibrary.MATRIX_IDENTITY);
-		matrixLibrary.rotateX(matrix1, 50 << MathLibrary.FP_BIT, out);
+		MatrixMath matrixLibrary = new MatrixMath();
+		int[] out = matrixLibrary.indentityMatrix();
+		int[] matrix1 = matrixLibrary.indentityMatrix();
+		matrixLibrary.copy(matrix1, MatrixMath.MATRIX_IDENTITY);
+		matrixLibrary.rotateX(matrix1, 50 << FixedPointMath.FP_BIT, out);
 		System.out.println(matrixLibrary.toString(out));
-		matrixLibrary.copy(matrix1, MatrixLibrary.MATRIX_IDENTITY);
-		matrixLibrary.rotateY(matrix1, 50 << MathLibrary.FP_BIT, out);
+		matrixLibrary.copy(matrix1, MatrixMath.MATRIX_IDENTITY);
+		matrixLibrary.rotateY(matrix1, 50 << FixedPointMath.FP_BIT, out);
 		System.out.println(matrixLibrary.toString(out));
-		matrixLibrary.copy(matrix1, MatrixLibrary.MATRIX_IDENTITY);
-		matrixLibrary.rotateZ(matrix1, 50 << MathLibrary.FP_BIT, out);
+		matrixLibrary.copy(matrix1, MatrixMath.MATRIX_IDENTITY);
+		matrixLibrary.rotateZ(matrix1, 50 << FixedPointMath.FP_BIT, out);
 		System.out.println(matrixLibrary.toString(out));
 	}
 	

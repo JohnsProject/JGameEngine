@@ -23,20 +23,19 @@
  */
 package com.johnsproject.jgameengine.shader;
 
+import static com.johnsproject.jgameengine.math.VectorMath.*;
+
+import com.johnsproject.jgameengine.math.FixedPointMath;
+import com.johnsproject.jgameengine.math.TransformationMath;
+import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
 
-import static com.johnsproject.jgameengine.library.VectorLibrary.*;
-
-import com.johnsproject.jgameengine.library.MathLibrary;
-import com.johnsproject.jgameengine.library.TransformationLibrary;
-import com.johnsproject.jgameengine.library.VectorLibrary;
-
 public class ShadowMappingShader implements Shader {
 	
-	private static final int DIRECTIONAL_BIAS = MathLibrary.generate(0.00005f);
-	private static final int SPOT_BIAS = MathLibrary.generate(0.00025f);
-	private static final int POINT_BIAS = MathLibrary.generate(0.00035f);
+	private static final int DIRECTIONAL_BIAS = FixedPointMath.toFixedPoint(0.00005f);
+	private static final int SPOT_BIAS = FixedPointMath.toFixedPoint(0.00025f);
+	private static final int POINT_BIAS = FixedPointMath.toFixedPoint(0.00035f);
 	
 	private int shadowBias = 0;
 	
@@ -82,9 +81,9 @@ public class ShadowMappingShader implements Shader {
 	private void transformVertices(GeometryBuffer geometryBuffer, int[] lightMatrix, int[] lightFrustum) {
 		for (int i = 0; i < geometryBuffer.getVertexBuffers().length; i++) {
 			int[] location = geometryBuffer.getVertexBuffer(i).getLocation();
-			VectorLibrary.copy(location, geometryBuffer.getVertexBuffer(i).getWorldLocation());
-			VectorLibrary.matrixMultiply(location, lightMatrix);
-			TransformationLibrary.screenportVector(location, lightFrustum, location);
+			VectorMath.copy(location, geometryBuffer.getVertexBuffer(i).getWorldLocation());
+			VectorMath.matrixMultiply(location, lightMatrix);
+			TransformationMath.screenportVector(location, lightFrustum);
 		}
 	}
 

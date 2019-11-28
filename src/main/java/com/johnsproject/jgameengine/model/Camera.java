@@ -23,7 +23,7 @@
  */
 package com.johnsproject.jgameengine.model;
 
-import static com.johnsproject.jgameengine.library.MathLibrary.FP_ONE;
+import static com.johnsproject.jgameengine.math.FixedPointMath.FP_ONE;
 
 public class Camera extends SceneObject {
 	

@@ -23,8 +23,8 @@
  */
 package com.johnsproject.jgameengine.model;
 
-import com.johnsproject.jgameengine.library.ColorLibrary;
-import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.math.ColorMath;
+import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.shader.FlatSpecularShader;
 import com.johnsproject.jgameengine.shader.SpecularProperties;
 
@@ -45,14 +45,14 @@ public class Mesh {
 		for (int i = 0; i < materials.length; i++) {
 			int[] material = materials[i];
 			FlatSpecularShader shader = new FlatSpecularShader();
-			int color = ColorLibrary.generate(material[0], material[1], material[2], material[3]);
+			int color = ColorMath.toColor(material[0], material[1], material[2], material[3]);
 			((SpecularProperties)shader.getProperties()).setDiffuseColor(color);
 			this.materials[i] = new Material(i, "Material", shader);
 		}
 		this.vertices = new Vertex[vertices.length];
 		for (int i = 0; i < vertices.length; i++) {
 			int[] vertex = vertices[i];
-			int[] location = VectorLibrary.generate();
+			int[] location = VectorMath.toVector();
 			location[0] = vertex[0];
 			location[1] = vertex[1];
 			location[2] = vertex[2];

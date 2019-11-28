@@ -23,8 +23,8 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.library.ColorLibrary;
-import com.johnsproject.jgameengine.library.MathLibrary;
+import com.johnsproject.jgameengine.math.ColorMath;
+import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.model.Texture;
 
 public class SpecularProperties implements ShaderProperties {
@@ -36,9 +36,9 @@ public class SpecularProperties implements ShaderProperties {
 	private Texture texture;
 	
 	public SpecularProperties() {
-		diffuseIntensity = MathLibrary.FP_ONE;
-		diffuseIntensity = ColorLibrary.WHITE;
-		specularIntensity = MathLibrary.FP_ONE;
+		diffuseIntensity = FixedPointMath.FP_ONE;
+		diffuseIntensity = ColorMath.WHITE;
+		specularIntensity = FixedPointMath.FP_ONE;
 		shininess = 0;
 		texture = null;
 	}

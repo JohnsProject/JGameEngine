@@ -23,7 +23,7 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.math.VectorMath;
 
 public class GeometryBuffer {
 
@@ -32,11 +32,11 @@ public class GeometryBuffer {
 	private final VertexBuffer[] vertexBuffers;
 	
 	public GeometryBuffer() {
-		this.worldNormal = VectorLibrary.generate();
-		this.uvs = new int[3][VectorLibrary.VECTOR_SIZE];
-		this.uvs[0] = VectorLibrary.generate();
-		this.uvs[1] = VectorLibrary.generate();
-		this.uvs[2] = VectorLibrary.generate();
+		this.worldNormal = VectorMath.toVector();
+		this.uvs = new int[3][VectorMath.VECTOR_SIZE];
+		this.uvs[0] = VectorMath.toVector();
+		this.uvs[1] = VectorMath.toVector();
+		this.uvs[2] = VectorMath.toVector();
 		this.vertexBuffers = new VertexBuffer[3];
 	}
 

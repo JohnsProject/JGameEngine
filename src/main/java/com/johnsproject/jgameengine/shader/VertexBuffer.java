@@ -23,7 +23,7 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.math.VectorMath;
 
 public class VertexBuffer {
 
@@ -33,9 +33,9 @@ public class VertexBuffer {
 	private int color;
 	
 	public VertexBuffer() {
-		this.location = VectorLibrary.generate();
-		this.worldNormal = VectorLibrary.generate();
-		this.worldLocation = VectorLibrary.generate();
+		this.location = VectorMath.toVector();
+		this.worldNormal = VectorMath.toVector();
+		this.worldLocation = VectorMath.toVector();
 		this.color = 0;
 	}
 	

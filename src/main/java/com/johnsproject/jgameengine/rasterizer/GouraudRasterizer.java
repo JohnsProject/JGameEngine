@@ -23,14 +23,14 @@
  */
 package com.johnsproject.jgameengine.rasterizer;
 
-import com.johnsproject.jgameengine.library.ColorLibrary;
-import com.johnsproject.jgameengine.library.MathLibrary;
-import com.johnsproject.jgameengine.library.VectorLibrary;
+import static com.johnsproject.jgameengine.math.FixedPointMath.*;
+import static com.johnsproject.jgameengine.math.VectorMath.*;
+
+import com.johnsproject.jgameengine.math.ColorMath;
+import com.johnsproject.jgameengine.math.FixedPointMath;
+import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
-
-import static com.johnsproject.jgameengine.library.VectorLibrary.*;
-import static com.johnsproject.jgameengine.library.MathLibrary.*;
 
 public class GouraudRasterizer extends FlatRasterizer {
 	
@@ -41,28 +41,28 @@ public class GouraudRasterizer extends FlatRasterizer {
 	
 	public GouraudRasterizer(Shader shader) {
 		super(shader);
-		this.red = VectorLibrary.generate();
-		this.green = VectorLibrary.generate();
-		this.blue = VectorLibrary.generate();
-		this.colorCache = VectorLibrary.generate();
+		this.red = VectorMath.toVector();
+		this.green = VectorMath.toVector();
+		this.blue = VectorMath.toVector();
+		this.colorCache = VectorMath.toVector();
 	}
 	
 	protected final void setColor0(int color) {
-		red[0] = ColorLibrary.getRed(color) << INTERPOLATE_BIT;
-		green[0] = ColorLibrary.getGreen(color) << INTERPOLATE_BIT;
-		blue[0] = ColorLibrary.getBlue(color) << INTERPOLATE_BIT;
+		red[0] = ColorMath.getRed(color) << INTERPOLATE_BIT;
+		green[0] = ColorMath.getGreen(color) << INTERPOLATE_BIT;
+		blue[0] = ColorMath.getBlue(color) << INTERPOLATE_BIT;
 	}
 	
 	protected final void setColor1(int color) {
-		red[1] = ColorLibrary.getRed(color) << INTERPOLATE_BIT;
-		green[1] = ColorLibrary.getGreen(color) << INTERPOLATE_BIT;
-		blue[1] = ColorLibrary.getBlue(color) << INTERPOLATE_BIT;
+		red[1] = ColorMath.getRed(color) << INTERPOLATE_BIT;
+		green[1] = ColorMath.getGreen(color) << INTERPOLATE_BIT;
+		blue[1] = ColorMath.getBlue(color) << INTERPOLATE_BIT;
 	}
 	
 	protected final void setColor2(int color) {
-		red[2] = ColorLibrary.getRed(color) << INTERPOLATE_BIT;
-		green[2] = ColorLibrary.getGreen(color) << INTERPOLATE_BIT;
-		blue[2] = ColorLibrary.getBlue(color) << INTERPOLATE_BIT;
+		red[2] = ColorMath.getRed(color) << INTERPOLATE_BIT;
+		green[2] = ColorMath.getGreen(color) << INTERPOLATE_BIT;
+		blue[2] = ColorMath.getBlue(color) << INTERPOLATE_BIT;
 	}
 	
 	/**
@@ -76,9 +76,9 @@ public class GouraudRasterizer extends FlatRasterizer {
 	 */
 	public void draw(GeometryBuffer geometryBuffer) {
 		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getPortedFrustum());
-		VectorLibrary.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
-		VectorLibrary.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
-		VectorLibrary.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		VectorMath.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
+		VectorMath.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
+		VectorMath.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
 		if(cull()) {
 			return;
 		}
@@ -86,15 +86,15 @@ public class GouraudRasterizer extends FlatRasterizer {
 		setColor1(geometryBuffer.getVertexBuffer(1).getColor());
 		setColor2(geometryBuffer.getVertexBuffer(2).getColor());
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorLibrary.swap(location0, location1);
+			VectorMath.swap(location0, location1);
 			swapVector(red, green, blue, 0, 1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			VectorLibrary.swap(location1, location2);
+			VectorMath.swap(location1, location2);
 			swapVector(red, green, blue, 2, 1);
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorLibrary.swap(location0, location1);
+			VectorMath.swap(location0, location1);
 			swapVector(red, green, blue, 0, 1);
 		}
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
@@ -108,29 +108,29 @@ public class GouraudRasterizer extends FlatRasterizer {
             int r = red[0];
             int g = green[0];
             int b = blue[0];
-            int dy = MathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
+            int dy = FixedPointMath.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
             int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
-            x += MathLibrary.multiply(dy, multiplier);
+            x += FixedPointMath.multiply(dy, multiplier);
             multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
-            z += MathLibrary.multiply(dy, multiplier);
+            z += FixedPointMath.multiply(dy, multiplier);
             multiplier = red[2] - red[0];
-            r += MathLibrary.multiply(dy, multiplier);
+            r += FixedPointMath.multiply(dy, multiplier);
             multiplier = green[2] - green[0];
-            g += MathLibrary.multiply(dy, multiplier);
+            g += FixedPointMath.multiply(dy, multiplier);
             multiplier = blue[2] - blue[0];
-            b += MathLibrary.multiply(dy, multiplier);
+            b += FixedPointMath.multiply(dy, multiplier);
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
             colorCache[0] = r;
             colorCache[1] = g;
             colorCache[2] = b;
-            VectorLibrary.swap(vectorCache, location2);
+            VectorMath.swap(vectorCache, location2);
             swapCache(red, green, blue, colorCache, 2);
             drawBottomTriangle(cameraFrustum);
-            VectorLibrary.swap(vectorCache, location2);
-            VectorLibrary.swap(location0, location1);
-            VectorLibrary.swap(location1, vectorCache);
+            VectorMath.swap(vectorCache, location2);
+            VectorMath.swap(location0, location1);
+            VectorMath.swap(location1, vectorCache);
             swapCache(red, green, blue, colorCache, 2);
             swapVector(red, green, blue, 0, 1);
             swapCache(red, green, blue, colorCache, 1);
@@ -144,23 +144,23 @@ public class GouraudRasterizer extends FlatRasterizer {
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = MathLibrary.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
-        int dx2 = MathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-        int dz1 = MathLibrary.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
-        int dz2 = MathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-        int dr1 = MathLibrary.divide(red[1] - red[0], y2y1);
-        int dr2 = MathLibrary.divide(red[2] - red[0], y3y1);
-        int dg1 = MathLibrary.divide(green[1] - green[0], y2y1);
-        int dg2 = MathLibrary.divide(green[2] - green[0], y3y1);
-        int db1 = MathLibrary.divide(blue[1] - blue[0], y2y1);
-        int db2 = MathLibrary.divide(blue[2] - blue[0], y3y1);
+        int dx1 = FixedPointMath.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+        int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+        int dz1 = FixedPointMath.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+        int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+        int dr1 = FixedPointMath.divide(red[1] - red[0], y2y1);
+        int dr2 = FixedPointMath.divide(red[2] - red[0], y3y1);
+        int dg1 = FixedPointMath.divide(green[1] - green[0], y2y1);
+        int dg2 = FixedPointMath.divide(green[2] - green[0], y3y1);
+        int db1 = FixedPointMath.divide(blue[1] - blue[0], y2y1);
+        int db2 = FixedPointMath.divide(blue[2] - blue[0], y3y1);
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = MathLibrary.divide(dz2 - dz1, dxdx);
-        	int dr = MathLibrary.divide(dr2 - dr1, dxdx);
-        	int dg = MathLibrary.divide(dg2 - dg1, dxdx);
-        	int db = MathLibrary.divide(db2 - db1, dxdx);
+        	int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
+        	int dr = FixedPointMath.divide(dr2 - dr1, dxdx);
+        	int dg = FixedPointMath.divide(dg2 - dg1, dxdx);
+        	int db = FixedPointMath.divide(db2 - db1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -179,10 +179,10 @@ public class GouraudRasterizer extends FlatRasterizer {
         } else {
         	int dxdx = dx1 - dx2;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = MathLibrary.divide(dz1 - dz2, dxdx);
-        	int dr = MathLibrary.divide(dr1 - dr2, dxdx);
-        	int dg = MathLibrary.divide(dg1 - dg2, dxdx);
-        	int db = MathLibrary.divide(db1 - db2, dxdx);
+        	int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
+        	int dr = FixedPointMath.divide(dr1 - dr2, dxdx);
+        	int dg = FixedPointMath.divide(dg1 - dg2, dxdx);
+        	int db = FixedPointMath.divide(db1 - db2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -207,23 +207,23 @@ public class GouraudRasterizer extends FlatRasterizer {
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = MathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-		int dx2 = MathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
-		int dz1 = MathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-		int dz2 = MathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
-		int dr1 = MathLibrary.divide(red[2] - red[0], y3y1);
-		int dr2 = MathLibrary.divide(red[2] - red[1], y3y2);
-		int dg1 = MathLibrary.divide(green[2] - green[0], y3y1);
-		int dg2 = MathLibrary.divide(green[2] - green[1], y3y2);
-		int db1 = MathLibrary.divide(blue[2] - blue[0], y3y1);
-		int db2 = MathLibrary.divide(blue[2] - blue[1], y3y2);
+		int dx1 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		int dz1 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
+		int dr1 = FixedPointMath.divide(red[2] - red[0], y3y1);
+		int dr2 = FixedPointMath.divide(red[2] - red[1], y3y2);
+		int dg1 = FixedPointMath.divide(green[2] - green[0], y3y1);
+		int dg2 = FixedPointMath.divide(green[2] - green[1], y3y2);
+		int db1 = FixedPointMath.divide(blue[2] - blue[0], y3y1);
+		int db2 = FixedPointMath.divide(blue[2] - blue[1], y3y2);
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = MathLibrary.divide(dz1 - dz2, dxdx);
-			int dr = MathLibrary.divide(dr1 - dr2, dxdx);
-			int dg = MathLibrary.divide(dg1 - dg2, dxdx);
-			int db = MathLibrary.divide(db1 - db2, dxdx);
+			int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
+			int dr = FixedPointMath.divide(dr1 - dr2, dxdx);
+			int dg = FixedPointMath.divide(dg1 - dg2, dxdx);
+			int db = FixedPointMath.divide(db1 - db2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
@@ -242,10 +242,10 @@ public class GouraudRasterizer extends FlatRasterizer {
 		} else {
 			int dxdx = dx2 - dx1;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = MathLibrary.divide(dz2 - dz1, dxdx);
-			int dr = MathLibrary.divide(dr2 - dr1, dxdx);
-			int dg = MathLibrary.divide(dg2 - dg1, dxdx);
-			int db = MathLibrary.divide(db2 - db1, dxdx);
+			int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
+			int dr = FixedPointMath.divide(dr2 - dr1, dxdx);
+			int dg = FixedPointMath.divide(dg2 - dg1, dxdx);
+			int db = FixedPointMath.divide(db2 - db1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
@@ -275,7 +275,7 @@ public class GouraudRasterizer extends FlatRasterizer {
 			cr = r >> FP_PLUS_INTERPOLATE_BIT;
 			cg = g >> FP_PLUS_INTERPOLATE_BIT;
 			cb = b >> FP_PLUS_INTERPOLATE_BIT;
-			fragmentBuffer.setColor(ColorLibrary.generate(cr, cg, cb));
+			fragmentBuffer.setColor(ColorMath.toColor(cr, cg, cb));
 			shader.fragment(fragmentBuffer);
 			z += dz;
 			r += dr;

@@ -23,16 +23,14 @@
  */
 package com.johnsproject.jgameengine.rasterizer;
 
+import static com.johnsproject.jgameengine.math.FixedPointMath.*;
+import static com.johnsproject.jgameengine.math.VectorMath.*;
+
+import com.johnsproject.jgameengine.math.FixedPointMath;
+import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
-
-import static com.johnsproject.jgameengine.library.VectorLibrary.*;
-
-import com.johnsproject.jgameengine.library.MathLibrary;
-import com.johnsproject.jgameengine.library.VectorLibrary;
-
-import static com.johnsproject.jgameengine.library.MathLibrary.*;
 
 public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 	
@@ -51,9 +49,9 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 	 */	
 	public void perspectiveDraw(GeometryBuffer geometryBuffer, Texture texture) {
 		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getPortedFrustum());
-		VectorLibrary.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
-		VectorLibrary.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
-		VectorLibrary.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		VectorMath.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
+		VectorMath.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
+		VectorMath.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
 		if(cull()) {
 			return;
 		}
@@ -76,19 +74,19 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 		zMultiply(normalY);
 		zMultiply(normalZ);
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorLibrary.swap(location0, location1);
+			VectorMath.swap(location0, location1);
 			swapVector(u, v, 0, 1);
 			swapVector(worldX, worldY, worldZ, 0, 1);
 			swapVector(normalX, normalY, normalZ, 0, 1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			VectorLibrary.swap(location1, location2);
+			VectorMath.swap(location1, location2);
 			swapVector(u, v, 2, 1);
 			swapVector(worldX, worldY, worldZ, 2, 1);
 			swapVector(normalX, normalY, normalZ, 2, 1);
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorLibrary.swap(location0, location1);
+			VectorMath.swap(location0, location1);
 			swapVector(u, v, 0, 1);
 			swapVector(worldX, worldY, worldZ, 0, 1);
 			swapVector(normalX, normalY, normalZ, 0, 1);
@@ -109,27 +107,27 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
             int nx = normalX[0];
             int ny = normalY[0];
             int nz = normalZ[0];
-            int dy = MathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
+            int dy = FixedPointMath.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
             int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
-            x += MathLibrary.multiply(dy, multiplier);
+            x += FixedPointMath.multiply(dy, multiplier);
             multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
-            z += MathLibrary.multiply(dy, multiplier);
+            z += FixedPointMath.multiply(dy, multiplier);
             multiplier = u[2] - u[0];
-            uvx += MathLibrary.multiply(dy, multiplier);
+            uvx += FixedPointMath.multiply(dy, multiplier);
             multiplier = v[2] - v[0];
-            uvy += MathLibrary.multiply(dy, multiplier);
+            uvy += FixedPointMath.multiply(dy, multiplier);
             multiplier = worldX[2] - worldX[0];
-            wx += MathLibrary.multiply(dy, multiplier);
+            wx += FixedPointMath.multiply(dy, multiplier);
             multiplier = worldY[2] - worldY[0];
-            wy += MathLibrary.multiply(dy, multiplier);
+            wy += FixedPointMath.multiply(dy, multiplier);
             multiplier = worldZ[2] - worldZ[0];
-            wz += MathLibrary.multiply(dy, multiplier);
+            wz += FixedPointMath.multiply(dy, multiplier);
             multiplier = normalX[2] - normalX[0];
-            nx += MathLibrary.multiply(dy, multiplier);
+            nx += FixedPointMath.multiply(dy, multiplier);
             multiplier = normalY[2] - normalY[0];
-            ny += MathLibrary.multiply(dy, multiplier);
+            ny += FixedPointMath.multiply(dy, multiplier);
             multiplier = normalZ[2] - normalZ[0];
-            nz += MathLibrary.multiply(dy, multiplier);
+            nz += FixedPointMath.multiply(dy, multiplier);
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
@@ -141,14 +139,14 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
             normalCache[VECTOR_X] = nx;
             normalCache[VECTOR_Y] = ny;
             normalCache[VECTOR_Z] = nz;
-            VectorLibrary.swap(vectorCache, location2);
+            VectorMath.swap(vectorCache, location2);
             swapCache(u, v, uvCache, 2);
             swapCache(worldX, worldY, worldZ, worldCache, 2);
             swapCache(normalX, normalY, normalZ, normalCache, 2);
             drawBottomTriangle(cameraFrustum);
-            VectorLibrary.swap(vectorCache, location2);
-            VectorLibrary.swap(location0, location1);
-            VectorLibrary.swap(location1, vectorCache);
+            VectorMath.swap(vectorCache, location2);
+            VectorMath.swap(location0, location1);
+            VectorMath.swap(location1, vectorCache);
             swapCache(u, v, uvCache, 2);
             swapVector(u, v, 0, 1);
             swapCache(u, v, uvCache, 1);
@@ -168,38 +166,38 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = MathLibrary.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
-        int dx2 = MathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-        int dz1 = MathLibrary.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
-        int dz2 = MathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-        int du1 = MathLibrary.divide(this.u[1] - this.u[0], y2y1);
-        int du2 = MathLibrary.divide(this.u[2] - this.u[0], y3y1);
-        int dv1 = MathLibrary.divide(this.v[1] - this.v[0], y2y1);
-        int dv2 = MathLibrary.divide(this.v[2] - this.v[0], y3y1);
-        int dwx1 = MathLibrary.divide(worldX[1] - worldX[0], y2y1);
-        int dwx2 = MathLibrary.divide(worldX[2] - worldX[0], y3y1);
-        int dwy1 = MathLibrary.divide(worldY[1] - worldY[0], y2y1);
-        int dwy2 = MathLibrary.divide(worldY[2] - worldY[0], y3y1);
-        int dwz1 = MathLibrary.divide(worldZ[1] - worldZ[0], y2y1);
-        int dwz2 = MathLibrary.divide(worldZ[2] - worldZ[0], y3y1);
-        int dnx1 = MathLibrary.divide(normalX[1] - normalX[0], y2y1);
-        int dnx2 = MathLibrary.divide(normalX[2] - normalX[0], y3y1);
-        int dny1 = MathLibrary.divide(normalY[1] - normalY[0], y2y1);
-        int dny2 = MathLibrary.divide(normalY[2] - normalY[0], y3y1);
-        int dnz1 = MathLibrary.divide(normalZ[1] - normalZ[0], y2y1);
-        int dnz2 = MathLibrary.divide(normalZ[2] - normalZ[0], y3y1);
+        int dx1 = FixedPointMath.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+        int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+        int dz1 = FixedPointMath.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+        int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+        int du1 = FixedPointMath.divide(this.u[1] - this.u[0], y2y1);
+        int du2 = FixedPointMath.divide(this.u[2] - this.u[0], y3y1);
+        int dv1 = FixedPointMath.divide(this.v[1] - this.v[0], y2y1);
+        int dv2 = FixedPointMath.divide(this.v[2] - this.v[0], y3y1);
+        int dwx1 = FixedPointMath.divide(worldX[1] - worldX[0], y2y1);
+        int dwx2 = FixedPointMath.divide(worldX[2] - worldX[0], y3y1);
+        int dwy1 = FixedPointMath.divide(worldY[1] - worldY[0], y2y1);
+        int dwy2 = FixedPointMath.divide(worldY[2] - worldY[0], y3y1);
+        int dwz1 = FixedPointMath.divide(worldZ[1] - worldZ[0], y2y1);
+        int dwz2 = FixedPointMath.divide(worldZ[2] - worldZ[0], y3y1);
+        int dnx1 = FixedPointMath.divide(normalX[1] - normalX[0], y2y1);
+        int dnx2 = FixedPointMath.divide(normalX[2] - normalX[0], y3y1);
+        int dny1 = FixedPointMath.divide(normalY[1] - normalY[0], y2y1);
+        int dny2 = FixedPointMath.divide(normalY[2] - normalY[0], y3y1);
+        int dnz1 = FixedPointMath.divide(normalZ[1] - normalZ[0], y2y1);
+        int dnz2 = FixedPointMath.divide(normalZ[2] - normalZ[0], y3y1);
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = MathLibrary.divide(dz2 - dz1, dxdx);
-        	int du = MathLibrary.divide(du2 - du1, dxdx);
-        	int dv = MathLibrary.divide(dv2 - dv1, dxdx);
-        	int dwx = MathLibrary.divide(dwx2 - dwx1, dxdx);
-        	int dwy = MathLibrary.divide(dwy2 - dwy1, dxdx);
-        	int dwz = MathLibrary.divide(dwz2 - dwz1, dxdx);
-        	int dnx = MathLibrary.divide(dnx2 - dnx1, dxdx);
-        	int dny = MathLibrary.divide(dny2 - dny1, dxdx);
-        	int dnz = MathLibrary.divide(dnz2 - dnz1, dxdx);
+        	int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
+        	int du = FixedPointMath.divide(du2 - du1, dxdx);
+        	int dv = FixedPointMath.divide(dv2 - dv1, dxdx);
+        	int dwx = FixedPointMath.divide(dwx2 - dwx1, dxdx);
+        	int dwy = FixedPointMath.divide(dwy2 - dwy1, dxdx);
+        	int dwz = FixedPointMath.divide(dwz2 - dwz1, dxdx);
+        	int dnx = FixedPointMath.divide(dnx2 - dnx1, dxdx);
+        	int dny = FixedPointMath.divide(dny2 - dny1, dxdx);
+        	int dnz = FixedPointMath.divide(dnz2 - dnz1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -228,15 +226,15 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
         } else {
         	int dxdx = dx1 - dx2;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = MathLibrary.divide(dz1 - dz2, dxdx);
-        	int du = MathLibrary.divide(du1 - du2, dxdx);
-        	int dv = MathLibrary.divide(dv1 - dv2, dxdx);
-        	int dwx = MathLibrary.divide(dwx1 - dwx2, dxdx);
-        	int dwy = MathLibrary.divide(dwy1 - dwy2, dxdx);
-        	int dwz = MathLibrary.divide(dwz1 - dwz2, dxdx);
-        	int dnx = MathLibrary.divide(dnx1 - dnx2, dxdx);
-        	int dny = MathLibrary.divide(dny1 - dny2, dxdx);
-        	int dnz = MathLibrary.divide(dnz1 - dnz2, dxdx);
+        	int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
+        	int du = FixedPointMath.divide(du1 - du2, dxdx);
+        	int dv = FixedPointMath.divide(dv1 - dv2, dxdx);
+        	int dwx = FixedPointMath.divide(dwx1 - dwx2, dxdx);
+        	int dwy = FixedPointMath.divide(dwy1 - dwy2, dxdx);
+        	int dwz = FixedPointMath.divide(dwz1 - dwz2, dxdx);
+        	int dnx = FixedPointMath.divide(dnx1 - dnx2, dxdx);
+        	int dny = FixedPointMath.divide(dny1 - dny2, dxdx);
+        	int dnz = FixedPointMath.divide(dnz1 - dnz2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -271,38 +269,38 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = MathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-		int dx2 = MathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
-		int dz1 = MathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-		int dz2 = MathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
-		int du1 = MathLibrary.divide(this.u[2] - this.u[0], y3y1);
-		int du2 = MathLibrary.divide(this.u[2] - this.u[1], y3y2);
-		int dv1 = MathLibrary.divide(this.v[2] - this.v[0], y3y1);
-		int dv2 = MathLibrary.divide(this.v[2] - this.v[1], y3y2);
-		int dwx1 = MathLibrary.divide(worldX[2] - worldX[0], y3y1);
-		int dwx2 = MathLibrary.divide(worldX[2] - worldX[1], y3y2);
-		int dwy1 = MathLibrary.divide(worldY[2] - worldY[0], y3y1);
-		int dwy2 = MathLibrary.divide(worldY[2] - worldY[1], y3y2);
-		int dwz1 = MathLibrary.divide(worldZ[2] - worldZ[0], y3y1);
-		int dwz2 = MathLibrary.divide(worldZ[2] - worldZ[1], y3y2);
-		int dnx1 = MathLibrary.divide(normalX[2] - normalX[0], y3y1);
-		int dnx2 = MathLibrary.divide(normalX[2] - normalX[1], y3y2);
-		int dny1 = MathLibrary.divide(normalY[2] - normalY[0], y3y1);
-		int dny2 = MathLibrary.divide(normalY[2] - normalY[1], y3y2);
-		int dnz1 = MathLibrary.divide(normalZ[2] - normalZ[0], y3y1);
-		int dnz2 = MathLibrary.divide(normalZ[2] - normalZ[1], y3y2);
+		int dx1 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		int dz1 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
+		int du1 = FixedPointMath.divide(this.u[2] - this.u[0], y3y1);
+		int du2 = FixedPointMath.divide(this.u[2] - this.u[1], y3y2);
+		int dv1 = FixedPointMath.divide(this.v[2] - this.v[0], y3y1);
+		int dv2 = FixedPointMath.divide(this.v[2] - this.v[1], y3y2);
+		int dwx1 = FixedPointMath.divide(worldX[2] - worldX[0], y3y1);
+		int dwx2 = FixedPointMath.divide(worldX[2] - worldX[1], y3y2);
+		int dwy1 = FixedPointMath.divide(worldY[2] - worldY[0], y3y1);
+		int dwy2 = FixedPointMath.divide(worldY[2] - worldY[1], y3y2);
+		int dwz1 = FixedPointMath.divide(worldZ[2] - worldZ[0], y3y1);
+		int dwz2 = FixedPointMath.divide(worldZ[2] - worldZ[1], y3y2);
+		int dnx1 = FixedPointMath.divide(normalX[2] - normalX[0], y3y1);
+		int dnx2 = FixedPointMath.divide(normalX[2] - normalX[1], y3y2);
+		int dny1 = FixedPointMath.divide(normalY[2] - normalY[0], y3y1);
+		int dny2 = FixedPointMath.divide(normalY[2] - normalY[1], y3y2);
+		int dnz1 = FixedPointMath.divide(normalZ[2] - normalZ[0], y3y1);
+		int dnz2 = FixedPointMath.divide(normalZ[2] - normalZ[1], y3y2);
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = MathLibrary.divide(dz1 - dz2, dxdx);
-			int du = MathLibrary.divide(du1 - du2, dxdx);
-			int dv = MathLibrary.divide(dv1 - dv2, dxdx);
-			int dwx = MathLibrary.divide(dwx1 - dwx2, dxdx);
-			int dwy = MathLibrary.divide(dwy1 - dwy2, dxdx);
-			int dwz = MathLibrary.divide(dwz1 - dwz2, dxdx);
-			int dnx = MathLibrary.divide(dnx1 - dnx2, dxdx);
-			int dny = MathLibrary.divide(dny1 - dny2, dxdx);
-			int dnz = MathLibrary.divide(dnz1 - dnz2, dxdx);
+			int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
+			int du = FixedPointMath.divide(du1 - du2, dxdx);
+			int dv = FixedPointMath.divide(dv1 - dv2, dxdx);
+			int dwx = FixedPointMath.divide(dwx1 - dwx2, dxdx);
+			int dwy = FixedPointMath.divide(dwy1 - dwy2, dxdx);
+			int dwz = FixedPointMath.divide(dwz1 - dwz2, dxdx);
+			int dnx = FixedPointMath.divide(dnx1 - dnx2, dxdx);
+			int dny = FixedPointMath.divide(dny1 - dny2, dxdx);
+			int dnz = FixedPointMath.divide(dnz1 - dnz2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
@@ -331,15 +329,15 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 		} else {
 			int dxdx = dx2 - dx1;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = MathLibrary.divide(dz2 - dz1, dxdx);
-			int du = MathLibrary.divide(du2 - du1, dxdx);
-			int dv = MathLibrary.divide(dv2 - dv1, dxdx);
-			int dwx = MathLibrary.divide(dwx2 - dwx1, dxdx);
-			int dwy = MathLibrary.divide(dwy2 - dwy1, dxdx);
-			int dwz = MathLibrary.divide(dwz2 - dwz1, dxdx);
-			int dnx = MathLibrary.divide(dnx2 - dnx1, dxdx);
-			int dny = MathLibrary.divide(dny2 - dny1, dxdx);
-			int dnz = MathLibrary.divide(dnz2 - dnz1, dxdx);
+			int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
+			int du = FixedPointMath.divide(du2 - du1, dxdx);
+			int dv = FixedPointMath.divide(dv2 - dv1, dxdx);
+			int dwx = FixedPointMath.divide(dwx2 - dwx1, dxdx);
+			int dwy = FixedPointMath.divide(dwy2 - dwy1, dxdx);
+			int dwz = FixedPointMath.divide(dwz2 - dwz1, dxdx);
+			int dnx = FixedPointMath.divide(dnx2 - dnx1, dxdx);
+			int dny = FixedPointMath.divide(dny2 - dny1, dxdx);
+			int dnz = FixedPointMath.divide(dnz2 - dnz1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
@@ -380,14 +378,14 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 			fragmentBuffer.getLocation()[VECTOR_Y] = y;
 			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
 			fragmentBuffer.getLocation()[VECTOR_Z] = oneByZ;
-			fragmentBuffer.getUV()[VECTOR_X] = MathLibrary.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
-			fragmentBuffer.getUV()[VECTOR_Y] = MathLibrary.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
-            fragmentBuffer.getWorldLocation()[VECTOR_X] = MathLibrary.multiply(wx, oneByZ);
-            fragmentBuffer.getWorldLocation()[VECTOR_Y] = MathLibrary.multiply(wy, oneByZ);
-            fragmentBuffer.getWorldLocation()[VECTOR_Z] = MathLibrary.multiply(wz, oneByZ);
-            fragmentBuffer.getWorldNormal()[VECTOR_X] = MathLibrary.multiply(nx, oneByZ);
-            fragmentBuffer.getWorldNormal()[VECTOR_Y] = MathLibrary.multiply(ny, oneByZ);
-            fragmentBuffer.getWorldNormal()[VECTOR_Z] = MathLibrary.multiply(nz, oneByZ);
+			fragmentBuffer.getUV()[VECTOR_X] = FixedPointMath.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
+			fragmentBuffer.getUV()[VECTOR_Y] = FixedPointMath.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
+            fragmentBuffer.getWorldLocation()[VECTOR_X] = FixedPointMath.multiply(wx, oneByZ);
+            fragmentBuffer.getWorldLocation()[VECTOR_Y] = FixedPointMath.multiply(wy, oneByZ);
+            fragmentBuffer.getWorldLocation()[VECTOR_Z] = FixedPointMath.multiply(wz, oneByZ);
+            fragmentBuffer.getWorldNormal()[VECTOR_X] = FixedPointMath.multiply(nx, oneByZ);
+            fragmentBuffer.getWorldNormal()[VECTOR_Y] = FixedPointMath.multiply(ny, oneByZ);
+            fragmentBuffer.getWorldNormal()[VECTOR_Z] = FixedPointMath.multiply(nz, oneByZ);
 			shader.fragment(fragmentBuffer);
 			z += dz;
 			u += du;

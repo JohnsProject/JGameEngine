@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.library;
+package com.johnsproject.jgameengine.math;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -32,7 +32,7 @@ import java.awt.image.BufferedImage;
  * 
  * @author John Ferraz Salomon
  */
-public final class ColorLibrary {
+public final class ColorMath {
 
 	/**
 	 * Some default integer sRGB colors.
@@ -69,7 +69,7 @@ public final class ColorLibrary {
 	private static final byte REDSHIFT = COLOR_BITS * 2;
 	private static final byte ALPHASHIFT = COLOR_BITS * 3;
 	
-	private ColorLibrary() {	}
+	private ColorMath() { }
 	
 	/**
 	 * Returns a integer sRGB color. 
@@ -81,7 +81,7 @@ public final class ColorLibrary {
 	 * @param b
 	 * @return
 	 */
-	public static int generate(int a, int r, int g, int b) {
+	public static int toColor(int a, int r, int g, int b) {
 		int color = 0;
 		color |= Math.min(COLOR_ONE, Math.max(a, 0)) << ALPHASHIFT;
 		color |= Math.min(COLOR_ONE, Math.max(r, 0)) << REDSHIFT;
@@ -99,7 +99,7 @@ public final class ColorLibrary {
 	 * @param b
 	 * @return
 	 */
-	public static int generate(int r, int g, int b) {
+	public static int toColor(int r, int g, int b) {
 		int color = 0;
 		color |= (255) << ALPHASHIFT;
 		color |= Math.min(COLOR_ONE, Math.max(r, 0)) << REDSHIFT;
@@ -168,7 +168,7 @@ public final class ColorLibrary {
 		r = (r * factor) >> COLOR_BITS;
 		g = (g * factor) >> COLOR_BITS;
 		b = (b * factor) >> COLOR_BITS;
-		return generate(a, r, g, b);
+		return toColor(a, r, g, b);
 	}
 	
 	/**
@@ -186,7 +186,7 @@ public final class ColorLibrary {
 		g = (g * factor) >> COLOR_BITS;
 		b = (b * factor) >> COLOR_BITS;
 		a = (a * factor) >> COLOR_BITS;
-		return generate(a, r, g, b);
+		return toColor(a, r, g, b);
 	}
 	
 	/**
@@ -203,7 +203,7 @@ public final class ColorLibrary {
 		int r = (r1 + r2);
 		int g = (g1 + g2);
 		int b = (b1 + b2);
-		return generate(a1, r, g, b);
+		return toColor(a1, r, g, b);
 	}
 	
 	/**
@@ -220,7 +220,7 @@ public final class ColorLibrary {
 		int g = (g1 + g2);
 		int b = (b1 + b2);
 		int a = (a1 + a2);
-		return generate(a, r, g, b);
+		return toColor(a, r, g, b);
 	}
 	
 	/**
@@ -237,7 +237,7 @@ public final class ColorLibrary {
 		int r = (r1 * r2) >> COLOR_BITS;
 		int g = (g1 * g2) >> COLOR_BITS;
 		int b = (b1 * b2) >> COLOR_BITS;
-		return generate(a1, r, g, b);
+		return toColor(a1, r, g, b);
 	}
 	
 	/**
@@ -254,7 +254,7 @@ public final class ColorLibrary {
 		int g = (g1 * g2) >> COLOR_BITS;
 		int b = (b1 * b2) >> COLOR_BITS;
 		int a = (a1 * a2) >> COLOR_BITS;
-		return generate(a, r, g, b);
+		return toColor(a, r, g, b);
 	}
 	
 	/**
@@ -273,7 +273,7 @@ public final class ColorLibrary {
 		int r = (r1 + (((r2 - r1) * factor) >> COLOR_BITS));
 		int g = (g1 + (((g2 - g1) * factor) >> COLOR_BITS));
 		int b = (b1 + (((b2 - b1) * factor) >> COLOR_BITS));
-		return generate(a1, r, g, b);
+		return toColor(a1, r, g, b);
 	}
 	
 	/**
@@ -292,7 +292,7 @@ public final class ColorLibrary {
 		int g = (g1 + (((g2 - g1) * factor) >> COLOR_BITS));
 		int b = (b1 + (((b2 - b1) * factor) >> COLOR_BITS));
 		int a = (a1 + (((a2 - a1) * factor) >> COLOR_BITS));
-		return generate(a, r, g, b);
+		return toColor(a, r, g, b);
 	}
 	
 	/**

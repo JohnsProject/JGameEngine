@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.library;
+package com.johnsproject.jgameengine.math;
 
-import static com.johnsproject.jgameengine.library.MathLibrary.*;
+import static com.johnsproject.jgameengine.math.FixedPointMath.*;
 
 /**
  * The VectorLibrary class contains methods for generating vectors and performing vector 
@@ -31,7 +31,7 @@ import static com.johnsproject.jgameengine.library.MathLibrary.*;
  * 
  * @author John Ferraz Salomon
  */
-public final class VectorLibrary {
+public final class VectorMath {
 	
 	public static final byte VECTOR_X = 0;
 	public static final byte VECTOR_Y = 1;
@@ -48,7 +48,7 @@ public final class VectorLibrary {
 	public static final int[] VECTOR_ONE = new int[] {FP_ONE, FP_ONE, FP_ONE, FP_ONE};
 	public static final int[] VECTOR_ZERO = new int[] {0, 0, 0, FP_ONE};
 	
-	private VectorLibrary() {}
+	private VectorMath() {}
 	
 	/**
 	 * Generates a vector using the given values and returns it.
@@ -59,7 +59,7 @@ public final class VectorLibrary {
 	 * @param z
 	 * @return
 	 */
-	public static int[] generate(int x, int y, int z, int w) {
+	public static int[] toVector(int x, int y, int z, int w) {
 		return new int[] {x, y, z, w};
 	}
 	
@@ -72,7 +72,7 @@ public final class VectorLibrary {
 	 * @param z
 	 * @return
 	 */
-	public static int[] generate(int x, int y, int z) {
+	public static int[] toVector(int x, int y, int z) {
 		return new int[] {x, y, z, FP_ONE};
 	}
 
@@ -84,7 +84,7 @@ public final class VectorLibrary {
 	 * @param y
 	 * @return
 	 */
-	public static int[] generate(int x, int y) {
+	public static int[] toVector(int x, int y) {
 		return new int[] {x, y, 0, FP_ONE};
 	}
 	
@@ -94,7 +94,7 @@ public final class VectorLibrary {
 	 * 
 	 * @return
 	 */
-	public static int[] generate() {
+	public static int[] toVector() {
 		return new int[] {0, 0, 0, FP_ONE};
 	}
 
@@ -134,9 +134,9 @@ public final class VectorLibrary {
 	 * @param result
 	 */
 	public static int[] multiply(int[] vector, int value) {
-		vector[VECTOR_X] = MathLibrary.multiply(vector[VECTOR_X], value);
-		vector[VECTOR_Y] = MathLibrary.multiply(vector[VECTOR_Y], value);
-		vector[VECTOR_Z] = MathLibrary.multiply(vector[VECTOR_Z], value);
+		vector[VECTOR_X] = FixedPointMath.multiply(vector[VECTOR_X], value);
+		vector[VECTOR_Y] = FixedPointMath.multiply(vector[VECTOR_Y], value);
+		vector[VECTOR_Z] = FixedPointMath.multiply(vector[VECTOR_Z], value);
 		return vector;
 	}
 
@@ -148,9 +148,9 @@ public final class VectorLibrary {
 	 * @param result
 	 */
 	public static int[] divide(int[] vector, int value) {
-		vector[VECTOR_X] = MathLibrary.divide(vector[VECTOR_X], value);
-		vector[VECTOR_Y] = MathLibrary.divide(vector[VECTOR_Y], value);
-		vector[VECTOR_Z] = MathLibrary.divide(vector[VECTOR_Z], value);
+		vector[VECTOR_X] = FixedPointMath.divide(vector[VECTOR_X], value);
+		vector[VECTOR_Y] = FixedPointMath.divide(vector[VECTOR_Y], value);
+		vector[VECTOR_Z] = FixedPointMath.divide(vector[VECTOR_Z], value);
 		return vector;
 	}
 
@@ -190,9 +190,9 @@ public final class VectorLibrary {
 	 * @param result
 	 */
 	public static int[] multiply(int[] vector1, int[] vector2) {
-		vector1[VECTOR_X] = MathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
-		vector1[VECTOR_Y] = MathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		vector1[VECTOR_Z] = MathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+		vector1[VECTOR_X] = FixedPointMath.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
+		vector1[VECTOR_Y] = FixedPointMath.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		vector1[VECTOR_Z] = FixedPointMath.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return vector1;
 	}
 
@@ -204,9 +204,9 @@ public final class VectorLibrary {
 	 * @param result
 	 */
 	public static int[] divide(int[] vector1, int[] vector2) {
-		vector1[VECTOR_X] = MathLibrary.divide(vector1[VECTOR_X], vector2[VECTOR_X]);
-		vector1[VECTOR_Y] = MathLibrary.divide(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		vector1[VECTOR_Z] = MathLibrary.divide(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+		vector1[VECTOR_X] = FixedPointMath.divide(vector1[VECTOR_X], vector2[VECTOR_X]);
+		vector1[VECTOR_Y] = FixedPointMath.divide(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		vector1[VECTOR_Z] = FixedPointMath.divide(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return vector1;
 	}
 
@@ -221,11 +221,11 @@ public final class VectorLibrary {
 		int x = vector[VECTOR_X];
 		int y = vector[VECTOR_Y];
 		int z = vector[VECTOR_Z];
-		final int rowSize = MatrixLibrary.MATRIX_ROW_SIZE;
+		final int rowSize = MatrixMath.MATRIX_ROW_SIZE;
 		for (int i = 0; i < VECTOR_SIZE; i++) {
-			int res = MathLibrary.multiply(matrix[0 + (i * rowSize)], x);
-			res += MathLibrary.multiply(matrix[1 + (i * rowSize)], y);
-			res += MathLibrary.multiply(matrix[2 + (i * rowSize)], z);
+			int res = FixedPointMath.multiply(matrix[0 + (i * rowSize)], x);
+			res += FixedPointMath.multiply(matrix[1 + (i * rowSize)], y);
+			res += FixedPointMath.multiply(matrix[2 + (i * rowSize)], z);
 			vector[i] = res + matrix[3 + (i * rowSize)];
 		}
 		return vector;
@@ -238,7 +238,7 @@ public final class VectorLibrary {
 	 * @return
 	 */
 	public static int length(int[] vector) {
-		return MathLibrary.sqrt(dotProduct(vector, vector));
+		return FixedPointMath.sqrt(dotProduct(vector, vector));
 	}
 	
 	/**
@@ -268,9 +268,9 @@ public final class VectorLibrary {
 	 * @return
 	 */
 	public static int dotProduct(int[] vector1, int[] vector2) {
-		int x = MathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
-		int y = MathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		int z = MathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+		int x = FixedPointMath.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
+		int y = FixedPointMath.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		int z = FixedPointMath.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return x + y + z;
 	}
 	
@@ -285,10 +285,10 @@ public final class VectorLibrary {
 		int x = vector1[VECTOR_X] - vector2[VECTOR_X];
 		int y = vector1[VECTOR_Y] - vector2[VECTOR_Y];
 		int z = vector1[VECTOR_Z] - vector2[VECTOR_Z];
-		x = MathLibrary.multiply(x, x);
-		y = MathLibrary.multiply(y, y);
-		z = MathLibrary.multiply(z, z);
-		return MathLibrary.sqrt(x + y + z);
+		x = FixedPointMath.multiply(x, x);
+		y = FixedPointMath.multiply(y, y);
+		z = FixedPointMath.multiply(z, z);
+		return FixedPointMath.sqrt(x + y + z);
 	}
 	
 	/**
@@ -323,12 +323,12 @@ public final class VectorLibrary {
 	 * @param result
 	 */
 	public static int[] crossProduct(int[] vector1, int[] vector2, int[] result) {
-		result[VECTOR_X] = MathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Z]);
-		result[VECTOR_Y] = MathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_X]);
-		result[VECTOR_Z] = MathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_Y]);
-		result[VECTOR_X] -= MathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Y]);
-		result[VECTOR_Y] -= MathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_Z]);
-		result[VECTOR_Z] -= MathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_X]);
+		result[VECTOR_X] = FixedPointMath.multiply(vector1[VECTOR_Y], vector2[VECTOR_Z]);
+		result[VECTOR_Y] = FixedPointMath.multiply(vector1[VECTOR_Z], vector2[VECTOR_X]);
+		result[VECTOR_Z] = FixedPointMath.multiply(vector1[VECTOR_X], vector2[VECTOR_Y]);
+		result[VECTOR_X] -= FixedPointMath.multiply(vector1[VECTOR_Z], vector2[VECTOR_Y]);
+		result[VECTOR_Y] -= FixedPointMath.multiply(vector1[VECTOR_X], vector2[VECTOR_Z]);
+		result[VECTOR_Z] -= FixedPointMath.multiply(vector1[VECTOR_Y], vector2[VECTOR_X]);
 		return result;
 	}
 	
@@ -339,10 +339,10 @@ public final class VectorLibrary {
 	 * @param result
 	 */
 	public static int[] normalize(int[] vector) {
-		int magnitude = MathLibrary.divide(FP_ONE, length(vector) + 1);
-		vector[VECTOR_X] = MathLibrary.multiply(vector[VECTOR_X], magnitude);
-		vector[VECTOR_Y] = MathLibrary.multiply(vector[VECTOR_Y], magnitude);
-		vector[VECTOR_Z] = MathLibrary.multiply(vector[VECTOR_Z], magnitude);
+		int magnitude = FixedPointMath.divide(FP_ONE, length(vector) + 1);
+		vector[VECTOR_X] = FixedPointMath.multiply(vector[VECTOR_X], magnitude);
+		vector[VECTOR_Y] = FixedPointMath.multiply(vector[VECTOR_Y], magnitude);
+		vector[VECTOR_Z] = FixedPointMath.multiply(vector[VECTOR_Z], magnitude);
 		return vector;
 	}
 	
@@ -427,10 +427,10 @@ public final class VectorLibrary {
 	 */
 	public static String toString(int[] vector) {
 		String result = "(";
-		result += MathLibrary.generate(vector[0]) + ", ";
-		result += MathLibrary.generate(vector[1]) + ", ";
-		result += MathLibrary.generate(vector[2]) + ", ";
-		result += MathLibrary.generate(vector[3]);
+		result += FixedPointMath.toFloat(vector[0]) + ", ";
+		result += FixedPointMath.toFloat(vector[1]) + ", ";
+		result += FixedPointMath.toFloat(vector[2]) + ", ";
+		result += FixedPointMath.toFloat(vector[3]);
 		result += ")";
 		return result;
 	}

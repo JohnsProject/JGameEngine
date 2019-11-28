@@ -1,15 +1,15 @@
-package com.johnsproject.jgameengine.library;
+package com.johnsproject.jgameengine.math;
 
-import static com.johnsproject.jgameengine.library.MathLibrary.*;
-import static com.johnsproject.jgameengine.library.VectorLibrary.*;
-import static com.johnsproject.jgameengine.library.MatrixLibrary.*;
+import static com.johnsproject.jgameengine.math.FixedPointMath.*;
+import static com.johnsproject.jgameengine.math.MatrixMath.*;
+import static com.johnsproject.jgameengine.math.VectorMath.*;
 import static com.johnsproject.jgameengine.model.Camera.*;
 
 import com.johnsproject.jgameengine.model.Transform;
 
-public final class TransformationLibrary {
+public final class TransformationMath {
 	
-	private TransformationLibrary() { }
+	private TransformationMath() { }
 	
 	/**
 	 * Fills the given matrix with the values of the model matrix of the given transform.
@@ -23,13 +23,13 @@ public final class TransformationLibrary {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-		MatrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
 		scale(matrix, scale, translationMatrix, result);
 		rotateX(result, rotation[VECTOR_X], translationMatrix, matrix);
 		rotateY(matrix, rotation[VECTOR_Y], translationMatrix, result);
 		rotateZ(result, rotation[VECTOR_Z], translationMatrix, matrix);
 		translate(matrix, location, translationMatrix, result);
-		MatrixLibrary.copy(matrix, result);
+		MatrixMath.copy(matrix, result);
 		return result;
 	}
 
@@ -44,16 +44,16 @@ public final class TransformationLibrary {
 	public static int[] normalMatrix(int[] matrix, Transform transform, int[] zRotationMatrix, int[] result) {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-		MatrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
 		scale(matrix, scale, zRotationMatrix, result);
 		rotateX(result, rotation[VECTOR_X], zRotationMatrix, matrix);
 		rotateY(matrix, rotation[VECTOR_Y], zRotationMatrix, result);
 		rotateZ(result, rotation[VECTOR_Z], zRotationMatrix, matrix);
 		if ((scale[VECTOR_X] != scale[VECTOR_Y]) || (scale[VECTOR_Y] != scale[VECTOR_Z])) {
-			MatrixLibrary.inverse(matrix, result);
-			MatrixLibrary.transpose(result, matrix);
+			MatrixMath.inverse(matrix, result);
+			MatrixMath.transpose(result, matrix);
 		}
-		MatrixLibrary.copy(result, matrix);
+		MatrixMath.copy(result, matrix);
 		return result;
 	}
 	
@@ -69,20 +69,20 @@ public final class TransformationLibrary {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-		int scaleX = MathLibrary.divide(FP_ONE, scale[VECTOR_X] == 0 ? 1 : scale[VECTOR_X]);
-		int scaleY = MathLibrary.divide(FP_ONE, scale[VECTOR_Y] == 0 ? 1 : scale[VECTOR_Y]);
-		int scaleZ = MathLibrary.divide(FP_ONE, scale[VECTOR_Z] == 0 ? 1 : scale[VECTOR_Z]);
-		VectorLibrary.invert(location);
-		VectorLibrary.invert(rotation);
-		MatrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		int scaleX = FixedPointMath.divide(FP_ONE, scale[VECTOR_X] == 0 ? 1 : scale[VECTOR_X]);
+		int scaleY = FixedPointMath.divide(FP_ONE, scale[VECTOR_Y] == 0 ? 1 : scale[VECTOR_Y]);
+		int scaleZ = FixedPointMath.divide(FP_ONE, scale[VECTOR_Z] == 0 ? 1 : scale[VECTOR_Z]);
+		VectorMath.invert(location);
+		VectorMath.invert(rotation);
+		MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
 		translate(matrix, location, scaleMatrix, result);
 		rotateZ(result, rotation[VECTOR_Z], scaleMatrix, matrix);
 		rotateY(matrix, rotation[VECTOR_Y], scaleMatrix, result);
 		rotateX(result, rotation[VECTOR_X], scaleMatrix, matrix);
 		scale(matrix, scaleX, scaleY, scaleZ, scaleMatrix, result);
-		VectorLibrary.invert(location);
-		VectorLibrary.invert(rotation);
-		MatrixLibrary.copy(result, matrix);
+		VectorMath.invert(location);
+		VectorMath.invert(rotation);
+		MatrixMath.copy(result, matrix);
 		return result;
 	}
 
@@ -97,11 +97,11 @@ public final class TransformationLibrary {
 	 * @return
 	 */
 	public static int[] orthographicMatrix(int[] matrix, int focalLength) {
-		int[] projectionMatrix = MatrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		MatrixLibrary.set(projectionMatrix, 0, 0, focalLength);
-		MatrixLibrary.set(projectionMatrix, 1, 1, focalLength);
-		MatrixLibrary.set(projectionMatrix, 2, 2, -FP_ONE);
-		MatrixLibrary.set(projectionMatrix, 3, 3, -FP_ONE << 4);
+		int[] projectionMatrix = MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
+		MatrixMath.set(projectionMatrix, 0, 0, focalLength);
+		MatrixMath.set(projectionMatrix, 1, 1, focalLength);
+		MatrixMath.set(projectionMatrix, 2, 2, -FP_ONE);
+		MatrixMath.set(projectionMatrix, 3, 3, -FP_ONE << 4);
 		return projectionMatrix;
 	}
 
@@ -115,12 +115,12 @@ public final class TransformationLibrary {
 	 * @return
 	 */
 	public static int[] perspectiveMatrix(int[] matrix, int focalLength) {
-		int[] projectionMatrix = MatrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		MatrixLibrary.set(projectionMatrix, 0, 0, -focalLength);
-		MatrixLibrary.set(projectionMatrix, 1, 1, focalLength);
-		MatrixLibrary.set(projectionMatrix, 2, 2, -FP_ONE);
-		MatrixLibrary.set(projectionMatrix, 2, 3, FP_ONE);
-		MatrixLibrary.set(projectionMatrix, 3, 3, 0);
+		int[] projectionMatrix = MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
+		MatrixMath.set(projectionMatrix, 0, 0, -focalLength);
+		MatrixMath.set(projectionMatrix, 1, 1, focalLength);
+		MatrixMath.set(projectionMatrix, 2, 2, -FP_ONE);
+		MatrixMath.set(projectionMatrix, 2, 3, FP_ONE);
+		MatrixMath.set(projectionMatrix, 3, 3, 0);
 		return projectionMatrix;
 	}
 
@@ -136,7 +136,7 @@ public final class TransformationLibrary {
 	 * @param result
 	 * @return
 	 */
-	public static int[] screenportVector(int[] location, int[] cameraFrustum, int[] result) {
+	public static int[] screenportVector(int[] location, int[] cameraFrustum) {
 		int top = cameraFrustum[FRUSTUM_TOP];
 		int bottom = cameraFrustum[FRUSTUM_BOTTOM];
 		int left = cameraFrustum[FRUSTUM_LEFT];
@@ -147,14 +147,14 @@ public final class TransformationLibrary {
 		int halfX = left + ((right - left) >> 1);
 		int halfY = top + ((bottom - top) >> 1);
 		int w = location[VECTOR_W];
-		w = MathLibrary.divide(FP_ONE, w == 0 ? 1 : w);
-		result[VECTOR_X] = MathLibrary.multiply(location[VECTOR_X], scaleFactor);
-		result[VECTOR_X] = MathLibrary.multiply(result[VECTOR_X], w) + halfX;
-		result[VECTOR_Y] = MathLibrary.multiply(location[VECTOR_Y], scaleFactor);
-		result[VECTOR_Y] = MathLibrary.multiply(result[VECTOR_Y], w) + halfY;
-		result[VECTOR_Z] = MathLibrary.divide(location[VECTOR_Z] - near, far - near);
-		result[VECTOR_W] = FP_ONE;
-		return result;
+		w = FixedPointMath.divide(FP_ONE, w == 0 ? 1 : w);
+		location[VECTOR_X] = FixedPointMath.multiply(location[VECTOR_X], scaleFactor);
+		location[VECTOR_X] = FixedPointMath.multiply(location[VECTOR_X], w) + halfX;
+		location[VECTOR_Y] = FixedPointMath.multiply(location[VECTOR_Y], scaleFactor);
+		location[VECTOR_Y] = FixedPointMath.multiply(location[VECTOR_Y], w) + halfY;
+		location[VECTOR_Z] = FixedPointMath.divide(location[VECTOR_Z] - near, far - near);
+		location[VECTOR_W] = FP_ONE;
+		return location;
 	}
 
 	/**
@@ -169,14 +169,14 @@ public final class TransformationLibrary {
 	 * @param result
 	 * @return
 	 */
-	public static int[] screenportFrustum(int[] cameraFrustum, int screenWidth, int screenHeight, int[] result) {
-		result[FRUSTUM_LEFT] = MathLibrary.multiply(screenWidth, cameraFrustum[FRUSTUM_LEFT]);
-		result[FRUSTUM_RIGHT] = MathLibrary.multiply(screenWidth, cameraFrustum[FRUSTUM_RIGHT]);
-		result[FRUSTUM_TOP] = MathLibrary.multiply(screenHeight, cameraFrustum[FRUSTUM_TOP]);
-		result[FRUSTUM_BOTTOM] = MathLibrary.multiply(screenHeight, cameraFrustum[FRUSTUM_BOTTOM]);
-		result[FRUSTUM_NEAR] = cameraFrustum[FRUSTUM_NEAR];
-		result[FRUSTUM_FAR] = cameraFrustum[FRUSTUM_FAR];
-		return result;
+	public static int[] screenportFrustum(int[] cameraFrustum, int screenWidth, int screenHeight) {
+		cameraFrustum[FRUSTUM_LEFT] = FixedPointMath.multiply(screenWidth, cameraFrustum[FRUSTUM_LEFT]);
+		cameraFrustum[FRUSTUM_RIGHT] = FixedPointMath.multiply(screenWidth, cameraFrustum[FRUSTUM_RIGHT]);
+		cameraFrustum[FRUSTUM_TOP] = FixedPointMath.multiply(screenHeight, cameraFrustum[FRUSTUM_TOP]);
+		cameraFrustum[FRUSTUM_BOTTOM] = FixedPointMath.multiply(screenHeight, cameraFrustum[FRUSTUM_BOTTOM]);
+		cameraFrustum[FRUSTUM_NEAR] = cameraFrustum[FRUSTUM_NEAR];
+		cameraFrustum[FRUSTUM_FAR] = cameraFrustum[FRUSTUM_FAR];
+		return cameraFrustum;
 	}
 	
 	public static int[] translate(int[] vector, int[] direction) {
@@ -191,9 +191,9 @@ public final class TransformationLibrary {
 	}
 	
 	public static int[] scale(int[] vector, int factor) {
-		vector[VECTOR_X] = MathLibrary.multiply(vector[VECTOR_X], factor);
-		vector[VECTOR_Y] = MathLibrary.multiply(vector[VECTOR_Y], factor);
-		vector[VECTOR_Z] = MathLibrary.multiply(vector[VECTOR_Z], factor);
+		vector[VECTOR_X] = FixedPointMath.multiply(vector[VECTOR_X], factor);
+		vector[VECTOR_Y] = FixedPointMath.multiply(vector[VECTOR_Y], factor);
+		vector[VECTOR_Z] = FixedPointMath.multiply(vector[VECTOR_Z], factor);
 		return vector;
 	}
 	
@@ -208,9 +208,9 @@ public final class TransformationLibrary {
 		int x = reflectionVector[VECTOR_X];
 		int y = reflectionVector[VECTOR_Y];
 		int z = reflectionVector[VECTOR_Z];
-		int dot = 2 * VectorLibrary.dotProduct(vector, reflectionVector);
-		VectorLibrary.multiply(reflectionVector, dot);
-		VectorLibrary.subtract(vector, reflectionVector);
+		int dot = 2 * VectorMath.dotProduct(vector, reflectionVector);
+		VectorMath.multiply(reflectionVector, dot);
+		VectorMath.subtract(vector, reflectionVector);
 		reflectionVector[VECTOR_X] = x;
 		reflectionVector[VECTOR_Y] = y;
 		reflectionVector[VECTOR_Z] = z;
@@ -226,16 +226,16 @@ public final class TransformationLibrary {
 	 * @return
 	 */
 	public static int[] rotateX(int[] vector, int angle) {
-		int sin = MathLibrary.sin(angle);
-		int cos = MathLibrary.cos(angle);
+		int sin = FixedPointMath.sin(angle);
+		int cos = FixedPointMath.cos(angle);
 		int x = vector[VECTOR_X];
 		int y = vector[VECTOR_Y];
 		int z = vector[VECTOR_Z];
 		vector[VECTOR_X] = x;
-		vector[VECTOR_Y] = MathLibrary.multiply(y, cos);
-		vector[VECTOR_Y] -= MathLibrary.multiply(z, sin);
-		vector[VECTOR_Z] = MathLibrary.multiply(z, cos);
-		vector[VECTOR_Z] += MathLibrary.multiply(y, sin);
+		vector[VECTOR_Y] = FixedPointMath.multiply(y, cos);
+		vector[VECTOR_Y] -= FixedPointMath.multiply(z, sin);
+		vector[VECTOR_Z] = FixedPointMath.multiply(z, cos);
+		vector[VECTOR_Z] += FixedPointMath.multiply(y, sin);
 		return vector;
 	}
 	
@@ -249,16 +249,16 @@ public final class TransformationLibrary {
 	 */
 	public static int[] rotateY(int[] vector, int angle) {
 		// TODO fix the need of negative angles as in rotation matrix
-		int sin = MathLibrary.sin(-angle);
-		int cos = MathLibrary.cos(-angle);
+		int sin = FixedPointMath.sin(-angle);
+		int cos = FixedPointMath.cos(-angle);
 		int x = vector[VECTOR_X];
 		int y = vector[VECTOR_Y];
 		int z = vector[VECTOR_Z];
-		vector[VECTOR_X] = MathLibrary.multiply(x, cos);
-		vector[VECTOR_X] -= MathLibrary.multiply(z, sin);
+		vector[VECTOR_X] = FixedPointMath.multiply(x, cos);
+		vector[VECTOR_X] -= FixedPointMath.multiply(z, sin);
 		vector[VECTOR_Y] = y;
-		vector[VECTOR_Z] = MathLibrary.multiply(z, cos);
-		vector[VECTOR_Z] += MathLibrary.multiply(x, sin);
+		vector[VECTOR_Z] = FixedPointMath.multiply(z, cos);
+		vector[VECTOR_Z] += FixedPointMath.multiply(x, sin);
 		return vector;
 	}
 	
@@ -272,15 +272,15 @@ public final class TransformationLibrary {
 	 */
 	public static int[] rotateZ(int[] vector, int angle) {
 		// TODO fix the need of negative angles as in rotation matrix
-		int sin = MathLibrary.sin(-angle);
-		int cos = MathLibrary.cos(-angle);
+		int sin = FixedPointMath.sin(-angle);
+		int cos = FixedPointMath.cos(-angle);
 		int x = vector[VECTOR_X];
 		int y = vector[VECTOR_Y];
 		int z = vector[VECTOR_Z];
-		vector[VECTOR_X] = MathLibrary.multiply(x, cos);
-		vector[VECTOR_X] -= MathLibrary.multiply(y, sin);
-		vector[VECTOR_Y] = MathLibrary.multiply(y, cos);
-		vector[VECTOR_Y] += MathLibrary.multiply(x, sin);
+		vector[VECTOR_X] = FixedPointMath.multiply(x, cos);
+		vector[VECTOR_X] -= FixedPointMath.multiply(y, sin);
+		vector[VECTOR_Y] = FixedPointMath.multiply(y, cos);
+		vector[VECTOR_Y] += FixedPointMath.multiply(x, sin);
 		vector[VECTOR_Z] = z;
 		return vector;
 	}	
@@ -335,10 +335,10 @@ public final class TransformationLibrary {
 	 * @param result
 	 */
 	public static int[] translationMatrix(int[] matrix, int x, int y , int z) {
-		MatrixLibrary.copy(matrix, MATRIX_IDENTITY);
-		MatrixLibrary.set(matrix, 3, 0, x);
-		MatrixLibrary.set(matrix, 3, 1, y);
-		MatrixLibrary.set(matrix, 3, 2, z);
+		MatrixMath.copy(matrix, MATRIX_IDENTITY);
+		MatrixMath.set(matrix, 3, 0, x);
+		MatrixMath.set(matrix, 3, 1, y);
+		MatrixMath.set(matrix, 3, 2, z);
 		return matrix;
 	}
 
@@ -374,10 +374,10 @@ public final class TransformationLibrary {
 	}
 	
 	public static int[] scaleMatrix(int[] matrix, int x, int y, int z) {
-		MatrixLibrary.copy(matrix, MATRIX_IDENTITY);
-		MatrixLibrary.set(matrix, 0, 0, x);
-		MatrixLibrary.set(matrix, 1, 1, y);
-		MatrixLibrary.set(matrix, 2, 2, z);
+		MatrixMath.copy(matrix, MATRIX_IDENTITY);
+		MatrixMath.set(matrix, 0, 0, x);
+		MatrixMath.set(matrix, 1, 1, y);
+		MatrixMath.set(matrix, 2, 2, z);
 		return matrix;
 	}
 
@@ -395,13 +395,13 @@ public final class TransformationLibrary {
 	}
 	
 	public static int[] xRotationMatrix(int[] matrix, int angle) {
-		MatrixLibrary.copy(matrix, MATRIX_IDENTITY);
-		int cos = MathLibrary.cos(angle);
-		int sin = MathLibrary.sin(angle);
-		MatrixLibrary.set(matrix, 1, 1, cos);
-		MatrixLibrary.set(matrix, 1, 2, sin);
-		MatrixLibrary.set(matrix, 2, 1, -sin);
-		MatrixLibrary.set(matrix, 2, 2, cos);
+		MatrixMath.copy(matrix, MATRIX_IDENTITY);
+		int cos = FixedPointMath.cos(angle);
+		int sin = FixedPointMath.sin(angle);
+		MatrixMath.set(matrix, 1, 1, cos);
+		MatrixMath.set(matrix, 1, 2, sin);
+		MatrixMath.set(matrix, 2, 1, -sin);
+		MatrixMath.set(matrix, 2, 2, cos);
 		return matrix;
 	}
 
@@ -419,13 +419,13 @@ public final class TransformationLibrary {
 	}
 	
 	public static int[] yRotationMatrix(int[] matrix, int angle) {
-		MatrixLibrary.copy(matrix, MATRIX_IDENTITY);
-		int cos = MathLibrary.cos(angle);
-		int sin = MathLibrary.sin(angle);
-		MatrixLibrary.set(matrix, 0, 0, cos);
-		MatrixLibrary.set(matrix, 0, 2, -sin);
-		MatrixLibrary.set(matrix, 2, 0, sin);
-		MatrixLibrary.set(matrix, 2, 2, cos);
+		MatrixMath.copy(matrix, MATRIX_IDENTITY);
+		int cos = FixedPointMath.cos(angle);
+		int sin = FixedPointMath.sin(angle);
+		MatrixMath.set(matrix, 0, 0, cos);
+		MatrixMath.set(matrix, 0, 2, -sin);
+		MatrixMath.set(matrix, 2, 0, sin);
+		MatrixMath.set(matrix, 2, 2, cos);
 		return matrix;
 	}
 
@@ -443,13 +443,13 @@ public final class TransformationLibrary {
 	}
 	
 	public static int[] zRotationMatrix(int[] matrix, int angle) {
-		MatrixLibrary.copy(matrix, MATRIX_IDENTITY);
-		int cos = MathLibrary.cos(angle);
-		int sin = MathLibrary.sin(angle);
-		MatrixLibrary.set(matrix, 0, 0, cos);
-		MatrixLibrary.set(matrix, 0, 1, sin);
-		MatrixLibrary.set(matrix, 1, 0, -sin);
-		MatrixLibrary.set(matrix, 1, 1, cos);
+		MatrixMath.copy(matrix, MATRIX_IDENTITY);
+		int cos = FixedPointMath.cos(angle);
+		int sin = FixedPointMath.sin(angle);
+		MatrixMath.set(matrix, 0, 0, cos);
+		MatrixMath.set(matrix, 0, 1, sin);
+		MatrixMath.set(matrix, 1, 0, -sin);
+		MatrixMath.set(matrix, 1, 1, cos);
 		return matrix;
 	}
 }

@@ -23,11 +23,11 @@
  */
 package com.johnsproject.jgameengine.model;
 
-import com.johnsproject.jgameengine.library.MathLibrary;
-import com.johnsproject.jgameengine.library.MatrixLibrary;
-import com.johnsproject.jgameengine.library.VectorLibrary;
+import static com.johnsproject.jgameengine.math.VectorMath.*;
 
-import static com.johnsproject.jgameengine.library.VectorLibrary.*;
+import com.johnsproject.jgameengine.math.FixedPointMath;
+import com.johnsproject.jgameengine.math.MatrixMath;
+import com.johnsproject.jgameengine.math.VectorMath;
 
 public class RigidBody {
 	
@@ -41,12 +41,12 @@ public class RigidBody {
 	
 	public RigidBody() {
 		this.kinematic = false;
-		this.mass = MathLibrary.FP_ONE;
-		this.force = VectorLibrary.generate();
-		this.torque = VectorLibrary.generate();
-		this.linearVelocity = VectorLibrary.generate();
-		this.angularVelocity = VectorLibrary.generate();
-		this.momentOfInertia = MatrixLibrary.generate();
+		this.mass = FixedPointMath.FP_ONE;
+		this.force = VectorMath.toVector();
+		this.torque = VectorMath.toVector();
+		this.linearVelocity = VectorMath.toVector();
+		this.angularVelocity = VectorMath.toVector();
+		this.momentOfInertia = MatrixMath.indentityMatrix();
 	}
 
 	public boolean isKinematic() {

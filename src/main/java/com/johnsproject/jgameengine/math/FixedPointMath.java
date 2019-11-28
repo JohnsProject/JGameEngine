@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.johnsproject.jgameengine.library;
+package com.johnsproject.jgameengine.math;
 
 /**
  * The MathLibrary class contains methods for generating fixed point numbers and 
@@ -30,7 +30,7 @@ package com.johnsproject.jgameengine.library;
  * 
  * @author John Ferraz Salomon
  */
-public final class MathLibrary {
+public final class FixedPointMath {
 	
 	/**
 	 * This is the bit representation of the default fixed point precision value. 
@@ -49,8 +49,8 @@ public final class MathLibrary {
 	 */
 	public static final int FP_HALF = FP_ONE >> 1;
 	
-	public static final int FP_DEGREE_RAD = generate((float) (Math.PI / 180.0f));
-	public static final int FP_RAD_DEGREE = generate((float) (180.0f / Math.PI));
+	public static final int FP_DEGREE_RAD = toFixedPoint((float) (Math.PI / 180.0f));
+	public static final int FP_RAD_DEGREE = toFixedPoint((float) (180.0f / Math.PI));
 	
 	private static final int[] sinLUT = new int[] {
 			0, 572, 1144, 1715, 2286, 2856, 3425, 3993, 4560, 5126, 5690, 6252, 6813, 7371, 7927, 8481,
@@ -62,7 +62,7 @@ public final class MathLibrary {
 			32365, 32449, 32524, 32588, 32643, 32688, 32723, 32748, 32763, 32768
 	};
 	
-	private MathLibrary() { }
+	private FixedPointMath() { }
 	
 	/**
 	 * Returns the fixed point representation of value.
@@ -70,7 +70,7 @@ public final class MathLibrary {
 	 * @param value
 	 * @return
 	 */
-	public static int generate(double value) {
+	public static int toFixedPoint(double value) {
 		return (int)(value * FP_ONE);
 	}
 	
@@ -80,7 +80,7 @@ public final class MathLibrary {
 	 * @param value
 	 * @return
 	 */
-	public static int generate(float value) {
+	public static int toFixedPoint(float value) {
 		return (int)(value * FP_ONE);
 	}
 	
@@ -90,7 +90,7 @@ public final class MathLibrary {
 	 * @param value fixed point value.
 	 * @return
 	 */
-	public static float generate(int value) {
+	public static float toFloat(int value) {
 		return (float)value / FP_ONE;
 	}
 	

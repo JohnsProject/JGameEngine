@@ -2,9 +2,9 @@ package com.johnsproject.jgameengine.library;
 
 import org.junit.Test;
 
-import com.johnsproject.jgameengine.library.MathLibrary;
-import com.johnsproject.jgameengine.library.MatrixLibrary;
-import com.johnsproject.jgameengine.library.VectorLibrary;
+import com.johnsproject.jgameengine.math.FixedPointMath;
+import com.johnsproject.jgameengine.math.MatrixMath;
+import com.johnsproject.jgameengine.math.VectorMath;
 
 public class VectorLibraryTest {
 
