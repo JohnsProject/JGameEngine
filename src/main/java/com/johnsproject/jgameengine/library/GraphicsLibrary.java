@@ -55,15 +55,18 @@ public class GraphicsLibrary {
 	 * @param transform
 	 * @return
 	 */
-	public int[] modelMatrix(int[] matrix, Transform transform) {
+	public int[] modelMatrix(int[] matrix, Transform transform, int[] translationMatrix, int[] result) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-		int[] modelMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		modelMatrix = matrixLibrary.scale(modelMatrix, scale, modelMatrix);
-		modelMatrix = matrixLibrary.rotateXYZ(modelMatrix, rotation, modelMatrix);
-		modelMatrix = matrixLibrary.translate(modelMatrix, location, modelMatrix);
-		return modelMatrix;
+		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		matrixLibrary.scale(matrix, scale, translationMatrix, result);
+		matrixLibrary.rotateX(result, rotation[VECTOR_X], translationMatrix, matrix);
+		matrixLibrary.rotateY(matrix, rotation[VECTOR_Y], translationMatrix, result);
+		matrixLibrary.rotateZ(result, rotation[VECTOR_Z], translationMatrix, matrix);
+		matrixLibrary.translate(matrix, location, translationMatrix, result);
+		matrixLibrary.copy(matrix, result);
+		return result;
 	}
 
 	/**
@@ -74,17 +77,20 @@ public class GraphicsLibrary {
 	 * @param transform
 	 * @return
 	 */
-	public int[] normalMatrix(int[] matrix, Transform transform) {
+	public int[] normalMatrix(int[] matrix, Transform transform, int[] zRotationMatrix, int[] result) {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
-		int[] normalMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
-		normalMatrix = matrixLibrary.scale(normalMatrix, scale, normalMatrix);
-		normalMatrix = matrixLibrary.rotateXYZ(normalMatrix, rotation, normalMatrix);
+		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		matrixLibrary.scale(matrix, scale, zRotationMatrix, result);
+		matrixLibrary.rotateX(result, rotation[VECTOR_X], zRotationMatrix, matrix);
+		matrixLibrary.rotateY(matrix, rotation[VECTOR_Y], zRotationMatrix, result);
+		matrixLibrary.rotateZ(result, rotation[VECTOR_Z], zRotationMatrix, matrix);
 		if ((scale[VECTOR_X] != scale[VECTOR_Y]) || (scale[VECTOR_Y] != scale[VECTOR_Z])) {
-			normalMatrix = matrixLibrary.inverse(normalMatrix, normalMatrix);
-			normalMatrix = matrixLibrary.transpose(normalMatrix, normalMatrix);
+			matrixLibrary.inverse(matrix, result);
+			matrixLibrary.transpose(result, matrix);
 		}
-		return normalMatrix;
+		matrixLibrary.copy(result, matrix);
+		return result;
 	}
 	
 	/**
@@ -95,17 +101,20 @@ public class GraphicsLibrary {
 	 * @param transform
 	 * @return
 	 */
-	public int[] viewMatrix(int[] matrix, Transform transform) {
+	public int[] viewMatrix(int[] matrix, Transform transform, int[] xRotationMatrix, int[] result) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
-		int[] viewMatrix = matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
 		int[] invertedLocation = vectorLibrary.invert(location, location);
 		int[] invertedRotation = vectorLibrary.invert(rotation, rotation);
-		viewMatrix = matrixLibrary.translate(viewMatrix, invertedLocation, viewMatrix);
-		viewMatrix = matrixLibrary.rotateZYX(viewMatrix, invertedRotation, viewMatrix);
+		matrixLibrary.copy(matrix, MatrixLibrary.MATRIX_IDENTITY);
+		matrixLibrary.translate(matrix, location, xRotationMatrix, result);
+		matrixLibrary.rotateZ(result, rotation[VECTOR_Z], xRotationMatrix, matrix);
+		matrixLibrary.rotateY(matrix, rotation[VECTOR_Y], xRotationMatrix, result);
+		matrixLibrary.rotateX(result, rotation[VECTOR_X], xRotationMatrix, matrix);
 		location = vectorLibrary.invert(invertedLocation, location);
 		rotation = vectorLibrary.invert(invertedRotation, rotation);
-		return viewMatrix;
+		matrixLibrary.copy(result, matrix);
+		return result;
 	}
 
 	

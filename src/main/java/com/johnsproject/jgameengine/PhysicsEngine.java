@@ -87,16 +87,20 @@ public class PhysicsEngine implements EngineListener {
 			final RigidBody rigidBody = sceneObject.getRigidBody();
 			final Transform transform = sceneObject.getTransform();
 			applyForces(sceneObject);
-			int[] linearAcceleration = vectorLibrary.divide(rigidBody.getForce(), rigidBody.getMass(), vectorCache1);
-			vectorLibrary.multiply(linearAcceleration, e.getDeltaTime(), linearAcceleration);
+			int[] linearAcceleration = vectorLibrary.copy(vectorCache1, rigidBody.getForce());
+			vectorLibrary.divide(linearAcceleration, rigidBody.getMass());
+			vectorLibrary.multiply(linearAcceleration, e.getDeltaTime());
 			rigidBody.addLinearVelocity(linearAcceleration);
-			int[] linearVelocity = vectorLibrary.multiply(rigidBody.getLinearVelocity(), e.getDeltaTime(), vectorCache1);
+			int[] linearVelocity = vectorLibrary.copy(vectorCache1, rigidBody.getLinearVelocity());
+			vectorLibrary.multiply(linearVelocity, e.getDeltaTime());
 			transform.translate(linearVelocity);
-			int[] angularAcceleration = vectorLibrary.divide(rigidBody.getTorque(), rigidBody.getMass(), vectorCache1);
-			vectorLibrary.multiply(angularAcceleration, e.getDeltaTime(), angularAcceleration);
+			int[] angularAcceleration = vectorLibrary.copy(vectorCache1, rigidBody.getTorque());
+			vectorLibrary.divide(angularAcceleration, rigidBody.getMass());
+			vectorLibrary.multiply(angularAcceleration, e.getDeltaTime());
 			rigidBody.addAngularVelocity(angularAcceleration);
-			int[] angularVelocity = vectorLibrary.multiply(rigidBody.getAngularVelocity(), e.getDeltaTime(), vectorCache1);
-			vectorLibrary.multiply(angularVelocity, MathLibrary.FP_RAD_DEGREE, angularVelocity);
+			int[] angularVelocity = vectorLibrary.copy(vectorCache1, rigidBody.getAngularVelocity());
+			vectorLibrary.multiply(angularVelocity, e.getDeltaTime());
+			vectorLibrary.multiply(angularVelocity, MathLibrary.FP_RAD_DEGREE);
 			transform.rotate(angularVelocity);
 		}
 	}

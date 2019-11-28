@@ -28,8 +28,8 @@ import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
 
 import static com.johnsproject.jgameengine.library.VectorLibrary.*;
 
-import com.johnsproject.jgameengine.library.ColorLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
+import com.johnsproject.jgameengine.library.VectorLibrary;
 
 public class ShadowMappingShader extends Shader {
 	
@@ -44,10 +44,13 @@ public class ShadowMappingShader extends Shader {
 	private final FlatRasterizer rasterizer;
 	
 	private Texture currentShadowMap;
+	
+	private int[] vertexLocation;
 
 	public ShadowMappingShader() {
 		this.rasterizer = new FlatRasterizer(this);
 		this.shaderProperties = new ShadowMappingProperties();
+		this.vertexLocation = VectorLibrary.generate();
 	}
 	
 	@Override
@@ -83,10 +86,11 @@ public class ShadowMappingShader extends Shader {
 	
 	private void transformVertices(GeometryBuffer geometryBuffer, int[] lightMatrix, int[] lightFrustum) {
 		for (int i = 0; i < geometryBuffer.getVertexBuffers().length; i++) {
-			int[] vertexLocation = geometryBuffer.getVertexBuffer(i).getLocation();
-			vectorLibrary.copy(vertexLocation, geometryBuffer.getVertexBuffer(i).getWorldLocation());
-			vectorLibrary.matrixMultiply(vertexLocation, lightMatrix, vertexLocation);
-			graphicsLibrary.screenportVector(vertexLocation, lightFrustum, vertexLocation);
+			int[] location = geometryBuffer.getVertexBuffer(i).getLocation();
+			vectorLibrary.copy(location, geometryBuffer.getVertexBuffer(i).getWorldLocation());
+			vectorLibrary.matrixMultiply(location, lightMatrix, vertexLocation);
+			vectorLibrary.copy(location, vertexLocation);
+			graphicsLibrary.screenportVector(location, lightFrustum, location);
 		}
 	}
 

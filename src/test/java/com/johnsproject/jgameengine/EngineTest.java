@@ -66,7 +66,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		cache = VectorLibrary.generate();
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
 		EngineWindow window = new EngineWindow(frameBuffer);
-		//EngineStatistics stats = new EngineStatistics(window);
+		EngineStatistics stats = new EngineStatistics(window);
 		graphicsEngine = new GraphicsEngine(frameBuffer);
 		inputEngine = new InputEngine();
 		physicsEngine = new PhysicsEngine();
@@ -83,7 +83,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		Engine.getInstance().addEngineListener(inputEngine);
 //		Engine.getInstance().addEngineListener(physicsEngine);
 		Engine.getInstance().addEngineListener(window);
-		//Engine.getInstance().addEngineListener(stats);
+		Engine.getInstance().addEngineListener(stats);
 		Engine.getInstance().start();
 	}
 	
@@ -225,34 +225,30 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	int startSpeed = FP_ONE / 10;
 	int speed = startSpeed;
 	public void keyDown(KeyEvent e) {
+		vectorLibrary.copy(cache, VectorLibrary.VECTOR_ZERO);
 		if(e.getKeyCode() == KeyEvent.VK_W) {
-			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_FORWARD, cameraTransform.getRotation(), cache);
-			vectorLibrary.multiply(cache, speed, cache);
-			cameraTransform.translate(cache);
+			vectorLibrary.copy(cache, VectorLibrary.VECTOR_FORWARD);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_A) {
-			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_LEFT, cameraTransform.getRotation(), cache);
-			vectorLibrary.multiply(cache, speed, cache);
-			cameraTransform.translate(cache);
+			vectorLibrary.copy(cache, VectorLibrary.VECTOR_LEFT);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_D) {
-			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_RIGHT, cameraTransform.getRotation(), cache);
-			vectorLibrary.multiply(cache, speed, cache);
-			cameraTransform.translate(cache);
+			vectorLibrary.copy(cache, VectorLibrary.VECTOR_RIGHT);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_S) {
-			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_BACK, cameraTransform.getRotation(), cache);
-			vectorLibrary.multiply(cache, speed, cache);
-			cameraTransform.translate(cache);
+			vectorLibrary.copy(cache, VectorLibrary.VECTOR_BACK);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_E) {
-			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_UP, cameraTransform.getRotation(), cache);
-			vectorLibrary.multiply(cache, speed, cache);
-			cameraTransform.translate(cache);
+			vectorLibrary.copy(cache, VectorLibrary.VECTOR_UP);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_Y) {
-			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, cameraTransform.getRotation(), cache);
-			vectorLibrary.multiply(cache, speed, cache);
+			vectorLibrary.copy(cache, VectorLibrary.VECTOR_DOWN);
+		}
+		if(!vectorLibrary.equals(cache, VectorLibrary.VECTOR_ZERO)) {
+			vectorLibrary.rotateX(cache, cameraTransform.getRotation()[VectorLibrary.VECTOR_X]);
+			vectorLibrary.rotateY(cache, cameraTransform.getRotation()[VectorLibrary.VECTOR_Y]);
+			vectorLibrary.rotateZ(cache, cameraTransform.getRotation()[VectorLibrary.VECTOR_Z]);
+			vectorLibrary.multiply(cache, speed);
 			cameraTransform.translate(cache);
 		}
 	}

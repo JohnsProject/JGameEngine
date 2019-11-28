@@ -45,9 +45,6 @@ public class MatrixLibrary {
 		0, 0, 0, FP_ONE
 	};
 
-	private final int[] matrixCache1 = generate();
-	private final int[] matrixCache2 = generate();
-
 	private final MathLibrary mathLibrary;
 
 	public MatrixLibrary() {
@@ -101,9 +98,6 @@ public class MatrixLibrary {
 	 * @param result
 	 */
 	public int[] add(int[] matrix1, int[] matrix2, int[] result) {
-		// ensures that will return right values if matrix or matrix two is the same as result
-		matrix1 = copy(matrixCache1, matrix1);
-		matrix2 = copy(matrixCache2, matrix2);
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
 				int res = get(matrix1, 0, j) + get(matrix2, i, 0);
@@ -124,9 +118,6 @@ public class MatrixLibrary {
 	 * @param result
 	 */
 	public int[] subtract(int[] matrix1, int[] matrix2, int[] result) {
-		// ensures that will return right values if matrix or matrix two is the same as result
-		matrix1 = copy(matrixCache1, matrix1);
-		matrix2 = copy(matrixCache2, matrix2);
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
 				int res = get(matrix1, 0, j) - get(matrix2, i, 0);
@@ -147,9 +138,6 @@ public class MatrixLibrary {
 	 * @param result
 	 */
 	public int[] multiply(int[] matrix1, int[] matrix2, int[] result) {
-		// ensures that will return right values if matrix or matrix two is the same as result
-		matrix1 = copy(matrixCache1, matrix1);
-		matrix2 = copy(matrixCache2, matrix2);
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
 				int res = mathLibrary.multiply(get(matrix1, 0, j), get(matrix2, i, 0));
@@ -170,9 +158,6 @@ public class MatrixLibrary {
 	 * @param result
 	 */
 	public int[] divide(int[] matrix1, int[] matrix2, int[] result) {
-		// ensures that will return right values if matrix or matrix two is the same as result
-		matrix1 = copy(matrixCache1, matrix1);
-		matrix2 = copy(matrixCache2, matrix2);
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
 				int res = mathLibrary.divide(get(matrix1, 0, j), get(matrix2, i, 0));
@@ -192,13 +177,13 @@ public class MatrixLibrary {
 	 * @param value
 	 * @param result
 	 */
-	public int[] add(int[] matrix, int value, int[] result) {
+	public int[] add(int[] matrix, int value) {
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				set(result, i, j, get(matrix, i, j) + value);
+				set(matrix, i, j, get(matrix, i, j) + value);
 			}
 		}
-		return result;
+		return matrix;
 	}
 	
 	/**
@@ -208,13 +193,13 @@ public class MatrixLibrary {
 	 * @param value
 	 * @param result
 	 */
-	public int[] subtract(int[] matrix, int value, int[] result) {
+	public int[] subtract(int[] matrix, int value) {
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				set(result, i, j, get(matrix, i, j) - value);
+				set(matrix, i, j, get(matrix, i, j) - value);
 			}
 		}
-		return result;
+		return matrix;
 	}
 	
 	/**
@@ -224,13 +209,13 @@ public class MatrixLibrary {
 	 * @param value
 	 * @param result
 	 */
-	public int[] multiply(int[] matrix, int value, int[] result) {
+	public int[] multiply(int[] matrix, int value) {
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				set(result, i, j, mathLibrary.multiply(get(matrix, i, j), value));
+				set(matrix, i, j, mathLibrary.multiply(get(matrix, i, j), value));
 			}
 		}
-		return result;
+		return matrix;
 	}
 	
 	/**
@@ -240,13 +225,13 @@ public class MatrixLibrary {
 	 * @param value
 	 * @param result
 	 */
-	public int[] divide(int[] matrix, int value, int[] result) {
+	public int[] divide(int[] matrix, int value) {
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				set(result, i, j, mathLibrary.divide(get(matrix, i, j), value));
+				set(matrix, i, j, mathLibrary.divide(get(matrix, i, j), value));
 			}
 		}
-		return result;
+		return matrix;
 	}
 
 	/**
@@ -256,8 +241,6 @@ public class MatrixLibrary {
 	 * @param result
 	 */
 	public int[] transpose(int[] matrix, int[] result) {
-		// ensures that will return right values if matrix or matrix two is the same as result
-		matrix = copy(matrixCache1, matrix);
 		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
 			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
 				set(result, i, j, get(matrix, j, i));
@@ -305,9 +288,8 @@ public class MatrixLibrary {
 	 * @param result
 	 */
 	public int[] inverse(int[] matrix, int[] result) {
-		// ensures that will return right values if matrix or matrix two is the same as result
-		matrix = copy(matrixCache1, matrix);
-		int determinant = determinant(matrixCache1) + 1;
+		matrix = copy(result, matrix);
+		int determinant = determinant(matrix) + 1;
 		set(result, 0, 0, mathLibrary.multiply(get(matrix, 2, 1), mathLibrary.multiply(get(matrix, 3, 2), get(matrix, 1, 3))) -
 						mathLibrary.multiply(get(matrix, 3, 1), mathLibrary.multiply(get(matrix, 2, 2), get(matrix, 1, 3))) +
 						mathLibrary.multiply(get(matrix, 3, 1), mathLibrary.multiply(get(matrix, 1, 2), get(matrix, 2, 3))) -
@@ -404,7 +386,7 @@ public class MatrixLibrary {
 						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 2, 1), get(matrix, 1, 2))) -
 						mathLibrary.multiply(get(matrix, 1, 0), mathLibrary.multiply(get(matrix, 0, 1), get(matrix, 2, 2))) +
 						mathLibrary.multiply(get(matrix, 0, 0), mathLibrary.multiply(get(matrix, 1, 1), get(matrix, 2, 2))));
-		divide(result, determinant, result);
+		divide(result, determinant);
 		return result;
 	}
 	
@@ -417,13 +399,52 @@ public class MatrixLibrary {
 	 * @param z
 	 * @param result
 	 */
-	public int[] translate(int[] matrix, int[] vector, int[] result) {
-		int[] translationMatrix = copy(matrixCache1, MATRIX_IDENTITY);
-		set(translationMatrix, 3, 0, vector[VECTOR_X]);
-		set(translationMatrix, 3, 1, vector[VECTOR_Y]);
-		set(translationMatrix, 3, 2, vector[VECTOR_Z]);
-		multiply(translationMatrix, matrix, result);
-		return result;
+	public int[] translate(int[] matrix, int[] vector, int[] translationMatrix, int[] result) {
+		return translate(matrix, vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z], translationMatrix, result);
+	}
+	
+	/**
+	 * Sets result equals the translated matrix.
+	 *
+	 * @param matrix
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param result
+	 */
+	public int[] translate(int[] matrix, int x, int y , int z, int[] translationMatrix, int[] result) {
+		translationMatrix(translationMatrix, x, y, z);
+		return multiply(translationMatrix, matrix, result);
+	}
+	
+	/**
+	 * Sets result equals the translated matrix.
+	 *
+	 * @param matrix
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param result
+	 */
+	public int[] translationMatrix(int[] matrix, int[] vector) {
+		return translationMatrix(matrix, vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
+	}
+	
+	/**
+	 * Sets result equals the translated matrix.
+	 *
+	 * @param matrix
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param result
+	 */
+	public int[] translationMatrix(int[] matrix, int x, int y , int z) {
+		copy(matrix, MATRIX_IDENTITY);
+		set(matrix, 3, 0, x);
+		set(matrix, 3, 1, y);
+		set(matrix, 3, 2, z);
+		return matrix;
 	}
 
 	/**
@@ -435,13 +456,34 @@ public class MatrixLibrary {
 	 * @param z
 	 * @param result
 	 */
-	public int[] scale(int[] matrix, int[] vector, int[] result) {
-		int[] scaleMatrix = copy(matrixCache1, MATRIX_IDENTITY);
-		set(scaleMatrix, 0, 0, vector[VECTOR_X]);
-		set(scaleMatrix, 1, 1, vector[VECTOR_Y]);
-		set(scaleMatrix, 2, 2, vector[VECTOR_Z]);
-		multiply(scaleMatrix, matrix, result);
-		return result;
+	public int[] scale(int[] matrix, int[] vector, int[] scaleMatrix, int[] result) {
+		return scale(matrix, vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z], scaleMatrix, result);
+	}
+	
+	/**
+	 * Sets result equals the scaled matrix.
+	 *
+	 * @param matrix
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param result
+	 */
+	public int[] scale(int[] matrix, int x, int y, int z, int[] scaleMatrix, int[] result) {
+		scaleMatrix(scaleMatrix, x, y, z);
+		return multiply(scaleMatrix, matrix, result);
+	}
+	
+	public int[] scaleMatrix(int[] matrix, int[] vector) {
+		return scaleMatrix(matrix, vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
+	}
+	
+	public int[] scaleMatrix(int[] matrix, int x, int y, int z) {
+		copy(matrix, MATRIX_IDENTITY);
+		set(matrix, 0, 0, x);
+		set(matrix, 1, 1, y);
+		set(matrix, 2, 2, z);
+		return matrix;
 	}
 
 	/**
@@ -452,16 +494,20 @@ public class MatrixLibrary {
 	 * @param angle
 	 * @param result
 	 */
-	public int[] rotateX(int[] matrix, int angle, int[] result) {
-		int[] xRotationMatrix = copy(matrixCache1, MATRIX_IDENTITY);
+	public int[] rotateX(int[] matrix, int angle, int[] xRotationMatrix, int[] result) {
+		xRotationMatrix(xRotationMatrix, angle);
+		return multiply(xRotationMatrix, matrix, result);
+	}
+	
+	public int[] xRotationMatrix(int[] matrix, int angle) {
+		copy(matrix, MATRIX_IDENTITY);
 		int cos = mathLibrary.cos(angle);
 		int sin = mathLibrary.sin(angle);
-		set(xRotationMatrix, 1, 1, cos);
-		set(xRotationMatrix, 1, 2, sin);
-		set(xRotationMatrix, 2, 1, -sin);
-		set(xRotationMatrix, 2, 2, cos);
-		multiply(xRotationMatrix, matrix, result);
-		return result;
+		set(matrix, 1, 1, cos);
+		set(matrix, 1, 2, sin);
+		set(matrix, 2, 1, -sin);
+		set(matrix, 2, 2, cos);
+		return matrix;
 	}
 
 	/**
@@ -472,16 +518,20 @@ public class MatrixLibrary {
 	 * @param angle
 	 * @param result
 	 */
-	public int[] rotateY(int[] matrix, int angle, int[] result) {
-		int[] yRotationMatrix = copy(matrixCache1, MATRIX_IDENTITY);
+	public int[] rotateY(int[] matrix, int angle, int[] yRotationMatrix, int[] result) {
+		yRotationMatrix(yRotationMatrix, angle);
+		return multiply(yRotationMatrix, matrix, result);
+	}
+	
+	public int[] yRotationMatrix(int[] matrix, int angle) {
+		copy(matrix, MATRIX_IDENTITY);
 		int cos = mathLibrary.cos(angle);
 		int sin = mathLibrary.sin(angle);
-		set(yRotationMatrix, 0, 0, cos);
-		set(yRotationMatrix, 0, 2, -sin);
-		set(yRotationMatrix, 2, 0, sin);
-		set(yRotationMatrix, 2, 2, cos);
-		multiply(yRotationMatrix, matrix, result);
-		return result;
+		set(matrix, 0, 0, cos);
+		set(matrix, 0, 2, -sin);
+		set(matrix, 2, 0, sin);
+		set(matrix, 2, 2, cos);
+		return matrix;
 	}
 
 	/**
@@ -492,48 +542,20 @@ public class MatrixLibrary {
 	 * @param angle
 	 * @param result
 	 */
-	public int[] rotateZ(int[] matrix, int angle, int[] result) {
-		int[] zRotationMatrix = copy(matrixCache1, MATRIX_IDENTITY);
+	public int[] rotateZ(int[] matrix, int angle, int[] zRotationMatrix, int[] result) {
+		zRotationMatrix(zRotationMatrix, angle);
+		return multiply(zRotationMatrix, matrix, result);
+	}
+	
+	public int[] zRotationMatrix(int[] matrix, int angle) {
+		copy(matrix, MATRIX_IDENTITY);
 		int cos = mathLibrary.cos(angle);
 		int sin = mathLibrary.sin(angle);
-		set(zRotationMatrix, 0, 0, cos);
-		set(zRotationMatrix, 0, 1, sin);
-		set(zRotationMatrix, 1, 0, -sin);
-		set(zRotationMatrix, 1, 1, cos);
-		multiply(zRotationMatrix, matrix, result);
-		return result;
-	}
-
-	/**
-	 * Sets result equals the matrix rotated around (0, 0, 0) at x, y and z axis by the
-	 * given angles.
-	 * 
-	 * @param matrix
-	 * @param angles
-	 * @param result
-	 * @return
-	 */
-	public int[] rotateXYZ(int[] matrix, int[] angles, int[] result) {
-		rotateX(matrix, angles[VECTOR_X], result);
-		rotateY(result, angles[VECTOR_Y], result);
-		rotateZ(result, angles[VECTOR_Z], result);
-		return result;
-	}
-
-	/**
-	 * Sets result equals the matrix rotated around (0, 0, 0) at z, y and x axis by the
-	 * given angles.
-	 * 
-	 * @param matrix
-	 * @param angles
-	 * @param result
-	 * @return
-	 */
-	public int[] rotateZYX(int[] matrix, int[] angles, int[] result) {
-		rotateZ(matrix, angles[VECTOR_Z], result);
-		rotateY(result, angles[VECTOR_Y], result);
-		rotateX(result, angles[VECTOR_X], result);
-		return result;
+		set(matrix, 0, 0, cos);
+		set(matrix, 0, 1, sin);
+		set(matrix, 1, 0, -sin);
+		set(matrix, 1, 1, cos);
+		return matrix;
 	}
 
 	/**

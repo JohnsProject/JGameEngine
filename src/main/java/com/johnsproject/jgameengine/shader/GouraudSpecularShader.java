@@ -47,6 +47,7 @@ public class GouraudSpecularShader extends Shader {
 	private final int[] lightLocation;
 	private final int[] viewDirection;
 	private final int[] lightSpaceLocation;
+	private final int[] vertexLocation;
 
 	public GouraudSpecularShader() {
 		this.rasterizer = new PerspectiveGouraudRasterizer(this);
@@ -55,6 +56,7 @@ public class GouraudSpecularShader extends Shader {
 		this.lightLocation = VectorLibrary.generate();
 		this.viewDirection = VectorLibrary.generate();
 		this.lightSpaceLocation = VectorLibrary.generate();
+		this.vertexLocation = VectorLibrary.generate();
 	}
 
 	@Override
@@ -64,9 +66,10 @@ public class GouraudSpecularShader extends Shader {
 		int lightColor = ColorLibrary.BLACK;
 		int[] cameraLocation = shaderBuffer.getCamera().getTransform().getLocation();
 		vectorLibrary.copy(location, vertexBuffer.getWorldLocation());
-		vectorLibrary.normalize(normal, normal);
-		vectorLibrary.subtract(cameraLocation, location, viewDirection);
-		vectorLibrary.normalize(viewDirection, viewDirection);
+		vectorLibrary.normalize(normal);
+		vectorLibrary.copy(viewDirection, cameraLocation);
+		vectorLibrary.subtract(viewDirection, location);
+		vectorLibrary.normalize(viewDirection);
 		int lightIndex = 0;
 		for (Light light: shaderBuffer.getLights()) {
 			if(light.isCulled())
@@ -88,9 +91,10 @@ public class GouraudSpecularShader extends Shader {
 				}
 				break;
 			case POINT:
-				vectorLibrary.subtract(lightPosition, location, lightLocation);
+				vectorLibrary.copy(lightLocation, lightPosition);
+				vectorLibrary.subtract(lightLocation, location);
 				attenuation = getAttenuation(lightLocation);
-				vectorLibrary.normalize(lightLocation, lightLocation);
+				vectorLibrary.normalize(lightLocation);
 				currentFactor = getLightFactor(normal, lightLocation, viewDirection);
 				currentFactor = mathLibrary.divide(currentFactor, attenuation);
 				if ((lightIndex == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
@@ -106,9 +110,10 @@ public class GouraudSpecularShader extends Shader {
 				break;
 			case SPOT:				
 				vectorLibrary.invert(light.getDirection(), lightDirection);
-				vectorLibrary.subtract(lightPosition, location, lightLocation);
+				vectorLibrary.copy(lightLocation, lightPosition);
+				vectorLibrary.subtract(lightLocation, location);
 				attenuation = getAttenuation(lightLocation);
-				vectorLibrary.normalize(lightLocation, lightLocation);
+				vectorLibrary.normalize(lightLocation);
 				int theta = vectorLibrary.dotProduct(lightLocation, lightDirection);
 				int phi = mathLibrary.cos(light.getSpotSize() >> 1);
 				if(theta > phi) {
@@ -134,9 +139,12 @@ public class GouraudSpecularShader extends Shader {
 			lightIndex++;
 		}
 		vertexBuffer.setColor(lightColor);
-		vectorLibrary.matrixMultiply(location, shaderBuffer.getViewMatrix(), location);
-		vectorLibrary.matrixMultiply(location, shaderBuffer.getProjectionMatrix(), location);
-		graphicsLibrary.screenportVector(location, shaderBuffer.getPortedFrustum(), location);
+		vectorLibrary.matrixMultiply(location, shaderBuffer.getViewMatrix(), vertexLocation);
+		vectorLibrary.copy(location, vertexLocation);
+		vectorLibrary.matrixMultiply(location, shaderBuffer.getProjectionMatrix(), vertexLocation);
+		vectorLibrary.copy(location, vertexLocation);
+		graphicsLibrary.screenportVector(location, shaderBuffer.getPortedFrustum(), vertexLocation);
+		vectorLibrary.copy(location, vertexLocation);
 	}
 
 	@Override
@@ -180,7 +188,7 @@ public class GouraudSpecularShader extends Shader {
 		diffuseFactor = mathLibrary.multiply(diffuseFactor, shaderProperties.getDiffuseIntensity());
 		// specular
 		vectorLibrary.invert(lightDirection, lightDirection);
-		vectorLibrary.reflect(lightDirection, normal, lightDirection);
+		vectorLibrary.reflect(lightDirection, normal);
 		dotProduct = vectorLibrary.dotProduct(viewDirection, lightDirection);
 		int specularFactor = Math.max(dotProduct, 0);
 		specularFactor = mathLibrary.pow(specularFactor, shaderProperties.getShininess());

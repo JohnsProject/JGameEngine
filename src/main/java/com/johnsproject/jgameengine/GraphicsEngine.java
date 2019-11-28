@@ -62,6 +62,9 @@ public class GraphicsEngine implements EngineListener {
 	private final GraphicsLibrary graphicsLibrary;
 	private final VectorLibrary vectorLibrary;
 	
+	private final int[] matrixCache1;
+	private final int[] matrixCache2;
+	
 	public GraphicsEngine(FrameBuffer frameBuffer) {
 		this.shaderBuffer = new ForwardShaderBuffer();
 		this.preShaders = new ArrayList<Shader>();
@@ -69,6 +72,8 @@ public class GraphicsEngine implements EngineListener {
 		this.graphicsLibrary = new GraphicsLibrary();
 		this.vectorLibrary = new VectorLibrary();
 		this.modelMatrix = MatrixLibrary.generate();
+		this.matrixCache1 = MatrixLibrary.generate();
+		this.matrixCache2 = MatrixLibrary.generate();
 		this.normalMatrix = MatrixLibrary.generate();
 		this.locationVector = VectorLibrary.generate();
 		this.normalVector = VectorLibrary.generate();
@@ -152,8 +157,8 @@ public class GraphicsEngine implements EngineListener {
 			if(armature != null) {
 				animationFrame = armature.getCurrentAnimationFrame();
 			}
-			graphicsLibrary.modelMatrix(modelMatrix, model.getTransform());
-			graphicsLibrary.normalMatrix(normalMatrix, model.getTransform());
+			graphicsLibrary.modelMatrix(modelMatrix, model.getTransform(), matrixCache1, matrixCache2);
+			graphicsLibrary.normalMatrix(normalMatrix, model.getTransform(), matrixCache1, matrixCache2);
 			for (int v = 0; v < mesh.getVertices().length; v++) {
 				final Vertex vertex = mesh.getVertex(v);
 				final VertexBuffer vertexBuffer = vertex.getBuffer();
@@ -162,15 +167,18 @@ public class GraphicsEngine implements EngineListener {
 				vectorLibrary.copy(worldLocation, vertex.getLocation());
 				vectorLibrary.copy(worldNormal, vertex.getNormal());
 				animateVertex(armature, animationFrame, vertex, worldLocation, worldNormal);
-				vectorLibrary.matrixMultiply(worldLocation, modelMatrix, worldLocation);
-				vectorLibrary.matrixMultiply(worldNormal, normalMatrix, worldNormal);
+				vectorLibrary.matrixMultiply(worldLocation, modelMatrix, multiplyVector);
+				vectorLibrary.copy(worldLocation, multiplyVector);
+				vectorLibrary.matrixMultiply(worldNormal, normalMatrix, multiplyVector);
+				vectorLibrary.copy(worldNormal, multiplyVector);
 			}
 			for (int f = 0; f < mesh.getFaces().length; f++) {
 				final Face face = mesh.getFace(f);
 				final GeometryBuffer geometryBuffer = face.getBuffer();
 				int[] worldNormal = geometryBuffer.getWorldNormal();
 				vectorLibrary.copy(worldNormal, face.getNormal());
-				vectorLibrary.matrixMultiply(worldNormal, normalMatrix, worldNormal);
+				vectorLibrary.matrixMultiply(worldNormal, normalMatrix, multiplyVector);
+				vectorLibrary.copy(worldNormal, multiplyVector);
 				vectorLibrary.copy(geometryBuffer.getUV(0), face.getUV(0));
 				vectorLibrary.copy(geometryBuffer.getUV(1), face.getUV(1));
 				vectorLibrary.copy(geometryBuffer.getUV(2), face.getUV(2));
@@ -191,11 +199,11 @@ public class GraphicsEngine implements EngineListener {
 				if(boneWeight != -1) {
 					int[] rotationMatrix = animationFrame.getBoneMatrix(vertexGroup.getBoneIndex());
 					vectorLibrary.matrixMultiply(location, rotationMatrix, multiplyVector);
-					vectorLibrary.multiply(multiplyVector, boneWeight, multiplyVector);
-					vectorLibrary.add(locationVector, multiplyVector, locationVector);
+					vectorLibrary.multiply(multiplyVector, boneWeight);
+					vectorLibrary.add(locationVector, multiplyVector);
 					vectorLibrary.matrixMultiply(normal, rotationMatrix, multiplyVector);
-					vectorLibrary.multiply(multiplyVector, boneWeight, multiplyVector);
-					vectorLibrary.add(normalVector, multiplyVector, normalVector);
+					vectorLibrary.multiply(multiplyVector, boneWeight);
+					vectorLibrary.add(normalVector, multiplyVector);
 				}
 			}
 			vectorLibrary.copy(location, locationVector);

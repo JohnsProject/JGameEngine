@@ -175,8 +175,10 @@ public class SceneImporter {
 			String[] colorData = lightData.split("color<")[1].split(">color")[0].split(",");
 			String[] shadowColorData = lightData.split("shadowColor<")[1].split(">shadowColor")[0].split(",");
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
-			int[] direction = VectorLibrary.generate(0, 0, 0, 0);
-			vectorLibrary.rotateXYZ(VectorLibrary.VECTOR_DOWN, transform.getRotation(), direction);
+			int[] direction = VectorLibrary.VECTOR_DOWN.clone();
+			vectorLibrary.rotateX(direction, transform.getRotation()[VECTOR_X]);
+			vectorLibrary.rotateY(direction, transform.getRotation()[VECTOR_Y]);
+			vectorLibrary.rotateZ(direction, transform.getRotation()[VECTOR_Z]);
 			direction[VECTOR_X] = -direction[VECTOR_X];
 			direction[VECTOR_Z] = -direction[VECTOR_Z];
 			int x = transform.getRotation()[VECTOR_X];
@@ -336,9 +338,11 @@ public class SceneImporter {
 					z = MathLibrary.generate(Float.parseFloat(animationData[b + 6 + VECTOR_Z]));
 					int[] scale = VectorLibrary.generate(x, y, z);
 					int[] boneRotationMatrix = MatrixLibrary.generate();
-					matrixLibrary.scale(boneRotationMatrix, scale, boneRotationMatrix);
-					matrixLibrary.rotateXYZ(boneRotationMatrix, rotation, boneRotationMatrix);
-					matrixLibrary.translate(boneRotationMatrix, location, boneRotationMatrix);
+					matrixLibrary.scale(boneRotationMatrix.clone(), scale, boneRotationMatrix.clone(), boneRotationMatrix);
+					matrixLibrary.rotateX(boneRotationMatrix.clone(), rotation[VECTOR_X], boneRotationMatrix.clone(), boneRotationMatrix);
+					matrixLibrary.rotateY(boneRotationMatrix.clone(), rotation[VECTOR_Y], boneRotationMatrix.clone(), boneRotationMatrix);
+					matrixLibrary.rotateZ(boneRotationMatrix.clone(), rotation[VECTOR_Z], boneRotationMatrix.clone(), boneRotationMatrix);
+					matrixLibrary.translate(boneRotationMatrix.clone(), location, boneRotationMatrix.clone(), boneRotationMatrix);
 					boneRotationMatrices[bi] = boneRotationMatrix;
 				}
 				frames[fi] = new AnimationFrame(boneRotationMatrices);
