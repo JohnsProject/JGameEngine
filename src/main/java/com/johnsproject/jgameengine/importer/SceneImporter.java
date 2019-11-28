@@ -30,6 +30,7 @@ import com.johnsproject.jgameengine.library.ColorLibrary;
 import com.johnsproject.jgameengine.library.FileLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
 import com.johnsproject.jgameengine.library.MatrixLibrary;
+import com.johnsproject.jgameengine.library.TransformationLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.Animation;
 import com.johnsproject.jgameengine.model.AnimationFrame;
@@ -59,14 +60,8 @@ import static com.johnsproject.jgameengine.library.VectorLibrary.*;
  *
  */
 public class SceneImporter {
-
-	private final VectorLibrary vectorLibrary;
-	private final MatrixLibrary matrixLibrary;
 	
-	public SceneImporter() {
-		this.vectorLibrary = new VectorLibrary();
-		this.matrixLibrary = new MatrixLibrary();
-	}
+	public SceneImporter() { }
 	
 	/**
 	 * Loads the .scene file at the given path and returns a {@link Scene} 
@@ -77,7 +72,7 @@ public class SceneImporter {
 	 * @throws IOException
 	 */
 	public Scene load(String path) throws IOException {
-		String content = new FileLibrary().readFile(path);
+		String content = FileLibrary.readFile(path);
 		return loadFromRaw(content);
 	}
 
@@ -90,7 +85,7 @@ public class SceneImporter {
 	 * @throws IOException
 	 */
 	public Scene load(InputStream stream) throws IOException {
-		String content = new FileLibrary().readStream(stream);
+		String content = FileLibrary.readStream(stream);
 		return loadFromRaw(content);
 	}
 
@@ -176,9 +171,9 @@ public class SceneImporter {
 			String[] shadowColorData = lightData.split("shadowColor<")[1].split(">shadowColor")[0].split(",");
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
 			int[] direction = VectorLibrary.VECTOR_DOWN.clone();
-			vectorLibrary.rotateX(direction, transform.getRotation()[VECTOR_X]);
-			vectorLibrary.rotateY(direction, transform.getRotation()[VECTOR_Y]);
-			vectorLibrary.rotateZ(direction, transform.getRotation()[VECTOR_Z]);
+			TransformationLibrary.rotateX(direction, transform.getRotation()[VECTOR_X]);
+			TransformationLibrary.rotateY(direction, transform.getRotation()[VECTOR_Y]);
+			TransformationLibrary.rotateZ(direction, transform.getRotation()[VECTOR_Z]);
 			direction[VECTOR_X] = -direction[VECTOR_X];
 			direction[VECTOR_Z] = -direction[VECTOR_Z];
 			int x = transform.getRotation()[VECTOR_X];
@@ -338,11 +333,11 @@ public class SceneImporter {
 					z = MathLibrary.generate(Float.parseFloat(animationData[b + 6 + VECTOR_Z]));
 					int[] scale = VectorLibrary.generate(x, y, z);
 					int[] boneRotationMatrix = MatrixLibrary.generate();
-					matrixLibrary.scale(boneRotationMatrix.clone(), scale, boneRotationMatrix.clone(), boneRotationMatrix);
-					matrixLibrary.rotateX(boneRotationMatrix.clone(), rotation[VECTOR_X], boneRotationMatrix.clone(), boneRotationMatrix);
-					matrixLibrary.rotateY(boneRotationMatrix.clone(), rotation[VECTOR_Y], boneRotationMatrix.clone(), boneRotationMatrix);
-					matrixLibrary.rotateZ(boneRotationMatrix.clone(), rotation[VECTOR_Z], boneRotationMatrix.clone(), boneRotationMatrix);
-					matrixLibrary.translate(boneRotationMatrix.clone(), location, boneRotationMatrix.clone(), boneRotationMatrix);
+					TransformationLibrary.scale(boneRotationMatrix.clone(), scale, boneRotationMatrix.clone(), boneRotationMatrix);
+					TransformationLibrary.rotateX(boneRotationMatrix.clone(), rotation[VECTOR_X], boneRotationMatrix.clone(), boneRotationMatrix);
+					TransformationLibrary.rotateY(boneRotationMatrix.clone(), rotation[VECTOR_Y], boneRotationMatrix.clone(), boneRotationMatrix);
+					TransformationLibrary.rotateZ(boneRotationMatrix.clone(), rotation[VECTOR_Z], boneRotationMatrix.clone(), boneRotationMatrix);
+					TransformationLibrary.translate(boneRotationMatrix.clone(), location, boneRotationMatrix.clone(), boneRotationMatrix);
 					boneRotationMatrices[bi] = boneRotationMatrix;
 				}
 				frames[fi] = new AnimationFrame(boneRotationMatrices);

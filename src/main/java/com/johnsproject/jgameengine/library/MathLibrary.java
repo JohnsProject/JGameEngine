@@ -30,10 +30,7 @@ package com.johnsproject.jgameengine.library;
  * 
  * @author John Ferraz Salomon
  */
-public class MathLibrary {
-	
-
-	private int random = 545;
+public final class MathLibrary {
 	
 	/**
 	 * This is the bit representation of the default fixed point precision value. 
@@ -55,14 +52,17 @@ public class MathLibrary {
 	public static final int FP_DEGREE_RAD = generate((float) (Math.PI / 180.0f));
 	public static final int FP_RAD_DEGREE = generate((float) (180.0f / Math.PI));
 	
-	private int[] sinLUT;
+	private static final int[] sinLUT = new int[] {
+			0, 572, 1144, 1715, 2286, 2856, 3425, 3993, 4560, 5126, 5690, 6252, 6813, 7371, 7927, 8481,
+			9032, 9580, 10126, 10668, 11207, 11743, 12275, 12803, 13328, 13848, 14365, 14876, 15384,
+			15886, 16384, 16877, 17364, 17847, 18324, 18795, 19261, 19720, 20174, 20622, 21063, 21498,
+			21926, 22348, 22763, 23170, 23571, 23965, 24351, 24730, 25102, 25466, 25822, 26170, 26510,
+			26842, 27166, 27482, 27789, 28088, 28378, 28660, 28932, 29197, 29452, 29698, 29935, 30163,
+			30382, 30592, 30792, 30983, 31164, 31336, 31499, 31651, 31795, 31928, 32052, 32166, 32270,
+			32365, 32449, 32524, 32588, 32643, 32688, 32723, 32748, 32763, 32768
+	};
 	
-	public MathLibrary() {
-		sinLUT = new int[91];
-		for (int angle = 0; angle < sinLUT.length; angle++) {
-			sinLUT[angle] = generate(Math.sin(Math.toRadians(angle)));
-		}
-	}
+	private MathLibrary() { }
 	
 	/**
 	 * Returns the fixed point representation of value.
@@ -100,7 +100,7 @@ public class MathLibrary {
 	 * @param degrees
 	 * @return
 	 */
-	public int toRadians(int degrees) {
+	public static int toRadians(int degrees) {
 		return multiply(degrees, FP_DEGREE_RAD);
 	}
 	
@@ -111,7 +111,7 @@ public class MathLibrary {
 	 * @param value
 	 * @return
 	 */
-	public int toDegrees(int radians) {
+	public static int toDegrees(int radians) {
 		return multiply(radians, FP_RAD_DEGREE);
 	}
 	
@@ -121,7 +121,7 @@ public class MathLibrary {
 	 * @param angle in fixed point degrees.
 	 * @return
 	 */
-	public int sin(int angle) {
+	public static int sin(int angle) {
 		angle >>= FP_BIT;
 		angle = ((angle % 360) + 360) % 360;
 		int quadrant = (angle / 90) + 1;
@@ -162,7 +162,7 @@ public class MathLibrary {
 	 * @param angle in fixed point degrees.
 	 * @return
 	 */
-	public int cos(int angle) {
+	public static int cos(int angle) {
 		angle >>= FP_BIT;
 		angle = ((angle % 360) + 360) % 360;
 		int quadrant = (angle / 90) + 1;
@@ -188,7 +188,7 @@ public class MathLibrary {
 	 * @param angle in fixed point degrees.
 	 * @return
 	 */
-	public int tan(int angle) {
+	public static int tan(int angle) {
 		return (sin(angle) << FP_BIT) / cos(angle);
 	}
 
@@ -200,7 +200,7 @@ public class MathLibrary {
 	 * @param max
 	 * @return
 	 */
-	public int normalize(int value, int min, int max) {
+	public static int normalize(int value, int min, int max) {
 		int range = max - min;
 		return (min + ((((value - min) % range) + range) % range));
 	}
@@ -214,7 +214,7 @@ public class MathLibrary {
 	 * @param max
 	 * @return
 	 */
-	public int clamp(int value, int min, int max) {
+	public static int clamp(int value, int min, int max) {
 		return Math.min(max, Math.max(value, min));
 	}
 
@@ -223,9 +223,9 @@ public class MathLibrary {
 	 * 
 	 * @return
 	 */
-	public int random() {
-		random += random + (random & random);
-		return random;
+	public static int random(int seed) {
+		seed += seed + (seed & seed);
+		return seed;
 	}
 
 	/**
@@ -235,9 +235,8 @@ public class MathLibrary {
 	 * @param max highest random value.
 	 * @return
 	 */
-	public int random(int min, int max) {
-		random += random + (random & random);
-		return normalize(random, min, max);
+	public static int random(int seed, int min, int max) {
+		return normalize(random(seed), min, max);
 	}
 	
 	/**
@@ -247,7 +246,7 @@ public class MathLibrary {
 	 * @param number fixed point number.
 	 * @return fixed point result.
 	 */
-	public int sqrt(int number) {
+	public static int sqrt(int number) {
 		// integral part
 		int num = number >> FP_BIT;
 		int c = 1 << 15;
@@ -284,7 +283,7 @@ public class MathLibrary {
 	 * @param exp fixed point number.
 	 * @return fixed point result.
 	 */
-	public int pow(int base, int exp) {
+	public static int pow(int base, int exp) {
 		exp >>= FP_BIT;
 		long lBase = base;
 		long result = FP_ONE;
@@ -305,7 +304,7 @@ public class MathLibrary {
 	 * @param value2 fixed point number.
 	 * @return fixed point result.
 	 */
-	public int multiply(long value1, long value2) {
+	public static int multiply(long value1, long value2) {
 		long result = value1 * value2 + FP_HALF;
 		return (int) (result >> FP_BIT);
 	}
@@ -317,7 +316,7 @@ public class MathLibrary {
 	 * @param divisor not fixed point number.
 	 * @return fixed point result.
 	 */
-	public int divide(long dividend, long divisor) {
+	public static int divide(long dividend, long divisor) {
 		long result = dividend << FP_BIT;
 		result /= divisor;
 		return (int) result;
@@ -329,7 +328,7 @@ public class MathLibrary {
 	 * @param vector fixed point number.
 	 * @return
 	 */
-	public String toString(int value) {
+	public static String toString(int value) {
 		float floatValue = (float)value / FP_ONE;
 		return "" + floatValue;
 	}

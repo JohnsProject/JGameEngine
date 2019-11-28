@@ -44,7 +44,7 @@ import javax.imageio.ImageIO;
  */
 public final class FileLibrary {
 
-	public FileLibrary() {}
+	private FileLibrary() {}
 	
 	/**
 	 * Reads the content of the file at the given path and returns it.
@@ -53,7 +53,7 @@ public final class FileLibrary {
 	 * @return content of given file.
 	 * @throws IOException
 	 */
-	public String readFile(String fileName) throws IOException {
+	public static String readFile(String fileName) throws IOException {
 		String content = null;
 		FileInputStream fileInputStream = null;
 		try {
@@ -74,7 +74,7 @@ public final class FileLibrary {
 	 * @param obj object to write. Needs to be serializable.
 	 * @throws IOException
 	 */
-	public void writeObjectToFile(String path, Object obj) throws IOException {
+	public static void writeObjectToFile(String path, Object obj) throws IOException {
 		FileOutputStream fileOutputStream = null;
 		try {
 			fileOutputStream = new FileOutputStream(path);
@@ -93,7 +93,7 @@ public final class FileLibrary {
 	 * @param path file path.
 	 * @throws IOException
 	 */
-	public Object readObjectFromFile(String path) throws IOException {
+	public static Object readObjectFromFile(String path) throws IOException {
 		Object result = null;
 		FileInputStream fileInputStream = null;
 		try {
@@ -117,7 +117,7 @@ public final class FileLibrary {
 	 * @return content of the given {@link InputStream}.
 	 * @throws IOException
 	 */
-	public String readStream(InputStream stream) throws IOException {
+	public static String readStream(InputStream stream) throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(stream));
 
 		StringBuilder stringBuilder = new StringBuilder();
@@ -137,7 +137,7 @@ public final class FileLibrary {
 	 * @return loaded image as a {@link BufferedImage}.
 	 * @throws IOException
 	 */
-	public BufferedImage loadImage(String path) throws IOException {
+	public static BufferedImage loadImage(String path) throws IOException {
 		BufferedImage image = null;
 		FileInputStream fileInputStream = null;
 		try {
@@ -162,7 +162,7 @@ public final class FileLibrary {
 	 * @return loaded image as a {@link BufferedImage}.
 	 * @throws IOException
 	 */
-	public BufferedImage loadImage(InputStream stream) throws IOException {
+	public static BufferedImage loadImage(InputStream stream) throws IOException {
 		BufferedImage image = null;
 		try {
 			BufferedImage tmp = ImageIO.read(stream);
@@ -184,7 +184,7 @@ public final class FileLibrary {
 	 * @return loaded image as a {@link BufferedImage}.
 	 * @throws IOException
 	 */
-	public BufferedImage loadImage(String path, int width, int height) throws IOException {
+	public static BufferedImage loadImage(String path, int width, int height) throws IOException {
 		BufferedImage image = null;
 		FileInputStream fileInputStream = null;
 		try {
@@ -212,7 +212,7 @@ public final class FileLibrary {
 	 * @return loaded image as a {@link BufferedImage}.
 	 * @throws IOException
 	 */
-	public BufferedImage loadImage(InputStream stream, int width, int height) throws IOException {
+	public static BufferedImage loadImage(InputStream stream, int width, int height) throws IOException {
 		BufferedImage image = new BufferedImage(1, 1, 1);
 		try {
 			image = ImageIO.read(stream);

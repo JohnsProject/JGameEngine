@@ -23,39 +23,19 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import com.johnsproject.jgameengine.library.ColorLibrary;
-import com.johnsproject.jgameengine.library.GraphicsLibrary;
-import com.johnsproject.jgameengine.library.MathLibrary;
-import com.johnsproject.jgameengine.library.MatrixLibrary;
-import com.johnsproject.jgameengine.library.VectorLibrary;
+public interface Shader {
+	
+	public void vertex(VertexBuffer vertexBuffer);
+	
+	public void geometry(GeometryBuffer geometryBuffer);
+	
+	public void fragment(FragmentBuffer fragmentBuffer);
 
-public abstract class Shader {
-	
-	protected final GraphicsLibrary graphicsLibrary;
-	protected final MathLibrary mathLibrary;
-	protected final MatrixLibrary matrixLibrary;
-	protected final VectorLibrary vectorLibrary;
-	protected final ColorLibrary colorLibrary;
-	
-	public Shader() {
-		this.graphicsLibrary = new GraphicsLibrary();
-		this.mathLibrary = new MathLibrary();
-		this.matrixLibrary = new MatrixLibrary();
-		this.vectorLibrary = new VectorLibrary();
-		this.colorLibrary = new ColorLibrary();
-	}
-	
-	public abstract void vertex(VertexBuffer vertexBuffer);
-	
-	public abstract void geometry(GeometryBuffer geometryBuffer);
-	
-	public abstract void fragment(FragmentBuffer fragmentBuffer);
+	public ShaderBuffer getShaderBuffer();
 
-	public abstract ShaderBuffer getShaderBuffer();
+	public void setShaderBuffer(ShaderBuffer shaderBuffer);
 
-	public abstract void setShaderBuffer(ShaderBuffer shaderBuffer);
-
-	public abstract void setProperties(ShaderProperties shaderProperties);
+	public void setProperties(ShaderProperties shaderProperties);
 	
-	public abstract ShaderProperties getProperties();
+	public ShaderProperties getProperties();
 }

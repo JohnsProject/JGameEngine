@@ -16,6 +16,7 @@ import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.importer.SceneImporter;
 import com.johnsproject.jgameengine.library.FileLibrary;
 import com.johnsproject.jgameengine.library.MathLibrary;
+import com.johnsproject.jgameengine.library.TransformationLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
@@ -43,8 +44,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	
 	private final int[] cache;
 	private Transform cameraTransform;
-	
-	private VectorLibrary vectorLibrary;
+
 	private GraphicsEngine graphicsEngine;
 	private InputEngine inputEngine;
 	private PhysicsEngine physicsEngine;
@@ -62,7 +62,6 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		WINDOW_H = 768;
 		RENDER_W = (WINDOW_W * 100) / 100;
 		RENDER_H = (WINDOW_H * 100) / 100;
-		this.vectorLibrary = new VectorLibrary();
 		cache = VectorLibrary.generate();
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
 		EngineWindow window = new EngineWindow(frameBuffer);
@@ -142,7 +141,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 			Scene scene = new SceneImporter().load("C:/Development/JGameEngineTests/Test.scene");
 			//scene.getMainCamera().getTransform().setLocation(0, 0, FP_ONE * 10);
 			//scene.getMainCamera().getTransform().setRotation(0, 0, 0);
-			Texture texture = new Texture(new FileLibrary().loadImage("C:/Development/JGameEngineTests/JohnsProject.png"));
+			Texture texture = new Texture(FileLibrary.loadImage("C:/Development/JGameEngineTests/JohnsProject.png"));
 			for (Model model : scene.getModels().values()) {
 //				model.getRigidBody().setKinematic(true);
 				if(model.getName().equals("Ground")) {
@@ -225,30 +224,30 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	int startSpeed = FP_ONE / 10;
 	int speed = startSpeed;
 	public void keyDown(KeyEvent e) {
-		vectorLibrary.copy(cache, VectorLibrary.VECTOR_ZERO);
+		VectorLibrary.copy(cache, VectorLibrary.VECTOR_ZERO);
 		if(e.getKeyCode() == KeyEvent.VK_W) {
-			vectorLibrary.copy(cache, VectorLibrary.VECTOR_FORWARD);
+			VectorLibrary.copy(cache, VectorLibrary.VECTOR_FORWARD);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_A) {
-			vectorLibrary.copy(cache, VectorLibrary.VECTOR_LEFT);
+			VectorLibrary.copy(cache, VectorLibrary.VECTOR_LEFT);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_D) {
-			vectorLibrary.copy(cache, VectorLibrary.VECTOR_RIGHT);
+			VectorLibrary.copy(cache, VectorLibrary.VECTOR_RIGHT);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_S) {
-			vectorLibrary.copy(cache, VectorLibrary.VECTOR_BACK);
+			VectorLibrary.copy(cache, VectorLibrary.VECTOR_BACK);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_E) {
-			vectorLibrary.copy(cache, VectorLibrary.VECTOR_UP);
+			VectorLibrary.copy(cache, VectorLibrary.VECTOR_UP);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_Y) {
-			vectorLibrary.copy(cache, VectorLibrary.VECTOR_DOWN);
+			VectorLibrary.copy(cache, VectorLibrary.VECTOR_DOWN);
 		}
-		if(!vectorLibrary.equals(cache, VectorLibrary.VECTOR_ZERO)) {
-			vectorLibrary.rotateX(cache, cameraTransform.getRotation()[VectorLibrary.VECTOR_X]);
-			vectorLibrary.rotateY(cache, cameraTransform.getRotation()[VectorLibrary.VECTOR_Y]);
-			vectorLibrary.rotateZ(cache, cameraTransform.getRotation()[VectorLibrary.VECTOR_Z]);
-			vectorLibrary.multiply(cache, speed);
+		if(!VectorLibrary.equals(cache, VectorLibrary.VECTOR_ZERO)) {
+			TransformationLibrary.rotateX(cache, cameraTransform.getRotation()[VectorLibrary.VECTOR_X]);
+			TransformationLibrary.rotateY(cache, cameraTransform.getRotation()[VectorLibrary.VECTOR_Y]);
+			TransformationLibrary.rotateZ(cache, cameraTransform.getRotation()[VectorLibrary.VECTOR_Z]);
+			VectorLibrary.multiply(cache, speed);
 			cameraTransform.translate(cache);
 		}
 	}

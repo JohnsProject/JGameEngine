@@ -61,7 +61,7 @@ public class SOMImporter {
 	 * @throws IOException
 	 */
 	public Model load(String path) throws IOException {
-		String content = new FileLibrary().readFile(path);
+		String content = FileLibrary.readFile(path);
 		return loadFromRaw(content);
 	}
 
@@ -74,7 +74,7 @@ public class SOMImporter {
 	 * @throws IOException
 	 */
 	public Model load(InputStream stream) throws IOException {
-		String content = new FileLibrary().readStream(stream);
+		String content = FileLibrary.readStream(stream);
 		return loadFromRaw(content);
 	}
 

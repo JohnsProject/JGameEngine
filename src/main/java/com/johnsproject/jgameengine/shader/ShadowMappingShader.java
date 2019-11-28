@@ -29,9 +29,10 @@ import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
 import static com.johnsproject.jgameengine.library.VectorLibrary.*;
 
 import com.johnsproject.jgameengine.library.MathLibrary;
+import com.johnsproject.jgameengine.library.TransformationLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 
-public class ShadowMappingShader extends Shader {
+public class ShadowMappingShader implements Shader {
 	
 	private static final int DIRECTIONAL_BIAS = MathLibrary.generate(0.00005f);
 	private static final int SPOT_BIAS = MathLibrary.generate(0.00025f);
@@ -44,20 +45,14 @@ public class ShadowMappingShader extends Shader {
 	private final FlatRasterizer rasterizer;
 	
 	private Texture currentShadowMap;
-	
-	private int[] vertexLocation;
 
 	public ShadowMappingShader() {
 		this.rasterizer = new FlatRasterizer(this);
 		this.shaderProperties = new ShadowMappingProperties();
-		this.vertexLocation = VectorLibrary.generate();
 	}
 	
-	@Override
-	public void vertex(VertexBuffer vertexBuffer) {
-	}
+	public void vertex(VertexBuffer vertexBuffer) { }
 
-	@Override
 	public void geometry(GeometryBuffer geometryBuffer) {
 		if(shaderProperties.directionalShadows() && (shaderBuffer.getDirectionalLightIndex() != -1)) {
 			shadowBias = DIRECTIONAL_BIAS;
@@ -87,14 +82,12 @@ public class ShadowMappingShader extends Shader {
 	private void transformVertices(GeometryBuffer geometryBuffer, int[] lightMatrix, int[] lightFrustum) {
 		for (int i = 0; i < geometryBuffer.getVertexBuffers().length; i++) {
 			int[] location = geometryBuffer.getVertexBuffer(i).getLocation();
-			vectorLibrary.copy(location, geometryBuffer.getVertexBuffer(i).getWorldLocation());
-			vectorLibrary.matrixMultiply(location, lightMatrix, vertexLocation);
-			vectorLibrary.copy(location, vertexLocation);
-			graphicsLibrary.screenportVector(location, lightFrustum, location);
+			VectorLibrary.copy(location, geometryBuffer.getVertexBuffer(i).getWorldLocation());
+			VectorLibrary.matrixMultiply(location, lightMatrix);
+			TransformationLibrary.screenportVector(location, lightFrustum, location);
 		}
 	}
 
-	@Override
 	public void fragment(FragmentBuffer fragmentBuffer) {
 		int x = fragmentBuffer.getLocation()[VECTOR_X];
 		int y = fragmentBuffer.getLocation()[VECTOR_Y];
@@ -131,22 +124,18 @@ public class ShadowMappingShader extends Shader {
 		}
 	}
 
-	@Override
 	public ShaderBuffer getShaderBuffer() {
 		return shaderBuffer;
 	}
 
-	@Override
 	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
 		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
 	}
-
-	@Override
+	
 	public void setProperties(ShaderProperties shaderProperties) {
 		this.shaderProperties = (ShadowMappingProperties) shaderProperties;
 	}
 
-	@Override
 	public ShaderProperties getProperties() {
 		return shaderProperties;
 	}

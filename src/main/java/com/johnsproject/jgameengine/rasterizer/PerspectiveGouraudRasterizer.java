@@ -30,6 +30,8 @@ import com.johnsproject.jgameengine.shader.Shader;
 import static com.johnsproject.jgameengine.library.VectorLibrary.*;
 
 import com.johnsproject.jgameengine.library.ColorLibrary;
+import com.johnsproject.jgameengine.library.MathLibrary;
+import com.johnsproject.jgameengine.library.VectorLibrary;
 
 import static com.johnsproject.jgameengine.library.MathLibrary.*;
 
@@ -50,9 +52,9 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 	 */
 	public void perspectiveDraw(GeometryBuffer geometryBuffer, Texture texture) {
 		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getPortedFrustum());
-		vectorLibrary.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
-		vectorLibrary.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
-		vectorLibrary.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		VectorLibrary.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
+		VectorLibrary.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
+		VectorLibrary.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
 		if(cull()) {
 			return;
 		}
@@ -69,17 +71,17 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		zMultiply(green);
 		zMultiply(blue);
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			vectorLibrary.swap(location0, location1);
+			VectorLibrary.swap(location0, location1);
 			swapVector(u, v, 0, 1);
 			swapVector(red, green, blue, 0, 1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			vectorLibrary.swap(location1, location2);
+			VectorLibrary.swap(location1, location2);
 			swapVector(u, v, 2, 1);
 			swapVector(red, green, blue, 2, 1);
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			vectorLibrary.swap(location0, location1);
+			VectorLibrary.swap(location0, location1);
 			swapVector(u, v, 0, 1);
 			swapVector(red, green, blue, 0, 1);
 		}
@@ -96,21 +98,21 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
             int b = blue[0];
             int uvx = u[0];
             int uvy = v[0];
-            int dy = mathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
+            int dy = MathLibrary.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
             int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
-            x += mathLibrary.multiply(dy, multiplier);
+            x += MathLibrary.multiply(dy, multiplier);
             multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
-            z += mathLibrary.multiply(dy, multiplier);
+            z += MathLibrary.multiply(dy, multiplier);
             multiplier = u[2] - u[0];
-            uvx += mathLibrary.multiply(dy, multiplier);
+            uvx += MathLibrary.multiply(dy, multiplier);
             multiplier = v[2] - v[0];
-            uvy += mathLibrary.multiply(dy, multiplier);
+            uvy += MathLibrary.multiply(dy, multiplier);
             multiplier = red[2] - red[0];
-            r += mathLibrary.multiply(dy, multiplier);
+            r += MathLibrary.multiply(dy, multiplier);
             multiplier = green[2] - green[0];
-            g += mathLibrary.multiply(dy, multiplier);
+            g += MathLibrary.multiply(dy, multiplier);
             multiplier = blue[2] - blue[0];
-            b += mathLibrary.multiply(dy, multiplier);
+            b += MathLibrary.multiply(dy, multiplier);
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
@@ -119,13 +121,13 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
             colorCache[2] = b;
             uvCache[VECTOR_X] = uvx;
             uvCache[VECTOR_Y] = uvy;
-            vectorLibrary.swap(vectorCache, location2);
+            VectorLibrary.swap(vectorCache, location2);
             swapCache(red, green, blue, colorCache, 2);
             swapCache(u, v, uvCache, 2);
             drawBottomTriangle(cameraFrustum);
-            vectorLibrary.swap(vectorCache, location2);
-            vectorLibrary.swap(location0, location1);
-            vectorLibrary.swap(location1, vectorCache);
+            VectorLibrary.swap(vectorCache, location2);
+            VectorLibrary.swap(location0, location1);
+            VectorLibrary.swap(location1, vectorCache);
             swapCache(red, green, blue, colorCache, 2);
             swapVector(red, green, blue, 0, 1);
             swapCache(red, green, blue, colorCache, 1);
@@ -142,29 +144,29 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = mathLibrary.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
-        int dx2 = mathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-        int dz1 = mathLibrary.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
-        int dz2 = mathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-        int du1 = mathLibrary.divide(this.u[1] - this.u[0], y2y1);
-        int du2 = mathLibrary.divide(this.u[2] - this.u[0], y3y1);
-        int dv1 = mathLibrary.divide(this.v[1] - this.v[0], y2y1);
-        int dv2 = mathLibrary.divide(this.v[2] - this.v[0], y3y1);
-        int dr1 = mathLibrary.divide(red[1] - red[0], y2y1);
-        int dr2 = mathLibrary.divide(red[2] - red[0], y3y1);
-        int dg1 = mathLibrary.divide(green[1] - green[0], y2y1);
-        int dg2 = mathLibrary.divide(green[2] - green[0], y3y1);
-        int db1 = mathLibrary.divide(blue[1] - blue[0], y2y1);
-        int db2 = mathLibrary.divide(blue[2] - blue[0], y3y1);
+        int dx1 = MathLibrary.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+        int dx2 = MathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+        int dz1 = MathLibrary.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+        int dz2 = MathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+        int du1 = MathLibrary.divide(this.u[1] - this.u[0], y2y1);
+        int du2 = MathLibrary.divide(this.u[2] - this.u[0], y3y1);
+        int dv1 = MathLibrary.divide(this.v[1] - this.v[0], y2y1);
+        int dv2 = MathLibrary.divide(this.v[2] - this.v[0], y3y1);
+        int dr1 = MathLibrary.divide(red[1] - red[0], y2y1);
+        int dr2 = MathLibrary.divide(red[2] - red[0], y3y1);
+        int dg1 = MathLibrary.divide(green[1] - green[0], y2y1);
+        int dg2 = MathLibrary.divide(green[2] - green[0], y3y1);
+        int db1 = MathLibrary.divide(blue[1] - blue[0], y2y1);
+        int db2 = MathLibrary.divide(blue[2] - blue[0], y3y1);
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = mathLibrary.divide(dz2 - dz1, dxdx);
-        	int du = mathLibrary.divide(du2 - du1, dxdx);
-        	int dv = mathLibrary.divide(dv2 - dv1, dxdx);
-        	int dr = mathLibrary.divide(dr2 - dr1, dxdx);
-        	int dg = mathLibrary.divide(dg2 - dg1, dxdx);
-        	int db = mathLibrary.divide(db2 - db1, dxdx);
+        	int dz = MathLibrary.divide(dz2 - dz1, dxdx);
+        	int du = MathLibrary.divide(du2 - du1, dxdx);
+        	int dv = MathLibrary.divide(dv2 - dv1, dxdx);
+        	int dr = MathLibrary.divide(dr2 - dr1, dxdx);
+        	int dg = MathLibrary.divide(dg2 - dg1, dxdx);
+        	int db = MathLibrary.divide(db2 - db1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -187,12 +189,12 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
         } else {
         	int dxdx = dx1 - dx2;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = mathLibrary.divide(dz1 - dz2, dxdx);
-        	int du = mathLibrary.divide(du1 - du2, dxdx);
-        	int dv = mathLibrary.divide(dv1 - dv2, dxdx);
-        	int dr = mathLibrary.divide(dr1 - dr2, dxdx);
-        	int dg = mathLibrary.divide(dg1 - dg2, dxdx);
-        	int db = mathLibrary.divide(db1 - db2, dxdx);
+        	int dz = MathLibrary.divide(dz1 - dz2, dxdx);
+        	int du = MathLibrary.divide(du1 - du2, dxdx);
+        	int dv = MathLibrary.divide(dv1 - dv2, dxdx);
+        	int dr = MathLibrary.divide(dr1 - dr2, dxdx);
+        	int dg = MathLibrary.divide(dg1 - dg2, dxdx);
+        	int db = MathLibrary.divide(db1 - db2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -221,29 +223,29 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = mathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-		int dx2 = mathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
-		int dz1 = mathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-		int dz2 = mathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
-		int du1 = mathLibrary.divide(this.u[2] - this.u[0], y3y1);
-		int du2 = mathLibrary.divide(this.u[2] - this.u[1], y3y2);
-		int dv1 = mathLibrary.divide(this.v[2] - this.v[0], y3y1);
-		int dv2 = mathLibrary.divide(this.v[2] - this.v[1], y3y2);
-		int dr1 = mathLibrary.divide(red[2] - red[0], y3y1);
-		int dr2 = mathLibrary.divide(red[2] - red[1], y3y2);
-		int dg1 = mathLibrary.divide(green[2] - green[0], y3y1);
-		int dg2 = mathLibrary.divide(green[2] - green[1], y3y2);
-		int db1 = mathLibrary.divide(blue[2] - blue[0], y3y1);
-		int db2 = mathLibrary.divide(blue[2] - blue[1], y3y2);
+		int dx1 = MathLibrary.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		int dx2 = MathLibrary.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		int dz1 = MathLibrary.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		int dz2 = MathLibrary.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
+		int du1 = MathLibrary.divide(this.u[2] - this.u[0], y3y1);
+		int du2 = MathLibrary.divide(this.u[2] - this.u[1], y3y2);
+		int dv1 = MathLibrary.divide(this.v[2] - this.v[0], y3y1);
+		int dv2 = MathLibrary.divide(this.v[2] - this.v[1], y3y2);
+		int dr1 = MathLibrary.divide(red[2] - red[0], y3y1);
+		int dr2 = MathLibrary.divide(red[2] - red[1], y3y2);
+		int dg1 = MathLibrary.divide(green[2] - green[0], y3y1);
+		int dg2 = MathLibrary.divide(green[2] - green[1], y3y2);
+		int db1 = MathLibrary.divide(blue[2] - blue[0], y3y1);
+		int db2 = MathLibrary.divide(blue[2] - blue[1], y3y2);
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = mathLibrary.divide(dz1 - dz2, dxdx);
-			int du = mathLibrary.divide(du1 - du2, dxdx);
-			int dv = mathLibrary.divide(dv1 - dv2, dxdx);
-			int dr = mathLibrary.divide(dr1 - dr2, dxdx);
-			int dg = mathLibrary.divide(dg1 - dg2, dxdx);
-			int db = mathLibrary.divide(db1 - db2, dxdx);
+			int dz = MathLibrary.divide(dz1 - dz2, dxdx);
+			int du = MathLibrary.divide(du1 - du2, dxdx);
+			int dv = MathLibrary.divide(dv1 - dv2, dxdx);
+			int dr = MathLibrary.divide(dr1 - dr2, dxdx);
+			int dg = MathLibrary.divide(dg1 - dg2, dxdx);
+			int db = MathLibrary.divide(db1 - db2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
@@ -266,12 +268,12 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		} else {
 			int dxdx = dx2 - dx1;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = mathLibrary.divide(dz2 - dz1, dxdx);
-			int du = mathLibrary.divide(du2 - du1, dxdx);
-			int dv = mathLibrary.divide(dv2 - dv1, dxdx);
-			int dr = mathLibrary.divide(dr2 - dr1, dxdx);
-			int dg = mathLibrary.divide(dg2 - dg1, dxdx);
-			int db = mathLibrary.divide(db2 - db1, dxdx);
+			int dz = MathLibrary.divide(dz2 - dz1, dxdx);
+			int du = MathLibrary.divide(du2 - du1, dxdx);
+			int dv = MathLibrary.divide(dv2 - dv1, dxdx);
+			int dr = MathLibrary.divide(dr2 - dr1, dxdx);
+			int dg = MathLibrary.divide(dg2 - dg1, dxdx);
+			int db = MathLibrary.divide(db2 - db1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
@@ -305,11 +307,11 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 			fragmentBuffer.getLocation()[VECTOR_Y] = y;
 			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
 			fragmentBuffer.getLocation()[VECTOR_Z] = oneByZ;
-			fragmentBuffer.getUV()[VECTOR_X] = mathLibrary.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
-			fragmentBuffer.getUV()[VECTOR_Y] = mathLibrary.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
-			cr = mathLibrary.multiply(r, oneByZ) >> INTERPOLATE_BIT_2;
-			cg = mathLibrary.multiply(g, oneByZ) >> INTERPOLATE_BIT_2;
-			cb = mathLibrary.multiply(b, oneByZ) >> INTERPOLATE_BIT_2;
+			fragmentBuffer.getUV()[VECTOR_X] = MathLibrary.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
+			fragmentBuffer.getUV()[VECTOR_Y] = MathLibrary.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
+			cr = MathLibrary.multiply(r, oneByZ) >> INTERPOLATE_BIT_2;
+			cg = MathLibrary.multiply(g, oneByZ) >> INTERPOLATE_BIT_2;
+			cb = MathLibrary.multiply(b, oneByZ) >> INTERPOLATE_BIT_2;
 			fragmentBuffer.setColor(ColorLibrary.generate(cr, cg, cb));
 			shader.fragment(fragmentBuffer);
 			z += dz;

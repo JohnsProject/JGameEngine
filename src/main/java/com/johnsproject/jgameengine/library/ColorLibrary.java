@@ -32,7 +32,7 @@ import java.awt.image.BufferedImage;
  * 
  * @author John Ferraz Salomon
  */
-public class ColorLibrary {
+public final class ColorLibrary {
 
 	/**
 	 * Some default integer sRGB colors.
@@ -69,7 +69,7 @@ public class ColorLibrary {
 	private static final byte REDSHIFT = COLOR_BITS * 2;
 	private static final byte ALPHASHIFT = COLOR_BITS * 3;
 	
-	public ColorLibrary() {	}
+	private ColorLibrary() {	}
 	
 	/**
 	 * Returns a integer sRGB color. 
@@ -115,7 +115,7 @@ public class ColorLibrary {
 	 * @param color
 	 * @return
 	 */
-	public int getBlue(int color) {
+	public static int getBlue(int color) {
 		return (color) & COLOR_ONE;
 	}
 
@@ -126,7 +126,7 @@ public class ColorLibrary {
 	 * @param color
 	 * @return
 	 */
-	public int getGreen(int color) {
+	public static int getGreen(int color) {
 		return (color >> GREENSHIFT) & COLOR_ONE;
 	}
 
@@ -137,7 +137,7 @@ public class ColorLibrary {
 	 * @param color
 	 * @return
 	 */
-	public int getRed(int color) {
+	public static int getRed(int color) {
 		return (color >> REDSHIFT) & COLOR_ONE;
 	}
 
@@ -148,7 +148,7 @@ public class ColorLibrary {
 	 * @param color
 	 * @return
 	 */
-	public int getAlpha(int color) {
+	public static int getAlpha(int color) {
 		return (color >> ALPHASHIFT) & COLOR_ONE;
 	}
 
@@ -162,7 +162,7 @@ public class ColorLibrary {
 	 * @param factor
 	 * @return
 	 */
-	public int multiply(int color, int factor) {
+	public static int multiply(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
 		factor += 1;
 		r = (r * factor) >> COLOR_BITS;
@@ -179,7 +179,7 @@ public class ColorLibrary {
 	 * @param factor
 	 * @return
 	 */
-	public int multiplyARGB(int color, int factor) {
+	public static int multiplyARGB(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
 		factor += 1;
 		r = (r * factor) >> COLOR_BITS;
@@ -197,7 +197,7 @@ public class ColorLibrary {
 	 * @param color2
 	 * @return
 	 */
-	public int add(int color1, int color2) {
+	public static int add(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
 		int r = (r1 + r2);
@@ -213,7 +213,7 @@ public class ColorLibrary {
 	 * @param color2
 	 * @return
 	 */
-	public int addARGB(int color1, int color2) {
+	public static int addARGB(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
 		int r = (r1 + r2);
@@ -231,7 +231,7 @@ public class ColorLibrary {
 	 * @param color2
 	 * @return
 	 */
-	public int multiplyColor(int color1, int color2) {
+	public static int multiplyColor(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
 		int r = (r1 * r2) >> COLOR_BITS;
@@ -247,7 +247,7 @@ public class ColorLibrary {
 	 * @param color2
 	 * @return
 	 */
-	public int multiplyColorARGB(int color1, int color2) {
+	public static int multiplyColorARGB(int color1, int color2) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
 		int r = (r1 * r2) >> COLOR_BITS;
@@ -267,7 +267,7 @@ public class ColorLibrary {
 	 * @param factor
 	 * @return
 	 */
-	public int lerp(int color1, int color2, int factor) {
+	public static int lerp(int color1, int color2, int factor) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2);
 		int r = (r1 + (((r2 - r1) * factor) >> COLOR_BITS));
@@ -285,7 +285,7 @@ public class ColorLibrary {
 	 * @param factor
 	 * @return
 	 */
-	public int lerpARGB(int color1, int color2, int factor) {
+	public static int lerpARGB(int color1, int color2, int factor) {
 		int r1 = getRed(color1), g1 = getGreen(color1), b1 = getBlue(color1), a1 = getAlpha(color1);
 		int r2 = getRed(color2), g2 = getGreen(color2), b2 = getBlue(color2), a2 = getAlpha(color2);
 		int r = (r1 + (((r2 - r1) * factor) >> COLOR_BITS));
@@ -301,7 +301,7 @@ public class ColorLibrary {
 	 * @param color
 	 * @return
 	 */
-	public String toString(int color) {
+	public static String toString(int color) {
 		int r1 = getRed(color), g1 = getGreen(color), b1 = getBlue(color), a1 = getAlpha(color);
 		return "(" + a1 + ", " + g1 + ", " + b1 + ", " + r1 + ")";
 	}

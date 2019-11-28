@@ -26,7 +26,6 @@ package com.johnsproject.jgameengine;
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.library.MathLibrary;
-import com.johnsproject.jgameengine.library.PhysicsLibrary;
 import com.johnsproject.jgameengine.library.VectorLibrary;
 import com.johnsproject.jgameengine.model.RigidBody;
 import com.johnsproject.jgameengine.model.Scene;
@@ -35,14 +34,11 @@ import com.johnsproject.jgameengine.model.Transform;
 
 public class PhysicsEngine implements EngineListener {
 	
-	private final MathLibrary mathLibrary;
-	private final VectorLibrary vectorLibrary;
+	public static final int FP_EARTH_GRAVITY = MathLibrary.generate(-9.81f);
 	
 	private final int[] vectorCache1;
 	
 	public PhysicsEngine() {
-		this.mathLibrary = new MathLibrary();
-		this.vectorLibrary = new VectorLibrary();
 		this.vectorCache1 = VectorLibrary.generate();
 	}
 	
@@ -59,22 +55,22 @@ public class PhysicsEngine implements EngineListener {
 //			final RigidBody rigidBody = sceneObject.getRigidBody();
 //			final Transform transform = sceneObject.getTransform();
 //			applyForces(sceneObject);
-//			int[] linearAcceleration = vectorLibrary.divide(rigidBody.getForce(), rigidBody.getMass(), vectorCache1);
-////			vectorLibrary.multiply(linearAcceleration, e.getDeltaTime(), linearAcceleration);
-//			int[] linearVelocity = vectorLibrary.add(rigidBody.getLinearVelocity(), linearAcceleration, rigidBody.getLinearVelocity());
-//			vectorLibrary.add(transform.getLocation(), linearVelocity, transform.getLocation());
-//			int[] angularAcceleration = vectorLibrary.divide(rigidBody.getTorque(), rigidBody.getMass(), vectorCache1);
-////			vectorLibrary.multiply(angularAcceleration, e.getDeltaTime(), angularAcceleration);
-//			vectorLibrary.multiply(angularAcceleration, MathLibrary.FP_RAD_DEGREE, angularAcceleration);
-//			int[] angularVelocity = vectorLibrary.add(rigidBody.getAngularVelocity(), angularAcceleration, rigidBody.getAngularVelocity());
-//			vectorLibrary.add(transform.getRotation(), angularVelocity, transform.getRotation());
+//			int[] linearAcceleration = VectorLibrary.divide(rigidBody.getForce(), rigidBody.getMass(), vectorCache1);
+////			VectorLibrary.multiply(linearAcceleration, e.getDeltaTime(), linearAcceleration);
+//			int[] linearVelocity = VectorLibrary.add(rigidBody.getLinearVelocity(), linearAcceleration, rigidBody.getLinearVelocity());
+//			VectorLibrary.add(transform.getLocation(), linearVelocity, transform.getLocation());
+//			int[] angularAcceleration = VectorLibrary.divide(rigidBody.getTorque(), rigidBody.getMass(), vectorCache1);
+////			VectorLibrary.multiply(angularAcceleration, e.getDeltaTime(), angularAcceleration);
+//			VectorLibrary.multiply(angularAcceleration, MathLibrary.FP_RAD_DEGREE, angularAcceleration);
+//			int[] angularVelocity = VectorLibrary.add(rigidBody.getAngularVelocity(), angularAcceleration, rigidBody.getAngularVelocity());
+//			VectorLibrary.add(transform.getRotation(), angularVelocity, transform.getRotation());
 //		}
 	}
 	
 	private void applyForces(SceneObject sceneObject) {
 		final RigidBody rigidBody = sceneObject.getRigidBody();
 		if(!rigidBody.isKinematic()) {
-			int gravity = mathLibrary.multiply(rigidBody.getMass(), PhysicsLibrary.FP_EARTH_GRAVITY);
+			int gravity = MathLibrary.multiply(rigidBody.getMass(), FP_EARTH_GRAVITY);
 			rigidBody.setForce(0, 0, gravity);
 		}
 	}
@@ -87,20 +83,20 @@ public class PhysicsEngine implements EngineListener {
 			final RigidBody rigidBody = sceneObject.getRigidBody();
 			final Transform transform = sceneObject.getTransform();
 			applyForces(sceneObject);
-			int[] linearAcceleration = vectorLibrary.copy(vectorCache1, rigidBody.getForce());
-			vectorLibrary.divide(linearAcceleration, rigidBody.getMass());
-			vectorLibrary.multiply(linearAcceleration, e.getDeltaTime());
+			int[] linearAcceleration = VectorLibrary.copy(vectorCache1, rigidBody.getForce());
+			VectorLibrary.divide(linearAcceleration, rigidBody.getMass());
+			VectorLibrary.multiply(linearAcceleration, e.getDeltaTime());
 			rigidBody.addLinearVelocity(linearAcceleration);
-			int[] linearVelocity = vectorLibrary.copy(vectorCache1, rigidBody.getLinearVelocity());
-			vectorLibrary.multiply(linearVelocity, e.getDeltaTime());
+			int[] linearVelocity = VectorLibrary.copy(vectorCache1, rigidBody.getLinearVelocity());
+			VectorLibrary.multiply(linearVelocity, e.getDeltaTime());
 			transform.translate(linearVelocity);
-			int[] angularAcceleration = vectorLibrary.copy(vectorCache1, rigidBody.getTorque());
-			vectorLibrary.divide(angularAcceleration, rigidBody.getMass());
-			vectorLibrary.multiply(angularAcceleration, e.getDeltaTime());
+			int[] angularAcceleration = VectorLibrary.copy(vectorCache1, rigidBody.getTorque());
+			VectorLibrary.divide(angularAcceleration, rigidBody.getMass());
+			VectorLibrary.multiply(angularAcceleration, e.getDeltaTime());
 			rigidBody.addAngularVelocity(angularAcceleration);
-			int[] angularVelocity = vectorLibrary.copy(vectorCache1, rigidBody.getAngularVelocity());
-			vectorLibrary.multiply(angularVelocity, e.getDeltaTime());
-			vectorLibrary.multiply(angularVelocity, MathLibrary.FP_RAD_DEGREE);
+			int[] angularVelocity = VectorLibrary.copy(vectorCache1, rigidBody.getAngularVelocity());
+			VectorLibrary.multiply(angularVelocity, e.getDeltaTime());
+			VectorLibrary.multiply(angularVelocity, MathLibrary.FP_RAD_DEGREE);
 			transform.rotate(angularVelocity);
 		}
 	}

@@ -31,7 +31,7 @@ import static com.johnsproject.jgameengine.library.MathLibrary.*;
  * 
  * @author John Ferraz Salomon
  */
-public class VectorLibrary {
+public final class VectorLibrary {
 	
 	public static final byte VECTOR_X = 0;
 	public static final byte VECTOR_Y = 1;
@@ -48,11 +48,7 @@ public class VectorLibrary {
 	public static final int[] VECTOR_ONE = new int[] {FP_ONE, FP_ONE, FP_ONE, FP_ONE};
 	public static final int[] VECTOR_ZERO = new int[] {0, 0, 0, FP_ONE};
 	
-	private final MathLibrary mathLibrary;
-	
-	public VectorLibrary() {
-		this.mathLibrary = new MathLibrary();
-	}
+	private VectorLibrary() {}
 	
 	/**
 	 * Generates a vector using the given values and returns it.
@@ -103,59 +99,59 @@ public class VectorLibrary {
 	}
 
 	/**
-	 * Sets result equals the result of the scalar addition of vector1 and value.
+	 * Sets result equals the result of the scalar addition of vector and value.
 	 * 
-	 * @param vector1
+	 * @param vector
 	 * @param value
 	 * @param result
 	 */
-	public int[] add(int[] vector1, int value) {
-		vector1[VECTOR_X] = vector1[VECTOR_X] + value;
-		vector1[VECTOR_Y] = vector1[VECTOR_Y] + value;
-		vector1[VECTOR_Z] = vector1[VECTOR_Z] + value;
-		return vector1;
+	public static int[] add(int[] vector, int value) {
+		vector[VECTOR_X] = vector[VECTOR_X] + value;
+		vector[VECTOR_Y] = vector[VECTOR_Y] + value;
+		vector[VECTOR_Z] = vector[VECTOR_Z] + value;
+		return vector;
 	}
 
 	/**
-	 * Sets result equals the result of the scalar subtraction of vector1 and value.
+	 * Sets result equals the result of the scalar subtraction of vector and value.
 	 * 
-	 * @param vector1
+	 * @param vector
 	 * @param value
 	 * @param result
 	 */
-	public int[] subtract(int[] vector1, int value) {
-		vector1[VECTOR_X] = vector1[VECTOR_X] - value;
-		vector1[VECTOR_Y] = vector1[VECTOR_Y] - value;
-		vector1[VECTOR_Z] = vector1[VECTOR_Z] - value;
-		return vector1;
+	public static int[] subtract(int[] vector, int value) {
+		vector[VECTOR_X] = vector[VECTOR_X] - value;
+		vector[VECTOR_Y] = vector[VECTOR_Y] - value;
+		vector[VECTOR_Z] = vector[VECTOR_Z] - value;
+		return vector;
 	}
 
 	/**
-	 * Sets result equals the result of the scalar multiplication of vector1 and value.
+	 * Sets result equals the result of the scalar multiplication of vector and value.
 	 * 
-	 * @param vector1
+	 * @param vector
 	 * @param value
 	 * @param result
 	 */
-	public int[] multiply(int[] vector1, int value) {
-		vector1[VECTOR_X] = mathLibrary.multiply(vector1[VECTOR_X], value);
-		vector1[VECTOR_Y] = mathLibrary.multiply(vector1[VECTOR_Y], value);
-		vector1[VECTOR_Z] = mathLibrary.multiply(vector1[VECTOR_Z], value);
-		return vector1;
+	public static int[] multiply(int[] vector, int value) {
+		vector[VECTOR_X] = MathLibrary.multiply(vector[VECTOR_X], value);
+		vector[VECTOR_Y] = MathLibrary.multiply(vector[VECTOR_Y], value);
+		vector[VECTOR_Z] = MathLibrary.multiply(vector[VECTOR_Z], value);
+		return vector;
 	}
 
 	/**
-	 * Sets result equals the result of the scalar division of vector1 and value.
+	 * Sets result equals the result of the scalar division of vector and value.
 	 * 
-	 * @param vector1
+	 * @param vector
 	 * @param value
 	 * @param result
 	 */
-	public int[] divide(int[] vector1, int value) {
-		vector1[VECTOR_X] = mathLibrary.divide(vector1[VECTOR_X], value);
-		vector1[VECTOR_Y] = mathLibrary.divide(vector1[VECTOR_Y], value);
-		vector1[VECTOR_Z] = mathLibrary.divide(vector1[VECTOR_Z], value);
-		return vector1;
+	public static int[] divide(int[] vector, int value) {
+		vector[VECTOR_X] = MathLibrary.divide(vector[VECTOR_X], value);
+		vector[VECTOR_Y] = MathLibrary.divide(vector[VECTOR_Y], value);
+		vector[VECTOR_Z] = MathLibrary.divide(vector[VECTOR_Z], value);
+		return vector;
 	}
 
 	/**
@@ -165,7 +161,7 @@ public class VectorLibrary {
 	 * @param vector2
 	 * @param result
 	 */
-	public int[] add(int[] vector1, int[] vector2) {
+	public static int[] add(int[] vector1, int[] vector2) {
 		vector1[VECTOR_X] = vector1[VECTOR_X] + vector2[VECTOR_X];
 		vector1[VECTOR_Y] = vector1[VECTOR_Y] + vector2[VECTOR_Y];
 		vector1[VECTOR_Z] = vector1[VECTOR_Z] + vector2[VECTOR_Z];
@@ -179,7 +175,7 @@ public class VectorLibrary {
 	 * @param vector2
 	 * @param result
 	 */
-	public int[] subtract(int[] vector1, int[] vector2) {
+	public static int[] subtract(int[] vector1, int[] vector2) {
 		vector1[VECTOR_X] = vector1[VECTOR_X] - vector2[VECTOR_X];
 		vector1[VECTOR_Y] = vector1[VECTOR_Y] - vector2[VECTOR_Y];
 		vector1[VECTOR_Z] = vector1[VECTOR_Z] - vector2[VECTOR_Z];
@@ -193,10 +189,10 @@ public class VectorLibrary {
 	 * @param vector2
 	 * @param result
 	 */
-	public int[] multiply(int[] vector1, int[] vector2) {
-		vector1[VECTOR_X] = mathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
-		vector1[VECTOR_Y] = mathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		vector1[VECTOR_Z] = mathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+	public static int[] multiply(int[] vector1, int[] vector2) {
+		vector1[VECTOR_X] = MathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
+		vector1[VECTOR_Y] = MathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		vector1[VECTOR_Z] = MathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return vector1;
 	}
 
@@ -207,10 +203,10 @@ public class VectorLibrary {
 	 * @param vector2
 	 * @param result
 	 */
-	public int[] divide(int[] vector1, int[] vector2) {
-		vector1[VECTOR_X] = mathLibrary.divide(vector1[VECTOR_X], vector2[VECTOR_X]);
-		vector1[VECTOR_Y] = mathLibrary.divide(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		vector1[VECTOR_Z] = mathLibrary.divide(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+	public static int[] divide(int[] vector1, int[] vector2) {
+		vector1[VECTOR_X] = MathLibrary.divide(vector1[VECTOR_X], vector2[VECTOR_X]);
+		vector1[VECTOR_Y] = MathLibrary.divide(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		vector1[VECTOR_Z] = MathLibrary.divide(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return vector1;
 	}
 
@@ -221,15 +217,18 @@ public class VectorLibrary {
 	 * @param matrix
 	 * @param result
 	 */
-	public int[] matrixMultiply(int[] vector, int[] matrix, int[] result) {
+	public static int[] matrixMultiply(int[] vector, int[] matrix) {
+		int x = vector[VECTOR_X];
+		int y = vector[VECTOR_Y];
+		int z = vector[VECTOR_Z];
 		final int rowSize = MatrixLibrary.MATRIX_ROW_SIZE;
 		for (int i = 0; i < VECTOR_SIZE; i++) {
-			int res = mathLibrary.multiply(matrix[0 + (i * rowSize)], vector[VECTOR_X]);
-			res += mathLibrary.multiply(matrix[1 + (i * rowSize)], vector[VECTOR_Y]);
-			res += mathLibrary.multiply(matrix[2 + (i * rowSize)], vector[VECTOR_Z]);
-			result[i] = res + matrix[3 + (i * rowSize)];
+			int res = MathLibrary.multiply(matrix[0 + (i * rowSize)], x);
+			res += MathLibrary.multiply(matrix[1 + (i * rowSize)], y);
+			res += MathLibrary.multiply(matrix[2 + (i * rowSize)], z);
+			vector[i] = res + matrix[3 + (i * rowSize)];
 		}
-		return result;
+		return vector;
 	}
 
 	/**
@@ -238,8 +237,8 @@ public class VectorLibrary {
 	 * @param vector
 	 * @return
 	 */
-	public int length(int[] vector) {
-		return mathLibrary.sqrt(dotProduct(vector, vector));
+	public static int length(int[] vector) {
+		return MathLibrary.sqrt(dotProduct(vector, vector));
 	}
 	
 	/**
@@ -254,7 +253,7 @@ public class VectorLibrary {
 	 * @param vector
 	 * @return
 	 */
-	public int averagedLength(int[] vector) {
+	public static int averagedLength(int[] vector) {
 		int x = Math.abs(vector[VECTOR_X]);
 		int y = Math.abs(vector[VECTOR_Y]);
 		int z = Math.abs(vector[VECTOR_Z]);
@@ -268,10 +267,10 @@ public class VectorLibrary {
 	 * @param vector2
 	 * @return
 	 */
-	public int dotProduct(int[] vector1, int[] vector2) {
-		int x = mathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
-		int y = mathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		int z = mathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+	public static int dotProduct(int[] vector1, int[] vector2) {
+		int x = MathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
+		int y = MathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		int z = MathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return x + y + z;
 	}
 	
@@ -282,14 +281,14 @@ public class VectorLibrary {
 	 * @param vector2
 	 * @return
 	 */
-	public int distance(int[] vector1, int[] vector2) {
+	public static int distance(int[] vector1, int[] vector2) {
 		int x = vector1[VECTOR_X] - vector2[VECTOR_X];
 		int y = vector1[VECTOR_Y] - vector2[VECTOR_Y];
 		int z = vector1[VECTOR_Z] - vector2[VECTOR_Z];
-		x = mathLibrary.multiply(x, x);
-		y = mathLibrary.multiply(y, y);
-		z = mathLibrary.multiply(z, z);
-		return mathLibrary.sqrt(x + y + z);
+		x = MathLibrary.multiply(x, x);
+		y = MathLibrary.multiply(y, y);
+		z = MathLibrary.multiply(z, z);
+		return MathLibrary.sqrt(x + y + z);
 	}
 	
 	/**
@@ -306,7 +305,7 @@ public class VectorLibrary {
 	 * @param vector2
 	 * @return
 	 */
-	public int averagedDistance(int[] vector1, int[] vector2) {
+	public static int averagedDistance(int[] vector1, int[] vector2) {
 		int x = vector1[VECTOR_X] - vector2[VECTOR_X];
 		int y = vector1[VECTOR_Y] - vector2[VECTOR_Y];
 		int z = vector1[VECTOR_Z] - vector2[VECTOR_Z];
@@ -323,13 +322,13 @@ public class VectorLibrary {
 	 * @param vector2
 	 * @param result
 	 */
-	public int[] crossProduct(int[] vector1, int[] vector2, int[] result) {
-		result[VECTOR_X] = mathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Z]);
-		result[VECTOR_Y] = mathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_X]);
-		result[VECTOR_Z] = mathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_Y]);
-		result[VECTOR_X] -= mathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Y]);
-		result[VECTOR_Y] -= mathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_Z]);
-		result[VECTOR_Z] -= mathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_X]);
+	public static int[] crossProduct(int[] vector1, int[] vector2, int[] result) {
+		result[VECTOR_X] = MathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_Z]);
+		result[VECTOR_Y] = MathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_X]);
+		result[VECTOR_Z] = MathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_Y]);
+		result[VECTOR_X] -= MathLibrary.multiply(vector1[VECTOR_Z], vector2[VECTOR_Y]);
+		result[VECTOR_Y] -= MathLibrary.multiply(vector1[VECTOR_X], vector2[VECTOR_Z]);
+		result[VECTOR_Z] -= MathLibrary.multiply(vector1[VECTOR_Y], vector2[VECTOR_X]);
 		return result;
 	}
 	
@@ -339,99 +338,11 @@ public class VectorLibrary {
 	 * @param vector
 	 * @param result
 	 */
-	public int[] normalize(int[] vector) {
-		int magnitude = mathLibrary.divide(FP_ONE, length(vector) + 1);
-		vector[VECTOR_X] = mathLibrary.multiply(vector[VECTOR_X], magnitude);
-		vector[VECTOR_Y] = mathLibrary.multiply(vector[VECTOR_Y], magnitude);
-		vector[VECTOR_Z] = mathLibrary.multiply(vector[VECTOR_Z], magnitude);
-		return vector;
-	}
-	
-	/**
-	 * Sets result equals the vector reflected across reflectionVector.
-	 * 
-	 * @param vector
-	 * @param reflectionVector
-	 * @param result
-	 */
-	public int[] reflect(int[] vector, int[] reflectionVector) {
-		int x = reflectionVector[VECTOR_X];
-		int y = reflectionVector[VECTOR_Y];
-		int z = reflectionVector[VECTOR_Z];
-		int dot = 2 * dotProduct(vector, reflectionVector);
-		multiply(reflectionVector, dot);
-		subtract(vector, reflectionVector);
-		reflectionVector[VECTOR_X] = x;
-		reflectionVector[VECTOR_Y] = y;
-		reflectionVector[VECTOR_Z] = z;
-		return vector;
-	}
-
-	/**
-	 * Sets result equals the vector rotated around (0, 0, 0) at x axis by the given angle.
-	 * 
-	 * @param vector
-	 * @param angle
-	 * @param result
-	 * @return
-	 */
-	public int[] rotateX(int[] vector, int angle) {
-		int sin = mathLibrary.sin(angle);
-		int cos = mathLibrary.cos(angle);
-		int x = vector[VECTOR_X];
-		int y = vector[VECTOR_Y];
-		int z = vector[VECTOR_Z];
-		vector[VECTOR_X] = x;
-		vector[VECTOR_Y] = mathLibrary.multiply(y, cos);
-		vector[VECTOR_Y] -= mathLibrary.multiply(z, sin);
-		vector[VECTOR_Z] = mathLibrary.multiply(z, cos);
-		vector[VECTOR_Z] += mathLibrary.multiply(y, sin);
-		return vector;
-	}
-	
-	/**
-	 * Sets result equals the vector rotated around (0, 0, 0) at y axis by the given angle.
-	 * 
-	 * @param vector
-	 * @param angle
-	 * @param result
-	 * @return
-	 */
-	public int[] rotateY(int[] vector, int angle) {
-		// TODO fix the need of negative angles as in rotation matrix
-		int sin = mathLibrary.sin(-angle);
-		int cos = mathLibrary.cos(-angle);
-		int x = vector[VECTOR_X];
-		int y = vector[VECTOR_Y];
-		int z = vector[VECTOR_Z];
-		vector[VECTOR_X] = mathLibrary.multiply(x, cos);
-		vector[VECTOR_X] -= mathLibrary.multiply(z, sin);
-		vector[VECTOR_Y] = y;
-		vector[VECTOR_Z] = mathLibrary.multiply(z, cos);
-		vector[VECTOR_Z] += mathLibrary.multiply(x, sin);
-		return vector;
-	}
-	
-	/**
-	 * Sets result equals the vector rotated around (0, 0, 0) at z axis by the given angle.
-	 * 
-	 * @param vector
-	 * @param angle
-	 * @param result
-	 * @return
-	 */
-	public int[] rotateZ(int[] vector, int angle) {
-		// TODO fix the need of negative angles as in rotation matrix
-		int sin = mathLibrary.sin(-angle);
-		int cos = mathLibrary.cos(-angle);
-		int x = vector[VECTOR_X];
-		int y = vector[VECTOR_Y];
-		int z = vector[VECTOR_Z];
-		vector[VECTOR_X] = mathLibrary.multiply(x, cos);
-		vector[VECTOR_X] -= mathLibrary.multiply(y, sin);
-		vector[VECTOR_Y] = mathLibrary.multiply(y, cos);
-		vector[VECTOR_Y] += mathLibrary.multiply(x, sin);
-		vector[VECTOR_Z] = z;
+	public static int[] normalize(int[] vector) {
+		int magnitude = MathLibrary.divide(FP_ONE, length(vector) + 1);
+		vector[VECTOR_X] = MathLibrary.multiply(vector[VECTOR_X], magnitude);
+		vector[VECTOR_Y] = MathLibrary.multiply(vector[VECTOR_Y], magnitude);
+		vector[VECTOR_Z] = MathLibrary.multiply(vector[VECTOR_Z], magnitude);
 		return vector;
 	}
 	
@@ -442,7 +353,7 @@ public class VectorLibrary {
 	 * @param vector2
 	 * @return true if vector1 is equal to vector2 if not false.
 	 */
-	public boolean equals(int[] vector1, int[] vector2) {
+	public static boolean equals(int[] vector1, int[] vector2) {
 		if (vector1[VECTOR_X] != vector2[VECTOR_X])
 			return false;
 		if (vector1[VECTOR_Y] != vector2[VECTOR_Y])
@@ -460,7 +371,7 @@ public class VectorLibrary {
 	 * @param vector1
 	 * @param vector2
 	 */
-	public void swap(int[] vector1, int[] vector2) {
+	public static void swap(int[] vector1, int[] vector2) {
 		int tmp = 0;
 		// swap x values
 		tmp = vector1[VECTOR_X];
@@ -486,12 +397,12 @@ public class VectorLibrary {
 	 * @param vector
 	 * @param result
 	 */
-	public int[] invert(int[] vector, int[] result) {
-		result[VECTOR_X] = -vector[VECTOR_X];
-		result[VECTOR_Y] = -vector[VECTOR_Y];
-		result[VECTOR_Z] = -vector[VECTOR_Z];
-		result[VECTOR_W] = -vector[VECTOR_W];
-		return result;
+	public static int[] invert(int[] vector) {
+		vector[VECTOR_X] = -vector[VECTOR_X];
+		vector[VECTOR_Y] = -vector[VECTOR_Y];
+		vector[VECTOR_Z] = -vector[VECTOR_Z];
+		vector[VECTOR_W] = -vector[VECTOR_W];
+		return vector;
 	}
 
 	/**
@@ -500,7 +411,7 @@ public class VectorLibrary {
 	 * @param vector vector with values.
 	 * @param target target vector.
 	 */
-	public int[] copy(int[] target, int[] vector) {
+	public static int[] copy(int[] target, int[] vector) {
 		target[VECTOR_X] = vector[VECTOR_X];
 		target[VECTOR_Y] = vector[VECTOR_Y];
 		target[VECTOR_Z] = vector[VECTOR_Z];
@@ -514,7 +425,7 @@ public class VectorLibrary {
 	 * @param vector
 	 * @return
 	 */
-	public String toString(int[] vector) {
+	public static String toString(int[] vector) {
 		String result = "(";
 		result += MathLibrary.generate(vector[0]) + ", ";
 		result += MathLibrary.generate(vector[1]) + ", ";
