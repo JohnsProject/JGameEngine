@@ -107,7 +107,7 @@ public class PhongRasterizer extends FlatRasterizer {
 	 * @param geometryBuffer
 	 */
 	public void draw(GeometryBuffer geometryBuffer) {
-		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getPortedFrustum());
+		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
 		VectorMath.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
 		VectorMath.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
 		VectorMath.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());

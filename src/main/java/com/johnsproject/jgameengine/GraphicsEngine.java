@@ -28,8 +28,6 @@ import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.math.MatrixMath;
-import com.johnsproject.jgameengine.math.TransformationMath;
 import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.AnimationFrame;
 import com.johnsproject.jgameengine.model.Armature;
@@ -39,6 +37,7 @@ import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.Mesh;
 import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.Scene;
+import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.model.VertexGroup;
 import com.johnsproject.jgameengine.shader.ForwardShaderBuffer;
@@ -53,24 +52,14 @@ public class GraphicsEngine implements EngineListener {
 	private final List<Shader> preShaders;
 	private ShaderBuffer shaderBuffer;
 	private FrameBuffer frameBuffer;
-	
-	private final int[] modelMatrix;
-	private final int[] normalMatrix;
 	private final int[]	locationVector;
 	private final int[]	normalVector;
 	private final int[] multiplyVector;
-	
-	private final int[] matrixCache1;
-	private final int[] matrixCache2;
 	
 	public GraphicsEngine(FrameBuffer frameBuffer) {
 		this.shaderBuffer = new ForwardShaderBuffer();
 		this.preShaders = new ArrayList<Shader>();
 		this.frameBuffer = frameBuffer;
-		this.modelMatrix = MatrixMath.indentityMatrix();
-		this.matrixCache1 = MatrixMath.indentityMatrix();
-		this.matrixCache2 = MatrixMath.indentityMatrix();
-		this.normalMatrix = MatrixMath.indentityMatrix();
 		this.locationVector = VectorMath.toVector();
 		this.normalVector = VectorMath.toVector();
 		this.multiplyVector = VectorMath.toVector();
@@ -100,7 +89,10 @@ public class GraphicsEngine implements EngineListener {
 		for (Camera camera : scene.getCameras().values()) {
 			if(!camera.isActive())
 				continue;
-			shaderBuffer.setup(camera, scene.getLights().values(), frameBuffer);
+			if(camera.getRenderTarget() == null) {
+				camera.setRenderTarget(frameBuffer);
+			}
+			shaderBuffer.setup(camera, scene.getLights().values());
 			callShaders(scene, preShaders);
 			for (Model model : scene.getModels().values()) {
 				if(!model.isActive())
@@ -153,8 +145,7 @@ public class GraphicsEngine implements EngineListener {
 			if(armature != null) {
 				animationFrame = armature.getCurrentAnimationFrame();
 			}
-			TransformationMath.modelMatrix(modelMatrix, model.getTransform(), matrixCache1, matrixCache2);
-			TransformationMath.normalMatrix(normalMatrix, model.getTransform(), matrixCache1, matrixCache2);
+			final Transform transform = model.getTransform();
 			for (int v = 0; v < mesh.getVertices().length; v++) {
 				final Vertex vertex = mesh.getVertex(v);
 				final VertexBuffer vertexBuffer = vertex.getBuffer();
@@ -163,15 +154,15 @@ public class GraphicsEngine implements EngineListener {
 				VectorMath.copy(worldLocation, vertex.getLocation());
 				VectorMath.copy(worldNormal, vertex.getNormal());
 				animateVertex(armature, animationFrame, vertex, worldLocation, worldNormal);
-				VectorMath.matrixMultiply(worldLocation, modelMatrix);
-				VectorMath.matrixMultiply(worldNormal, normalMatrix);
+				VectorMath.matrixMultiply(worldLocation, transform.getSpaceExitMatrix());
+				VectorMath.matrixMultiply(worldNormal, transform.getSpaceExitNormalMatrix());
 			}
 			for (int f = 0; f < mesh.getFaces().length; f++) {
 				final Face face = mesh.getFace(f);
 				final GeometryBuffer geometryBuffer = face.getBuffer();
 				int[] worldNormal = geometryBuffer.getWorldNormal();
 				VectorMath.copy(worldNormal, face.getNormal());
-				VectorMath.matrixMultiply(worldNormal, normalMatrix);
+				VectorMath.matrixMultiply(worldNormal, transform.getSpaceExitNormalMatrix());
 				VectorMath.copy(geometryBuffer.getUV(0), face.getUV(0));
 				VectorMath.copy(geometryBuffer.getUV(1), face.getUV(1));
 				VectorMath.copy(geometryBuffer.getUV(2), face.getUV(2));

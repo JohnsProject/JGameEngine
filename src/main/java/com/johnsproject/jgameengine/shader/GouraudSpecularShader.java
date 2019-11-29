@@ -139,9 +139,9 @@ public class GouraudSpecularShader  implements Shader {
 			lightIndex++;
 		}
 		vertexBuffer.setColor(lightColor);
-		VectorMath.matrixMultiply(location, shaderBuffer.getViewMatrix());
-		VectorMath.matrixMultiply(location, shaderBuffer.getProjectionMatrix());
-		TransformationMath.screenportVector(location, shaderBuffer.getPortedFrustum());
+		VectorMath.matrixMultiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
+		VectorMath.matrixMultiply(location, shaderBuffer.getCamera().getProjectionMatrix());
+		TransformationMath.screenportVector(location, shaderBuffer.getCamera().getRenderTargetPortedFrustum());
 	}
 
 	public void geometry(GeometryBuffer geometryBuffer) {
@@ -154,8 +154,8 @@ public class GouraudSpecularShader  implements Shader {
 	}
 
 	public void fragment(FragmentBuffer fragmentBuffer) {
-		Texture depthBuffer = shaderBuffer.getFrameBuffer().getDepthBuffer();
-		Texture colorBuffer = shaderBuffer.getFrameBuffer().getColorBuffer();
+		Texture depthBuffer = shaderBuffer.getCamera().getRenderTarget().getDepthBuffer();
+		Texture colorBuffer = shaderBuffer.getCamera().getRenderTarget().getColorBuffer();
 		int x = fragmentBuffer.getLocation()[VECTOR_X];
 		int y = fragmentBuffer.getLocation()[VECTOR_Y];
 		int z = fragmentBuffer.getLocation()[VECTOR_Z];

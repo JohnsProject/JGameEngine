@@ -25,6 +25,8 @@ package com.johnsproject.jgameengine.model;
 
 import static com.johnsproject.jgameengine.math.VectorMath.*;
 
+import com.johnsproject.jgameengine.math.MatrixMath;
+import com.johnsproject.jgameengine.math.TransformationMath;
 import com.johnsproject.jgameengine.math.VectorMath;
 
 public class Transform {
@@ -33,58 +35,80 @@ public class Transform {
 	private final int[] rotation;
 	private final int[] scale;
 	
+	private final int[] matrixCache1;
+	private final int[] matrixCache2;
+	private final int[] spaceEnterMatrix;
+	private final int[] spaceEnterNormalMatrix;
+	private final int[] spaceExitMatrix;
+	private final int[] spaceExitNormalMatrix;
+	
 	public Transform() {
-		this.location = VectorMath.toVector();
-		this.rotation = VectorMath.toVector();
-		this.scale = VectorMath.VECTOR_ONE.clone();
+		this(VectorMath.toVector(), VectorMath.toVector(), VectorMath.VECTOR_ONE.clone());
 	}
 	
 	public Transform(int[] location, int[] rotation, int[] scale) {
 		this.location = location;
 		this.rotation = rotation;
 		this.scale = scale;
+		this.matrixCache1 = MatrixMath.indentityMatrix();
+		this.matrixCache2 = MatrixMath.indentityMatrix();
+		this.spaceEnterMatrix = MatrixMath.indentityMatrix();
+		this.spaceEnterNormalMatrix = MatrixMath.indentityMatrix();
+		this.spaceExitMatrix = MatrixMath.indentityMatrix();
+		this.spaceExitNormalMatrix = MatrixMath.indentityMatrix();
+		recalculateMatrices();
+	}
+	
+	private void recalculateMatrices() {
+		TransformationMath.spaceExitMatrix(matrixCache1, this, matrixCache2, spaceExitMatrix);
+		TransformationMath.spaceExitNormalMatrix(matrixCache1, this, matrixCache2, spaceExitNormalMatrix);
+		TransformationMath.spaceEnterMatrix(matrixCache1, this, matrixCache2, spaceEnterMatrix);
+		TransformationMath.spaceEnterNormalMatrix(matrixCache1, this, matrixCache2, spaceEnterNormalMatrix);
 	}
 	
 	public void setLocation(int x, int y, int z) {
 		location[VECTOR_X] = x;
 		location[VECTOR_Y] = y;
 		location[VECTOR_Z] = z;
+		recalculateMatrices();
 	}
 
 	public void setRotation(int x, int y, int z) {
 		rotation[VECTOR_X] = x;
 		rotation[VECTOR_Y] = y;
 		rotation[VECTOR_Z] = z;
+		recalculateMatrices();
 	}
 	
 	public void setScale(int x, int y, int z) {
 		scale[VECTOR_X] = x;
 		scale[VECTOR_Y] = y;
 		scale[VECTOR_Z] = z;
+		recalculateMatrices();
 	}
 	
 	public void translate(int x, int y, int z) {
-		location[VECTOR_X] += x;
-		location[VECTOR_Y] += y;
-		location[VECTOR_Z] += z;
+		setLocation(location[VECTOR_X] + x, location[VECTOR_Y] + y, location[VECTOR_Z] + z);
 	}
 
 	public void rotate(int x, int y, int z) {
-		rotation[VECTOR_X] += x;
-		rotation[VECTOR_Y] += y;
-		rotation[VECTOR_Z] += z;
+		setRotation(rotation[VECTOR_X] + x, rotation[VECTOR_Y] + y, rotation[VECTOR_Z] + z);
+	}
+	
+	public void scale(int x, int y, int z) {
+		setScale(scale[VECTOR_X] + x, scale[VECTOR_Y] + y, scale[VECTOR_Z] + z);
 	}
 	
 	public void translate(int[] vector) {
-		location[VECTOR_X] += vector[VECTOR_X];
-		location[VECTOR_Y] += vector[VECTOR_Y];
-		location[VECTOR_Z] += vector[VECTOR_Z];
+		translate(vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
 	}
 
 	public void rotate(int[] angles) {
-		rotation[VECTOR_X] += angles[VECTOR_X];
-		rotation[VECTOR_Y] += angles[VECTOR_Y];
-		rotation[VECTOR_Z] += angles[VECTOR_Z];
+		rotate(angles[VECTOR_X], angles[VECTOR_Y], angles[VECTOR_Z]);
+	}
+	
+	public void scale(int[] vector) {
+		scale(vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
 	}
 
 	public int[] getLocation() {
@@ -97,5 +121,21 @@ public class Transform {
 
 	public int[] getScale() {
 		return scale;
+	}
+
+	public int[] getSpaceEnterMatrix() {
+		return spaceEnterMatrix;
+	}
+
+	public int[] getSpaceEnterNormalMatrix() {
+		return spaceEnterNormalMatrix;
+	}
+
+	public int[] getSpaceExitMatrix() {
+		return spaceExitMatrix;
+	}
+
+	public int[] getSpaceExitNormalMatrix() {
+		return spaceExitNormalMatrix;
 	}
 }

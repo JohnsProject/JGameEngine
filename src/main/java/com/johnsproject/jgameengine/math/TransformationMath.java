@@ -11,15 +11,7 @@ public final class TransformationMath {
 	
 	private TransformationMath() { }
 	
-	/**
-	 * Fills the given matrix with the values of the model matrix of the given transform.
-	 * This matrix can be used to transform location vectors from local/model to world space.
-	 * 
-	 * @param matrix
-	 * @param transform
-	 * @return
-	 */
-	public static int[] modelMatrix(int[] matrix, Transform transform, int[] translationMatrix, int[] result) {
+	public static int[] spaceExitMatrix(int[] matrix, Transform transform, int[] translationMatrix, int[] result) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
@@ -32,16 +24,8 @@ public final class TransformationMath {
 		MatrixMath.copy(matrix, result);
 		return result;
 	}
-
-	/**
-	 * Fills the given matrix with the values of the normal matrix of the given transform.
-	 * This matrix can be used to transform normal vectors from local/model to world space.
-	 * 
-	 * @param matrix
-	 * @param transform
-	 * @return
-	 */
-	public static int[] normalMatrix(int[] matrix, Transform transform, int[] zRotationMatrix, int[] result) {
+	
+	public static int[] spaceExitNormalMatrix(int[] matrix, Transform transform, int[] zRotationMatrix, int[] result) {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
 		MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
@@ -56,16 +40,8 @@ public final class TransformationMath {
 		MatrixMath.copy(result, matrix);
 		return result;
 	}
-	
-	/**
-	 * Fills the given matrix with the values of the view matrix of the given transform.
-	 * This matrix can be used to transform location vectors from world to view/camera space.
-	 * 
-	 * @param matrix
-	 * @param transform
-	 * @return
-	 */
-	public static int[] viewMatrix(int[] matrix, Transform transform, int[] scaleMatrix, int[] result) {
+
+	public static int[] spaceEnterMatrix(int[] matrix, Transform transform, int[] scaleMatrix, int[] result) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
@@ -85,90 +61,75 @@ public final class TransformationMath {
 		MatrixMath.copy(result, matrix);
 		return result;
 	}
-
 	
-	/**
-	 * Fills the given matrix with the values of the projection matrix of the given focal length.
-	 * This matrix can be used to orthographic project location vectors from view/camera to projection space.
-	 * To get the vectors into screen space it's needed to {@link #screenportVector} them.
-	 * 
-	 * @param matrix
-	 * @param focalLength
-	 * @return
-	 */
-	public static int[] orthographicMatrix(int[] matrix, int focalLength) {
+	public static int[] spaceEnterNormalMatrix(int[] matrix, Transform transform, int[] scaleMatrix, int[] result) {
+		int[] rotation = transform.getRotation();
+		int[] scale = transform.getScale();
+		int scaleX = FixedPointMath.divide(FP_ONE, scale[VECTOR_X] == 0 ? 1 : scale[VECTOR_X]);
+		int scaleY = FixedPointMath.divide(FP_ONE, scale[VECTOR_Y] == 0 ? 1 : scale[VECTOR_Y]);
+		int scaleZ = FixedPointMath.divide(FP_ONE, scale[VECTOR_Z] == 0 ? 1 : scale[VECTOR_Z]);
+		VectorMath.invert(rotation);
+		MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
+		rotateZ(result, rotation[VECTOR_Z], scaleMatrix, matrix);
+		rotateY(matrix, rotation[VECTOR_Y], scaleMatrix, result);
+		rotateX(result, rotation[VECTOR_X], scaleMatrix, matrix);
+		scale(matrix, scaleX, scaleY, scaleZ, scaleMatrix, result);
+		VectorMath.invert(rotation);
+		if ((scale[VECTOR_X] != scale[VECTOR_Y]) || (scale[VECTOR_Y] != scale[VECTOR_Z])) {
+			MatrixMath.inverse(matrix, result);
+			MatrixMath.transpose(result, matrix);
+		}
+		MatrixMath.copy(result, matrix);
+		return result;
+	}
+
+	public static int[] orthographicMatrix(int[] matrix, int[] cameraFrustum, int focalLength) {
+		int top = cameraFrustum[FRUSTUM_TOP];
+		int bottom = cameraFrustum[FRUSTUM_BOTTOM];
+		int near = cameraFrustum[FRUSTUM_NEAR];
+		int far = cameraFrustum[FRUSTUM_FAR];		
+		int farNear = far - near;
+		int scaleFactor = FixedPointMath.multiply(focalLength, bottom - top + 1);
 		int[] projectionMatrix = MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
-		MatrixMath.set(projectionMatrix, 0, 0, focalLength);
-		MatrixMath.set(projectionMatrix, 1, 1, focalLength);
-		MatrixMath.set(projectionMatrix, 2, 2, -FP_ONE);
+		MatrixMath.set(projectionMatrix, 0, 0, scaleFactor);
+		MatrixMath.set(projectionMatrix, 1, 1, scaleFactor);
+		MatrixMath.set(projectionMatrix, 2, 2, -FixedPointMath.divide(FP_ONE, farNear));
+		MatrixMath.set(projectionMatrix, 3, 2, -FixedPointMath.divide(near, farNear));
 		MatrixMath.set(projectionMatrix, 3, 3, -FP_ONE << 4);
 		return projectionMatrix;
 	}
 
-	/**
-	 * Fills the given matrix with the values of the projection matrix of the given focal length.
-	 * This matrix can be used to perspective project location vectors from view/camera to projection space.
-	 * To get the vectors into screen space it's needed to {@link #screenportVector} them.
-	 * 
-	 * @param matrix
-	 * @param focalLength
-	 * @return
-	 */
-	public static int[] perspectiveMatrix(int[] matrix, int focalLength) {
+	public static int[] perspectiveMatrix(int[] matrix, int[] cameraFrustum, int focalLength) {
+		int top = cameraFrustum[FRUSTUM_TOP];
+		int bottom = cameraFrustum[FRUSTUM_BOTTOM];
+		int near = cameraFrustum[FRUSTUM_NEAR];
+		int far = cameraFrustum[FRUSTUM_FAR];
+		int farNear = far - near;
+		int scaleFactor = FixedPointMath.multiply(focalLength, bottom - top + 1);
 		int[] projectionMatrix = MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
-		MatrixMath.set(projectionMatrix, 0, 0, -focalLength);
-		MatrixMath.set(projectionMatrix, 1, 1, focalLength);
-		MatrixMath.set(projectionMatrix, 2, 2, -FP_ONE);
+		MatrixMath.set(projectionMatrix, 0, 0, -scaleFactor);
+		MatrixMath.set(projectionMatrix, 1, 1, scaleFactor);
+		MatrixMath.set(projectionMatrix, 2, 2, -FixedPointMath.divide(FP_ONE, farNear));
+		MatrixMath.set(projectionMatrix, 3, 2, -FixedPointMath.divide(near, farNear));
 		MatrixMath.set(projectionMatrix, 2, 3, FP_ONE);
 		MatrixMath.set(projectionMatrix, 3, 3, 0);
 		return projectionMatrix;
 	}
 
-	/**
-	 * Sets result equals location in screen space.
-	 * This methods needs location to be in projection space, 
-	 * vectors can be transformed into projection space by multiplying them by the 
-	 * {@link #perspectiveMatrix perspective} or the {@link #orthographicMatrix orthographic} projection matrix.
-	 * This method requires cameraFrustum to be already {@link #screenportFrustum ported}.
-	 * 
-	 * @param location
-	 * @param cameraFrustum
-	 * @param result
-	 * @return
-	 */
 	public static int[] screenportVector(int[] location, int[] cameraFrustum) {
 		int top = cameraFrustum[FRUSTUM_TOP];
 		int bottom = cameraFrustum[FRUSTUM_BOTTOM];
 		int left = cameraFrustum[FRUSTUM_LEFT];
 		int right = cameraFrustum[FRUSTUM_RIGHT];
-		int near = cameraFrustum[FRUSTUM_NEAR];
-		int far = cameraFrustum[FRUSTUM_FAR];
-		int scaleFactor = bottom - top + 1;
 		int halfX = left + ((right - left) >> 1);
 		int halfY = top + ((bottom - top) >> 1);
 		int w = location[VECTOR_W];
 		w = FixedPointMath.divide(FP_ONE, w == 0 ? 1 : w);
-		location[VECTOR_X] = FixedPointMath.multiply(location[VECTOR_X], scaleFactor);
 		location[VECTOR_X] = FixedPointMath.multiply(location[VECTOR_X], w) + halfX;
-		location[VECTOR_Y] = FixedPointMath.multiply(location[VECTOR_Y], scaleFactor);
 		location[VECTOR_Y] = FixedPointMath.multiply(location[VECTOR_Y], w) + halfY;
-		location[VECTOR_Z] = FixedPointMath.divide(location[VECTOR_Z] - near, far - near);
-		location[VECTOR_W] = FP_ONE;
 		return location;
 	}
 
-	/**
-	 * Sets result equals the cameraFrustum ported into the given width and height.
-	 * This method fits the given cameraFrustum into the given screen size, 
-	 * this is needed to correctly {@link #screenportVector screenport} vectors.
-	 * 
-	 * 
-	 * @param cameraFrustum
-	 * @param screenWidth
-	 * @param screenHeight
-	 * @param result
-	 * @return
-	 */
 	public static int[] screenportFrustum(int[] cameraFrustum, int screenWidth, int screenHeight) {
 		cameraFrustum[FRUSTUM_LEFT] = FixedPointMath.multiply(screenWidth, cameraFrustum[FRUSTUM_LEFT]);
 		cameraFrustum[FRUSTUM_RIGHT] = FixedPointMath.multiply(screenWidth, cameraFrustum[FRUSTUM_RIGHT]);

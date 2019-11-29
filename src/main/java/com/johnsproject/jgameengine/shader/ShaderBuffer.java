@@ -26,23 +26,14 @@ package com.johnsproject.jgameengine.shader;
 import java.util.Collection;
 
 import com.johnsproject.jgameengine.model.Camera;
-import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.Light;
 
 public interface ShaderBuffer {
 
-	public void setup(Camera camera, Collection<Light> lights, FrameBuffer frameBuffer);
+	public void setup(Camera camera, Collection<Light> lights);
 	
 	public Collection<Light> getLights();
 	
-	public FrameBuffer getFrameBuffer();
-	
 	public Camera getCamera();
-	
-	public int[] getProjectionMatrix();
-	
-	public int[] getPortedFrustum();
-	
-	public int[] getViewMatrix();
 	
 }

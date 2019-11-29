@@ -160,12 +160,6 @@ public class InputEngine implements EngineListener {
 			}
 			for (int i = 0; i < keyEvents.length; i++) {
 				KeyEvent keyEvent = keyEvents[i];
-				if ((keyEvent != null) && (keyEvent.getKeyCode() == e.getKeyCode())) {
-					return;
-				}
-			}
-			for (int i = 0; i < keyEvents.length; i++) {
-				KeyEvent keyEvent = keyEvents[i];
 				if (keyEvent == null) {
 					keyEvents[i] = e;
 					return;
