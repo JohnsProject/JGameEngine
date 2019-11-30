@@ -238,16 +238,15 @@ public final class VectorMath {
 	 * @param matrix
 	 * @param result
 	 */
-	public static int[] matrixMultiply(int[] vector, int[] matrix) {
+	public static int[] multiply(int[] vector, int[][] matrix) {
 		int x = vector[VECTOR_X];
 		int y = vector[VECTOR_Y];
 		int z = vector[VECTOR_Z];
-		final int rowSize = MatrixMath.MATRIX_ROW_SIZE;
 		for (int i = 0; i < VECTOR_SIZE; i++) {
-			int res = FixedPointMath.multiply(matrix[0 + (i * rowSize)], x);
-			res += FixedPointMath.multiply(matrix[1 + (i * rowSize)], y);
-			res += FixedPointMath.multiply(matrix[2 + (i * rowSize)], z);
-			vector[i] = res + matrix[3 + (i * rowSize)];
+			int res = FixedPointMath.multiply(matrix[0][i], x);
+			res += FixedPointMath.multiply(matrix[1][i], y);
+			res += FixedPointMath.multiply(matrix[2][i], z);
+			vector[i] = res + matrix[3][i];
 		}
 		return vector;
 	}

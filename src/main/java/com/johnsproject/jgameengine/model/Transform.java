@@ -35,12 +35,12 @@ public class Transform {
 	private final int[] rotation;
 	private final int[] scale;
 	
-	private final int[] matrixCache1;
-	private final int[] matrixCache2;
-	private final int[] spaceEnterMatrix;
-	private final int[] spaceEnterNormalMatrix;
-	private final int[] spaceExitMatrix;
-	private final int[] spaceExitNormalMatrix;
+	private final int[][] matrixCache1;
+	private final int[][] matrixCache2;
+	private final int[][] spaceEnterMatrix;
+	private final int[][] spaceEnterNormalMatrix;
+	private final int[][] spaceExitMatrix;
+	private final int[][] spaceExitNormalMatrix;
 	
 	public Transform() {
 		this(VectorMath.emptyVector(), VectorMath.emptyVector(), VectorMath.VECTOR_ONE.clone());
@@ -60,10 +60,10 @@ public class Transform {
 	}
 	
 	private void recalculateMatrices() {
-		TransformationMath.spaceExitMatrix(matrixCache1, this, matrixCache2, spaceExitMatrix);
-		TransformationMath.spaceExitNormalMatrix(matrixCache1, this, matrixCache2, spaceExitNormalMatrix);
-		TransformationMath.spaceEnterMatrix(matrixCache1, this, matrixCache2, spaceEnterMatrix);
-		TransformationMath.spaceEnterNormalMatrix(matrixCache1, this, matrixCache2, spaceEnterNormalMatrix);
+		TransformationMath.spaceExitMatrix(spaceExitMatrix, this, matrixCache1, matrixCache2);
+		TransformationMath.spaceExitNormalMatrix(spaceExitNormalMatrix, this, matrixCache1, matrixCache2);
+		TransformationMath.spaceEnterMatrix(spaceEnterMatrix, this, matrixCache1, matrixCache2);
+		TransformationMath.spaceEnterNormalMatrix(spaceEnterNormalMatrix, this, matrixCache1, matrixCache2);
 	}
 	
 	public void setLocation(int x, int y, int z) {
@@ -123,19 +123,19 @@ public class Transform {
 		return scale;
 	}
 
-	public int[] getSpaceEnterMatrix() {
+	public int[][] getSpaceEnterMatrix() {
 		return spaceEnterMatrix;
 	}
 
-	public int[] getSpaceEnterNormalMatrix() {
+	public int[][] getSpaceEnterNormalMatrix() {
 		return spaceEnterNormalMatrix;
 	}
 
-	public int[] getSpaceExitMatrix() {
+	public int[][] getSpaceExitMatrix() {
 		return spaceExitMatrix;
 	}
 
-	public int[] getSpaceExitNormalMatrix() {
+	public int[][] getSpaceExitNormalMatrix() {
 		return spaceExitNormalMatrix;
 	}
 }

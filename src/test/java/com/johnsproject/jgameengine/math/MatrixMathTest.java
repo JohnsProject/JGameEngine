@@ -1,7 +1,7 @@
 package com.johnsproject.jgameengine.math;
 
-import static com.johnsproject.jgameengine.math.MatrixMath.MATRIX_COLUMN_SIZE;
-import static com.johnsproject.jgameengine.math.MatrixMath.MATRIX_ROW_SIZE;
+
+import static com.johnsproject.jgameengine.math.MatrixMath.MATRIX_SIZE;
 
 import org.junit.Test;
 
@@ -17,7 +17,7 @@ public class MatrixMathTest {
 			double precision = 0.000000000000000000000000000000000001;
 			double value1 = i;
 			int fpValue1 = FixedPointMath.toFixedPoint(i);
-			int[] fpMatrix1 = MatrixMath.indentityMatrix();
+			int[][] fpMatrix1 = MatrixMath.indentityMatrix();
 			// fill matrix
 			MatrixMath.add(fpMatrix1, fpValue1);
 			double[][] matrix1 = toMatrix(fpMatrix1);
@@ -46,9 +46,9 @@ public class MatrixMathTest {
 		for (int i = 1; i < 128; i++) {
 			double precision = 0.0001;
 			int fpValue = FixedPointMath.toFixedPoint(i);
-			int[] fpMatrix1 = MatrixMath.indentityMatrix();
-			int[] fpMatrix2 = MatrixMath.indentityMatrix();
-			int[] fpResult = MatrixMath.indentityMatrix();
+			int[][] fpMatrix1 = MatrixMath.indentityMatrix();
+			int[][] fpMatrix2 = MatrixMath.indentityMatrix();
+			int[][] fpResult = MatrixMath.indentityMatrix();
 			// fill matrix
 			MatrixMath.add(fpMatrix1, fpValue);
 			MatrixMath.add(fpMatrix2, fpValue);
@@ -79,11 +79,11 @@ public class MatrixMathTest {
 		for (int i = 1; i < 16; i++) {
 			double precision = 0.000000001;
 			int fpValue = FixedPointMath.toFixedPoint(i);
-			int[] fpMatrix1 = MatrixMath.indentityMatrix();
-			MatrixMath.set(fpMatrix1, 0, 0, fpValue);
-			MatrixMath.set(fpMatrix1, 1, 1, fpValue);
-			MatrixMath.set(fpMatrix1, 2, 2, fpValue);
-			MatrixMath.set(fpMatrix1, 3, 3, fpValue);
+			int[][] fpMatrix1 = MatrixMath.indentityMatrix();
+			fpMatrix1[0][0] = fpValue;
+			fpMatrix1[1][1] = fpValue;
+			fpMatrix1[2][2] = fpValue;
+			fpMatrix1[3][3] = fpValue;
 			double[][] matrix1 = toMatrix(fpMatrix1);
 			double fpResult = MatrixMath.determinant(fpMatrix1);
 			fpResult = FixedPointMath.toDouble((long)fpResult);
@@ -94,26 +94,25 @@ public class MatrixMathTest {
 	
 	@Test
 	public void inverseTest() throws Exception {
-		for (int i = 1; i < 10; i++) {
-			double precision = 0.1;
+		for (int i = 1; i < 16; i++) {
+			double precision = 0.0001;
 			int fpValue = FixedPointMath.toFixedPoint(i);
-			int[] fpMatrix1 = MatrixMath.indentityMatrix();
-			// fill matrix
-			MatrixMath.add(fpMatrix1, fpValue);
+			int[][] fpMatrix1 = MatrixMath.indentityMatrix();
+			fpMatrix1[0][0] = fpValue;
+			fpMatrix1[1][1] = fpValue;
+			fpMatrix1[2][2] = fpValue;
+			fpMatrix1[3][3] = fpValue;
 			double[][] matrix1 = toMatrix(fpMatrix1);
-			int[] fpResult = MatrixMath.indentityMatrix();
+			int[][] fpResult = MatrixMath.indentityMatrix();
 			MatrixMath.inverse(fpMatrix1, fpResult);
 			double[][] result = inverse(matrix1);
-			System.out.println(i);
-			System.out.println(MatrixMath.toString(fpResult));
-			System.out.println(toString(result));
 			assertMatrix(result, toMatrix(fpResult), precision);
 		}
 	}
 	
 	static void assertMatrix(double[][] matrix1, double[][] matrix2, double precision) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
 				assert(matrix1[i][j] >= matrix2[i][j] - precision);
 				assert(matrix1[i][j] <= matrix2[i][j] + precision);
 			}
@@ -122,9 +121,9 @@ public class MatrixMathTest {
 	
 	public static String toString(double[][] matrix) {
 		String result = "";
-		for (int i = 0; i < MATRIX_ROW_SIZE; i++) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
 			result += '|';
-			for (int j = 0; j < MATRIX_COLUMN_SIZE; j++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
 				result += matrix[j][i] + ",";
 			}
 			result += "|\n";
@@ -141,52 +140,52 @@ public class MatrixMathTest {
 		};
 	}
 	
-	static double[][] toMatrix(int[] matrix) {
-		double[][] result = new double[MATRIX_COLUMN_SIZE][MATRIX_ROW_SIZE];
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				result[i][j] = FixedPointMath.toDouble(MatrixMath.get(matrix, i, j));
+	static double[][] toMatrix(int[][] matrix) {
+		double[][] result = new double[MATRIX_SIZE][MATRIX_SIZE];
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				result[i][j] = FixedPointMath.toDouble(matrix[i][j]);
 			}
 		}
 		return result;
 	}
 	
 	static void add(double[][] matrix1, double value) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
 				matrix1[i][j] += value;
 			}
 		}
 	}
 	
 	static void subtract(double[][] matrix1, double value) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
 				matrix1[i][j] -= value;
 			}
 		}
 	}
 	
 	static void multiply(double[][] matrix1, double value) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
 				matrix1[i][j] *= value;
 			}
 		}
 	}
 	
 	static void divide(double[][] matrix1, double value) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
 				matrix1[i][j] /= value;
 			}
 		}
 	}
 	
 	static double[][] add(double[][] matrix1, double[][] matrix2) {
-		double[][] result = new double[MATRIX_COLUMN_SIZE][MATRIX_ROW_SIZE];
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
+		double[][] result = new double[MATRIX_SIZE][MATRIX_SIZE];
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
 				double res = matrix1[0][j] + matrix2[i][0];
 				res += matrix1[1][j] + matrix2[i][1];
 				res += matrix1[2][j] + matrix2[i][2];
@@ -198,9 +197,9 @@ public class MatrixMathTest {
 	}
 	
 	static double[][] subtract(double[][] matrix1, double[][] matrix2) {
-		double[][] result = new double[MATRIX_COLUMN_SIZE][MATRIX_ROW_SIZE];
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
+		double[][] result = new double[MATRIX_SIZE][MATRIX_SIZE];
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
 				double res = matrix1[0][j] - matrix2[i][0];
 				res += matrix1[1][j] - matrix2[i][1];
 				res += matrix1[2][j] - matrix2[i][2];
@@ -212,9 +211,9 @@ public class MatrixMathTest {
 	}
 	
 	static double[][] multiply(double[][] matrix1, double[][] matrix2) {
-		double[][] result = new double[MATRIX_COLUMN_SIZE][MATRIX_ROW_SIZE];
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
+		double[][] result = new double[MATRIX_SIZE][MATRIX_SIZE];
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
 				double res = matrix1[0][j] * matrix2[i][0];
 				res += matrix1[1][j] * matrix2[i][1];
 				res += matrix1[2][j] * matrix2[i][2];
@@ -226,9 +225,9 @@ public class MatrixMathTest {
 	}
 	
 	static double[][] divide(double[][] matrix1, double[][] matrix2) {
-		double[][] result = new double[MATRIX_COLUMN_SIZE][MATRIX_ROW_SIZE];
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
+		double[][] result = new double[MATRIX_SIZE][MATRIX_SIZE];
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
 				double res = matrix1[0][j] / matrix2[i][0];
 				res += matrix1[1][j] / matrix2[i][1];
 				res += matrix1[2][j] / matrix2[i][2];

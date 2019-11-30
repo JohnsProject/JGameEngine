@@ -43,7 +43,7 @@ public class Camera extends SceneObject {
 	
 	private final int[] frustum;
 	private final int[] portedFrustum;
-	private final int[] projectionMatrix;
+	private final int[][] projectionMatrix;
 	private int focalLength;
 	private CameraType type;
 	private FrameBuffer renderTarget;
@@ -142,7 +142,7 @@ public class Camera extends SceneObject {
 		}
 	}
 
-	public int[] getProjectionMatrix() {
+	public int[][] getProjectionMatrix() {
 		return projectionMatrix;
 	}
 }

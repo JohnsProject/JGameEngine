@@ -37,7 +37,7 @@ public class RigidBody {
 	private final int[] torque;
 	private final int[] linearVelocity;
 	private final int[] angularVelocity;
-	private final int[] momentOfInertia;
+	private final int[][] momentOfInertia;
 	
 	public RigidBody() {
 		this.kinematic = false;
@@ -81,7 +81,7 @@ public class RigidBody {
 		return angularVelocity;
 	}
 
-	public int[] getMomentOfInertia() {
+	public int[][] getMomentOfInertia() {
 		return momentOfInertia;
 	}
 

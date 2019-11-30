@@ -154,15 +154,15 @@ public class GraphicsEngine implements EngineListener {
 				VectorMath.copy(worldLocation, vertex.getLocation());
 				VectorMath.copy(worldNormal, vertex.getNormal());
 				animateVertex(armature, animationFrame, vertex, worldLocation, worldNormal);
-				VectorMath.matrixMultiply(worldLocation, transform.getSpaceExitMatrix());
-				VectorMath.matrixMultiply(worldNormal, transform.getSpaceExitNormalMatrix());
+				VectorMath.multiply(worldLocation, transform.getSpaceExitMatrix());
+				VectorMath.multiply(worldNormal, transform.getSpaceExitNormalMatrix());
 			}
 			for (int f = 0; f < mesh.getFaces().length; f++) {
 				final Face face = mesh.getFace(f);
 				final GeometryBuffer geometryBuffer = face.getBuffer();
 				int[] worldNormal = geometryBuffer.getWorldNormal();
 				VectorMath.copy(worldNormal, face.getNormal());
-				VectorMath.matrixMultiply(worldNormal, transform.getSpaceExitNormalMatrix());
+				VectorMath.multiply(worldNormal, transform.getSpaceExitNormalMatrix());
 				VectorMath.copy(geometryBuffer.getUV(0), face.getUV(0));
 				VectorMath.copy(geometryBuffer.getUV(1), face.getUV(1));
 				VectorMath.copy(geometryBuffer.getUV(2), face.getUV(2));
@@ -181,13 +181,13 @@ public class GraphicsEngine implements EngineListener {
 				final VertexGroup vertexGroup = armature.getVertexGroup(i);
 				final int boneWeight = vertexGroup.getWeight(vertex);
 				if(boneWeight != -1) {
-					int[] rotationMatrix = animationFrame.getBoneMatrix(vertexGroup.getBoneIndex());
+					int[][] rotationMatrix = animationFrame.getBoneMatrix(vertexGroup.getBoneIndex());
 					VectorMath.copy(multiplyVector, location);
-					VectorMath.matrixMultiply(multiplyVector, rotationMatrix);
+					VectorMath.multiply(multiplyVector, rotationMatrix);
 					VectorMath.multiply(multiplyVector, boneWeight);
 					VectorMath.add(locationVector, multiplyVector);
 					VectorMath.copy(multiplyVector, normal);
-					VectorMath.matrixMultiply(multiplyVector, rotationMatrix);
+					VectorMath.multiply(multiplyVector, rotationMatrix);
 					VectorMath.multiply(multiplyVector, boneWeight);
 					VectorMath.add(normalVector, multiplyVector);
 				}

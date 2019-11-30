@@ -32,16 +32,13 @@ import static com.johnsproject.jgameengine.math.FixedPointMath.*;
  * @author John Ferraz Salomon
  */
 public final class MatrixMath {
-	
-	public static final byte MATRIX_ROW_SIZE = 4;
-	public static final byte MATRIX_COLUMN_SIZE = 4;
-	public static final byte MATRIX_SIZE = 16;
+	public static final byte MATRIX_SIZE = 4;
 
-	public static final int[] MATRIX_IDENTITY = new int[] {
-		FP_ONE, 0, 0, 0,
-		0, FP_ONE, 0, 0,
-		0, 0, FP_ONE, 0,
-		0, 0, 0, FP_ONE
+	public static final int[][] MATRIX_IDENTITY = new int[][] {
+		{FP_ONE, 0, 0, 0},
+		{0, FP_ONE, 0, 0},
+		{0, 0, FP_ONE, 0},
+		{0, 0, 0, FP_ONE}
 	};
 
 	private MatrixMath() { }
@@ -51,38 +48,13 @@ public final class MatrixMath {
 	 * 
 	 * @return
 	 */
-	public static int[] indentityMatrix() {
-		return new int[] {
-			FP_ONE, 0, 0, 0,
-			0, FP_ONE, 0, 0,
-			0, 0, FP_ONE, 0,
-			0, 0, 0, FP_ONE
+	public static int[][] indentityMatrix() {
+		return new int[][] {
+			{FP_ONE, 0, 0, 0},
+			{0, FP_ONE, 0, 0},
+			{0, 0, FP_ONE, 0},
+			{0, 0, 0, FP_ONE}
 		};
-	}
-	
-	/**
-	 * Returns the value at the given column and row.
-	 * 
-	 * @param matrix
-	 * @param column
-	 * @param row
-	 * @return
-	 */
-	public static int get(int[] matrix, int column, int row) {
-		return matrix[column + (row * MATRIX_ROW_SIZE)];
-	}
-	
-	/**
-	 * Sets the value at the given column and row equals value.
-	 * 
-	 * @param matrix
-	 * @param column
-	 * @param row
-	 * @param value
-	 * @return
-	 */
-	public static void set(int[] matrix, int column, int row, int value) {
-		matrix[column + (row * MATRIX_ROW_SIZE)] = value;
 	}
 	
 	/**
@@ -92,14 +64,14 @@ public final class MatrixMath {
 	 * @param matrix2
 	 * @param result
 	 */
-	public static int[] add(int[] matrix1, int[] matrix2, int[] result) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				int res = get(matrix1, 0, j) + get(matrix2, i, 0);
-				res += get(matrix1, 1, j) + get(matrix2, i, 1);
-				res += get(matrix1, 2, j) + get(matrix2, i, 2);
-				res += get(matrix1, 3, j) + get(matrix2, i, 3);
-				set(result, i, j, res);
+	public static int[][] add(int[][] matrix1, int[][] matrix2, int[][] result) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				int res = matrix1[0][j] + matrix2[i][0];
+				res += matrix1[1][j] + matrix2[i][1];
+				res += matrix1[2][j] + matrix2[i][2];
+				res += matrix1[3][j] + matrix2[i][3];
+				result[i][j] = res;
 			}
 		}
 		return result;
@@ -112,14 +84,14 @@ public final class MatrixMath {
 	 * @param matrix2
 	 * @param result
 	 */
-	public static int[] subtract(int[] matrix1, int[] matrix2, int[] result) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				int res = get(matrix1, 0, j) - get(matrix2, i, 0);
-				res += get(matrix1, 1, j) - get(matrix2, i, 1);
-				res += get(matrix1, 2, j) - get(matrix2, i, 2);
-				res += get(matrix1, 3, j) - get(matrix2, i, 3);
-				set(result, i, j, res);
+	public static int[][] subtract(int[][] matrix1, int[][] matrix2, int[][] result) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				int res = matrix1[0][j] - matrix2[i][0];
+				res += matrix1[1][j] - matrix2[i][1];
+				res += matrix1[2][j] - matrix2[i][2];
+				res += matrix1[3][j] - matrix2[i][3];
+				result[i][j] = res;
 			}
 		}
 		return result;
@@ -132,14 +104,14 @@ public final class MatrixMath {
 	 * @param matrix2
 	 * @param result
 	 */
-	public static int[] multiply(int[] matrix1, int[] matrix2, int[] result) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				int res = FixedPointMath.multiply(get(matrix1, 0, j), get(matrix2, i, 0));
-				res += FixedPointMath.multiply(get(matrix1, 1, j), get(matrix2, i, 1));
-				res += FixedPointMath.multiply(get(matrix1, 2, j), get(matrix2, i, 2));
-				res += FixedPointMath.multiply(get(matrix1, 3, j), get(matrix2, i, 3));
-				set(result, i, j, res);
+	public static int[][] multiply(int[][] matrix1, int[][] matrix2, int[][] result) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				int res = FixedPointMath.multiply(matrix1[0][j], matrix2[i][0]);
+				res += FixedPointMath.multiply(matrix1[1][j], matrix2[i][1]);
+				res += FixedPointMath.multiply(matrix1[2][j], matrix2[i][2]);
+				res += FixedPointMath.multiply(matrix1[3][j], matrix2[i][3]);
+				result[i][j] = res;
 			}
 		}
 		return result;
@@ -152,14 +124,14 @@ public final class MatrixMath {
 	 * @param matrix2
 	 * @param result
 	 */
-	public static int[] divide(int[] matrix1, int[] matrix2, int[] result) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				int res = FixedPointMath.divide(get(matrix1, 0, j), get(matrix2, i, 0));
-				res += FixedPointMath.divide(get(matrix1, 1, j), get(matrix2, i, 1));
-				res += FixedPointMath.divide(get(matrix1, 2, j), get(matrix2, i, 2));
-				res += FixedPointMath.divide(get(matrix1, 3, j), get(matrix2, i, 3));
-				set(result, i, j, res);
+	public static int[][] divide(int[][] matrix1, int[][] matrix2, int[][] result) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				int res = FixedPointMath.divide(matrix1[0][j], matrix2[i][0]);
+				res += FixedPointMath.divide(matrix1[1][j], matrix2[i][1]);
+				res += FixedPointMath.divide(matrix1[2][j], matrix2[i][2]);
+				res += FixedPointMath.divide(matrix1[3][j], matrix2[i][3]);
+				result[i][j] = res;
 			}
 		}
 		return result;
@@ -172,10 +144,10 @@ public final class MatrixMath {
 	 * @param value
 	 * @param result
 	 */
-	public static int[] add(int[] matrix, int value) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				set(matrix, i, j, get(matrix, i, j) + value);
+	public static int[][] add(int[][] matrix, int value) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				matrix[i][j] += value;
 			}
 		}
 		return matrix;
@@ -188,10 +160,10 @@ public final class MatrixMath {
 	 * @param value
 	 * @param result
 	 */
-	public static int[] subtract(int[] matrix, int value) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				set(matrix, i, j, get(matrix, i, j) - value);
+	public static int[][] subtract(int[][] matrix, int value) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				matrix[i][j] -= value;
 			}
 		}
 		return matrix;
@@ -204,10 +176,10 @@ public final class MatrixMath {
 	 * @param value
 	 * @param result
 	 */
-	public static int[] multiply(int[] matrix, int value) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				set(matrix, i, j, FixedPointMath.multiply(get(matrix, i, j), value));
+	public static int[][] multiply(int[][] matrix, int value) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				matrix[i][j] = FixedPointMath.multiply(matrix[i][j], value);
 			}
 		}
 		return matrix;
@@ -220,10 +192,10 @@ public final class MatrixMath {
 	 * @param value
 	 * @param result
 	 */
-	public static int[] divide(int[] matrix, int value) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				set(matrix, i, j, FixedPointMath.divide(get(matrix, i, j), value));
+	public static int[][] divide(int[][] matrix, int value) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				matrix[i][j] = FixedPointMath.divide(matrix[i][j], value);
 			}
 		}
 		return matrix;
@@ -235,10 +207,10 @@ public final class MatrixMath {
 	 * @param matrix
 	 * @param result
 	 */
-	public static int[] transpose(int[] matrix, int[] result) {
-		for (int i = 0; i < MATRIX_COLUMN_SIZE; i++) {
-			for (int j = 0; j < MATRIX_ROW_SIZE; j++) {
-				set(result, i, j, get(matrix, j, i));
+	public static int[][] transpose(int[][] matrix, int[][] result) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				result[i][j] = matrix[j][i];
 			}
 		}
 		return result;
@@ -249,31 +221,31 @@ public final class MatrixMath {
 	 * 
 	 * @param matrix
 	 */
-	public static int determinant(int[] matrix) {
-		return	FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 3, 0), get(matrix, 2, 1)), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 0, 3))) - 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 2, 0), get(matrix, 3, 1)), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 0, 3))) -
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 3, 0), get(matrix, 1, 1)), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 0, 3))) + 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 1, 0), get(matrix, 3, 1)), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 0, 3))) +
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 2, 0), get(matrix, 1, 1)), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 0, 3))) - 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 1, 0), get(matrix, 2, 1)), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 0, 3))) -
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 3, 0), get(matrix, 2, 1)), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 1, 3))) + 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 2, 0), get(matrix, 3, 1)), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 1, 3))) +
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 3, 0), get(matrix, 0, 1)), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 1, 3))) - 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 0, 0), get(matrix, 3, 1)), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 1, 3))) -
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 2, 0), get(matrix, 0, 1)), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 1, 3))) + 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 0, 0), get(matrix, 2, 1)), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 1, 3))) +
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 3, 0), get(matrix, 1, 1)), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 2, 3))) - 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 1, 0), get(matrix, 3, 1)), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 2, 3))) -
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 3, 0), get(matrix, 0, 1)), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 2, 3))) + 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 0, 0), get(matrix, 3, 1)), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 2, 3))) +
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 1, 0), get(matrix, 0, 1)), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 2, 3))) - 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 0, 0), get(matrix, 1, 1)), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 2, 3))) -
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 2, 0), get(matrix, 1, 1)), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 3, 3))) + 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 1, 0), get(matrix, 2, 1)), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 3, 3))) +
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 2, 0), get(matrix, 0, 1)), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 3, 3))) - 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 0, 0), get(matrix, 2, 1)), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 3, 3))) -
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 1, 0), get(matrix, 0, 1)), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 3, 3))) + 
-				FixedPointMath.multiply(FixedPointMath.multiply(get(matrix, 0, 0), get(matrix, 1, 1)), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 3, 3)));
+	public static int determinant(int[][] matrix) {
+		return	FixedPointMath.multiply(FixedPointMath.multiply(matrix[3][0], matrix[2][1]), FixedPointMath.multiply(matrix[1][2], matrix[0][3])) - 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[2][0], matrix[3][1]), FixedPointMath.multiply(matrix[1][2], matrix[0][3])) -
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[3][0], matrix[1][1]), FixedPointMath.multiply(matrix[2][2], matrix[0][3])) + 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[1][0], matrix[3][1]), FixedPointMath.multiply(matrix[2][2], matrix[0][3])) +
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[2][0], matrix[1][1]), FixedPointMath.multiply(matrix[3][2], matrix[0][3])) - 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[1][0], matrix[2][1]), FixedPointMath.multiply(matrix[3][2], matrix[0][3])) -
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[3][0], matrix[2][1]), FixedPointMath.multiply(matrix[0][2], matrix[1][3])) + 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[2][0], matrix[3][1]), FixedPointMath.multiply(matrix[0][2], matrix[1][3])) +
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[3][0], matrix[0][1]), FixedPointMath.multiply(matrix[2][2], matrix[1][3])) - 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[0][0], matrix[3][1]), FixedPointMath.multiply(matrix[2][2], matrix[1][3])) -
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[2][0], matrix[0][1]), FixedPointMath.multiply(matrix[3][2], matrix[1][3])) + 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[0][0], matrix[2][1]), FixedPointMath.multiply(matrix[3][2], matrix[1][3])) +
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[3][0], matrix[1][1]), FixedPointMath.multiply(matrix[0][2], matrix[2][3])) - 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[1][0], matrix[3][1]), FixedPointMath.multiply(matrix[0][2], matrix[2][3])) -
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[3][0], matrix[0][1]), FixedPointMath.multiply(matrix[1][2], matrix[2][3])) + 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[0][0], matrix[3][1]), FixedPointMath.multiply(matrix[1][2], matrix[2][3])) +
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[1][0], matrix[0][1]), FixedPointMath.multiply(matrix[3][2], matrix[2][3])) - 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[0][0], matrix[1][1]), FixedPointMath.multiply(matrix[3][2], matrix[2][3])) -
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[2][0], matrix[1][1]), FixedPointMath.multiply(matrix[0][2], matrix[3][3])) + 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[1][0], matrix[2][1]), FixedPointMath.multiply(matrix[0][2], matrix[3][3])) +
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[2][0], matrix[0][1]), FixedPointMath.multiply(matrix[1][2], matrix[3][3])) - 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[0][0], matrix[2][1]), FixedPointMath.multiply(matrix[1][2], matrix[3][3])) -
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[1][0], matrix[0][1]), FixedPointMath.multiply(matrix[2][2], matrix[3][3])) + 
+				FixedPointMath.multiply(FixedPointMath.multiply(matrix[0][0], matrix[1][1]), FixedPointMath.multiply(matrix[2][2], matrix[3][3]));
 	}
 	
 	/**
@@ -282,105 +254,105 @@ public final class MatrixMath {
 	 * @param matrix
 	 * @param result
 	 */
-	public static int[] inverse(int[] matrix, int[] result) {
-		matrix = copy(result, matrix);
+	public static int[][] inverse(int[][] matrix, int[][] result) {
+		copy(result, matrix);
 		int determinant = determinant(matrix) + 1;
-		set(result, 0, 0, FixedPointMath.multiply(get(matrix, 2, 1), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 1, 3))) -
-						FixedPointMath.multiply(get(matrix, 3, 1), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 1, 3))) +
-						FixedPointMath.multiply(get(matrix, 3, 1), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 2, 3))) -
-						FixedPointMath.multiply(get(matrix, 1, 1), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 2, 3))) -
-						FixedPointMath.multiply(get(matrix, 2, 1), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 3, 3))) +
-						FixedPointMath.multiply(get(matrix, 1, 1), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 3, 3))));
-		set(result, 1, 0, FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 1, 3))) -
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 2, 3), get(matrix, 1, 3))) -
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 2, 3))) +
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 2, 3), get(matrix, 2, 3))) +
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 3, 3))) -
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 3, 3))));
-		set(result, 2, 0, FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 1, 3))) -
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 1, 3))) +
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 2, 3))) -
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 2, 3))) -
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 3, 3))) +
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 3, 3))));
-		set(result, 3, 0, FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 1, 2))) -
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 1, 2))) -
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 2, 2))) +
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 2, 2))) +
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 3, 2))) -
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 3, 2))));
-		set(result, 0, 1, FixedPointMath.multiply(get(matrix, 3, 1), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 2, 1), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 3, 1), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 2, 3))) +
-						FixedPointMath.multiply(get(matrix, 0, 1), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 2, 3))) +
-						FixedPointMath.multiply(get(matrix, 2, 1), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 3, 3))) -
-						FixedPointMath.multiply(get(matrix, 0, 1), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 3, 3))));
-		set(result, 1, 1, FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 0, 3))) +
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 2, 3))) -
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 2, 3))) -
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 3, 3))) +
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 3, 3))));
-		set(result, 2, 1, FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 2, 3))) +
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 2, 3))) +
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 3, 3))) -
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 3, 3))));
-		set(result, 3, 1, FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 0, 2))) -
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 0, 2))) +
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 2, 2))) -
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 2, 2))) -
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 3, 2))) +
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 3, 2))));
-		set(result, 0, 2, FixedPointMath.multiply(get(matrix, 1, 1), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 3, 1), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 0, 3))) +
-						FixedPointMath.multiply(get(matrix, 3, 1), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 1, 3))) -
-						FixedPointMath.multiply(get(matrix, 0, 1), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 1, 3))) -
-						FixedPointMath.multiply(get(matrix, 1, 1), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 3, 3))) +
-						FixedPointMath.multiply(get(matrix, 0, 1), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 3, 3))));
-		set(result, 1, 2, FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 1, 3))) +
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 3, 2), get(matrix, 1, 3))) +
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 3, 3))) -
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 3, 3))));
-		set(result, 2, 2, FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 0, 3))) +
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 1, 3))) -
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 1, 3))) -
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 3, 3))) +
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 3, 3))));
-		set(result, 3, 2, FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 0, 2))) -
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 0, 2))) -
-						FixedPointMath.multiply(get(matrix, 3, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 1, 2))) +
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 3, 1), get(matrix, 1, 2))) +
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 3, 2))) -
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 3, 2))));
-		set(result, 0, 3, FixedPointMath.multiply(get(matrix, 2, 1), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 1, 1), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 2, 1), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 1, 3))) +
-						FixedPointMath.multiply(get(matrix, 0, 1), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 1, 3))) +
-						FixedPointMath.multiply(get(matrix, 1, 1), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 2, 3))) -
-						FixedPointMath.multiply(get(matrix, 0, 1), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 2, 3))));
-		set(result, 1, 3, FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 0, 3))) +
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 1, 3))) -
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 2, 2), get(matrix, 1, 3))) -
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 0, 2), get(matrix, 2, 3))) +
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 1, 2), get(matrix, 2, 3))));
-		set(result, 2, 3, FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 0, 3))) -
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 1, 3))) +
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 1, 3))) +
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 2, 3))) -
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 2, 3))));
-		set(result, 3, 3, FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 0, 2))) -
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 0, 2))) +
-						FixedPointMath.multiply(get(matrix, 2, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 1, 2))) -
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 2, 1), get(matrix, 1, 2))) -
-						FixedPointMath.multiply(get(matrix, 1, 0), FixedPointMath.multiply(get(matrix, 0, 1), get(matrix, 2, 2))) +
-						FixedPointMath.multiply(get(matrix, 0, 0), FixedPointMath.multiply(get(matrix, 1, 1), get(matrix, 2, 2))));
+		result[0][0] = FixedPointMath.multiply(matrix[2][1], FixedPointMath.multiply(matrix[3][2], matrix[1][3])) -
+						FixedPointMath.multiply(matrix[3][1], FixedPointMath.multiply(matrix[2][2], matrix[1][3])) +
+						FixedPointMath.multiply(matrix[3][1], FixedPointMath.multiply(matrix[1][2], matrix[2][3])) -
+						FixedPointMath.multiply(matrix[1][1], FixedPointMath.multiply(matrix[3][2], matrix[2][3])) -
+						FixedPointMath.multiply(matrix[2][1], FixedPointMath.multiply(matrix[1][2], matrix[3][3])) +
+						FixedPointMath.multiply(matrix[1][1], FixedPointMath.multiply(matrix[2][2], matrix[3][3]));
+		result[1][0] = FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[2][2], matrix[1][3])) -
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[2][3], matrix[1][3])) -
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[2][1], matrix[2][3])) +
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[2][3], matrix[2][3])) +
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[2][1], matrix[3][3])) -
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[2][2], matrix[3][3]));
+		result[2][0] = FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[3][1], matrix[1][3])) -
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[2][1], matrix[1][3])) +
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[1][1], matrix[2][3])) -
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[3][1], matrix[2][3])) -
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[1][1], matrix[3][3])) +
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[2][1], matrix[3][3]));
+		result[3][0] = FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[2][1], matrix[1][2])) -
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[3][1], matrix[1][2])) -
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[1][1], matrix[2][2])) +
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[3][1], matrix[2][2])) +
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[1][1], matrix[3][2])) -
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[2][1], matrix[3][2]));
+		result[0][1] = FixedPointMath.multiply(matrix[3][1], FixedPointMath.multiply(matrix[2][2], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[2][1], FixedPointMath.multiply(matrix[3][2], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[3][1], FixedPointMath.multiply(matrix[0][2], matrix[2][3])) +
+						FixedPointMath.multiply(matrix[0][1], FixedPointMath.multiply(matrix[3][2], matrix[2][3])) +
+						FixedPointMath.multiply(matrix[2][1], FixedPointMath.multiply(matrix[0][2], matrix[3][3])) -
+						FixedPointMath.multiply(matrix[0][1], FixedPointMath.multiply(matrix[2][2], matrix[3][3]));
+		result[1][1] = FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[3][2], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[2][2], matrix[0][3])) +
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[0][2], matrix[2][3])) -
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[3][2], matrix[2][3])) -
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[0][2], matrix[3][3])) +
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[2][2], matrix[3][3]));
+		result[2][1] = FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[2][1], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[3][1], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[0][1], matrix[2][3])) +
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[3][1], matrix[2][3])) +
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[0][1], matrix[3][3])) -
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[2][1], matrix[3][3]));
+		result[3][1] = FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[3][1], matrix[0][2])) -
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[2][1], matrix[0][2])) +
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[0][1], matrix[2][2])) -
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[3][1], matrix[2][2])) -
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[0][1], matrix[3][2])) +
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[2][1], matrix[3][2]));
+		result[0][2] = FixedPointMath.multiply(matrix[1][1], FixedPointMath.multiply(matrix[3][2], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[3][1], FixedPointMath.multiply(matrix[1][2], matrix[0][3])) +
+						FixedPointMath.multiply(matrix[3][1], FixedPointMath.multiply(matrix[0][2], matrix[1][3])) -
+						FixedPointMath.multiply(matrix[0][1], FixedPointMath.multiply(matrix[3][2], matrix[1][3])) -
+						FixedPointMath.multiply(matrix[1][1], FixedPointMath.multiply(matrix[0][2], matrix[3][3])) +
+						FixedPointMath.multiply(matrix[0][1], FixedPointMath.multiply(matrix[1][2], matrix[3][3]));
+		result[1][2] = FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[1][2], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[3][2], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[0][2], matrix[1][3])) +
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[3][2], matrix[1][3])) +
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[0][2], matrix[3][3])) -
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[1][2], matrix[3][3]));
+		result[2][2] = FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[3][1], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[1][1], matrix[0][3])) +
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[0][1], matrix[1][3])) -
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[3][1], matrix[1][3])) -
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[0][1], matrix[3][3])) +
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[1][1], matrix[3][3]));
+		result[3][2] = FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[1][1], matrix[0][2])) -
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[3][1], matrix[0][2])) -
+						FixedPointMath.multiply(matrix[3][0], FixedPointMath.multiply(matrix[0][1], matrix[1][2])) +
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[3][1], matrix[1][2])) +
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[0][1], matrix[3][2])) -
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[1][1], matrix[3][2]));
+		result[0][3] = FixedPointMath.multiply(matrix[2][1], FixedPointMath.multiply(matrix[1][2], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[1][1], FixedPointMath.multiply(matrix[2][2], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[2][1], FixedPointMath.multiply(matrix[0][2], matrix[1][3])) +
+						FixedPointMath.multiply(matrix[0][1], FixedPointMath.multiply(matrix[2][2], matrix[1][3])) +
+						FixedPointMath.multiply(matrix[1][1], FixedPointMath.multiply(matrix[0][2], matrix[2][3])) -
+						FixedPointMath.multiply(matrix[0][1], FixedPointMath.multiply(matrix[1][2], matrix[2][3]));
+		result[1][3] = FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[2][2], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[1][2], matrix[0][3])) +
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[0][2], matrix[1][3])) -
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[2][2], matrix[1][3])) -
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[0][2], matrix[2][3])) +
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[1][2], matrix[2][3]));
+		result[2][3] = FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[1][1], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[2][1], matrix[0][3])) -
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[0][1], matrix[1][3])) +
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[2][1], matrix[1][3])) +
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[0][1], matrix[2][3])) -
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[1][1], matrix[2][3]));
+		result[3][3] = FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[2][1], matrix[0][2])) -
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[1][1], matrix[0][2])) +
+						FixedPointMath.multiply(matrix[2][0], FixedPointMath.multiply(matrix[0][1], matrix[1][2])) -
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[2][1], matrix[1][2])) -
+						FixedPointMath.multiply(matrix[1][0], FixedPointMath.multiply(matrix[0][1], matrix[2][2])) +
+						FixedPointMath.multiply(matrix[0][0], FixedPointMath.multiply(matrix[1][1], matrix[2][2]));
 		divide(result, determinant);
 		return result;
 	}
@@ -391,9 +363,11 @@ public final class MatrixMath {
 	 * @param target
 	 * @param matrix
 	 */
-	public static int[] copy(int[] target, int[] matrix) {
+	public static int[][] copy(int[][] target, int[][] matrix) {
 		for (int i = 0; i < MATRIX_SIZE; i++) {
-			target[i] = matrix[i];
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				target[i][j] = matrix[i][j];
+			}
 		}
 		return target;
 	}
@@ -405,10 +379,12 @@ public final class MatrixMath {
 	 * @param matrix2
 	 * @return
 	 */
-	public static boolean equals(int[] matrix1, int[] matrix2) {
+	public static boolean equals(int[][] matrix1, int[][] matrix2) {
 		for (int i = 0; i < MATRIX_SIZE; i++) {
-			if (matrix1[i] != matrix2[i])
-				return false;
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				if (matrix1[i][j] != matrix2[i][j])
+					return false;
+			}
 		}
 		return true;
 	}
@@ -419,12 +395,12 @@ public final class MatrixMath {
 	 * @param matrix
 	 * @return
 	 */
-	public static String toString(int[] matrix) {
+	public static String toString(int[][] matrix) {
 		String result = "";
-		for (int i = 0; i < MATRIX_ROW_SIZE; i++) {
+		for (int i = 0; i < MATRIX_SIZE; i++) {
 			result += '|';
-			for (int j = 0; j < MATRIX_COLUMN_SIZE; j++) {
-				result += FixedPointMath.toDouble(get(matrix, j, i)) + ",";
+			for (int j = 0; j < MATRIX_SIZE; j++) {
+				result += FixedPointMath.toDouble(matrix[j][i]) + ",";
 			}
 			result += "|\n";
 		}

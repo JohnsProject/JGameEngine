@@ -66,14 +66,14 @@ public class VectorMathTest {
 	public void matrixMultiplyTest() throws Exception {
 		int[] vector1 = VectorMath.toVector(3f, 6f, 9f);
 		int[] resultVector = VectorMath.toVector(16f, 35f, 84f);
-		int[] matrix1 = MatrixMath.indentityMatrix();
-		MatrixMath.set(matrix1, 0, 0, FixedPointMath.toFixedPoint(2));
-		MatrixMath.set(matrix1, 1, 1, FixedPointMath.toFixedPoint(4));
-		MatrixMath.set(matrix1, 2, 2, FixedPointMath.toFixedPoint(8));
-		MatrixMath.set(matrix1, 3, 0, FixedPointMath.toFixedPoint(10));
-		MatrixMath.set(matrix1, 3, 1, FixedPointMath.toFixedPoint(11));
-		MatrixMath.set(matrix1, 3, 2, FixedPointMath.toFixedPoint(12));
-		VectorMath.matrixMultiply(vector1, matrix1);
+		int[][] matrix1 = MatrixMath.indentityMatrix();
+		matrix1[0][0] = FixedPointMath.toFixedPoint(2);
+		matrix1[1][1] = FixedPointMath.toFixedPoint(4);
+		matrix1[2][2] = FixedPointMath.toFixedPoint(8);
+		matrix1[3][0] = FixedPointMath.toFixedPoint(10);
+		matrix1[3][1] = FixedPointMath.toFixedPoint(11);
+		matrix1[3][2] = FixedPointMath.toFixedPoint(12);
+		VectorMath.multiply(vector1, matrix1);
 		assert(VectorMath.equals(vector1, resultVector));		
 	}
 	

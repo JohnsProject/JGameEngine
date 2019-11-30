@@ -67,8 +67,8 @@ public class PhongSpecularShader  implements Shader {
 		int[] normal = vertexBuffer.getWorldNormal();
 		VectorMath.normalize(normal);
 		VectorMath.copy(location, vertexBuffer.getWorldLocation());
-		VectorMath.matrixMultiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
-		VectorMath.matrixMultiply(location, shaderBuffer.getCamera().getProjectionMatrix());
+		VectorMath.multiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
+		VectorMath.multiply(location, shaderBuffer.getCamera().getProjectionMatrix());
 		TransformationMath.screenportVector(location, shaderBuffer.getCamera().getRenderTargetPortedFrustum());
 	}
 
@@ -109,7 +109,7 @@ public class PhongSpecularShader  implements Shader {
 					VectorMath.invert(lightDirection);
 					currentFactor = getLightFactor(normal, lightDirection, viewDirection);
 					if (lightIndex == shaderBuffer.getDirectionalLightIndex()) {
-						int[] lightMatrix = shaderBuffer.getDirectionalLightMatrix();
+						int[][] lightMatrix = shaderBuffer.getDirectionalLightMatrix();
 						int[] lightFrustum = shaderBuffer.getDirectionalLightFrustum();
 						Texture shadowMap = shaderBuffer.getDirectionalShadowMap();
 						if(inShadow(worldLocation, lightMatrix, lightFrustum, shadowMap)) {
@@ -127,7 +127,7 @@ public class PhongSpecularShader  implements Shader {
 					if ((lightIndex == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
 						int[] lightFrustum = shaderBuffer.getPointLightFrustum();
 						for (int j = 0; j < shaderBuffer.getPointLightMatrices().length; j++) {
-							int[] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
+							int[][] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
 							Texture shadowMap = shaderBuffer.getPointShadowMaps()[j];
 							if(inShadow(worldLocation, lightMatrix, lightFrustum, shadowMap)) {
 								currentFactor = ColorMath.multiplyColor(currentFactor, light.getShadowColor());
@@ -151,7 +151,7 @@ public class PhongSpecularShader  implements Shader {
 						currentFactor = FixedPointMath.multiply(currentFactor, intensity * 2);
 						currentFactor = FixedPointMath.divide(currentFactor, attenuation);
 						if ((lightIndex == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
-							int[] lightMatrix = shaderBuffer.getSpotLightMatrix();
+							int[][] lightMatrix = shaderBuffer.getSpotLightMatrix();
 							int[] lightFrustum = shaderBuffer.getSpotLightFrustum();
 							Texture shadowMap = shaderBuffer.getSpotShadowMap();
 							if(inShadow(worldLocation, lightMatrix, lightFrustum, shadowMap)) {
@@ -204,9 +204,9 @@ public class PhongSpecularShader  implements Shader {
 		return attenuation + 1;
 	}
 	
-	private boolean inShadow(int[] location, int[] lightMatrix, int[] lightFrustum, Texture shadowMap) {
+	private boolean inShadow(int[] location, int[][] lightMatrix, int[] lightFrustum, Texture shadowMap) {
 		VectorMath.copy(lightSpaceLocation, location);
-		VectorMath.matrixMultiply(lightSpaceLocation, lightMatrix);
+		VectorMath.multiply(lightSpaceLocation, lightMatrix);
 		TransformationMath.screenportVector(lightSpaceLocation, lightFrustum);
 		int x = lightSpaceLocation[VECTOR_X];
 		int y = lightSpaceLocation[VECTOR_Y];

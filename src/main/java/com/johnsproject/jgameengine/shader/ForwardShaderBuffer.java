@@ -43,27 +43,27 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 	private Camera camera;
 	private Collection<Light> lights;
 	
-	private final int[] projectionMatrix;
+	private final int[][] projectionMatrix;
 	
 	private int directionalLightIndex;
 	private int directionalFocalLength;
 	private final int[] directionalLightFrustum;
 	private final int[] portedDirectionalLightFrustum;
-	private final int[] directionalLightMatrix;
+	private final int[][] directionalLightMatrix;
 	private final Texture directionalShadowMap;
 	
 	private int spotLightIndex;
 	private int spotFocalLength;
 	private final int[] spotLightFrustum;
 	private final int[] portedSpotLightFrustum;
-	private final int[] spotLightMatrix;
+	private final int[][] spotLightMatrix;
 	private final Texture spotShadowMap;
 	
 	private int pointLightIndex;
 	private int pointFocalLength;
 	private final int[] portedPointLightFrustum;
 	private final int[] pointLightFrustum;
-	private final int[][] pointLightMatrices;
+	private final int[][][] pointLightMatrices;
 	private final Texture[] pointShadowMaps;
 	
 	public ForwardShaderBuffer() {
@@ -105,7 +105,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.pointLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
 		this.pointLightFrustum[Camera.FRUSTUM_NEAR] = 0;
 		this.pointLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 1000;
-		this.pointLightMatrices = new int[6][MatrixMath.MATRIX_SIZE];
+		this.pointLightMatrices = new int[6][MatrixMath.MATRIX_SIZE][MatrixMath.MATRIX_SIZE];
 		this.pointShadowMaps = new Texture[6];
 		for (int i = 0; i < 6; i++) {
 			pointLightMatrices[i] = MatrixMath.indentityMatrix();
@@ -258,7 +258,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		return directionalLightIndex;
 	}
 
-	public int[] getDirectionalLightMatrix() {
+	public int[][] getDirectionalLightMatrix() {
 		return directionalLightMatrix;
 	}
 
@@ -274,7 +274,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		return spotLightIndex;
 	}
 
-	public int[] getSpotLightMatrix() {
+	public int[][] getSpotLightMatrix() {
 		return spotLightMatrix;
 	}
 
@@ -290,7 +290,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		return pointLightIndex;
 	}
 
-	public int[][] getPointLightMatrices() {
+	public int[][][] getPointLightMatrices() {
 		return pointLightMatrices;
 	}
 

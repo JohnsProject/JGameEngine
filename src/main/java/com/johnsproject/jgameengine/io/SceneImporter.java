@@ -310,6 +310,8 @@ public final class SceneImporter {
 	
 	private static Animation[] parseAnimations(String[] animationsData) {
 		Animation[] animations = new Animation[animationsData.length];
+		int[][] matrixCache1 = MatrixMath.indentityMatrix();
+		int[][] matrixCache2 = MatrixMath.indentityMatrix();
 		for (int i = 0; i < animations.length; i++) {
 			String[] animationData = animationsData[i].split(",");
 			String name = animationData[0];
@@ -317,7 +319,7 @@ public final class SceneImporter {
 			int framesCount = Integer.parseInt(animationData[2]);
 			AnimationFrame[] frames = new AnimationFrame[framesCount];
 			for (int f = 3, fi = 0; f < animationData.length; f += bonesCount * 9, fi++) {
-				int[][] boneRotationMatrices = new int[bonesCount][MatrixMath.MATRIX_SIZE];
+				int[][][] boneRotationMatrices = new int[bonesCount][MatrixMath.MATRIX_SIZE][MatrixMath.MATRIX_SIZE];
 				for (int b = f, bi = 0; b < f + bonesCount * 9; b += 9, bi++) {
 					int x = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + VECTOR_X]));
 					int y = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + VECTOR_Y]));
@@ -331,12 +333,12 @@ public final class SceneImporter {
 					y = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + 6 + VECTOR_Y]));
 					z = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + 6 + VECTOR_Z]));
 					int[] scale = VectorMath.toVector(x, y, z);
-					int[] boneRotationMatrix = MatrixMath.indentityMatrix();
-					TransformationMath.scale(boneRotationMatrix.clone(), scale, boneRotationMatrix.clone(), boneRotationMatrix);
-					TransformationMath.rotateX(boneRotationMatrix.clone(), rotation[VECTOR_X], boneRotationMatrix.clone(), boneRotationMatrix);
-					TransformationMath.rotateY(boneRotationMatrix.clone(), rotation[VECTOR_Y], boneRotationMatrix.clone(), boneRotationMatrix);
-					TransformationMath.rotateZ(boneRotationMatrix.clone(), rotation[VECTOR_Z], boneRotationMatrix.clone(), boneRotationMatrix);
-					TransformationMath.translate(boneRotationMatrix.clone(), location, boneRotationMatrix.clone(), boneRotationMatrix);
+					int[][] boneRotationMatrix = MatrixMath.indentityMatrix();
+					TransformationMath.scale(boneRotationMatrix, scale, matrixCache1, matrixCache2);
+					TransformationMath.rotateX(boneRotationMatrix, rotation[VECTOR_X], matrixCache1, matrixCache2);
+					TransformationMath.rotateY(boneRotationMatrix, rotation[VECTOR_Y], matrixCache1, matrixCache2);
+					TransformationMath.rotateZ(boneRotationMatrix, rotation[VECTOR_Z], matrixCache1, matrixCache2);
+					TransformationMath.translate(boneRotationMatrix, location, matrixCache1, matrixCache2);
 					boneRotationMatrices[bi] = boneRotationMatrix;
 				}
 				frames[fi] = new AnimationFrame(boneRotationMatrices);

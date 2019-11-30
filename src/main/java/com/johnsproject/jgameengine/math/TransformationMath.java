@@ -34,37 +34,35 @@ public final class TransformationMath {
 	
 	private TransformationMath() { }
 	
-	public static int[] spaceExitMatrix(int[] matrix, Transform transform, int[] translationMatrix, int[] result) {
+	public static int[][] spaceExitMatrix(int[][] matrix, Transform transform, int[][] matrixCache1, int[][] matrixCache2) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
 		MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
-		scale(matrix, scale, translationMatrix, result);
-		rotateX(result, rotation[VECTOR_X], translationMatrix, matrix);
-		rotateY(matrix, rotation[VECTOR_Y], translationMatrix, result);
-		rotateZ(result, rotation[VECTOR_Z], translationMatrix, matrix);
-		translate(matrix, location, translationMatrix, result);
-		MatrixMath.copy(matrix, result);
-		return result;
+		scale(matrix, scale, matrixCache1, matrixCache2);
+		rotateX(matrix, rotation[VECTOR_X], matrixCache1, matrixCache2);
+		rotateY(matrix, rotation[VECTOR_Y], matrixCache1, matrixCache2);
+		rotateZ(matrix, rotation[VECTOR_Z], matrixCache1, matrixCache2);
+		translate(matrix, location, matrixCache1, matrixCache2);
+		return matrix;
 	}
 	
-	public static int[] spaceExitNormalMatrix(int[] matrix, Transform transform, int[] zRotationMatrix, int[] result) {
+	public static int[][] spaceExitNormalMatrix(int[][] matrix, Transform transform, int[][] matrixCache1, int[][] matrixCache2) {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
 		MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
-		scale(matrix, scale, zRotationMatrix, result);
-		rotateX(result, rotation[VECTOR_X], zRotationMatrix, matrix);
-		rotateY(matrix, rotation[VECTOR_Y], zRotationMatrix, result);
-		rotateZ(result, rotation[VECTOR_Z], zRotationMatrix, matrix);
+		scale(matrix, scale, matrixCache1, matrixCache2);
+		rotateX(matrix, rotation[VECTOR_X], matrixCache1, matrixCache2);
+		rotateY(matrix, rotation[VECTOR_Y], matrixCache1, matrixCache2);
+		rotateZ(matrix, rotation[VECTOR_Z], matrixCache1, matrixCache2);
 		if ((scale[VECTOR_X] != scale[VECTOR_Y]) || (scale[VECTOR_Y] != scale[VECTOR_Z])) {
-			MatrixMath.inverse(matrix, result);
-			MatrixMath.transpose(result, matrix);
+			MatrixMath.inverse(matrix, matrixCache2);
+			MatrixMath.transpose(matrixCache2, matrix);
 		}
-		MatrixMath.copy(result, matrix);
-		return result;
+		return matrix;
 	}
 
-	public static int[] spaceEnterMatrix(int[] matrix, Transform transform, int[] scaleMatrix, int[] result) {
+	public static int[][] spaceEnterMatrix(int[][] matrix, Transform transform, int[][] matrixCache1, int[][] matrixCache2) {
 		int[] location = transform.getLocation();
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
@@ -74,18 +72,17 @@ public final class TransformationMath {
 		VectorMath.invert(location);
 		VectorMath.invert(rotation);
 		MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
-		translate(matrix, location, scaleMatrix, result);
-		rotateZ(result, rotation[VECTOR_Z], scaleMatrix, matrix);
-		rotateY(matrix, rotation[VECTOR_Y], scaleMatrix, result);
-		rotateX(result, rotation[VECTOR_X], scaleMatrix, matrix);
-		scale(matrix, scaleX, scaleY, scaleZ, scaleMatrix, result);
+		translate(matrix, location, matrixCache1, matrixCache2);
+		rotateZ(matrix, rotation[VECTOR_Z], matrixCache1, matrixCache2);
+		rotateY(matrix, rotation[VECTOR_Y], matrixCache1, matrixCache2);
+		rotateX(matrix, rotation[VECTOR_X], matrixCache1, matrixCache2);
+		scale(matrix, scaleX, scaleY, scaleZ, matrixCache1, matrixCache2);
 		VectorMath.invert(location);
 		VectorMath.invert(rotation);
-		MatrixMath.copy(result, matrix);
-		return result;
+		return matrix;
 	}
 	
-	public static int[] spaceEnterNormalMatrix(int[] matrix, Transform transform, int[] scaleMatrix, int[] result) {
+	public static int[][] spaceEnterNormalMatrix(int[][] matrix, Transform transform, int[][] matrixCache1, int[][] matrixCache2) {
 		int[] rotation = transform.getRotation();
 		int[] scale = transform.getScale();
 		int scaleX = FixedPointMath.divide(FP_ONE, scale[VECTOR_X] == 0 ? 1 : scale[VECTOR_X]);
@@ -93,49 +90,48 @@ public final class TransformationMath {
 		int scaleZ = FixedPointMath.divide(FP_ONE, scale[VECTOR_Z] == 0 ? 1 : scale[VECTOR_Z]);
 		VectorMath.invert(rotation);
 		MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
-		rotateZ(result, rotation[VECTOR_Z], scaleMatrix, matrix);
-		rotateY(matrix, rotation[VECTOR_Y], scaleMatrix, result);
-		rotateX(result, rotation[VECTOR_X], scaleMatrix, matrix);
-		scale(matrix, scaleX, scaleY, scaleZ, scaleMatrix, result);
+		rotateZ(matrix, rotation[VECTOR_Z], matrixCache1, matrixCache2);
+		rotateY(matrix, rotation[VECTOR_Y], matrixCache1, matrixCache2);
+		rotateX(matrix, rotation[VECTOR_X], matrixCache1, matrixCache2);
+		scale(matrix, scaleX, scaleY, scaleZ, matrixCache1, matrixCache2);
 		VectorMath.invert(rotation);
 		if ((scale[VECTOR_X] != scale[VECTOR_Y]) || (scale[VECTOR_Y] != scale[VECTOR_Z])) {
-			MatrixMath.inverse(matrix, result);
-			MatrixMath.transpose(result, matrix);
+			MatrixMath.inverse(matrix, matrixCache2);
+			MatrixMath.transpose(matrixCache2, matrix);
 		}
-		MatrixMath.copy(result, matrix);
-		return result;
+		return matrix;
 	}
 
-	public static int[] orthographicMatrix(int[] matrix, int[] cameraFrustum, int focalLength) {
+	public static int[][] orthographicMatrix(int[][] matrix, int[] cameraFrustum, int focalLength) {
 		int top = cameraFrustum[FRUSTUM_TOP];
 		int bottom = cameraFrustum[FRUSTUM_BOTTOM];
 		int near = cameraFrustum[FRUSTUM_NEAR];
 		int far = cameraFrustum[FRUSTUM_FAR];		
 		int farNear = far - near;
 		int scaleFactor = FixedPointMath.multiply(focalLength, bottom - top + 1);
-		int[] projectionMatrix = MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
-		MatrixMath.set(projectionMatrix, 0, 0, scaleFactor);
-		MatrixMath.set(projectionMatrix, 1, 1, scaleFactor);
-		MatrixMath.set(projectionMatrix, 2, 2, -FixedPointMath.divide(FP_ONE, farNear));
-		MatrixMath.set(projectionMatrix, 3, 2, -FixedPointMath.divide(near, farNear));
-		MatrixMath.set(projectionMatrix, 3, 3, -FP_ONE << 4);
+		int[][] projectionMatrix = MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
+		projectionMatrix[0][0] = scaleFactor;
+		projectionMatrix[1][1] = scaleFactor;
+		projectionMatrix[2][2] = -FixedPointMath.divide(FP_ONE, farNear);
+		projectionMatrix[3][2] = -FixedPointMath.divide(near, farNear);
+		projectionMatrix[3][3] = -FP_ONE << 4;
 		return projectionMatrix;
 	}
 
-	public static int[] perspectiveMatrix(int[] matrix, int[] cameraFrustum, int focalLength) {
+	public static int[][] perspectiveMatrix(int[][] matrix, int[] cameraFrustum, int focalLength) {
 		int top = cameraFrustum[FRUSTUM_TOP];
 		int bottom = cameraFrustum[FRUSTUM_BOTTOM];
 		int near = cameraFrustum[FRUSTUM_NEAR];
 		int far = cameraFrustum[FRUSTUM_FAR];
 		int farNear = far - near;
 		int scaleFactor = FixedPointMath.multiply(focalLength, bottom - top + 1);
-		int[] projectionMatrix = MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
-		MatrixMath.set(projectionMatrix, 0, 0, -scaleFactor);
-		MatrixMath.set(projectionMatrix, 1, 1, scaleFactor);
-		MatrixMath.set(projectionMatrix, 2, 2, -FixedPointMath.divide(FP_ONE, farNear));
-		MatrixMath.set(projectionMatrix, 3, 2, -FixedPointMath.divide(near, farNear));
-		MatrixMath.set(projectionMatrix, 2, 3, FP_ONE);
-		MatrixMath.set(projectionMatrix, 3, 3, 0);
+		int[][] projectionMatrix = MatrixMath.copy(matrix, MatrixMath.MATRIX_IDENTITY);
+		projectionMatrix[0][0] = -scaleFactor;
+		projectionMatrix[1][1] = scaleFactor;
+		projectionMatrix[2][2] = -FixedPointMath.divide(FP_ONE, farNear);
+		projectionMatrix[3][2] = -FixedPointMath.divide(near, farNear);
+		projectionMatrix[2][3] = FP_ONE;
+		projectionMatrix[3][3] = 0;
 		return projectionMatrix;
 	}
 
@@ -276,8 +272,8 @@ public final class TransformationMath {
 	 * @param z
 	 * @param result
 	 */
-	public static int[] translate(int[] matrix, int[] vector, int[] translationMatrix, int[] result) {
-		return translate(matrix, vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z], translationMatrix, result);
+	public static int[][] translate(int[][] matrix, int[] vector, int[][] matrixCache1, int[][] matrixCache2) {
+		return translate(matrix, vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z], matrixCache1, matrixCache2);
 	}
 	
 	/**
@@ -289,9 +285,10 @@ public final class TransformationMath {
 	 * @param z
 	 * @param result
 	 */
-	public static int[] translate(int[] matrix, int x, int y , int z, int[] translationMatrix, int[] result) {
-		translationMatrix(translationMatrix, x, y, z);
-		return multiply(translationMatrix, matrix, result);
+	public static int[][] translate(int[][] matrix, int x, int y , int z, int[][] matrixCache1, int[][] matrixCache2) {
+		translationMatrix(matrixCache1, x, y, z);
+		MatrixMath.copy(matrixCache2, matrix);
+		return multiply(matrixCache1, matrixCache2, matrix);
 	}
 	
 	/**
@@ -303,7 +300,7 @@ public final class TransformationMath {
 	 * @param z
 	 * @param result
 	 */
-	public static int[] translationMatrix(int[] matrix, int[] vector) {
+	public static int[][] translationMatrix(int[][] matrix, int[] vector) {
 		return translationMatrix(matrix, vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
 	}
 	
@@ -316,11 +313,11 @@ public final class TransformationMath {
 	 * @param z
 	 * @param result
 	 */
-	public static int[] translationMatrix(int[] matrix, int x, int y , int z) {
+	public static int[][] translationMatrix(int[][] matrix, int x, int y , int z) {
 		MatrixMath.copy(matrix, MATRIX_IDENTITY);
-		MatrixMath.set(matrix, 3, 0, x);
-		MatrixMath.set(matrix, 3, 1, y);
-		MatrixMath.set(matrix, 3, 2, z);
+		matrix[3][0] = x;
+		matrix[3][1] = y;
+		matrix[3][2] = z;
 		return matrix;
 	}
 
@@ -333,8 +330,8 @@ public final class TransformationMath {
 	 * @param z
 	 * @param result
 	 */
-	public static int[] scale(int[] matrix, int[] vector, int[] scaleMatrix, int[] result) {
-		return scale(matrix, vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z], scaleMatrix, result);
+	public static int[][] scale(int[][] matrix, int[] vector, int[][] matrixCache1, int[][] matrixCache2) {
+		return scale(matrix, vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z], matrixCache1, matrixCache2);
 	}
 	
 	/**
@@ -346,20 +343,21 @@ public final class TransformationMath {
 	 * @param z
 	 * @param result
 	 */
-	public static int[] scale(int[] matrix, int x, int y, int z, int[] scaleMatrix, int[] result) {
-		scaleMatrix(scaleMatrix, x, y, z);
-		return multiply(scaleMatrix, matrix, result);
+	public static int[][] scale(int[][] matrix, int x, int y, int z, int[][] matrixCache1, int[][] matrixCache2) {
+		scaleMatrix(matrixCache1, x, y, z);
+		MatrixMath.copy(matrixCache2, matrix);
+		return multiply(matrixCache1, matrixCache2, matrix);
 	}
 	
-	public static int[] scaleMatrix(int[] matrix, int[] vector) {
+	public static int[][] scaleMatrix(int[][] matrix, int[] vector) {
 		return scaleMatrix(matrix, vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
 	}
 	
-	public static int[] scaleMatrix(int[] matrix, int x, int y, int z) {
+	public static int[][] scaleMatrix(int[][] matrix, int x, int y, int z) {
 		MatrixMath.copy(matrix, MATRIX_IDENTITY);
-		MatrixMath.set(matrix, 0, 0, x);
-		MatrixMath.set(matrix, 1, 1, y);
-		MatrixMath.set(matrix, 2, 2, z);
+		matrix[0][0] = x;
+		matrix[1][1] = y;
+		matrix[2][2] = z;
 		return matrix;
 	}
 
@@ -371,19 +369,20 @@ public final class TransformationMath {
 	 * @param angle
 	 * @param result
 	 */
-	public static int[] rotateX(int[] matrix, int angle, int[] xRotationMatrix, int[] result) {
-		xRotationMatrix(xRotationMatrix, angle);
-		return multiply(xRotationMatrix, matrix, result);
+	public static int[][] rotateX(int[][] matrix, int angle, int[][] matrixCache1, int[][] matrixCache2) {
+		xRotationMatrix(matrixCache1, angle);
+		MatrixMath.copy(matrixCache2, matrix);
+		return multiply(matrixCache1, matrixCache2, matrix);
 	}
 	
-	public static int[] xRotationMatrix(int[] matrix, int angle) {
+	public static int[][] xRotationMatrix(int[][] matrix, int angle) {
 		MatrixMath.copy(matrix, MATRIX_IDENTITY);
 		int cos = FixedPointMath.cos(angle);
 		int sin = FixedPointMath.sin(angle);
-		MatrixMath.set(matrix, 1, 1, cos);
-		MatrixMath.set(matrix, 1, 2, sin);
-		MatrixMath.set(matrix, 2, 1, -sin);
-		MatrixMath.set(matrix, 2, 2, cos);
+		matrix[1][1] = cos;
+		matrix[1][2] = sin;
+		matrix[2][1] = -sin;
+		matrix[2][2] = cos;
 		return matrix;
 	}
 
@@ -395,19 +394,20 @@ public final class TransformationMath {
 	 * @param angle
 	 * @param result
 	 */
-	public static int[] rotateY(int[] matrix, int angle, int[] yRotationMatrix, int[] result) {
-		yRotationMatrix(yRotationMatrix, angle);
-		return multiply(yRotationMatrix, matrix, result);
+	public static int[][] rotateY(int[][] matrix, int angle, int[][] matrixCache1, int[][] matrixCache2) {
+		yRotationMatrix(matrixCache1, angle);
+		MatrixMath.copy(matrixCache2, matrix);
+		return multiply(matrixCache1, matrixCache2, matrix);
 	}
 	
-	public static int[] yRotationMatrix(int[] matrix, int angle) {
+	public static int[][] yRotationMatrix(int[][] matrix, int angle) {
 		MatrixMath.copy(matrix, MATRIX_IDENTITY);
 		int cos = FixedPointMath.cos(angle);
 		int sin = FixedPointMath.sin(angle);
-		MatrixMath.set(matrix, 0, 0, cos);
-		MatrixMath.set(matrix, 0, 2, -sin);
-		MatrixMath.set(matrix, 2, 0, sin);
-		MatrixMath.set(matrix, 2, 2, cos);
+		matrix[0][0] = cos;
+		matrix[0][2] = -sin;
+		matrix[2][0] = sin;
+		matrix[2][2] = cos;
 		return matrix;
 	}
 
@@ -419,19 +419,20 @@ public final class TransformationMath {
 	 * @param angle
 	 * @param result
 	 */
-	public static int[] rotateZ(int[] matrix, int angle, int[] zRotationMatrix, int[] result) {
-		zRotationMatrix(zRotationMatrix, angle);
-		return multiply(zRotationMatrix, matrix, result);
+	public static int[][] rotateZ(int[][] matrix, int angle, int[][] matrixCache1, int[][] matrixCache2) {
+		yRotationMatrix(matrixCache1, angle);
+		MatrixMath.copy(matrixCache2, matrix);
+		return multiply(matrixCache1, matrixCache2, matrix);
 	}
 	
-	public static int[] zRotationMatrix(int[] matrix, int angle) {
+	public static int[][] zRotationMatrix(int[][] matrix, int angle) {
 		MatrixMath.copy(matrix, MATRIX_IDENTITY);
 		int cos = FixedPointMath.cos(angle);
 		int sin = FixedPointMath.sin(angle);
-		MatrixMath.set(matrix, 0, 0, cos);
-		MatrixMath.set(matrix, 0, 1, sin);
-		MatrixMath.set(matrix, 1, 0, -sin);
-		MatrixMath.set(matrix, 1, 1, cos);
+		matrix[0][0] = cos;
+		matrix[0][1] = sin;
+		matrix[1][0] = -sin;
+		matrix[1][1] = cos;
 		return matrix;
 	}
 }

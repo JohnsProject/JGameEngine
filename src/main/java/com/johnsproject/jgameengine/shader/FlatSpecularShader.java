@@ -65,8 +65,8 @@ public class FlatSpecularShader  implements Shader {
 	public void vertex(VertexBuffer vertexBuffer) {
 		int[] location = vertexBuffer.getLocation();
 		VectorMath.copy(location, vertexBuffer.getWorldLocation());
-		VectorMath.matrixMultiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
-		VectorMath.matrixMultiply(location, shaderBuffer.getCamera().getProjectionMatrix());
+		VectorMath.multiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
+		VectorMath.multiply(location, shaderBuffer.getCamera().getProjectionMatrix());
 		TransformationMath.screenportVector(location, shaderBuffer.getCamera().getRenderTargetPortedFrustum());
 	}
 
@@ -99,7 +99,7 @@ public class FlatSpecularShader  implements Shader {
 				VectorMath.invert(lightDirection);
 				currentFactor = getLightFactor(normal, lightDirection, viewDirection);
 				if (lightIndex == shaderBuffer.getDirectionalLightIndex()) {
-					int[] lightMatrix = shaderBuffer.getDirectionalLightMatrix();
+					int[][] lightMatrix = shaderBuffer.getDirectionalLightMatrix();
 					int[] lightFrustum = shaderBuffer.getDirectionalLightFrustum();
 					Texture shadowMap = shaderBuffer.getDirectionalShadowMap();
 					if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
@@ -118,7 +118,7 @@ public class FlatSpecularShader  implements Shader {
 				currentFactor = FixedPointMath.divide(currentFactor, attenuation);
 				if ((lightIndex == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
 					for (int j = 0; j < shaderBuffer.getPointLightMatrices().length; j++) {
-						int[] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
+						int[][] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
 						int[] lightFrustum = shaderBuffer.getPointLightFrustum();
 						Texture shadowMap = shaderBuffer.getPointShadowMaps()[j];
 						if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
@@ -144,7 +144,7 @@ public class FlatSpecularShader  implements Shader {
 					currentFactor = FixedPointMath.multiply(currentFactor, intensity * 2);
 					currentFactor = FixedPointMath.divide(currentFactor, attenuation);
 					if ((lightIndex == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
-						int[] lightMatrix = shaderBuffer.getSpotLightMatrix();
+						int[][] lightMatrix = shaderBuffer.getSpotLightMatrix();
 						int[] lightFrustum = shaderBuffer.getSpotLightFrustum();
 						Texture shadowMap = shaderBuffer.getSpotShadowMap();
 						if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
@@ -219,9 +219,9 @@ public class FlatSpecularShader  implements Shader {
 		return attenuation + 1;
 	}
 	
-	private boolean inShadow(int[] location, int[] lightMatrix, int[] lightFrustum, Texture shadowMap) {
+	private boolean inShadow(int[] location, int[][] lightMatrix, int[] lightFrustum, Texture shadowMap) {
 		VectorMath.copy(lightSpaceLocation, location);
-		VectorMath.matrixMultiply(lightSpaceLocation, lightMatrix);
+		VectorMath.multiply(lightSpaceLocation, lightMatrix);
 		TransformationMath.screenportVector(lightSpaceLocation, lightFrustum);
 		int x = lightSpaceLocation[VECTOR_X];
 		int y = lightSpaceLocation[VECTOR_Y];

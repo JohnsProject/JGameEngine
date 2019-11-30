@@ -78,11 +78,11 @@ public class ShadowMappingShader implements Shader {
 		}
 	}
 	
-	private void transformVertices(GeometryBuffer geometryBuffer, int[] lightMatrix, int[] lightFrustum) {
+	private void transformVertices(GeometryBuffer geometryBuffer, int[][] lightMatrix, int[] lightFrustum) {
 		for (int i = 0; i < geometryBuffer.getVertexBuffers().length; i++) {
 			int[] location = geometryBuffer.getVertexBuffer(i).getLocation();
 			VectorMath.copy(location, geometryBuffer.getVertexBuffer(i).getWorldLocation());
-			VectorMath.matrixMultiply(location, lightMatrix);
+			VectorMath.multiply(location, lightMatrix);
 			TransformationMath.screenportVector(location, lightFrustum);
 		}
 	}
