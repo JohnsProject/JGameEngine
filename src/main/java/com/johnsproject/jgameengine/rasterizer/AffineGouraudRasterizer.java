@@ -42,10 +42,10 @@ public class AffineGouraudRasterizer extends GouraudRasterizer {
 	
 	public AffineGouraudRasterizer(Shader shader) {
 		super(shader);
-		u = VectorMath.toVector();
-		v = VectorMath.toVector();
-		uv = VectorMath.toVector();
-		uvCache = VectorMath.toVector();
+		u = VectorMath.emptyVector();
+		v = VectorMath.emptyVector();
+		uv = VectorMath.emptyVector();
+		uvCache = VectorMath.emptyVector();
 	}
 	
 	protected final void setUV0(int[] uv, Texture texture) {

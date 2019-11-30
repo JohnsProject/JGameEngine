@@ -39,7 +39,7 @@ public class PhysicsEngine implements EngineListener {
 	private final int[] vectorCache1;
 	
 	public PhysicsEngine() {
-		this.vectorCache1 = VectorMath.toVector();
+		this.vectorCache1 = VectorMath.emptyVector();
 	}
 	
 	public void start(EngineEvent e) {

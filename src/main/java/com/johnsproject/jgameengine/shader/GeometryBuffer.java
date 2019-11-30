@@ -32,11 +32,11 @@ public class GeometryBuffer {
 	private final VertexBuffer[] vertexBuffers;
 	
 	public GeometryBuffer() {
-		this.worldNormal = VectorMath.toVector();
+		this.worldNormal = VectorMath.emptyVector();
 		this.uvs = new int[3][VectorMath.VECTOR_SIZE];
-		this.uvs[0] = VectorMath.toVector();
-		this.uvs[1] = VectorMath.toVector();
-		this.uvs[2] = VectorMath.toVector();
+		this.uvs[0] = VectorMath.emptyVector();
+		this.uvs[1] = VectorMath.emptyVector();
+		this.uvs[2] = VectorMath.emptyVector();
 		this.vertexBuffers = new VertexBuffer[3];
 	}
 

@@ -33,9 +33,9 @@ public class VertexBuffer {
 	private int color;
 	
 	public VertexBuffer() {
-		this.location = VectorMath.toVector();
-		this.worldNormal = VectorMath.toVector();
-		this.worldLocation = VectorMath.toVector();
+		this.location = VectorMath.emptyVector();
+		this.worldNormal = VectorMath.emptyVector();
+		this.worldLocation = VectorMath.emptyVector();
 		this.color = 0;
 	}
 	

@@ -11,10 +11,10 @@ public class FragmentBuffer {
 	private int color;
 	
 	public FragmentBuffer() {
-		this.location = VectorMath.toVector();
-		this.worldLocation = VectorMath.toVector();
-		this.worldNormal = VectorMath.toVector();
-		this.uv = VectorMath.toVector();
+		this.location = VectorMath.emptyVector();
+		this.worldLocation = VectorMath.emptyVector();
+		this.worldNormal = VectorMath.emptyVector();
+		this.uv = VectorMath.emptyVector();
 		this.color = 0;
 	}
 

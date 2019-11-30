@@ -43,7 +43,7 @@ public class Transform {
 	private final int[] spaceExitNormalMatrix;
 	
 	public Transform() {
-		this(VectorMath.toVector(), VectorMath.toVector(), VectorMath.VECTOR_ONE.clone());
+		this(VectorMath.emptyVector(), VectorMath.emptyVector(), VectorMath.VECTOR_ONE.clone());
 	}
 	
 	public Transform(int[] location, int[] rotation, int[] scale) {

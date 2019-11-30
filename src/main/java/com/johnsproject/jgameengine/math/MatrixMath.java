@@ -424,7 +424,7 @@ public final class MatrixMath {
 		for (int i = 0; i < MATRIX_ROW_SIZE; i++) {
 			result += '|';
 			for (int j = 0; j < MATRIX_COLUMN_SIZE; j++) {
-				result += FixedPointMath.toFloat(get(matrix, j, i)) + ",";
+				result += FixedPointMath.toDouble(get(matrix, j, i)) + ",";
 			}
 			result += "|\n";
 		}

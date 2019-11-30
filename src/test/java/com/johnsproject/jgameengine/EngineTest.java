@@ -18,6 +18,7 @@ import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.io.FileIO;
 import com.johnsproject.jgameengine.io.SceneImporter;
 import com.johnsproject.jgameengine.math.FixedPointMath;
+import com.johnsproject.jgameengine.math.MatrixMath;
 import com.johnsproject.jgameengine.math.TransformationMath;
 import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Camera;
@@ -62,7 +63,7 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		WINDOW_H = 768;
 		RENDER_W = (WINDOW_W * 100) / 100;
 		RENDER_H = (WINDOW_H * 100) / 100;
-		cache = VectorMath.toVector();
+		cache = VectorMath.emptyVector();
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
 		EngineWindow window = new EngineWindow(frameBuffer);
 		EngineStatistics stats = new EngineStatistics(window);

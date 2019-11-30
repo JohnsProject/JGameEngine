@@ -38,7 +38,7 @@ import com.johnsproject.jgameengine.model.Transform;
 
 public class ForwardShaderBuffer implements ShaderBuffer {
 	
-	private static final int LIGHT_RANGE = FixedPointMath.toFixedPoint(150f);
+	private static final int LIGHT_RANGE = FixedPointMath.toFixedPoint(50000f);
 	
 	private Camera camera;
 	private Collection<Light> lights;
@@ -124,7 +124,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		for (Light light: lights) {
 			Transform lightTransform = light.getTransform();
 			int[] lightPosition = lightTransform.getLocation();
-			int dist = VectorMath.averagedDistance(camera.getTransform().getLocation(), lightPosition);
+			long dist = VectorMath.squaredDistance(camera.getTransform().getLocation(), lightPosition);
 			light.setCulled(dist > LIGHT_RANGE);
 		}
 	}
@@ -134,8 +134,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		spotLightIndex = -1;
 		pointLightIndex = -1;
 		boolean foundMainDirectionalLight = false;
-		int spotDistance = Integer.MAX_VALUE;
-		int pointDistance = Integer.MAX_VALUE;
+		long spotDistance = Integer.MAX_VALUE;
+		long pointDistance = Integer.MAX_VALUE;
 		Transform directionalLightTransform = null;
 		Transform spotLightTransform = null;
 		Transform pointLightTransform = null;
@@ -145,7 +145,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 			if(light.isActive()) {
 				Transform lightTransform = light.getTransform();
 				int[] lightLocation = lightTransform.getLocation();
-				int dist = VectorMath.averagedDistance(cameraLocation, lightLocation);
+				long dist = VectorMath.squaredDistance(cameraLocation, lightLocation);
 				if(dist < LIGHT_RANGE) {
 					switch (light.getType()) {
 					case DIRECTIONAL:

@@ -90,8 +90,8 @@ public final class SOMImporter {
 		Material[] materials = parseMaterials(rawData);
 		Vertex[] vertices = parseVertices(rawData, materials);
 		Face[] faces = parseFaces(rawData, vertices, materials);
-		int[] location = VectorMath.toVector();
-		int[] rotation = VectorMath.toVector();
+		int[] location = VectorMath.emptyVector();
+		int[] rotation = VectorMath.emptyVector();
 		int one = FixedPointMath.FP_ONE;
 		int[] scale = VectorMath.toVector(one, one, one);
 		Transform transform = new Transform(location, rotation, scale);
@@ -108,11 +108,11 @@ public final class SOMImporter {
 		String[] vNormalData = rawData.split("vNormal<")[1].split(">vNormal", 2)[0].split(",");
 		String[] vMaterialData = rawData.split("vMaterial<")[1].split(">vMaterial", 2)[0].split(",");
 		for (int i = 0; i < vertices.length * 3; i += 3) {
-			int[] location = VectorMath.toVector();
+			int[] location = VectorMath.emptyVector();
 			location[VECTOR_X] = -FixedPointMath.toFixedPoint(getFloat(vLocationData[i + VECTOR_X]));
 			location[VECTOR_Y] = -FixedPointMath.toFixedPoint(getFloat(vLocationData[i + VECTOR_Y]));
 			location[VECTOR_Z] = -FixedPointMath.toFixedPoint(getFloat(vLocationData[i + VECTOR_Z]));
-			int[] normal = VectorMath.toVector();
+			int[] normal = VectorMath.emptyVector();
 			normal[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(vNormalData[i + VECTOR_X]));
 			normal[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(vNormalData[i + VECTOR_Y]));
 			normal[VECTOR_Z] = FixedPointMath.toFixedPoint(getFloat(vNormalData[i + VECTOR_Z]));
@@ -138,17 +138,17 @@ public final class SOMImporter {
 			int vertex2 = getint(fVertex2Data[i / 6]);
 			int vertex3 = getint(fVertex3Data[i / 6]);
 			int material = getint(fMaterialData[i / 6]);
-			int[] normal = VectorMath.toVector();
+			int[] normal = VectorMath.emptyVector();
 			normal[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_X]));
 			normal[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_Y]));
 			normal[VECTOR_Z] = FixedPointMath.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_Z]));
-			int[] uv1 = VectorMath.toVector();
+			int[] uv1 = VectorMath.emptyVector();
 			uv1[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fUV1Data[(i / 3) + VECTOR_X]));
 			uv1[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fUV1Data[(i / 3) + VECTOR_Y]));
-			int[] uv2 = VectorMath.toVector();
+			int[] uv2 = VectorMath.emptyVector();
 			uv2[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fUV2Data[(i / 3) + VECTOR_X]));
 			uv2[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fUV2Data[(i / 3) + VECTOR_Y]));
-			int[] uv3 = VectorMath.toVector();
+			int[] uv3 = VectorMath.emptyVector();
 			uv3[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fUV3Data[(i / 3) + VECTOR_X]));
 			uv3[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fUV3Data[(i / 3) + VECTOR_Y]));
 			faces[i / 6] = new Face(i / 6, normal, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], uv1, uv2, uv3);

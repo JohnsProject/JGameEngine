@@ -52,7 +52,7 @@ public class Mesh {
 		this.vertices = new Vertex[vertices.length];
 		for (int i = 0; i < vertices.length; i++) {
 			int[] vertex = vertices[i];
-			int[] location = VectorMath.toVector();
+			int[] location = VectorMath.emptyVector();
 			location[0] = vertex[0];
 			location[1] = vertex[1];
 			location[2] = vertex[2];

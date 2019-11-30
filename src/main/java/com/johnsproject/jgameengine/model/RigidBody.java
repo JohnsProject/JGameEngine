@@ -42,10 +42,10 @@ public class RigidBody {
 	public RigidBody() {
 		this.kinematic = false;
 		this.mass = FixedPointMath.FP_ONE;
-		this.force = VectorMath.toVector();
-		this.torque = VectorMath.toVector();
-		this.linearVelocity = VectorMath.toVector();
-		this.angularVelocity = VectorMath.toVector();
+		this.force = VectorMath.emptyVector();
+		this.torque = VectorMath.emptyVector();
+		this.linearVelocity = VectorMath.emptyVector();
+		this.angularVelocity = VectorMath.emptyVector();
 		this.momentOfInertia = MatrixMath.indentityMatrix();
 	}
 

@@ -41,10 +41,10 @@ public class GouraudRasterizer extends FlatRasterizer {
 	
 	public GouraudRasterizer(Shader shader) {
 		super(shader);
-		this.red = VectorMath.toVector();
-		this.green = VectorMath.toVector();
-		this.blue = VectorMath.toVector();
-		this.colorCache = VectorMath.toVector();
+		this.red = VectorMath.emptyVector();
+		this.green = VectorMath.emptyVector();
+		this.blue = VectorMath.emptyVector();
+		this.colorCache = VectorMath.emptyVector();
 	}
 	
 	protected final void setColor0(int color) {

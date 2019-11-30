@@ -60,9 +60,9 @@ public class GraphicsEngine implements EngineListener {
 		this.shaderBuffer = new ForwardShaderBuffer();
 		this.preShaders = new ArrayList<Shader>();
 		this.frameBuffer = frameBuffer;
-		this.locationVector = VectorMath.toVector();
-		this.normalVector = VectorMath.toVector();
-		this.multiplyVector = VectorMath.toVector();
+		this.locationVector = VectorMath.emptyVector();
+		this.normalVector = VectorMath.emptyVector();
+		this.multiplyVector = VectorMath.emptyVector();
 		addPreprocessingShader(new ShadowMappingShader());
 	}
 

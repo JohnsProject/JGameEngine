@@ -39,16 +39,37 @@ public final class VectorMath {
 	public static final byte VECTOR_W = 3;
 	public static final byte VECTOR_SIZE = 4;
 	
-	public static final int[] VECTOR_UP = new int[] {0, FP_ONE, 0, FP_ONE};
-	public static final int[] VECTOR_DOWN = new int[] {0, -FP_ONE, 0, FP_ONE};
-	public static final int[] VECTOR_RIGHT = new int[] {FP_ONE, 0, 0, FP_ONE};
-	public static final int[] VECTOR_LEFT = new int[] {-FP_ONE, 0, 0, FP_ONE};
-	public static final int[] VECTOR_FORWARD = new int[] {0, 0, -FP_ONE, FP_ONE};
-	public static final int[] VECTOR_BACK = new int[] {0, 0, FP_ONE, FP_ONE};
+	public static final int[] VECTOR_UP = new int[] {0, FP_ONE, 0, 0};
+	public static final int[] VECTOR_DOWN = new int[] {0, -FP_ONE, 0, 0};
+	public static final int[] VECTOR_RIGHT = new int[] {FP_ONE, 0, 0, 0};
+	public static final int[] VECTOR_LEFT = new int[] {-FP_ONE, 0, 0, 0};
+	public static final int[] VECTOR_FORWARD = new int[] {0, 0, -FP_ONE, 0};
+	public static final int[] VECTOR_BACK = new int[] {0, 0, FP_ONE, 0};
 	public static final int[] VECTOR_ONE = new int[] {FP_ONE, FP_ONE, FP_ONE, FP_ONE};
 	public static final int[] VECTOR_ZERO = new int[] {0, 0, 0, FP_ONE};
 	
 	private VectorMath() {}
+	
+	public static int[] toVector(double x, double y, double z, double w) {
+		int fpX = FixedPointMath.toFixedPoint(x);
+		int fpY = FixedPointMath.toFixedPoint(y);
+		int fpZ = FixedPointMath.toFixedPoint(z);
+		int fpW = FixedPointMath.toFixedPoint(w);
+		return toVector(fpX, fpY, fpZ, fpW);
+	}
+	
+	public static int[] toVector(double x, double y, double z) {
+		int fpX = FixedPointMath.toFixedPoint(x);
+		int fpY = FixedPointMath.toFixedPoint(y);
+		int fpZ = FixedPointMath.toFixedPoint(z);
+		return toVector(fpX, fpY, fpZ);
+	}
+	
+	public static int[] toVector(double x, double y) {
+		int fpX = FixedPointMath.toFixedPoint(x);
+		int fpY = FixedPointMath.toFixedPoint(y);
+		return toVector(fpX, fpY);
+	}
 	
 	/**
 	 * Generates a vector using the given values and returns it.
@@ -73,7 +94,7 @@ public final class VectorMath {
 	 * @return
 	 */
 	public static int[] toVector(int x, int y, int z) {
-		return new int[] {x, y, z, FP_ONE};
+		return toVector(x, y, z, FP_ONE);
 	}
 
 	/**
@@ -85,7 +106,7 @@ public final class VectorMath {
 	 * @return
 	 */
 	public static int[] toVector(int x, int y) {
-		return new int[] {x, y, 0, FP_ONE};
+		return toVector(x, y, 0, FP_ONE);
 	}
 	
 	/**
@@ -94,8 +115,8 @@ public final class VectorMath {
 	 * 
 	 * @return
 	 */
-	public static int[] toVector() {
-		return new int[] {0, 0, 0, FP_ONE};
+	public static int[] emptyVector() {
+		return toVector(0, 0, 0, FP_ONE);
 	}
 
 	/**
@@ -238,26 +259,12 @@ public final class VectorMath {
 	 * @return
 	 */
 	public static int length(int[] vector) {
-		return FixedPointMath.sqrt(dotProduct(vector, vector));
+		return FixedPointMath.sqrt(squaredLength(vector));
 	}
 	
-	/**
-	 * Returns the averaged length of the given vector.
-	 * Averaged length isn't the correct way to get the length, 
-	 * but its faster, its just
-	 * <pre>
-	 * return (abs(vectorX) + abs(vectorY) + abs(vectorZ)) / 3
-	 * </pre>
-	 * To get correct length use {@link #length} method.
-	 * 
-	 * @param vector
-	 * @return
-	 */
-	public static int averagedLength(int[] vector) {
-		int x = Math.abs(vector[VECTOR_X]);
-		int y = Math.abs(vector[VECTOR_Y]);
-		int z = Math.abs(vector[VECTOR_Z]);
-		return (x + y + z) / 3;
+	public static long squaredLength(int[] vector) {
+		// long is needed because it's squared and might cause overflow
+		return dotProduct(vector, vector);
 	}
 
 	/**
@@ -267,10 +274,11 @@ public final class VectorMath {
 	 * @param vector2
 	 * @return
 	 */
-	public static int dotProduct(int[] vector1, int[] vector2) {
-		int x = FixedPointMath.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
-		int y = FixedPointMath.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
-		int z = FixedPointMath.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
+	public static long dotProduct(int[] vector1, int[] vector2) {
+		// long is needed because it vector1 and 2 might be the same so it would be squared and cause overflow
+		long x = FixedPointMath.multiply(vector1[VECTOR_X], vector2[VECTOR_X]);
+		long y = FixedPointMath.multiply(vector1[VECTOR_Y], vector2[VECTOR_Y]);
+		long z = FixedPointMath.multiply(vector1[VECTOR_Z], vector2[VECTOR_Z]);
 		return x + y + z;
 	}
 	
@@ -282,13 +290,7 @@ public final class VectorMath {
 	 * @return
 	 */
 	public static int distance(int[] vector1, int[] vector2) {
-		int x = vector1[VECTOR_X] - vector2[VECTOR_X];
-		int y = vector1[VECTOR_Y] - vector2[VECTOR_Y];
-		int z = vector1[VECTOR_Z] - vector2[VECTOR_Z];
-		x = FixedPointMath.multiply(x, x);
-		y = FixedPointMath.multiply(y, y);
-		z = FixedPointMath.multiply(z, z);
-		return FixedPointMath.sqrt(x + y + z);
+		return FixedPointMath.sqrt(squaredDistance(vector1, vector2));
 	}
 	
 	/**
@@ -305,14 +307,15 @@ public final class VectorMath {
 	 * @param vector2
 	 * @return
 	 */
-	public static int averagedDistance(int[] vector1, int[] vector2) {
-		int x = vector1[VECTOR_X] - vector2[VECTOR_X];
-		int y = vector1[VECTOR_Y] - vector2[VECTOR_Y];
-		int z = vector1[VECTOR_Z] - vector2[VECTOR_Z];
-		x = Math.abs(x);
-		y = Math.abs(y);
-		z = Math.abs(z);
-		return (x + y + z) / 3;
+	public static long squaredDistance(int[] vector1, int[] vector2) {
+		// long is needed because it's squared and might cause overflow
+		long x = vector1[VECTOR_X] - vector2[VECTOR_X];
+		long y = vector1[VECTOR_Y] - vector2[VECTOR_Y];
+		long z = vector1[VECTOR_Z] - vector2[VECTOR_Z];
+		x = FixedPointMath.multiply(x, x);
+		y = FixedPointMath.multiply(y, y);
+		z = FixedPointMath.multiply(z, z);
+		return (x + y + z);
 	}
 
 	/**
@@ -427,10 +430,10 @@ public final class VectorMath {
 	 */
 	public static String toString(int[] vector) {
 		String result = "(";
-		result += FixedPointMath.toFloat(vector[0]) + ", ";
-		result += FixedPointMath.toFloat(vector[1]) + ", ";
-		result += FixedPointMath.toFloat(vector[2]) + ", ";
-		result += FixedPointMath.toFloat(vector[3]);
+		result += FixedPointMath.toDouble(vector[0]) + ", ";
+		result += FixedPointMath.toDouble(vector[1]) + ", ";
+		result += FixedPointMath.toDouble(vector[2]) + ", ";
+		result += FixedPointMath.toDouble(vector[3]);
 		result += ")";
 		return result;
 	}

@@ -53,10 +53,10 @@ public class FlatRasterizer {
 	public FlatRasterizer(Shader shader) {
 		this.shader = shader;
 		this.fragmentBuffer = new FragmentBuffer();
-		this.vectorCache = VectorMath.toVector();
-		this.location0 = VectorMath.toVector();
-		this.location1 = VectorMath.toVector();
-		this.location2 = VectorMath.toVector();
+		this.vectorCache = VectorMath.emptyVector();
+		this.location0 = VectorMath.emptyVector();
+		this.location1 = VectorMath.emptyVector();
+		this.location2 = VectorMath.emptyVector();
 		this.cameraFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.frustumCull = true;
 		this.faceCull = -1;

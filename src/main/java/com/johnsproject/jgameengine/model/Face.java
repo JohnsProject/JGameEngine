@@ -58,9 +58,9 @@ public class Face {
 		this.vertices[2] = vertex3;
 		this.normal = normal;
 		this.uvs = new int[3][4];
-		this.uvs[0] = VectorMath.toVector();
-		this.uvs[1] = VectorMath.toVector();
-		this.uvs[2] = VectorMath.toVector();
+		this.uvs[0] = VectorMath.emptyVector();
+		this.uvs[1] = VectorMath.emptyVector();
+		this.uvs[2] = VectorMath.emptyVector();
 		this.material = material;
 		this.buffer = new GeometryBuffer();
 	}

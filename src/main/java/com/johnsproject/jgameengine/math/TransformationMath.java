@@ -1,3 +1,26 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2018 John Salomon - John´s Project
+ *  
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software withresult restriction, including withresult limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.johnsproject.jgameengine.math;
 
 import static com.johnsproject.jgameengine.math.FixedPointMath.*;
@@ -169,7 +192,7 @@ public final class TransformationMath {
 		int x = reflectionVector[VECTOR_X];
 		int y = reflectionVector[VECTOR_Y];
 		int z = reflectionVector[VECTOR_Z];
-		int dot = 2 * VectorMath.dotProduct(vector, reflectionVector);
+		int dot = (int)(2 * VectorMath.dotProduct(vector, reflectionVector));
 		VectorMath.multiply(reflectionVector, dot);
 		VectorMath.subtract(vector, reflectionVector);
 		reflectionVector[VECTOR_X] = x;
@@ -209,17 +232,16 @@ public final class TransformationMath {
 	 * @return
 	 */
 	public static int[] rotateY(int[] vector, int angle) {
-		// TODO fix the need of negative angles as in rotation matrix
-		int sin = FixedPointMath.sin(-angle);
-		int cos = FixedPointMath.cos(-angle);
+		int sin = FixedPointMath.sin(angle);
+		int cos = FixedPointMath.cos(angle);
 		int x = vector[VECTOR_X];
 		int y = vector[VECTOR_Y];
 		int z = vector[VECTOR_Z];
 		vector[VECTOR_X] = FixedPointMath.multiply(x, cos);
-		vector[VECTOR_X] -= FixedPointMath.multiply(z, sin);
+		vector[VECTOR_X] += FixedPointMath.multiply(z, sin);
 		vector[VECTOR_Y] = y;
 		vector[VECTOR_Z] = FixedPointMath.multiply(z, cos);
-		vector[VECTOR_Z] += FixedPointMath.multiply(x, sin);
+		vector[VECTOR_Z] -= FixedPointMath.multiply(x, sin);
 		return vector;
 	}
 	
@@ -232,16 +254,15 @@ public final class TransformationMath {
 	 * @return
 	 */
 	public static int[] rotateZ(int[] vector, int angle) {
-		// TODO fix the need of negative angles as in rotation matrix
-		int sin = FixedPointMath.sin(-angle);
-		int cos = FixedPointMath.cos(-angle);
+		int sin = FixedPointMath.sin(angle);
+		int cos = FixedPointMath.cos(angle);
 		int x = vector[VECTOR_X];
 		int y = vector[VECTOR_Y];
 		int z = vector[VECTOR_Z];
 		vector[VECTOR_X] = FixedPointMath.multiply(x, cos);
-		vector[VECTOR_X] -= FixedPointMath.multiply(y, sin);
+		vector[VECTOR_X] += FixedPointMath.multiply(y, sin);
 		vector[VECTOR_Y] = FixedPointMath.multiply(y, cos);
-		vector[VECTOR_Y] += FixedPointMath.multiply(x, sin);
+		vector[VECTOR_Y] -= FixedPointMath.multiply(x, sin);
 		vector[VECTOR_Z] = z;
 		return vector;
 	}	

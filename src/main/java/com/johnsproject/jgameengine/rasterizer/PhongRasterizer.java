@@ -49,16 +49,16 @@ public class PhongRasterizer extends FlatRasterizer {
 	
 	public PhongRasterizer(Shader shader) {
 		super(shader);
-		worldX = VectorMath.toVector();
-		worldY = VectorMath.toVector();
-		worldZ = VectorMath.toVector();
-		worldLocation = VectorMath.toVector();
-		worldCache = VectorMath.toVector();
-		normalX = VectorMath.toVector();
-		normalY = VectorMath.toVector();
-		normalZ = VectorMath.toVector();
-		normal = VectorMath.toVector();
-		normalCache = VectorMath.toVector();
+		worldX = VectorMath.emptyVector();
+		worldY = VectorMath.emptyVector();
+		worldZ = VectorMath.emptyVector();
+		worldLocation = VectorMath.emptyVector();
+		worldCache = VectorMath.emptyVector();
+		normalX = VectorMath.emptyVector();
+		normalY = VectorMath.emptyVector();
+		normalZ = VectorMath.emptyVector();
+		normal = VectorMath.emptyVector();
+		normalCache = VectorMath.emptyVector();
 	}
 	
 	protected void setWorldLocation0(int[] location) {

@@ -49,8 +49,8 @@ public final class FixedPointMath {
 	 */
 	public static final int FP_HALF = FP_ONE >> 1;
 	
-	public static final int FP_DEGREE_RAD = toFixedPoint((float) (Math.PI / 180.0f));
-	public static final int FP_RAD_DEGREE = toFixedPoint((float) (180.0f / Math.PI));
+	public static final int FP_DEGREE_RAD = toFixedPoint(Math.PI / 180.0f);
+	public static final int FP_RAD_DEGREE = toFixedPoint(180.0f / Math.PI);
 	
 	private static final int[] sinLUT = new int[] {
 			0, 572, 1144, 1715, 2286, 2856, 3425, 3993, 4560, 5126, 5690, 6252, 6813, 7371, 7927, 8481,
@@ -71,17 +71,7 @@ public final class FixedPointMath {
 	 * @return
 	 */
 	public static int toFixedPoint(double value) {
-		return (int)(value * FP_ONE);
-	}
-	
-	/**
-	 * Returns the fixed point representation of value.
-	 * 
-	 * @param value
-	 * @return
-	 */
-	public static int toFixedPoint(float value) {
-		return (int)(value * FP_ONE);
+		return (int)Math.round(value * FP_ONE);
 	}
 	
 	/**
@@ -90,8 +80,8 @@ public final class FixedPointMath {
 	 * @param value fixed point value.
 	 * @return
 	 */
-	public static float toFloat(int value) {
-		return (float)value / FP_ONE;
+	public static double toDouble(long value) {
+		return (double)value / FP_ONE;
 	}
 	
 	/**
@@ -246,9 +236,12 @@ public final class FixedPointMath {
 	 * @param number fixed point number.
 	 * @return fixed point result.
 	 */
-	public static int sqrt(int number) {
+	public static int sqrt(long number) {
 		// integral part
-		int num = number >> FP_BIT;
+		int num = (int)(number >> FP_BIT);
+		if(num < 0) {
+			return 0;
+		}
 		int c = 1 << 15;
 		int g = c;
 		if (g * g > num) {
@@ -283,16 +276,15 @@ public final class FixedPointMath {
 	 * @param exp fixed point number.
 	 * @return fixed point result.
 	 */
-	public static int pow(int base, int exp) {
+	public static int pow(long base, int exp) {
 		exp >>= FP_BIT;
-		long lBase = base;
 		long result = FP_ONE;
 		while (exp != 0) {
 			if ((exp & 1) == 1) {
-				result = (result * lBase + FP_HALF) >> FP_BIT;
+				result = (result * base + FP_HALF) >> FP_BIT;
 			}
 			exp >>= 1;
-			lBase = (lBase * lBase + FP_HALF) >> FP_BIT;
+			base = (base * base + FP_HALF) >> FP_BIT;
 		}
 		return (int) result;
 	}

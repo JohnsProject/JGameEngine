@@ -55,11 +55,11 @@ public class FlatSpecularShader  implements Shader {
 	public FlatSpecularShader() {
 		this.rasterizer = new PerspectiveFlatRasterizer(this);
 		this.shaderProperties = new SpecularProperties();
-		this.lightLocation = VectorMath.toVector();
-		this.lightDirection = VectorMath.toVector();
-		this.viewDirection = VectorMath.toVector();
-		this.faceLocation = VectorMath.toVector();
-		this.lightSpaceLocation = VectorMath.toVector();
+		this.lightLocation = VectorMath.emptyVector();
+		this.lightDirection = VectorMath.emptyVector();
+		this.viewDirection = VectorMath.emptyVector();
+		this.faceLocation = VectorMath.emptyVector();
+		this.lightSpaceLocation = VectorMath.emptyVector();
 	}
 
 	public void vertex(VertexBuffer vertexBuffer) {
@@ -135,7 +135,7 @@ public class FlatSpecularShader  implements Shader {
 				// attenuation
 				attenuation = getAttenuation(lightLocation);
 				VectorMath.normalize(lightLocation);
-				int theta = VectorMath.dotProduct(lightLocation, lightDirection);
+				long theta = VectorMath.dotProduct(lightLocation, lightDirection);
 				int phi = FixedPointMath.cos(light.getSpotSize() >> 1);
 				if(theta > phi) {
 					int intensity = -FixedPointMath.divide(phi - theta, light.getSpotSoftness() + 1);
@@ -196,13 +196,13 @@ public class FlatSpecularShader  implements Shader {
 	
 	private int getLightFactor(int[] normal, int[] lightDirection, int[] viewDirection) {
 		// diffuse
-		int dotProduct = VectorMath.dotProduct(normal, lightDirection);
+		int dotProduct = (int)VectorMath.dotProduct(normal, lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);
 		diffuseFactor = FixedPointMath.multiply(diffuseFactor, shaderProperties.getDiffuseIntensity());
 		// specular
 		VectorMath.invert(lightDirection);
 		TransformationMath.reflect(lightDirection, normal);
-		dotProduct = VectorMath.dotProduct(viewDirection, lightDirection);
+		dotProduct = (int)VectorMath.dotProduct(viewDirection, lightDirection);
 		int specularFactor = Math.max(dotProduct, 0);
 		specularFactor = FixedPointMath.pow(specularFactor, shaderProperties.getShininess());
 		specularFactor = FixedPointMath.multiply(specularFactor, shaderProperties.getSpecularIntensity());
