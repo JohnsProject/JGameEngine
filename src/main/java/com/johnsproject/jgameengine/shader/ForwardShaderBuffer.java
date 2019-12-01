@@ -25,7 +25,7 @@ package com.johnsproject.jgameengine.shader;
 
 import static com.johnsproject.jgameengine.math.FixedPointMath.*;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.math.MatrixMath;
@@ -41,7 +41,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 	private static final int LIGHT_RANGE = FixedPointMath.toFixedPoint(50000f);
 	
 	private Camera camera;
-	private Collection<Light> lights;
+	private List<Light> lights;
 	
 	private final int[][] projectionMatrix;
 	
@@ -113,15 +113,16 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		}
 	}
 
-	public void setup(Camera camera, Collection<Light> lights) {
+	public void setup(Camera camera, List<Light> lights) {
 		this.camera = camera;
 		this.lights = lights;
 		shadowLightsSetup(camera, lights);
 		renderSetup(camera, lights);
 	}
 	
-	private void renderSetup(Camera camera, Collection<Light> lights) {
-		for (Light light: lights) {
+	private void renderSetup(Camera camera, List<Light> lights) {
+		for(int i = 0; i < lights.size(); i++) {
+			Light light = lights.get(i);
 			Transform lightTransform = light.getTransform();
 			int[] lightPosition = lightTransform.getLocation();
 			long dist = VectorMath.squaredDistance(camera.getTransform().getLocation(), lightPosition);
@@ -129,7 +130,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		}
 	}
 	
-	private void shadowLightsSetup(Camera camera, Collection<Light> lights) {
+	private void shadowLightsSetup(Camera camera, List<Light> lights) {
 		directionalLightIndex = -1;
 		spotLightIndex = -1;
 		pointLightIndex = -1;
@@ -141,7 +142,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		Transform pointLightTransform = null;
 		int[] cameraLocation = camera.getTransform().getLocation();
 		int lightIndex = 0;
-		for (Light light: lights) {
+		for(int i = 0; i < lights.size(); i++) {
+			Light light = lights.get(i);
 			if(light.isActive()) {
 				Transform lightTransform = light.getTransform();
 				int[] lightLocation = lightTransform.getLocation();
@@ -250,7 +252,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		return camera;
 	}
 
-	public Collection<Light> getLights() {
+	public List<Light> getLights() {
 		return lights;
 	}
 

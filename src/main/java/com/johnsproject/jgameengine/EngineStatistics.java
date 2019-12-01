@@ -100,7 +100,8 @@ public class EngineStatistics implements EngineListener {
 			frameBufferWidth = graphicsEngine.getFrameBuffer().getWidth();
 			frameBufferHeight = graphicsEngine.getFrameBuffer().getHeight();
 		}
-		for (Model model : e.getScene().getModels().values()) {
+		for (int i = 0; i < e.getScene().getModels().size(); i++) {
+			Model model = e.getScene().getModels().get(i);
 			verticesCount += model.getMesh().getVertices().length;
 			trianglesCount += model.getMesh().getFaces().length;
 		}

@@ -143,7 +143,8 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 			//scene.getMainCamera().getTransform().setLocation(0, 0, FP_ONE * 10);
 			//scene.getMainCamera().getTransform().setRotation(0, 0, 0);
 			Texture texture = new Texture(FileIO.loadImage("C:/Development/JGameEngineTests/JohnsProject.png"));
-			for (Model model : scene.getModels().values()) {
+			for (int m = 0; m < scene.getModels().size(); m++) {
+				Model model = scene.getModels().get(m);
 //				model.getRigidBody().setKinematic(true);
 				if(model.getName().equals("Ground")) {
 //					model.getRigidBody().setKinematic(true);

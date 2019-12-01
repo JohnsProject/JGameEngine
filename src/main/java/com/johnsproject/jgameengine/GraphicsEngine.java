@@ -72,7 +72,8 @@ public class GraphicsEngine implements EngineListener {
 	
 	public void fixedUpdate(EngineEvent e) { 
 		Scene scene = e.getScene();
-		for (Model model : scene.getModels().values()) {
+		for (int i = 0; i < scene.getModels().size(); i++) {
+			Model model = scene.getModels().get(i);
 			final Armature armature = model.getArmature();
 			if(armature != null) {
 				armature.nextFrame();
@@ -86,15 +87,17 @@ public class GraphicsEngine implements EngineListener {
 		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
 		frameBuffer.getStencilBuffer().fill(0);
 		transformToWorld(scene);
-		for (Camera camera : scene.getCameras().values()) {
+		for (int c = 0; c < scene.getCameras().size(); c++) {
+			Camera camera = scene.getCameras().get(c);
 			if(!camera.isActive())
 				continue;
 			if(camera.getRenderTarget() == null) {
 				camera.setRenderTarget(frameBuffer);
 			}
-			shaderBuffer.setup(camera, scene.getLights().values());
+			shaderBuffer.setup(camera, scene.getLights());
 			callShaders(scene, preShaders);
-			for (Model model : scene.getModels().values()) {
+			for (int m = 0; m < scene.getModels().size(); m++) {
+				Model model = scene.getModels().get(m);
 				if(!model.isActive())
 					continue;
 				final Mesh mesh = model.getMesh();
@@ -117,7 +120,8 @@ public class GraphicsEngine implements EngineListener {
 	private void callShaders(Scene scene, List<Shader> shaders) {
 		for (int s = 0; s < shaders.size(); s++) {
 			final Shader shader = shaders.get(s);
-			for (Model model : scene.getModels().values()) {
+			for (int i = 0; i < scene.getModels().size(); i++) {
+				Model model = scene.getModels().get(i);
 				if(!model.isActive())
 					continue;
 				final Mesh mesh = model.getMesh();
@@ -136,7 +140,8 @@ public class GraphicsEngine implements EngineListener {
 	}
 	
 	private void transformToWorld(Scene scene) {
-		for (Model model : scene.getModels().values()) {
+		for (int i = 0; i < scene.getModels().size(); i++) {
+			Model model = scene.getModels().get(i);
 			if(!model.isActive())
 				continue;
 			final Mesh mesh = model.getMesh();

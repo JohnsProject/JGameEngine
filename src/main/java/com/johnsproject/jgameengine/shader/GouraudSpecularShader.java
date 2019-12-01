@@ -69,7 +69,8 @@ public class GouraudSpecularShader  implements Shader {
 		VectorMath.subtract(viewDirection, location);
 		VectorMath.normalize(viewDirection);
 		int lightIndex = 0;
-		for (Light light: shaderBuffer.getLights()) {
+		for(int i = 0; i < shaderBuffer.getLights().size(); i++) {
+			Light light = shaderBuffer.getLights().get(i);
 			if(light.isCulled())
 				continue;
 			int currentFactor = 0;

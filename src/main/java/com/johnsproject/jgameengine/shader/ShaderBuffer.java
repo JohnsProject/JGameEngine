@@ -23,16 +23,16 @@
  */
 package com.johnsproject.jgameengine.shader;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Light;
 
 public interface ShaderBuffer {
 
-	public void setup(Camera camera, Collection<Light> lights);
+	public void setup(Camera camera, List<Light> lights);
 	
-	public Collection<Light> getLights();
+	public List<Light> getLights();
 	
 	public Camera getCamera();
 	

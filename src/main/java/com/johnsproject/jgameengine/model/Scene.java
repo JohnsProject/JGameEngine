@@ -23,69 +23,91 @@
  */
 package com.johnsproject.jgameengine.model;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 public class Scene {
 	
 	private Camera mainCamera;
 	private Light mainLight;
-	private final HashMap<String, SceneObject> sceneObjects;
-	private final HashMap<String, Model> models;
-	private final HashMap<String, Camera> cameras;
-	private final HashMap<String, Light> lights;
+	private final ArrayList<SceneObject> sceneObjects;
+	private final ArrayList<Model> models;
+	private final ArrayList<Camera> cameras;
+	private final ArrayList<Light> lights;
 	
 	public Scene() {
-		this.sceneObjects = new HashMap<String, SceneObject>();
-		this.models = new HashMap<String, Model>();
-		this.cameras = new HashMap<String, Camera>();
-		this.lights = new HashMap<String, Light>();
+		this.sceneObjects = new ArrayList<SceneObject>();
+		this.models = new ArrayList<Model>();
+		this.cameras = new ArrayList<Camera>();
+		this.lights = new ArrayList<Light>();
 	}
 	
-	public HashMap<String, SceneObject> getSceneObjects() {
+	public ArrayList<SceneObject> getSceneObjects() {
 		return sceneObjects;
 	}
 	
 	public SceneObject getSceneObject(String name) {
-		return sceneObjects.get(name);
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			SceneObject sceneObject = sceneObjects.get(i);
+			if(sceneObject.getName().equals(name)) {
+				return sceneObject;
+			}
+		}
+		return null;
+	}
+	
+	private void removeSceneObject(String name) {
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			if(sceneObjects.get(i).getName().equals(name)) {
+				sceneObjects.remove(i);
+			}
+		}
 	}
 
 	public void addModel(Model model){
-		sceneObjects.put(model.getName(), model);
-		models.put(model.getName(), model);
+		sceneObjects.add(model);
+		models.add(model);
 	}
 	
 	public void removeModel(String name){
-		sceneObjects.remove(name);
-		models.remove(name);
+		removeSceneObject(name);
+		for (int i = 0; i < models.size(); i++) {
+			if(models.get(i).getName().equals(name)) {
+				models.remove(i);
+			}
+		}
 	}
 	
-	public HashMap<String, Model> getModels() {
+	public ArrayList<Model> getModels() {
 		return models;
 	}
 	
 	public Model getModel(String name) {
-		return models.get(name);
+		return (Model)getSceneObject(name);
 	}
 	
 	public void addLight(Light light){
 		if(mainLight == null) {
 			setMainDirectionalLight(light);
 		}
-		sceneObjects.put(light.getName(), light);
-		lights.put(light.getName(), light);
+		sceneObjects.add(light);
+		lights.add(light);
 	}
 	
 	public void removeLight(String name){
-		sceneObjects.remove(name);
-		lights.remove(name);
+		removeSceneObject(name);
+		for (int i = 0; i < lights.size(); i++) {
+			if(lights.get(i).getName().equals(name)) {
+				lights.remove(i);
+			}
+		}
 	}
 	
-	public HashMap<String, Light> getLights() {
+	public ArrayList<Light> getLights() {
 		return lights;
 	}
 	
 	public Light getLight(String name) {
-		return lights.get(name);
+		return (Light)getSceneObject(name);
 	}
 	
 	public Light getMainDirectionalLight() {
@@ -104,21 +126,25 @@ public class Scene {
 		if(mainCamera == null) {
 			setMainCamera(camera);
 		}
-		sceneObjects.put(camera.getName(), camera);
-		cameras.put(camera.getName(), camera);
+		sceneObjects.add(camera);
+		cameras.add(camera);
 	}
 	
 	public void removeCamera(String name){
-		sceneObjects.remove(name);
-		cameras.remove(name);
+		removeSceneObject(name);
+		for (int i = 0; i < cameras.size(); i++) {
+			if(cameras.get(i).getName().equals(name)) {
+				cameras.remove(i);
+			}
+		}
 	}
 
-	public HashMap<String, Camera> getCameras() {
+	public ArrayList<Camera> getCameras() {
 		return cameras;
 	}
 	
 	public Camera getCamera(String name) {
-		return cameras.get(name);
+		return (Camera)getSceneObject(name);
 	}
 
 	public Camera getMainCamera() {

@@ -31,7 +31,7 @@ import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.model.Scene;
 
-public class Engine {
+public final class Engine {
 
 	private static Engine engine = new Engine();
 
@@ -118,7 +118,7 @@ public class Engine {
 				}
 			}
 		});
-		engineThread.setName("EngineThread");
+		engineThread.setName("JGameEngine");
 		engineThread.start();
 	}
 	

@@ -77,7 +77,8 @@ public class PhysicsEngine implements EngineListener {
 
 	public void update(EngineEvent e) {
 		final Scene scene = e.getScene();
-		for (SceneObject sceneObject : scene.getSceneObjects().values()) {
+		for (int i = 0; i < scene.getSceneObjects().size(); i++) {
+			SceneObject sceneObject = scene.getSceneObjects().get(i);
 			if(!sceneObject.isActive()) 
 				return;
 			final RigidBody rigidBody = sceneObject.getRigidBody();
