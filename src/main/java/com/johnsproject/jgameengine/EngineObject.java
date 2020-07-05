@@ -3,6 +3,8 @@ package com.johnsproject.jgameengine;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.johnsproject.jgameengine.event.EngineEvent;
+
 public class EngineObject {
 
 	public static final int LAYER_DEFAULT = 1000;
@@ -29,14 +31,30 @@ public class EngineObject {
 	 * Creates a new EngineObject with parent equals null, the specified name
 	 * and tag and the default layer.
 	 * 
-	 * @param name The name of this EngineObject.
-	 * @param tag The tag of this EngineObject.
+	 * @param name of this EngineObject.
+	 * @param tag of this EngineObject.
 	 */
 	public EngineObject(String name, String tag) {
 		parent = null;
 		this.name = name;
 		this.tag = tag;
 		layer = LAYER_DEFAULT;
+		children = new ArrayList<EngineObject>();
+	}
+	
+	/**
+	 * Creates a new EngineObject with parent equals null, the specified name,
+	 * tag and layer.
+	 * 
+	 * @param name of this EngineObject.
+	 * @param tag of this EngineObject.
+	 * @param layer of this EngineObject.
+	 */
+	public EngineObject(String name, String tag, int layer) {
+		parent = null;
+		this.name = name;
+		this.tag = tag;
+		this.layer = layer;
 		children = new ArrayList<EngineObject>();
 	}
 	
@@ -58,14 +76,14 @@ public class EngineObject {
 	 * if this {@link EngineObject} is a child of the
 	 * {@link Engine#setMainObject main object}.
 	 */
-	public void fixedUpdate() {}
+	public void fixedUpdate(EngineEvent event) {}
 	
 	/**
 	 * This method is called by the {@link Engine} at a time step that depends on the
 	 * frames per second. It's only called if this {@link EngineObject} is a child of the
 	 * {@link Engine#setMainObject main object}.
 	 */
-	public void dynamicUpdate() {}
+	public void dynamicUpdate(EngineEvent event) {}
 	
 	/**
 	 * Returns the parent {@link EngineObject} of this EngineObject or null
@@ -177,6 +195,14 @@ public class EngineObject {
 		return children.size() > 0;
 	}
 	
+	public int getChildrenCount() {
+		return children.size();
+	}
+	
+	public EngineObject getChild(int index) {
+		return children.get(index);
+	}
+	
 	/**
 	 * Adds the child to the children list of this {@link EngineObject}
 	 * and sets this as the parent of the child.
@@ -215,7 +241,7 @@ public class EngineObject {
 	 * This method will not search in the children lists of the children of
 	 * this EngineObject.
 	 * 
-	 * @param name Name of the child.
+	 * @param name of the child.
 	 * @return First child with the name.
 	 */
 	public EngineObject getChildWithName(String name) {
@@ -232,6 +258,19 @@ public class EngineObject {
 	}
 	
 	/**
+	 * Has this {@link EngineObject} has a child with the specified name?
+	 * <br><br>
+	 * This method will not search in the children lists of the children of
+	 * this EngineObject.
+	 * 
+	 * @param name of the child.
+	 * @return If this EngineObject has a child with the name.
+	 */
+	public boolean hasChildWithName(String name) {
+		return getChildWithName(name) != null;
+	}
+	
+	/**
 	 * Returns the first child with the tag found in the children
 	 * list of this {@link EngineObject} or null. Note that the children list is a
 	 * {@link ArrayList} so the first child added with that tag will
@@ -240,7 +279,7 @@ public class EngineObject {
 	 * This method will not search in the children lists of the children of
 	 * this EngineObject.
 	 * 
-	 * @param tag Tag of the child.
+	 * @param tag of the child.
 	 * @return First child with the tag.
 	 */
 	public EngineObject getChildWithTag(String tag) {
@@ -256,6 +295,19 @@ public class EngineObject {
 	}
 	
 	/**
+	 * Has this {@link EngineObject} has a child with the specified tag?
+	 * <br><br>
+	 * This method will not search in the children lists of the children of
+	 * this EngineObject.
+	 * 
+	 * @param tag of the child.
+	 * @return If this EngineObject has a child with the tag.
+	 */
+	public boolean hasChildWithTag(String tag) {
+		return getChildWithTag(tag) != null;
+	}
+	
+	/**
 	 * Returns the first child with the layer found in the children
 	 * list of this {@link EngineObject} or null. Note that the children list is a
 	 * {@link ArrayList} so the first child added with that layer will
@@ -264,7 +316,7 @@ public class EngineObject {
 	 * This method will not search in the children lists of the children of
 	 * this EngineObject.
 	 * 
-	 * @param layer Layer of the child.
+	 * @param layer of the child.
 	 * @return First child with the layer.
 	 */
 	public EngineObject getChildWithLayer(int layer) {
@@ -277,5 +329,18 @@ public class EngineObject {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Has this {@link EngineObject} has a child with the specified layer?
+	 * <br><br>
+	 * This method will not search in the children lists of the children of
+	 * this EngineObject.
+	 * 
+	 * @param layer of the child.
+	 * @return If this EngineObject has a child with the layer.
+	 */
+	public boolean hasChildWithLayer(int layer) {
+		return getChildWithLayer(layer) != null;
 	}
 }

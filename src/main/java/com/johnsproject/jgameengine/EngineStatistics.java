@@ -2,13 +2,11 @@ package com.johnsproject.jgameengine;
 
 import java.awt.Color;
 import java.awt.TextArea;
-import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
-import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.model.Model;
 
-public class EngineStatistics implements EngineListener {
+public class EngineStatistics extends EngineObject {
 
 	private static final int STATISTICS_X = 10;
 	private static final int STATISTICS_Y = 30;
@@ -27,18 +25,15 @@ public class EngineStatistics implements EngineListener {
 		textArea.setSize(STATISTICS_WIDTH, STATISTICS_HEIGHT);
 		textArea.setEditable(false);
 		textArea.setBackground(STATISTICS_BACKROUND);
-		window.add(textArea, 0);
+		window.getFrame().add(textArea, 0);
+		setLayer(GraphicsEngine.LAYER - 1);
 	}
 	
 	public EngineStatistics() {
 		
 	}
 	
-	
-	public void start(EngineEvent e) {
-		
-	}
-	
+	@Override
 	public void fixedUpdate(EngineEvent e) {
 		String output = getOutput(e);
 		if(textArea == null) {
@@ -47,14 +42,6 @@ public class EngineStatistics implements EngineListener {
 			textArea.setSize(STATISTICS_WIDTH, STATISTICS_HEIGHT);
 			textArea.setText(output);
 		}
-	}
-
-	public void update(EngineEvent e) {
-		
-	}
-
-	public int getLayer() {
-		return GRAPHICS_ENGINE_LAYER - 1;
 	}
 	
 	private String getOutput(EngineEvent e) {
@@ -66,13 +53,7 @@ public class EngineStatistics implements EngineListener {
 		int trianglesCount = 0;
 		long elapsedTime = e.getElapsedUpdateTime();
 		if (graphicsEngine == null) {
-			List<EngineListener> engineListeners = Engine.getInstance().getEngineListeners(); 
-			for (int i = 0; i < engineListeners.size(); i++) {
-				EngineListener engineListener = engineListeners.get(i);
-				if(engineListener instanceof GraphicsEngine) {
-					graphicsEngine = (GraphicsEngine) engineListener;
-				}
-			}
+			graphicsEngine = (GraphicsEngine) Engine.getInstance().getMainObject().getChildWithName(GraphicsEngine.NAME);
 		} else {
 			frameBufferWidth = graphicsEngine.getFrameBuffer().getWidth();
 			frameBufferHeight = graphicsEngine.getFrameBuffer().getHeight();

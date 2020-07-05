@@ -14,7 +14,6 @@ import com.johnsproject.jgameengine.GraphicsEngine;
 import com.johnsproject.jgameengine.InputEngine;
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineKeyListener;
-import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.io.FileIO;
 import com.johnsproject.jgameengine.io.SceneImporter;
 import com.johnsproject.jgameengine.math.FixedPointMath;
@@ -36,7 +35,7 @@ import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.PhongSpecularShader;
 import com.johnsproject.jgameengine.shader.SpecularProperties;
 
-public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
+public class EngineTest extends EngineObject implements EngineKeyListener, MouseMotionListener {
 
 	private int WINDOW_W;
 	private int WINDOW_H;
@@ -50,11 +49,11 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	private InputEngine inputEngine;
 	private PhysicsEngine physicsEngine;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		new EngineTest();
 	}
 	
-	EngineTest() {
+	EngineTest() throws Exception {
 		Engine.getInstance().setScene(loadScene());
 //		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 //		WINDOW_W = gd.getDisplayMode().getWidth();
@@ -70,25 +69,23 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		graphicsEngine = new GraphicsEngine(frameBuffer);
 		inputEngine = new InputEngine();
 		physicsEngine = new PhysicsEngine();
-		window.setSize(WINDOW_W, WINDOW_H);
+		window.getFrame().setSize(WINDOW_W, WINDOW_H);
 //		window.setFullscreen(true);
 //		window.setBorders(false);
 		inputEngine.addMouseMotionListener(this);
 		inputEngine.addEngineKeyListener(this);
 		cameraTransform = Engine.getInstance().getScene().getMainCamera().getTransform();
+		EngineObject mainObject = new EngineObject();
 //		graphicsEngine.getPreprocessingShaders().clear();
 //		Engine.getInstance().limitUpdateRate(true);
-		Engine.getInstance().addEngineListener(this);
-		Engine.getInstance().addEngineListener(graphicsEngine);
-		Engine.getInstance().addEngineListener(inputEngine);
+		mainObject.addChild(this);
+		mainObject.addChild(graphicsEngine);
+		mainObject.addChild(inputEngine);
 //		Engine.getInstance().addEngineListener(physicsEngine);
-		Engine.getInstance().addEngineListener(window);
-		Engine.getInstance().addEngineListener(stats);
+		mainObject.addChild(window);
+		mainObject.addChild(stats);
+		Engine.getInstance().setMainObject(mainObject);
 		Engine.getInstance().start();
-	}
-	
-	public void start(EngineEvent e) {
-		
 	}
 	
 	private Scene loadScene() {
@@ -169,13 +166,15 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 		return new Scene();
 	}
 
-	public void update(EngineEvent e) {
+	@Override
+	public void dynamicUpdate(EngineEvent e) {
 		Model model = e.getScene().getModel("MyModel");
 		if(model != null) {
 			//model.getTransform().rotate(e.getDeltaTime(), 0, 0);
 		}
 	}
-	
+
+	@Override
 	public void fixedUpdate(EngineEvent e) {
 		Model model = e.getScene().getModel("Ground");
 		if(model != null) {
@@ -185,10 +184,6 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	//		model.getTransform().rotate(0, 0, 1024);
 	//		model.getTransform().setLocation(1024 * 4, 0, 0);
 		}
-	}
-
-	public int getLayer() {
-		return DEFAULT_LAYER;
 	}
 
 	public void mouseDragged(MouseEvent e) {

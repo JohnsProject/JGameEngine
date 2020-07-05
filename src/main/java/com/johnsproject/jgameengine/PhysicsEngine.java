@@ -1,7 +1,6 @@
 package com.johnsproject.jgameengine;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
-import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.RigidBody;
@@ -9,18 +8,19 @@ import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.SceneObject;
 import com.johnsproject.jgameengine.model.Transform;
 
-public class PhysicsEngine implements EngineListener {
+public class PhysicsEngine extends EngineObject {
+	
+	public static final String NAME = "PhysicsEngine";
+	public static final String TAG = "PhysicsEngine";
+	public static final int LAYER = GraphicsEngine.LAYER - 1;
 	
 	public static final int FP_EARTH_GRAVITY = FixedPointMath.toFixedPoint(-9.81f);
 	
 	private final int[] vectorCache1;
 	
 	public PhysicsEngine() {
+		super(NAME, TAG, LAYER);
 		this.vectorCache1 = VectorMath.emptyVector();
-	}
-	
-	public void start(EngineEvent e) {
-		
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
@@ -52,7 +52,8 @@ public class PhysicsEngine implements EngineListener {
 		}
 	}
 
-	public void update(EngineEvent e) {
+	@Override
+	public void dynamicUpdate(EngineEvent e) {
 		final Scene scene = e.getScene();
 		for (int i = 0; i < scene.getSceneObjects().size(); i++) {
 			SceneObject sceneObject = scene.getSceneObjects().get(i);
@@ -77,10 +78,6 @@ public class PhysicsEngine implements EngineListener {
 			VectorMath.multiply(angularVelocity, FixedPointMath.FP_RAD_DEGREE);
 			transform.rotate(angularVelocity);
 		}
-	}
-
-	public int getLayer() {
-		return PHYSICS_ENGINE_LAYER;
 	}
 
 }
