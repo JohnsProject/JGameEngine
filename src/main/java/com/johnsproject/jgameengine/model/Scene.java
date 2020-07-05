@@ -93,9 +93,9 @@ public class Scene {
 
 	public void setMainDirectionalLight(Light mainLight) {
 		if(this.mainLight != null) {
-			this.mainLight.setTag(Light.LIGHT_TAG);
+			this.mainLight.setMain(false);
 		}
-		mainLight.setTag(Light.MAIN_DIRECTIONAL_LIGHT_TAG);
+		mainLight.setMain(true);
 		this.mainLight = mainLight;
 	}
 	
@@ -130,9 +130,9 @@ public class Scene {
 
 	public void setMainCamera(Camera mainCamera) {
 		if(this.mainCamera != null) {
-			this.mainCamera.setTag(Camera.CAMERA_TAG);
+			this.mainCamera.setMain(false);
 		}
-		mainCamera.setTag(Camera.MAIN_CAMERA_TAG);
+		mainCamera.setMain(true);
 		this.mainCamera = mainCamera;
 	}
 }

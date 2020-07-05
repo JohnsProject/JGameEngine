@@ -6,9 +6,6 @@ import com.johnsproject.jgameengine.math.VectorMath;
 public class Light extends SceneObject {
 	
 	public static final String LIGHT_TAG = "Light";
-	public static final String MAIN_DIRECTIONAL_LIGHT_TAG = "MainDirectionalLight";
-	public static final String MAIN_SPOT_LIGHT_TAG = "MainSpotLight";
-	public static final String MAIN_POINT_LIGHT_TAG = "MainPointLight";
 	
 	private LightType type;
 	private int strength;
@@ -17,6 +14,7 @@ public class Light extends SceneObject {
 	private int[] direction;
 	private int spotSize;
 	private int spotSoftness;
+	private boolean isMain;
 	
 	public Light(String name, Transform transform) {
 		super(name, transform);
@@ -27,6 +25,7 @@ public class Light extends SceneObject {
 		this.direction = VectorMath.VECTOR_DOWN;
 		this.spotSize = 60 * FixedPointMath.FP_ONE;
 		this.spotSoftness = 800;
+		this.isMain = false;
 	}
 
 	public LightType getType() {
@@ -83,5 +82,13 @@ public class Light extends SceneObject {
 
 	public void setSpotSoftness(int spotSoftness) {
 		this.spotSoftness = spotSoftness;
+	}
+	
+	public boolean isMain() {
+		return isMain;
+	}
+
+	public void setMain(boolean isMain) {
+		this.isMain = isMain;
 	}
 }

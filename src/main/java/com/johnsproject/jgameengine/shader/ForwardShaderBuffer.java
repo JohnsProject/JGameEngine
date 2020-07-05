@@ -1,3 +1,4 @@
+
 package com.johnsproject.jgameengine.shader;
 
 import static com.johnsproject.jgameengine.math.FixedPointMath.*;
@@ -131,7 +132,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 						if(!foundMainDirectionalLight) {
 							directionalLightIndex = lightIndex;
 							directionalLightTransform = lightTransform;
-							if(light.getTag().equals(Light.MAIN_DIRECTIONAL_LIGHT_TAG)) {
+							if(light.isMain()) {
 								foundMainDirectionalLight = true;
 							}
 						}
@@ -141,7 +142,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 							spotDistance = dist;
 							spotLightIndex = lightIndex;
 							spotLightTransform = lightTransform;
-							if(light.getTag().equals(Light.MAIN_SPOT_LIGHT_TAG)) {
+							if(light.isMain()) {
 								spotDistance = Integer.MIN_VALUE;
 							}
 						}
@@ -151,7 +152,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 							pointDistance = dist;
 							pointLightIndex = lightIndex;
 							pointLightTransform = lightTransform;
-							if(light.getTag().equals(Light.MAIN_POINT_LIGHT_TAG)) {
+							if(light.isMain()) {
 								pointDistance = Integer.MIN_VALUE;
 							}
 						}
@@ -161,7 +162,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 				lightIndex++;
 			}
 		}
-		if(camera.getTag().equals(Camera.MAIN_CAMERA_TAG)) {
+		if(camera.isMain()) {
 			directionalSetup(camera, directionalLightTransform);
 			spotSetup(camera, spotLightTransform);
 			pointSetup(camera, pointLightTransform);

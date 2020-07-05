@@ -6,8 +6,7 @@ import com.johnsproject.jgameengine.math.MatrixMath;
 import com.johnsproject.jgameengine.math.TransformationMath;
 
 public class Camera extends SceneObject {
-	
-	public static final String MAIN_CAMERA_TAG = "MainCamera";
+
 	public static final String CAMERA_TAG = "Camera";
 	
 	public static final byte FRUSTUM_LEFT = 0;
@@ -24,6 +23,7 @@ public class Camera extends SceneObject {
 	private int focalLength;
 	private CameraType type;
 	private FrameBuffer renderTarget;
+	private boolean isMain;
 
 	public Camera(String name, Transform transform) {
 		super(name, transform);
@@ -41,6 +41,7 @@ public class Camera extends SceneObject {
 		this.frustum[FRUSTUM_BOTTOM] = FP_ONE;
 		this.frustum[FRUSTUM_NEAR] = FP_ONE;
 		this.frustum[FRUSTUM_FAR] = FP_ONE * 1000;
+		this.isMain = false;
 	}
 
 	private void recalculateFrustum() {
@@ -121,5 +122,13 @@ public class Camera extends SceneObject {
 
 	public int[][] getProjectionMatrix() {
 		return projectionMatrix;
+	}
+
+	public boolean isMain() {
+		return isMain;
+	}
+
+	public void setMain(boolean isMain) {
+		this.isMain = isMain;
 	}
 }
