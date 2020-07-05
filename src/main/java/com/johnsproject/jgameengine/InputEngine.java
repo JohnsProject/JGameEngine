@@ -88,7 +88,7 @@ public class InputEngine extends EngineObject {
 	}
 	
 	@Override
-	public void start() {
+	public void initialize() {
 		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
 			public void eventDispatched(AWTEvent event) {
 				if (event instanceof KeyEvent) {

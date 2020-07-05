@@ -34,29 +34,9 @@ public final class Engine {
 		startEngineLoop();
 	}
 
-	public void start() {
-		for (int i = 0; i < 10000; i++) {
-			if(mainObject.hasLayer(i)) {
-				mainObject.start();
-			}
-			callStart(mainObject, i);
-		}
+	public void resume() {
 		currentTime = getTime();
 		running = true;
-	}
-	
-	private void callStart(EngineObject engineObject, int layer) {
-		if(engineObject.hasChildren()) {
-			for (int i = 0; i < engineObject.getChildrenCount(); i++) {
-				final EngineObject childObject = engineObject.getChild(i);
-				if(childObject.hasLayer(layer)) {
-					childObject.start();
-				}
-				if(childObject.hasChildren() && childObject.hasChildWithLayer(layer)) {
-					callStart(childObject, layer);
-				}
-			}
-		}
 	}
 	
 	public void stop() {
@@ -153,6 +133,23 @@ public final class Engine {
 		}
 	}
 	
+	public void callInitialize() {
+		mainObject.initialize();
+		callInitialize(mainObject);
+	}
+	
+	private void callInitialize(EngineObject engineObject) {
+		if(engineObject.hasChildren()) {
+			for (int i = 0; i < engineObject.getChildrenCount(); i++) {
+				final EngineObject childObject = engineObject.getChild(i);
+				childObject.initialize();
+				if(childObject.hasChildren()) {
+					callInitialize(childObject);
+				}
+			}
+		}
+	}
+	
 	private void sleep() {
 		try {
 			Thread.sleep(30);
@@ -167,6 +164,8 @@ public final class Engine {
 
 	public void setMainObject(EngineObject mainObject) {
 		this.mainObject = mainObject;
+		callInitialize();
+		resume();
 	}
 	
 	public EngineObject getMainObject() {

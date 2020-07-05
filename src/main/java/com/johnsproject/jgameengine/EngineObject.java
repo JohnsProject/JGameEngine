@@ -59,17 +59,10 @@ public class EngineObject {
 	}
 	
 	/**
-	 * This method is called by the {@link Engine} if this {@link EngineObject} is added
-	 * as the child of another EngineObject or set as the
-	 * {@link Engine#setMainObject main object}.
-	 */
-	public void initialize() { }
-	
-	/**
 	 * This method is called by the {@link Engine} if {@link Engine#setMainObject}
-	 * gets called and this {@link EngineObject} is a child of the main object.
+	 * gets called and this {@link EngineObject} is a child of, or the main object.
 	 */
-	public void start() {}
+	public void initialize() {}
 	
 	/**
 	 * This method is called by the {@link Engine} at a fixed time step. It's only called

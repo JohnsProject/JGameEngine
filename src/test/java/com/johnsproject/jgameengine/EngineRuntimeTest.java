@@ -85,7 +85,6 @@ public class EngineRuntimeTest extends EngineObject implements EngineKeyListener
 		mainObject.addChild(window);
 		mainObject.addChild(stats);
 		Engine.getInstance().setMainObject(mainObject);
-		Engine.getInstance().start();
 	}
 	
 	private Scene loadScene() {
@@ -214,7 +213,7 @@ public class EngineRuntimeTest extends EngineObject implements EngineKeyListener
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
 			speed = startSpeed;
 		}if(e.getKeyCode() == KeyEvent.VK_P) {
-			Engine.getInstance().start();
+			Engine.getInstance().resume();
 		}
 	}
 
