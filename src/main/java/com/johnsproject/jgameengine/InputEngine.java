@@ -14,14 +14,11 @@ import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineKeyListener;
+import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.event.EngineMouseListener;
 
-public class InputEngine extends EngineObject {
+public class InputEngine implements EngineListener {
 
-	public static final String NAME = "InputEngine";
-	public static final String TAG = "InputEngine";
-	public static final int LAYER = 0;
-	
 	private Point mouseLocation = new Point();
 	private Point mouseLocationOnScreen = new Point();
 	private KeyEvent[] keyEvents = new KeyEvent[8];
@@ -32,7 +29,6 @@ public class InputEngine extends EngineObject {
 	private List<MouseWheelListener> wheelListeners = new ArrayList<MouseWheelListener>();
 	
 	public InputEngine() {
-		super(NAME, TAG, LAYER);
 		this.keyListeners = new ArrayList<EngineKeyListener>();
 		this.mouseListeners = new ArrayList<EngineMouseListener>();
 		this.wheelListeners = new ArrayList<MouseWheelListener>();
@@ -87,8 +83,7 @@ public class InputEngine extends EngineObject {
 		motionListeners.remove(listener);
 	}
 	
-	@Override
-	public void initialize() {
+	public void start(EngineEvent e) {
 		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
 			public void eventDispatched(AWTEvent event) {
 				if (event instanceof KeyEvent) {
@@ -111,7 +106,6 @@ public class InputEngine extends EngineObject {
 				+ AWTEvent.MOUSE_WHEEL_EVENT_MASK);
 	}
 	
-	@Override
 	public void fixedUpdate(EngineEvent e) {
 		for (int i = 0; i < keyEvents.length; i++) {
 			KeyEvent keyEvent = keyEvents[i];
@@ -129,6 +123,10 @@ public class InputEngine extends EngineObject {
 				}
 			}
 		}
+	}
+	
+	public void update(EngineEvent e) {
+		
 	}
 	
 	private void handleKeyEvent(KeyEvent e) {
@@ -237,5 +235,9 @@ public class InputEngine extends EngineObject {
 		for (int i = 0; i < wheelListeners.size(); i++) {
 			wheelListeners.get(i).mouseWheelMoved(e);
 		}
+	}
+
+	public int getLayer() {
+		return INPUT_ENGINE_LAYER;
 	}
 }

@@ -1,6 +1,10 @@
 package com.johnsproject.jgameengine;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.johnsproject.jgameengine.event.EngineEvent;
+import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.model.Scene;
 
@@ -12,7 +16,7 @@ public final class Engine {
 		return engine;
 	}
 
-	private EngineObject mainObject;
+	private final List<EngineListener> engineListeners;
 	private Scene scene;
 	private Thread engineThread;
 	private int maxUpdateSkip;
@@ -26,15 +30,15 @@ public final class Engine {
 	private int loops;
 
 	private Engine() {
-		this.mainObject = null;
 		this.running = false;
 		this.updateRate = 30;
 		this.maxUpdateSkip = 5;
 		this.limitUpdateRate = false;
+		this.engineListeners = new ArrayList<EngineListener>();
 		startEngineLoop();
 	}
 
-	public void resume() {
+	public void start() {
 		currentTime = getTime();
 		running = true;
 	}
@@ -72,52 +76,18 @@ public final class Engine {
 	private void callFixedUpdate() {
 		EngineEvent event = new EngineEvent(scene, (int) elapsedTime, 0, 0);
 		while (((currentTime - getTime()) < 0) && (loops < maxUpdateSkip)) {
-			for (int i = 0; i < 10000; i++) {
-				if(mainObject.hasLayer(i)) {
-					mainObject.fixedUpdate(event);
-				}
-				callFixedUpdate(mainObject, event, i);
+			for (int i = 0; i < engineListeners.size(); i++) {
+				engineListeners.get(i).fixedUpdate(event);
 			}
 			currentTime += updateTime;
 			loops++;
 		}
 	}
 	
-	private void callFixedUpdate(EngineObject engineObject, EngineEvent event, int layer) {
-		if(engineObject.hasChildren()) {
-			for (int i = 0; i < engineObject.getChildrenCount(); i++) {
-				final EngineObject childObject = engineObject.getChild(i);
-				if(childObject.hasLayer(layer)) {
-					childObject.fixedUpdate(event);
-				}
-				if(childObject.hasChildren() && childObject.hasChildWithLayer(layer)) {
-					callFixedUpdate(childObject, event, layer);
-				}
-			}
-		}
-	}
-	
 	private void callDynamicUpdate(int deltaTime) {
 		EngineEvent event = new EngineEvent(scene, (int) elapsedTime, 0, deltaTime);
-		for (int i = 0; i < 10000; i++) {
-			if(mainObject.hasLayer(i)) {
-				mainObject.dynamicUpdate(event);
-			}
-			callDynamicUpdate(mainObject, event, i);
-		}
-	}
-	
-	private void callDynamicUpdate(EngineObject engineObject, EngineEvent event, int layer) {
-		if(engineObject.hasChildren()) {
-			for (int i = 0; i < engineObject.getChildrenCount(); i++) {
-				final EngineObject childObject = engineObject.getChild(i);
-				if(childObject.hasLayer(layer)) {
-					childObject.dynamicUpdate(event);
-				}
-				if(childObject.hasChildren() && childObject.hasChildWithLayer(layer)) {
-					callDynamicUpdate(childObject, event, layer);
-				}
-			}
+		for (int i = 0; i < engineListeners.size(); i++) {
+			engineListeners.get(i).update(event);
 		}
 	}
 	
@@ -128,23 +98,6 @@ public final class Engine {
 					Thread.sleep(sleepTime);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
-	public void callInitialize() {
-		mainObject.initialize();
-		callInitialize(mainObject);
-	}
-	
-	private void callInitialize(EngineObject engineObject) {
-		if(engineObject.hasChildren()) {
-			for (int i = 0; i < engineObject.getChildrenCount(); i++) {
-				final EngineObject childObject = engineObject.getChild(i);
-				childObject.initialize();
-				if(childObject.hasChildren()) {
-					callInitialize(childObject);
 				}
 			}
 		}
@@ -162,14 +115,19 @@ public final class Engine {
 		return System.currentTimeMillis();
 	}
 
-	public void setMainObject(EngineObject mainObject) {
-		this.mainObject = mainObject;
-		callInitialize();
-		resume();
+	public void addEngineListener(EngineListener listener) {
+		listener.start(new EngineEvent(scene, 0, 0, 0));
+		engineListeners.add(listener);
+		sortListeners();
+	}
+
+	public void removeEngineListener(EngineListener listener) {
+		engineListeners.remove(listener);
+		sortListeners();
 	}
 	
-	public EngineObject getMainObject() {
-		return mainObject;
+	public List<EngineListener> getEngineListeners() {
+		return engineListeners;
 	}
 
 	public int getUpdateRate() {
@@ -202,5 +160,20 @@ public final class Engine {
 
 	public void setScene(Scene scene) {
 		this.scene = scene;
+	}
+
+	private void sortListeners() {
+		final int listenerCount = engineListeners.size();
+		for (int i = 0; i < listenerCount; i++) {
+			int min_i = i;
+			for (int j = i + 1; j < listenerCount; j++) {
+				if (engineListeners.get(j).getLayer() < engineListeners.get(min_i).getLayer()) {
+					min_i = j;
+				}
+			}
+			EngineListener temp = engineListeners.get(min_i);
+			engineListeners.set(min_i, engineListeners.get(i));
+			engineListeners.set(i, temp);
+		}
 	}
 }

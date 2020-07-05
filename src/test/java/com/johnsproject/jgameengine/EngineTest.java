@@ -14,6 +14,7 @@ import com.johnsproject.jgameengine.GraphicsEngine;
 import com.johnsproject.jgameengine.InputEngine;
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineKeyListener;
+import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.io.FileIO;
 import com.johnsproject.jgameengine.io.SceneImporter;
 import com.johnsproject.jgameengine.math.FixedPointMath;
@@ -35,7 +36,7 @@ import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.PhongSpecularShader;
 import com.johnsproject.jgameengine.shader.SpecularProperties;
 
-public class EngineRuntimeTest extends EngineObject implements EngineKeyListener, MouseMotionListener {
+public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
 	private int WINDOW_W;
 	private int WINDOW_H;
@@ -49,11 +50,11 @@ public class EngineRuntimeTest extends EngineObject implements EngineKeyListener
 	private InputEngine inputEngine;
 	private PhysicsEngine physicsEngine;
 	
-	public static void main(String[] args) throws Exception {
-		new EngineRuntimeTest();
+	public static void main(String[] args) {
+		new EngineTest();
 	}
 	
-	EngineRuntimeTest() throws Exception {
+	EngineTest() {
 		Engine.getInstance().setScene(loadScene());
 //		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 //		WINDOW_W = gd.getDisplayMode().getWidth();
@@ -69,22 +70,25 @@ public class EngineRuntimeTest extends EngineObject implements EngineKeyListener
 		graphicsEngine = new GraphicsEngine(frameBuffer);
 		inputEngine = new InputEngine();
 		physicsEngine = new PhysicsEngine();
-		window.getFrame().setSize(WINDOW_W, WINDOW_H);
+		window.setSize(WINDOW_W, WINDOW_H);
 //		window.setFullscreen(true);
 //		window.setBorders(false);
 		inputEngine.addMouseMotionListener(this);
 		inputEngine.addEngineKeyListener(this);
 		cameraTransform = Engine.getInstance().getScene().getMainCamera().getTransform();
-		EngineObject mainObject = new EngineObject();
 //		graphicsEngine.getPreprocessingShaders().clear();
 //		Engine.getInstance().limitUpdateRate(true);
-		mainObject.addChild(this);
-		mainObject.addChild(graphicsEngine);
-		mainObject.addChild(inputEngine);
+		Engine.getInstance().addEngineListener(this);
+		Engine.getInstance().addEngineListener(graphicsEngine);
+		Engine.getInstance().addEngineListener(inputEngine);
 //		Engine.getInstance().addEngineListener(physicsEngine);
-		mainObject.addChild(window);
-		mainObject.addChild(stats);
-		Engine.getInstance().setMainObject(mainObject);
+		Engine.getInstance().addEngineListener(window);
+		Engine.getInstance().addEngineListener(stats);
+		Engine.getInstance().start();
+	}
+	
+	public void start(EngineEvent e) {
+		
 	}
 	
 	private Scene loadScene() {
@@ -165,15 +169,13 @@ public class EngineRuntimeTest extends EngineObject implements EngineKeyListener
 		return new Scene();
 	}
 
-	@Override
-	public void dynamicUpdate(EngineEvent e) {
+	public void update(EngineEvent e) {
 		Model model = e.getScene().getModel("MyModel");
 		if(model != null) {
 			//model.getTransform().rotate(e.getDeltaTime(), 0, 0);
 		}
 	}
-
-	@Override
+	
 	public void fixedUpdate(EngineEvent e) {
 		Model model = e.getScene().getModel("Ground");
 		if(model != null) {
@@ -183,6 +185,10 @@ public class EngineRuntimeTest extends EngineObject implements EngineKeyListener
 	//		model.getTransform().rotate(0, 0, 1024);
 	//		model.getTransform().setLocation(1024 * 4, 0, 0);
 		}
+	}
+
+	public int getLayer() {
+		return DEFAULT_LAYER;
 	}
 
 	public void mouseDragged(MouseEvent e) {
@@ -213,7 +219,7 @@ public class EngineRuntimeTest extends EngineObject implements EngineKeyListener
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
 			speed = startSpeed;
 		}if(e.getKeyCode() == KeyEvent.VK_P) {
-			Engine.getInstance().resume();
+			Engine.getInstance().start();
 		}
 	}
 

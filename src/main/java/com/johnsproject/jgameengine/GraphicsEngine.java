@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
+import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.AnimationFrame;
 import com.johnsproject.jgameengine.model.Armature;
@@ -23,11 +24,7 @@ import com.johnsproject.jgameengine.shader.ShaderBuffer;
 import com.johnsproject.jgameengine.shader.ShadowMappingShader;
 import com.johnsproject.jgameengine.shader.VertexBuffer;
 
-public class GraphicsEngine extends EngineObject {
-
-	public static final String NAME = "GraphicsEngine";
-	public static final String TAG = "GraphicsEngine";
-	public static final int LAYER = 2000;
+public class GraphicsEngine implements EngineListener {
 	
 	private final List<Shader> preShaders;
 	private ShaderBuffer shaderBuffer;
@@ -37,7 +34,6 @@ public class GraphicsEngine extends EngineObject {
 	private final int[] multiplyVector;
 	
 	public GraphicsEngine(FrameBuffer frameBuffer) {
-		super(NAME, TAG, LAYER);
 		this.shaderBuffer = new ForwardShaderBuffer();
 		this.preShaders = new ArrayList<Shader>();
 		this.frameBuffer = frameBuffer;
@@ -45,10 +41,12 @@ public class GraphicsEngine extends EngineObject {
 		this.normalVector = VectorMath.emptyVector();
 		this.multiplyVector = VectorMath.emptyVector();
 		addPreprocessingShader(new ShadowMappingShader());
-		setLayer(LAYER);
+	}
+
+	public void start(EngineEvent e) {
+	
 	}
 	
-	@Override
 	public void fixedUpdate(EngineEvent e) { 
 		Scene scene = e.getScene();
 		for (int i = 0; i < scene.getModels().size(); i++) {
@@ -60,8 +58,7 @@ public class GraphicsEngine extends EngineObject {
 		}		
 	}
 	
-	@Override
-	public void dynamicUpdate(EngineEvent e) {
+	public void update(EngineEvent e) {
 		Scene scene = e.getScene();
 		frameBuffer.getColorBuffer().fill(0);
 		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
@@ -180,6 +177,10 @@ public class GraphicsEngine extends EngineObject {
 			VectorMath.copy(location, locationVector);
 			VectorMath.copy(normal, normalVector);
 		}
+	}
+
+	public int getLayer() {
+		return GRAPHICS_ENGINE_LAYER;
 	}
 
 	public ShaderBuffer getShaderDataBuffer() {
