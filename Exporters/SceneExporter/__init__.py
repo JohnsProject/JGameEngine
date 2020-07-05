@@ -1,6 +1,6 @@
 bl_info = {
 	"name": "Scene format (.scene)",
-	"author": "John´s Project",
+	"author": "John's Project",
 	"version": (0, 2),
 	"blender": (2, 57, 0),
 	"location": "File > Import-Export > Scene (.scene) ",

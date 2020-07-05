@@ -81,6 +81,7 @@ public class EngineStatistics implements EngineListener {
 	}
 	
 	private String getOutput(EngineEvent e) {
+		/*
 		final long ramUsage = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) >> 20;
 		final int maxUpdateRate = Engine.getInstance().getUpdateRate();
 		int frameBufferWidth = 0;
@@ -127,5 +128,7 @@ public class EngineStatistics implements EngineListener {
 		output += "Vertices\t\t" + verticesCount + "\n";
 		output += "Triangles\t" + trianglesCount + "\n";
 		return output;
+		*/
+		return "";
 	}
 }
