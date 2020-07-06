@@ -85,9 +85,9 @@ public class FlatRasterizer {
 	 */
 	public void draw(GeometryBuffer geometryBuffer) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
-		VectorMath.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
-		VectorMath.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
-		VectorMath.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		VectorMath.copy(location0, geometryBuffer.getVertex(0).getLocation());
+		VectorMath.copy(location1, geometryBuffer.getVertex(1).getLocation());
+		VectorMath.copy(location2, geometryBuffer.getVertex(2).getLocation());
 		if(cull()) {
 			return;
 		}

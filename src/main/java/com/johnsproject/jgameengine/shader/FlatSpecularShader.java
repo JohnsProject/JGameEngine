@@ -1,7 +1,10 @@
 package com.johnsproject.jgameengine.shader;
 
-import static com.johnsproject.jgameengine.math.FixedPointMath.*;
-import static com.johnsproject.jgameengine.math.VectorMath.*;
+import static com.johnsproject.jgameengine.math.FixedPointMath.FP_BIT;
+import static com.johnsproject.jgameengine.math.FixedPointMath.FP_ONE;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_X;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Y;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Z;
 
 import com.johnsproject.jgameengine.math.ColorMath;
 import com.johnsproject.jgameengine.math.FixedPointMath;
@@ -9,6 +12,7 @@ import com.johnsproject.jgameengine.math.TransformationMath;
 import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
+import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterizer.PerspectiveFlatRasterizer;
 
 public class FlatSpecularShader  implements Shader {
@@ -39,9 +43,9 @@ public class FlatSpecularShader  implements Shader {
 		this.lightSpaceLocation = VectorMath.emptyVector();
 	}
 
-	public void vertex(VertexBuffer vertexBuffer) {
-		int[] location = vertexBuffer.getLocation();
-		VectorMath.copy(location, vertexBuffer.getWorldLocation());
+	public void vertex(Vertex vertex) {
+		int[] location = vertex.getLocation();
+		VectorMath.copy(location, vertex.getWorldLocation());
 		VectorMath.multiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
 		VectorMath.multiply(location, shaderBuffer.getCamera().getProjectionMatrix());
 		TransformationMath.screenportVector(location, shaderBuffer.getCamera().getRenderTargetPortedFrustum());
@@ -49,9 +53,9 @@ public class FlatSpecularShader  implements Shader {
 
 	public void geometry(GeometryBuffer geometryBuffer) {
 		int[] normal = geometryBuffer.getWorldNormal();
-		int[] location1 = geometryBuffer.getVertexBuffer(0).getWorldLocation();
-		int[] location2 = geometryBuffer.getVertexBuffer(1).getWorldLocation();
-		int[] location3 = geometryBuffer.getVertexBuffer(2).getWorldLocation();
+		int[] location1 = geometryBuffer.getVertex(0).getWorldLocation();
+		int[] location2 = geometryBuffer.getVertex(1).getWorldLocation();
+		int[] location3 = geometryBuffer.getVertex(2).getWorldLocation();
 		VectorMath.copy(faceLocation, location1);
 		VectorMath.add(faceLocation, location2);
 		VectorMath.add(faceLocation, location3);

@@ -76,7 +76,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		inputEngine.addMouseMotionListener(this);
 		inputEngine.addEngineKeyListener(this);
 		cameraTransform = Engine.getInstance().getScene().getMainCamera().getTransform();
-//		graphicsEngine.getPreprocessingShaders().clear();
+		graphicsEngine.getPreprocessingShaders().clear();
 //		Engine.getInstance().limitUpdateRate(true);
 		Engine.getInstance().addEngineListener(this);
 		Engine.getInstance().addEngineListener(graphicsEngine);
@@ -155,7 +155,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
 					Material material = model.getMesh().getMaterial(j);
 					SpecularProperties properties = (SpecularProperties)material.getShader().getProperties();
-					material.setShader(new FlatSpecularShader());
+					//material.setShader(new FlatSpecularShader());
 					//material.setShader(new PhongSpecularShader());
 					material.getShader().setProperties(properties);
 					//properties.setTexture(texture);

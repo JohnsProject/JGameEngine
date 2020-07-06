@@ -1,8 +1,10 @@
 package com.johnsproject.jgameengine.shader;
 
+import com.johnsproject.jgameengine.model.Vertex;
+
 public interface Shader {
 	
-	public void vertex(VertexBuffer vertexBuffer);
+	public void vertex(Vertex vertex);
 	
 	public void geometry(GeometryBuffer geometryBuffer);
 	

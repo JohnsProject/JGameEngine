@@ -1,7 +1,9 @@
 package com.johnsproject.jgameengine.shader;
 
-import static com.johnsproject.jgameengine.math.FixedPointMath.*;
-import static com.johnsproject.jgameengine.math.VectorMath.*;
+import static com.johnsproject.jgameengine.math.FixedPointMath.FP_ONE;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_X;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Y;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Z;
 
 import com.johnsproject.jgameengine.math.ColorMath;
 import com.johnsproject.jgameengine.math.FixedPointMath;
@@ -9,6 +11,7 @@ import com.johnsproject.jgameengine.math.TransformationMath;
 import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
+import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterizer.PerspectiveGouraudRasterizer;
 
 public class GouraudSpecularShader  implements Shader {
@@ -35,12 +38,12 @@ public class GouraudSpecularShader  implements Shader {
 		this.lightSpaceLocation = VectorMath.emptyVector();
 	}
 
-	public void vertex(VertexBuffer vertexBuffer) {
-		int[] location = vertexBuffer.getLocation();
-		int[] normal = vertexBuffer.getWorldNormal();
+	public void vertex(Vertex vertex) {
+		int[] location = vertex.getLocation();
+		int[] normal = vertex.getWorldNormal();
 		int lightColor = ColorMath.BLACK;
 		int[] cameraLocation = shaderBuffer.getCamera().getTransform().getLocation();
-		VectorMath.copy(location, vertexBuffer.getWorldLocation());
+		VectorMath.copy(location, vertex.getWorldLocation());
 		VectorMath.normalize(normal);
 		VectorMath.copy(viewDirection, cameraLocation);
 		VectorMath.subtract(viewDirection, location);
@@ -116,7 +119,7 @@ public class GouraudSpecularShader  implements Shader {
 			lightColor = ColorMath.lerp(lightColor, light.getColor(), currentFactor);
 			lightIndex++;
 		}
-		vertexBuffer.setColor(lightColor);
+		vertex.setShadedColor(lightColor);
 		VectorMath.multiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
 		VectorMath.multiply(location, shaderBuffer.getCamera().getProjectionMatrix());
 		TransformationMath.screenportVector(location, shaderBuffer.getCamera().getRenderTargetPortedFrustum());

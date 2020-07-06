@@ -22,7 +22,6 @@ import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
 import com.johnsproject.jgameengine.shader.ShaderBuffer;
 import com.johnsproject.jgameengine.shader.ShadowMappingShader;
-import com.johnsproject.jgameengine.shader.VertexBuffer;
 
 public class GraphicsEngine implements EngineListener {
 	
@@ -82,33 +81,11 @@ public class GraphicsEngine implements EngineListener {
 					final Vertex vertex = mesh.getVertex(v);
 					final Shader shader = vertex.getMaterial().getShader();
 					shader.setShaderBuffer(shaderBuffer);
-					shader.vertex(vertex.getBuffer());
+					shader.vertex(vertex);
 				}
 				for (int f = 0; f < mesh.getFaces().length; f++) {
 					final Face face = mesh.getFace(f);
 					final Shader shader = face.getMaterial().getShader();
-					shader.setShaderBuffer(shaderBuffer);
-					shader.geometry(face.getBuffer());
-				}
-			}
-		}
-	}
-	
-	private void callShaders(Scene scene, List<Shader> shaders) {
-		for (int s = 0; s < shaders.size(); s++) {
-			final Shader shader = shaders.get(s);
-			for (int i = 0; i < scene.getModels().size(); i++) {
-				Model model = scene.getModels().get(i);
-				if(!model.isActive())
-					continue;
-				final Mesh mesh = model.getMesh();
-				for (int v = 0; v < mesh.getVertices().length; v++) {
-					final Vertex vertex = mesh.getVertex(v);
-					shader.setShaderBuffer(shaderBuffer);
-					shader.vertex(vertex.getBuffer());
-				}
-				for (int f = 0; f < mesh.getFaces().length; f++) {
-					final Face face = mesh.getFace(f);
 					shader.setShaderBuffer(shaderBuffer);
 					shader.geometry(face.getBuffer());
 				}
@@ -130,14 +107,11 @@ public class GraphicsEngine implements EngineListener {
 			final Transform transform = model.getTransform();
 			for (int v = 0; v < mesh.getVertices().length; v++) {
 				final Vertex vertex = mesh.getVertex(v);
-				final VertexBuffer vertexBuffer = vertex.getBuffer();
-				final int[] worldLocation = vertexBuffer.getWorldLocation();
-				final int[] worldNormal = vertexBuffer.getWorldNormal();
-				VectorMath.copy(worldLocation, vertex.getLocation());
-				VectorMath.copy(worldNormal, vertex.getNormal());
-				animateVertex(armature, animationFrame, vertex, worldLocation, worldNormal);
-				VectorMath.multiply(worldLocation, transform.getSpaceExitMatrix());
-				VectorMath.multiply(worldNormal, transform.getSpaceExitNormalMatrix());
+				VectorMath.copy(vertex.getWorldLocation(), vertex.getLocalLocation());
+				VectorMath.copy(vertex.getWorldNormal(), vertex.getLocalNormal());
+				animateVertex(armature, animationFrame, vertex);
+				VectorMath.multiply(vertex.getWorldLocation(), transform.getSpaceExitMatrix());
+				VectorMath.multiply(vertex.getWorldNormal(), transform.getSpaceExitNormalMatrix());
 			}
 			for (int f = 0; f < mesh.getFaces().length; f++) {
 				final Face face = mesh.getFace(f);
@@ -148,14 +122,14 @@ public class GraphicsEngine implements EngineListener {
 				VectorMath.copy(geometryBuffer.getUV(0), face.getUV(0));
 				VectorMath.copy(geometryBuffer.getUV(1), face.getUV(1));
 				VectorMath.copy(geometryBuffer.getUV(2), face.getUV(2));
-				geometryBuffer.getVertexBuffers()[0] = face.getVertex(0).getBuffer();
-				geometryBuffer.getVertexBuffers()[1] = face.getVertex(1).getBuffer();
-				geometryBuffer.getVertexBuffers()[2] = face.getVertex(2).getBuffer();
+				geometryBuffer.getVertices()[0] = face.getVertex(0);
+				geometryBuffer.getVertices()[1] = face.getVertex(1);
+				geometryBuffer.getVertices()[2] = face.getVertex(2);
 			}
 		}
 	}
 	
-	private void animateVertex(Armature armature, AnimationFrame animationFrame, Vertex vertex, int[] location, int[] normal) {
+	private void animateVertex(Armature armature, AnimationFrame animationFrame, Vertex vertex) {
 		if(animationFrame != null) {
 			VectorMath.copy(locationVector, VectorMath.VECTOR_ZERO);
 			VectorMath.copy(normalVector, VectorMath.VECTOR_ZERO);
@@ -163,19 +137,41 @@ public class GraphicsEngine implements EngineListener {
 				final VertexGroup vertexGroup = armature.getVertexGroup(i);
 				final int boneWeight = vertexGroup.getWeight(vertex);
 				if(boneWeight != -1) {
-					int[][] rotationMatrix = animationFrame.getBoneMatrix(vertexGroup.getBoneIndex());
-					VectorMath.copy(multiplyVector, location);
-					VectorMath.multiply(multiplyVector, rotationMatrix);
+					int[][] boneMatrix = animationFrame.getBoneMatrix(vertexGroup.getBoneIndex());
+					VectorMath.copy(multiplyVector, vertex.getWorldLocation());
+					VectorMath.multiply(multiplyVector, boneMatrix);
 					VectorMath.multiply(multiplyVector, boneWeight);
 					VectorMath.add(locationVector, multiplyVector);
-					VectorMath.copy(multiplyVector, normal);
-					VectorMath.multiply(multiplyVector, rotationMatrix);
+					VectorMath.copy(multiplyVector, vertex.getWorldNormal());
+					VectorMath.multiply(multiplyVector, boneMatrix);
 					VectorMath.multiply(multiplyVector, boneWeight);
 					VectorMath.add(normalVector, multiplyVector);
 				}
 			}
-			VectorMath.copy(location, locationVector);
-			VectorMath.copy(normal, normalVector);
+			VectorMath.copy(vertex.getWorldLocation(), locationVector);
+			VectorMath.copy(vertex.getWorldNormal(), normalVector);
+		}
+	}
+	
+	private void callShaders(Scene scene, List<Shader> shaders) {
+		for (int s = 0; s < shaders.size(); s++) {
+			final Shader shader = shaders.get(s);
+			for (int i = 0; i < scene.getModels().size(); i++) {
+				Model model = scene.getModels().get(i);
+				if(!model.isActive())
+					continue;
+				final Mesh mesh = model.getMesh();
+				for (int v = 0; v < mesh.getVertices().length; v++) {
+					final Vertex vertex = mesh.getVertex(v);
+					shader.setShaderBuffer(shaderBuffer);
+					shader.vertex(vertex);
+				}
+				for (int f = 0; f < mesh.getFaces().length; f++) {
+					final Face face = mesh.getFace(f);
+					shader.setShaderBuffer(shaderBuffer);
+					shader.geometry(face.getBuffer());
+				}
+			}
 		}
 	}
 

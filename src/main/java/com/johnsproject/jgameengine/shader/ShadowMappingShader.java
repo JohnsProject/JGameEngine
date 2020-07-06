@@ -1,11 +1,14 @@
 package com.johnsproject.jgameengine.shader;
 
-import static com.johnsproject.jgameengine.math.VectorMath.*;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_X;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Y;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Z;
 
 import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.math.TransformationMath;
 import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Texture;
+import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
 
 public class ShadowMappingShader implements Shader {
@@ -27,7 +30,7 @@ public class ShadowMappingShader implements Shader {
 		this.shaderProperties = new ShadowMappingProperties();
 	}
 	
-	public void vertex(VertexBuffer vertexBuffer) { }
+	public void vertex(Vertex vertex) { }
 
 	public void geometry(GeometryBuffer geometryBuffer) {
 		if(shaderProperties.directionalShadows() && (shaderBuffer.getDirectionalLightIndex() != -1)) {
@@ -56,9 +59,9 @@ public class ShadowMappingShader implements Shader {
 	}
 	
 	private void transformVertices(GeometryBuffer geometryBuffer, int[][] lightMatrix, int[] lightFrustum) {
-		for (int i = 0; i < geometryBuffer.getVertexBuffers().length; i++) {
-			int[] location = geometryBuffer.getVertexBuffer(i).getLocation();
-			VectorMath.copy(location, geometryBuffer.getVertexBuffer(i).getWorldLocation());
+		for (int i = 0; i < geometryBuffer.getVertices().length; i++) {
+			int[] location = geometryBuffer.getVertex(i).getLocation();
+			VectorMath.copy(location, geometryBuffer.getVertex(i).getWorldLocation());
 			VectorMath.multiply(location, lightMatrix);
 			TransformationMath.screenportVector(location, lightFrustum);
 		}

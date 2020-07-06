@@ -85,18 +85,18 @@ public class PhongRasterizer extends FlatRasterizer {
 	 */
 	public void draw(GeometryBuffer geometryBuffer) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
-		VectorMath.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
-		VectorMath.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
-		VectorMath.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		VectorMath.copy(location0, geometryBuffer.getVertex(0).getLocation());
+		VectorMath.copy(location1, geometryBuffer.getVertex(1).getLocation());
+		VectorMath.copy(location2, geometryBuffer.getVertex(2).getLocation());
 		if(cull()) {
 			return;
 		}
-		setWorldLocation0(geometryBuffer.getVertexBuffer(0).getWorldLocation());
-		setWorldLocation1(geometryBuffer.getVertexBuffer(1).getWorldLocation());
-		setWorldLocation2(geometryBuffer.getVertexBuffer(2).getWorldLocation());
-		setNormal0(geometryBuffer.getVertexBuffer(0).getWorldNormal());
-		setNormal1(geometryBuffer.getVertexBuffer(1).getWorldNormal());
-		setNormal2(geometryBuffer.getVertexBuffer(2).getWorldNormal());
+		setWorldLocation0(geometryBuffer.getVertex(0).getWorldLocation());
+		setWorldLocation1(geometryBuffer.getVertex(1).getWorldLocation());
+		setWorldLocation2(geometryBuffer.getVertex(2).getWorldLocation());
+		setNormal0(geometryBuffer.getVertex(0).getWorldNormal());
+		setNormal1(geometryBuffer.getVertex(1).getWorldNormal());
+		setNormal2(geometryBuffer.getVertex(2).getWorldNormal());
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			VectorMath.swap(location0, location1);
 			swapVector(worldX, worldY, worldZ, 0, 1);

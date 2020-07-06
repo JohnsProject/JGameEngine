@@ -1,12 +1,13 @@
 package com.johnsproject.jgameengine.shader;
 
 import com.johnsproject.jgameengine.math.VectorMath;
+import com.johnsproject.jgameengine.model.Vertex;
 
 public class GeometryBuffer {
 
 	private final int[] worldNormal;
 	private final int[][] uvs;
-	private final VertexBuffer[] vertexBuffers;
+	private final Vertex[] vertices;
 	
 	public GeometryBuffer() {
 		this.worldNormal = VectorMath.emptyVector();
@@ -14,7 +15,7 @@ public class GeometryBuffer {
 		this.uvs[0] = VectorMath.emptyVector();
 		this.uvs[1] = VectorMath.emptyVector();
 		this.uvs[2] = VectorMath.emptyVector();
-		this.vertexBuffers = new VertexBuffer[3];
+		this.vertices = new Vertex[3];
 	}
 
 	public int[] getWorldNormal() {
@@ -29,11 +30,11 @@ public class GeometryBuffer {
 		return uvs;
 	}
 
-	public VertexBuffer getVertexBuffer(int index) {
-		return vertexBuffers[index];
+	public Vertex getVertex(int index) {
+		return vertices[index];
 	}
 	
-	public VertexBuffer[] getVertexBuffers() {
-		return vertexBuffers;
+	public Vertex[] getVertices() {
+		return vertices;
 	}
 }

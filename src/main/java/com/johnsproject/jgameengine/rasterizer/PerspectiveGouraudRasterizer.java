@@ -27,15 +27,15 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 	 */
 	public void perspectiveDraw(GeometryBuffer geometryBuffer, Texture texture) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
-		VectorMath.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
-		VectorMath.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
-		VectorMath.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		VectorMath.copy(location0, geometryBuffer.getVertex(0).getLocation());
+		VectorMath.copy(location1, geometryBuffer.getVertex(1).getLocation());
+		VectorMath.copy(location2, geometryBuffer.getVertex(2).getLocation());
 		if(cull()) {
 			return;
 		}
-		setColor0(geometryBuffer.getVertexBuffer(0).getColor());
-		setColor1(geometryBuffer.getVertexBuffer(1).getColor());
-		setColor2(geometryBuffer.getVertexBuffer(2).getColor());
+		setColor0(geometryBuffer.getVertex(0).getShadedColor());
+		setColor1(geometryBuffer.getVertex(1).getShadedColor());
+		setColor2(geometryBuffer.getVertex(2).getShadedColor());
 		setUV0(geometryBuffer.getUV(0), texture);
 		setUV1(geometryBuffer.getUV(1), texture);
 		setUV2(geometryBuffer.getUV(2), texture);

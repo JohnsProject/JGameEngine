@@ -53,15 +53,15 @@ public class GouraudRasterizer extends FlatRasterizer {
 	 */
 	public void draw(GeometryBuffer geometryBuffer) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
-		VectorMath.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
-		VectorMath.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
-		VectorMath.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
+		VectorMath.copy(location0, geometryBuffer.getVertex(0).getLocation());
+		VectorMath.copy(location1, geometryBuffer.getVertex(1).getLocation());
+		VectorMath.copy(location2, geometryBuffer.getVertex(2).getLocation());
 		if(cull()) {
 			return;
 		}
-		setColor0(geometryBuffer.getVertexBuffer(0).getColor());
-		setColor1(geometryBuffer.getVertexBuffer(1).getColor());
-		setColor2(geometryBuffer.getVertexBuffer(2).getColor());
+		setColor0(geometryBuffer.getVertex(0).getShadedColor());
+		setColor1(geometryBuffer.getVertex(1).getShadedColor());
+		setColor2(geometryBuffer.getVertex(2).getShadedColor());
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			VectorMath.swap(location0, location1);
 			swapVector(red, green, blue, 0, 1);
