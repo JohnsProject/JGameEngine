@@ -139,19 +139,10 @@ public class FlatRasterizer {
         int z = location0[VECTOR_Z] << FP_BIT;
         int y1 = location0[VECTOR_Y];
         int y2 = location1[VECTOR_Y];
-        if(cameraFrustum[Camera.FRUSTUM_BOTTOM] < y2)
-	    	y2 = cameraFrustum[Camera.FRUSTUM_BOTTOM];
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
         	int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
-	        if (y1 < cameraFrustum[Camera.FRUSTUM_TOP]) {
-	        	int step = cameraFrustum[Camera.FRUSTUM_TOP] - y1;
-	        	y1 += step;
-		    	x1 += dx1 * step;
-	            x2 += dx2 * step;
-	            z += dz1 * step;
-	    	}
 	        for (; y1 <= y2; y1++) {
 	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 += dx1;
@@ -162,13 +153,6 @@ public class FlatRasterizer {
         	int dxdx = dx1 - dx2;
         	dxdx = dxdx == 0 ? 1 : dxdx;
         	int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
-            if (y1 < cameraFrustum[Camera.FRUSTUM_TOP]) {
-	        	int step = cameraFrustum[Camera.FRUSTUM_TOP] - y1;
-	        	y1 += step;
-		    	x1 += dx2 * step;
-	            x2 += dx1 * step;
-	            z += dz2 * step;
-	    	}
         	for (; y1 <= y2; y1++) {
         		drawScanline(x1, x2, y1, z, dz);
 	            x1 += dx2;
@@ -197,19 +181,10 @@ public class FlatRasterizer {
 		int z = location2[VECTOR_Z] << FP_BIT;
 		int y1 = location2[VECTOR_Y];
         int y2 = location0[VECTOR_Y];
-        if(cameraFrustum[Camera.FRUSTUM_TOP] > y2)
-	    	y2 = cameraFrustum[Camera.FRUSTUM_TOP];
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
 			int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
-	        if (y1 > cameraFrustum[Camera.FRUSTUM_BOTTOM]) {
-	        	int step = y1 - cameraFrustum[Camera.FRUSTUM_BOTTOM];
-	        	y1 -= step;
-		        x1 -= dx1 * step;
-		        x2 -= dx2 * step;
-		        z -= dz1 * step;
-	    	}
 	        for (; y1 > y2; y1--) {
 	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 -= dx1;
@@ -220,13 +195,6 @@ public class FlatRasterizer {
 			int dxdx = dx2 - dx1;
 			dxdx = dxdx == 0 ? 1 : dxdx;
 			int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
-	        if (y1 > cameraFrustum[Camera.FRUSTUM_BOTTOM]) {
-	        	int step = y1 - cameraFrustum[Camera.FRUSTUM_BOTTOM];
-	        	y1 -= step;
-		        x1 -= dx2 * step;
-		        x2 -= dx1 * step;
-		        z -= dz2 * step;
-	    	}
 	        for (; y1 > y2; y1--) {
 	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 -= dx2;
@@ -239,13 +207,6 @@ public class FlatRasterizer {
 	private void drawScanline(int x1, int x2, int y, int z, int dz) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
-	    if (x1 < cameraFrustum[Camera.FRUSTUM_LEFT]) {
-	    	int step = cameraFrustum[Camera.FRUSTUM_LEFT] - x1;
-	    	x1 += step;
-	    	z += dz * step;
-	    }
-	    if(cameraFrustum[Camera.FRUSTUM_RIGHT] < x2)
-	    	x2 = cameraFrustum[Camera.FRUSTUM_RIGHT];
 		for (; x1 <= x2; x1++) {
 			fragmentBuffer.getLocation()[VECTOR_X] = x1;
 			fragmentBuffer.getLocation()[VECTOR_Y] = y;

@@ -113,9 +113,9 @@ public class PhongRasterizer extends FlatRasterizer {
 			swapVector(normalX, normalY, normalZ, 0, 1);
 		}
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-        	drawBottomTriangle(cameraFrustum);
+        	drawBottomTriangle();
         } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
-        	drawTopTriangle(cameraFrustum);
+        	drawTopTriangle();
         } else {
             int x = location0[VECTOR_X];
             int y = location1[VECTOR_Y];
@@ -155,7 +155,7 @@ public class PhongRasterizer extends FlatRasterizer {
             VectorMath.swap(vectorCache, location2);
             swapCache(worldX, worldY, worldZ, worldCache, 2);
             swapCache(normalX, normalY, normalZ, normalCache, 2);
-            drawBottomTriangle(cameraFrustum);
+            drawBottomTriangle();
             VectorMath.swap(vectorCache, location2);
             VectorMath.swap(location0, location1);
             VectorMath.swap(location1, vectorCache);
@@ -165,11 +165,11 @@ public class PhongRasterizer extends FlatRasterizer {
             swapCache(normalX, normalY, normalZ, normalCache, 2);
             swapVector(normalX, normalY, normalZ, 0, 1);
             swapCache(normalX, normalY, normalZ, normalCache, 1);
-            drawTopTriangle(cameraFrustum);
+            drawTopTriangle();
         }
 	}
 	
-	private void drawBottomTriangle(int[] cameraFrustum) {
+	private void drawBottomTriangle() {
 		int xShifted = location0[VECTOR_X] << FP_BIT;
 		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
@@ -211,7 +211,7 @@ public class PhongRasterizer extends FlatRasterizer {
             int ny = normalY[0] << FP_BIT;
             int nz = normalZ[0] << FP_BIT;
 	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
-	        	drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz, cameraFrustum);
+	        	drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz);
 	            x1 += dx1;
 	            x2 += dx2;
 	            z += dz1;
@@ -242,7 +242,7 @@ public class PhongRasterizer extends FlatRasterizer {
             int ny = normalY[0] << FP_BIT;
             int nz = normalZ[0] << FP_BIT;
         	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
-        		drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz, cameraFrustum);
+        		drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
@@ -256,7 +256,7 @@ public class PhongRasterizer extends FlatRasterizer {
         }
     }
     
-	private void drawTopTriangle(int[] cameraFrustum) {
+	private void drawTopTriangle() {
 		int xShifted = location2[VECTOR_X] << FP_BIT;
 		int y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
@@ -298,7 +298,7 @@ public class PhongRasterizer extends FlatRasterizer {
             int ny = normalY[2] << FP_BIT;
             int nz = normalZ[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz, cameraFrustum);
+	        	drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz);
 	            x1 -= dx1;
 	            x2 -= dx2;
 	            z -= dz1;
@@ -329,7 +329,7 @@ public class PhongRasterizer extends FlatRasterizer {
             int ny = normalY[2] << FP_BIT;
             int nz = normalZ[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz, cameraFrustum);
+	        	drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz);
 	            x1 -= dx2;
 	            x2 -= dx1;
 	            z -= dz2;
@@ -344,7 +344,7 @@ public class PhongRasterizer extends FlatRasterizer {
     }
 	
 	private void drawScanline(int x1, int x2, int y, int z, int wx, int wy, int wz, int nx, int ny, int nz,
-							int dz, int dwx, int dwy, int dwz, int dnx, int dny, int dnz, int[] cameraFrustum) {
+							int dz, int dwx, int dwy, int dwz, int dnx, int dny, int dnz) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {

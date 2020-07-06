@@ -72,9 +72,9 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 			swapVector(u, v, 0, 1);
 		}
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
-        	drawBottomTriangle(cameraFrustum);
+        	drawBottomTriangle();
         } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
-            drawTopTriangle(cameraFrustum);
+            drawTopTriangle();
         } else {
             int x = location0[VECTOR_X];
             int y = location1[VECTOR_Y];
@@ -97,18 +97,18 @@ public class AffineFlatRasterizer extends FlatRasterizer {
             uvCache[VECTOR_Y] = uvy;
             VectorMath.swap(vectorCache, location2);
             swapCache(u, v, uvCache, 2);
-            drawBottomTriangle(cameraFrustum);
+            drawBottomTriangle();
             VectorMath.swap(vectorCache, location2);
             VectorMath.swap(location0, location1);
             VectorMath.swap(location1, vectorCache);
             swapCache(u, v, uvCache, 2);
             swapVector(u, v, 0, 1);
             swapCache(u, v, uvCache, 1);
-            drawTopTriangle(cameraFrustum);
+            drawTopTriangle();
         }
 	}
 	
-	private void drawBottomTriangle(int[] cameraFrustum) {
+	private void drawBottomTriangle() {
 		int xShifted = location0[VECTOR_X] << FP_BIT;
 		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
@@ -134,7 +134,7 @@ public class AffineFlatRasterizer extends FlatRasterizer {
             int u = this.u[0] << FP_BIT;
             int v = this.v[0] << FP_BIT;
 	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
-	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, cameraFrustum);
+	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv);
 	            x1 += dx1;
 	            x2 += dx2;
 	            z += dz1;
@@ -153,7 +153,7 @@ public class AffineFlatRasterizer extends FlatRasterizer {
             int u = this.u[0] << FP_BIT;
             int v = this.v[0] << FP_BIT;
         	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
-        		drawScanline(x1, x2, y, z, u, v, dz, du, dv, cameraFrustum);
+        		drawScanline(x1, x2, y, z, u, v, dz, du, dv);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
@@ -163,7 +163,7 @@ public class AffineFlatRasterizer extends FlatRasterizer {
         }
     }
     
-	private void drawTopTriangle(int[] cameraFrustum) {
+	private void drawTopTriangle() {
 		int xShifted = location2[VECTOR_X] << FP_BIT;
 		int y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
@@ -189,7 +189,7 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 			int u = this.u[2] << FP_BIT;
 			int v = this.v[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, cameraFrustum);
+	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv);
 	            x1 -= dx1;
 	            x2 -= dx2;
 	            z -= dz1;
@@ -208,7 +208,7 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 			int u = this.u[2] << FP_BIT;
 			int v = this.v[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv, cameraFrustum);
+	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv);
 	            x1 -= dx2;
 	            x2 -= dx1;
 	            z -= dz2;
@@ -218,7 +218,7 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		}
     }
 	
-	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int dz, int du, int dv, int[] cameraFrustum) {
+	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int dz, int du, int dv) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {
