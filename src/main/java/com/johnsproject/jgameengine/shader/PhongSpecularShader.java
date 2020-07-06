@@ -9,6 +9,7 @@ import com.johnsproject.jgameengine.math.ColorMath;
 import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.math.TransformationMath;
 import com.johnsproject.jgameengine.math.VectorMath;
+import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
@@ -52,13 +53,13 @@ public class PhongSpecularShader  implements Shader {
 		TransformationMath.screenportVector(location, shaderBuffer.getCamera().getRenderTargetPortedFrustum());
 	}
 
-	public void geometry(GeometryBuffer geometryBuffer) {
+	public void geometry(Face face) {
 		color = shaderProperties.getDiffuseColor();
 		texture = shaderProperties.getTexture();
 		if (texture == null) {
-			rasterizer.draw(geometryBuffer);
+			rasterizer.draw(face);
 		} else {
-			rasterizer.perspectiveDraw(geometryBuffer, texture);
+			rasterizer.perspectiveDraw(face, texture);
 		}
 	}
 

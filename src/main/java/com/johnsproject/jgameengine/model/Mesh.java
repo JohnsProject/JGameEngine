@@ -44,9 +44,14 @@ public class Mesh {
 			Vertex vertex1 = this.vertices[face[0]];
 			Vertex vertex2 = this.vertices[face[1]];
 			Vertex vertex3 = this.vertices[face[2]];
-			Material material = this.materials[face[3]];
+			Vertex[] faceVertices = new Vertex[] {vertex1, vertex2, vertex3};
 			int[] normal = new int[4];
-			this.faces[i] = new Face(i, normal, vertex1, vertex2, vertex3, material);
+			int[][] uvs = new int[3][VectorMath.VECTOR_SIZE];
+			uvs[0] = VectorMath.emptyVector();
+			uvs[1] = VectorMath.emptyVector();
+			uvs[2] = VectorMath.emptyVector();
+			Material material = this.materials[face[3]];
+			this.faces[i] = new Face(i, faceVertices, normal, uvs, material);
 		}
 	}
 

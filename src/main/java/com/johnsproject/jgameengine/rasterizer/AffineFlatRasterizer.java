@@ -1,12 +1,14 @@
 package com.johnsproject.jgameengine.rasterizer;
 
-import static com.johnsproject.jgameengine.math.FixedPointMath.*;
-import static com.johnsproject.jgameengine.math.VectorMath.*;
+import static com.johnsproject.jgameengine.math.FixedPointMath.FP_BIT;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_X;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Y;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Z;
 
 import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.math.VectorMath;
+import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Texture;
-import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
 
 public class AffineFlatRasterizer extends FlatRasterizer {
@@ -48,17 +50,17 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 	 * 
 	 * @param geometryBuffer
 	 */
-	public void affineDraw(GeometryBuffer geometryBuffer, Texture texture) {
+	public void affineDraw(Face face, Texture texture) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
-		VectorMath.copy(location0, geometryBuffer.getVertex(0).getLocation());
-		VectorMath.copy(location1, geometryBuffer.getVertex(1).getLocation());
-		VectorMath.copy(location2, geometryBuffer.getVertex(2).getLocation());
+		VectorMath.copy(location0, face.getVertex(0).getLocation());
+		VectorMath.copy(location1, face.getVertex(1).getLocation());
+		VectorMath.copy(location2, face.getVertex(2).getLocation());
 		if(cull()) {
 			return;
 		}
-		setUV0(geometryBuffer.getUV(0), texture);
-		setUV1(geometryBuffer.getUV(1), texture);
-		setUV2(geometryBuffer.getUV(2), texture);
+		setUV0(face.getUV(0), texture);
+		setUV1(face.getUV(1), texture);
+		setUV2(face.getUV(2), texture);
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			VectorMath.swap(location0, location1);
 			swapVector(u, v, 0, 1);

@@ -1,7 +1,5 @@
 package com.johnsproject.jgameengine.model;
 
-import com.johnsproject.jgameengine.math.VectorMath;
-
 public class Vertex {
 	
 	private final int index;
@@ -17,9 +15,9 @@ public class Vertex {
 		this.index = index;
 		this.localLocation = location;
 		this.localNormal = normal;
-		this.worldLocation = VectorMath.emptyVector();
-		this.worldNormal = VectorMath.emptyVector();
-		this.location = VectorMath.emptyVector();
+		this.worldLocation = location.clone();
+		this.worldNormal = normal.clone();
+		this.location = location.clone();
 		this.material = material;
 	}
 

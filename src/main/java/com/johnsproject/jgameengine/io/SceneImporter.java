@@ -221,24 +221,26 @@ public final class SceneImporter {
 		Face[] faces = new Face[facesData.length];
 		for (int i = 0; i < faces.length; i++) {
 			String[] faceData = facesData[i].split(",");
-			int vertex1 = Integer.parseInt(faceData[0]);
-			int vertex2 = Integer.parseInt(faceData[1]);
-			int vertex3 = Integer.parseInt(faceData[2]);
+			final int vertex1 = Integer.parseInt(faceData[0]);
+			final int vertex2 = Integer.parseInt(faceData[1]);
+			final int vertex3 = Integer.parseInt(faceData[2]);
+			final Vertex[] faceVertices = new Vertex[] {vertices[vertex1], vertices[vertex2], vertices[vertex3]};
 			int x = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[3 + VECTOR_X]));
 			int y = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[3 + VECTOR_Z]));
 			int z = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[3 + VECTOR_Y]));
-			int[] normal = VectorMath.toVector(x, y, -z);
+			final int[] normal = VectorMath.toVector(x, y, -z);
 			x = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[6 + VECTOR_X]));
 			y = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[6 + VECTOR_Y]));
-			int[] uv1 = VectorMath.toVector(x, FixedPointMath.FP_ONE - y);
+			final int[][] uvs = new int[3][];
+			uvs[0] = VectorMath.toVector(x, FixedPointMath.FP_ONE - y);
 			x = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[8 + VECTOR_X]));
 			y = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[8 + VECTOR_Y]));
-			int[] uv2 = VectorMath.toVector(x, FixedPointMath.FP_ONE - y);
+			uvs[1] = VectorMath.toVector(x, FixedPointMath.FP_ONE - y);
 			x = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[10 + VECTOR_X]));
 			y = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[10 + VECTOR_Y]));
-			int[] uv3 = VectorMath.toVector(x, FixedPointMath.FP_ONE - y);
-			int material = Integer.parseInt(faceData[12]);
-			faces[i] = new Face(i, normal, vertices[vertex1], vertices[vertex2], vertices[vertex3], materials[material], uv1, uv2, uv3);
+			uvs[2] = VectorMath.toVector(x, FixedPointMath.FP_ONE - y);
+			final int material = Integer.parseInt(faceData[12]);
+			faces[i] = new Face(i, faceVertices, normal, uvs, materials[material]);
 		}
 		return faces;
 	}

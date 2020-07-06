@@ -7,6 +7,7 @@ import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Z;
 import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.math.TransformationMath;
 import com.johnsproject.jgameengine.math.VectorMath;
+import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
@@ -32,36 +33,36 @@ public class ShadowMappingShader implements Shader {
 	
 	public void vertex(Vertex vertex) { }
 
-	public void geometry(GeometryBuffer geometryBuffer) {
+	public void geometry(Face face) {
 		if(shaderProperties.directionalShadows() && (shaderBuffer.getDirectionalLightIndex() != -1)) {
 			shadowBias = DIRECTIONAL_BIAS;
 			currentShadowMap = shaderBuffer.getDirectionalShadowMap();
-			transformVertices(geometryBuffer, shaderBuffer.getDirectionalLightMatrix(), shaderBuffer.getDirectionalLightFrustum());
+			transformVertices(face, shaderBuffer.getDirectionalLightMatrix(), shaderBuffer.getDirectionalLightFrustum());
 			rasterizer.setFrustumCull(false);
-			rasterizer.draw(geometryBuffer);
+			rasterizer.draw(face);
 		}
 		if(shaderProperties.spotShadows() && (shaderBuffer.getSpotLightIndex() != -1)) {
 			shadowBias = SPOT_BIAS;
 			currentShadowMap = shaderBuffer.getSpotShadowMap();
-			transformVertices(geometryBuffer, shaderBuffer.getSpotLightMatrix(), shaderBuffer.getSpotLightFrustum());
+			transformVertices(face, shaderBuffer.getSpotLightMatrix(), shaderBuffer.getSpotLightFrustum());
 			rasterizer.setFrustumCull(true);
-			rasterizer.draw(geometryBuffer);
+			rasterizer.draw(face);
 		}
 		if(shaderProperties.pointShadows() && (shaderBuffer.getPointLightIndex() != -1)) {
 			shadowBias = POINT_BIAS;
 			for (int i = 0; i < shaderBuffer.getPointLightMatrices().length; i++) {
 				currentShadowMap = shaderBuffer.getPointShadowMaps()[i];
-				transformVertices(geometryBuffer, shaderBuffer.getPointLightMatrices()[i], shaderBuffer.getPointLightFrustum());
+				transformVertices(face, shaderBuffer.getPointLightMatrices()[i], shaderBuffer.getPointLightFrustum());
 				rasterizer.setFrustumCull(true);
-				rasterizer.draw(geometryBuffer);
+				rasterizer.draw(face);
 			}
 		}
 	}
 	
-	private void transformVertices(GeometryBuffer geometryBuffer, int[][] lightMatrix, int[] lightFrustum) {
-		for (int i = 0; i < geometryBuffer.getVertices().length; i++) {
-			int[] location = geometryBuffer.getVertex(i).getLocation();
-			VectorMath.copy(location, geometryBuffer.getVertex(i).getWorldLocation());
+	private void transformVertices(Face face, int[][] lightMatrix, int[] lightFrustum) {
+		for (int i = 0; i < face.getVertices().length; i++) {
+			int[] location = face.getVertex(i).getLocation();
+			VectorMath.copy(location, face.getVertex(i).getWorldLocation());
 			VectorMath.multiply(location, lightMatrix);
 			TransformationMath.screenportVector(location, lightFrustum);
 		}

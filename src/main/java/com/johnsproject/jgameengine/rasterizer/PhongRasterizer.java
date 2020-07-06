@@ -1,11 +1,13 @@
 package com.johnsproject.jgameengine.rasterizer;
 
-import static com.johnsproject.jgameengine.math.FixedPointMath.*;
-import static com.johnsproject.jgameengine.math.VectorMath.*;
+import static com.johnsproject.jgameengine.math.FixedPointMath.FP_BIT;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_X;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Y;
+import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Z;
 
 import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.math.VectorMath;
-import com.johnsproject.jgameengine.shader.GeometryBuffer;
+import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.shader.Shader;
 
 public class PhongRasterizer extends FlatRasterizer {
@@ -83,20 +85,20 @@ public class PhongRasterizer extends FlatRasterizer {
 	 * 
 	 * @param geometryBuffer
 	 */
-	public void draw(GeometryBuffer geometryBuffer) {
+	public void draw(Face face) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
-		VectorMath.copy(location0, geometryBuffer.getVertex(0).getLocation());
-		VectorMath.copy(location1, geometryBuffer.getVertex(1).getLocation());
-		VectorMath.copy(location2, geometryBuffer.getVertex(2).getLocation());
+		VectorMath.copy(location0, face.getVertex(0).getLocation());
+		VectorMath.copy(location1, face.getVertex(1).getLocation());
+		VectorMath.copy(location2, face.getVertex(2).getLocation());
 		if(cull()) {
 			return;
 		}
-		setWorldLocation0(geometryBuffer.getVertex(0).getWorldLocation());
-		setWorldLocation1(geometryBuffer.getVertex(1).getWorldLocation());
-		setWorldLocation2(geometryBuffer.getVertex(2).getWorldLocation());
-		setNormal0(geometryBuffer.getVertex(0).getWorldNormal());
-		setNormal1(geometryBuffer.getVertex(1).getWorldNormal());
-		setNormal2(geometryBuffer.getVertex(2).getWorldNormal());
+		setWorldLocation0(face.getVertex(0).getWorldLocation());
+		setWorldLocation1(face.getVertex(1).getWorldLocation());
+		setWorldLocation2(face.getVertex(2).getWorldLocation());
+		setNormal0(face.getVertex(0).getWorldNormal());
+		setNormal1(face.getVertex(1).getWorldNormal());
+		setNormal2(face.getVertex(2).getWorldNormal());
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			VectorMath.swap(location0, location1);
 			swapVector(worldX, worldY, worldZ, 0, 1);

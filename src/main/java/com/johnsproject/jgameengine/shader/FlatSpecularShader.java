@@ -10,6 +10,7 @@ import com.johnsproject.jgameengine.math.ColorMath;
 import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.math.TransformationMath;
 import com.johnsproject.jgameengine.math.VectorMath;
+import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
@@ -51,11 +52,11 @@ public class FlatSpecularShader  implements Shader {
 		TransformationMath.screenportVector(location, shaderBuffer.getCamera().getRenderTargetPortedFrustum());
 	}
 
-	public void geometry(GeometryBuffer geometryBuffer) {
-		int[] normal = geometryBuffer.getWorldNormal();
-		int[] location1 = geometryBuffer.getVertex(0).getWorldLocation();
-		int[] location2 = geometryBuffer.getVertex(1).getWorldLocation();
-		int[] location3 = geometryBuffer.getVertex(2).getWorldLocation();
+	public void geometry(Face face) {
+		int[] normal = face.getWorldNormal();
+		int[] location1 = face.getVertex(0).getWorldLocation();
+		int[] location2 = face.getVertex(1).getWorldLocation();
+		int[] location3 = face.getVertex(2).getWorldLocation();
 		VectorMath.copy(faceLocation, location1);
 		VectorMath.add(faceLocation, location2);
 		VectorMath.add(faceLocation, location3);
@@ -147,9 +148,9 @@ public class FlatSpecularShader  implements Shader {
 		}
 		Texture texture = shaderProperties.getTexture();
 		if (texture == null) {
-			rasterizer.draw(geometryBuffer);
+			rasterizer.draw(face);
 		} else {
-			rasterizer.perspectiveDraw(geometryBuffer, texture);
+			rasterizer.perspectiveDraw(face, texture);
 		}
 	}
 

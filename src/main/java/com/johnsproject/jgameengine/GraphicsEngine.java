@@ -18,7 +18,6 @@ import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.model.VertexGroup;
 import com.johnsproject.jgameengine.shader.ForwardShaderBuffer;
-import com.johnsproject.jgameengine.shader.GeometryBuffer;
 import com.johnsproject.jgameengine.shader.Shader;
 import com.johnsproject.jgameengine.shader.ShaderBuffer;
 import com.johnsproject.jgameengine.shader.ShadowMappingShader;
@@ -87,7 +86,7 @@ public class GraphicsEngine implements EngineListener {
 					final Face face = mesh.getFace(f);
 					final Shader shader = face.getMaterial().getShader();
 					shader.setShaderBuffer(shaderBuffer);
-					shader.geometry(face.getBuffer());
+					shader.geometry(face);
 				}
 			}
 		}
@@ -115,16 +114,8 @@ public class GraphicsEngine implements EngineListener {
 			}
 			for (int f = 0; f < mesh.getFaces().length; f++) {
 				final Face face = mesh.getFace(f);
-				final GeometryBuffer geometryBuffer = face.getBuffer();
-				int[] worldNormal = geometryBuffer.getWorldNormal();
-				VectorMath.copy(worldNormal, face.getNormal());
-				VectorMath.multiply(worldNormal, transform.getSpaceExitNormalMatrix());
-				VectorMath.copy(geometryBuffer.getUV(0), face.getUV(0));
-				VectorMath.copy(geometryBuffer.getUV(1), face.getUV(1));
-				VectorMath.copy(geometryBuffer.getUV(2), face.getUV(2));
-				geometryBuffer.getVertices()[0] = face.getVertex(0);
-				geometryBuffer.getVertices()[1] = face.getVertex(1);
-				geometryBuffer.getVertices()[2] = face.getVertex(2);
+				VectorMath.copy(face.getWorldNormal(), face.getLocalNormal());
+				VectorMath.multiply(face.getWorldNormal(), transform.getSpaceExitNormalMatrix());
 			}
 		}
 	}
@@ -169,7 +160,7 @@ public class GraphicsEngine implements EngineListener {
 				for (int f = 0; f < mesh.getFaces().length; f++) {
 					final Face face = mesh.getFace(f);
 					shader.setShaderBuffer(shaderBuffer);
-					shader.geometry(face.getBuffer());
+					shader.geometry(face);
 				}
 			}
 		}
