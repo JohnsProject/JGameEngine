@@ -156,7 +156,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 					Material material = model.getMesh().getMaterial(j);
 					SpecularProperties properties = (SpecularProperties)material.getShader().getProperties();
 					//material.setShader(new FlatSpecularShader());
-					//material.setShader(new PhongSpecularShader());
+					material.setShader(new PhongSpecularShader());
 					material.getShader().setProperties(properties);
 					//properties.setTexture(texture);
 				}

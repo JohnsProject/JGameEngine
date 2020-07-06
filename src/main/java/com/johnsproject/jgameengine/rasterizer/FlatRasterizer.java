@@ -219,6 +219,17 @@ public class FlatRasterizer {
 	}
 	
 	protected boolean cull() {
+		final int width0 = Math.abs(location0[VECTOR_X] - location1[VECTOR_X]);
+		final int width1 = Math.abs(location2[VECTOR_X] - location1[VECTOR_X]);
+		final int width2 = Math.abs(location2[VECTOR_X] - location0[VECTOR_X]);
+		final int height0 = Math.abs(location0[VECTOR_Y] - location1[VECTOR_Y]);
+		final int height1 = Math.abs(location2[VECTOR_Y] - location1[VECTOR_Y]);
+		final int height2 = Math.abs(location2[VECTOR_Y] - location0[VECTOR_Y]);
+		final int width = Math.max(width0, Math.max(width1, width2));
+		final int height = Math.max(height0, Math.max(height1, height2));
+		if((width > (renderTargetRight - renderTargetLeft)) || (height > (renderTargetBottom - renderTargetTop))) {
+			return true;
+		}
 		if(frustumCull) {
 			final int near = 1;
 			final int far = FP_ONE;
