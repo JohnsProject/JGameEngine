@@ -36,7 +36,7 @@ import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.PhongSpecularShader;
 import com.johnsproject.jgameengine.shader.SpecularProperties;
 
-public class EngineTest implements EngineListener, EngineKeyListener, MouseMotionListener {
+public class EngineRuntimeTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
 	private int WINDOW_W;
 	private int WINDOW_H;
@@ -51,10 +51,10 @@ public class EngineTest implements EngineListener, EngineKeyListener, MouseMotio
 	private PhysicsEngine physicsEngine;
 	
 	public static void main(String[] args) {
-		new EngineTest();
+		new EngineRuntimeTest();
 	}
 	
-	EngineTest() {
+	EngineRuntimeTest() {
 		Engine.getInstance().setScene(loadScene());
 //		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 //		WINDOW_W = gd.getDisplayMode().getWidth();
