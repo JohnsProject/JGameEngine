@@ -49,7 +49,7 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 	 * @param geometryBuffer
 	 */
 	public void affineDraw(GeometryBuffer geometryBuffer, Texture texture) {
-		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
+		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
 		VectorMath.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
 		VectorMath.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
 		VectorMath.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());

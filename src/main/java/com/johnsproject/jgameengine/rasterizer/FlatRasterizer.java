@@ -22,8 +22,11 @@ public class FlatRasterizer {
 	protected final int[] location0;
 	protected final int[] location1;
 	protected final int[] location2;
-	protected final int[] cameraFrustum;
 	protected final int[] vectorCache;
+	protected int renderTargetLeft;
+	protected int renderTargetRight;
+	protected int renderTargetTop;
+	protected int renderTargetBottom;
 	protected boolean frustumCull;
 	protected int faceCull;
 	
@@ -34,7 +37,6 @@ public class FlatRasterizer {
 		this.location0 = VectorMath.emptyVector();
 		this.location1 = VectorMath.emptyVector();
 		this.location2 = VectorMath.emptyVector();
-		this.cameraFrustum = new int[Camera.FRUSTUM_SIZE];
 		this.frustumCull = true;
 		this.faceCull = -1;
 	}
@@ -82,7 +84,7 @@ public class FlatRasterizer {
 	 * @param geometryBuffer
 	 */
 	public void draw(GeometryBuffer geometryBuffer) {
-		copyFrustum(this.cameraFrustum, shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
+		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
 		VectorMath.copy(location0, geometryBuffer.getVertexBuffer(0).getLocation());
 		VectorMath.copy(location1, geometryBuffer.getVertexBuffer(1).getLocation());
 		VectorMath.copy(location2, geometryBuffer.getVertexBuffer(2).getLocation());
@@ -218,21 +220,17 @@ public class FlatRasterizer {
 	
 	protected boolean cull() {
 		if(frustumCull) {
-			int left = cameraFrustum[Camera.FRUSTUM_LEFT];
-			int right = cameraFrustum[Camera.FRUSTUM_RIGHT];
-			int top = cameraFrustum[Camera.FRUSTUM_TOP];
-			int bottom = cameraFrustum[Camera.FRUSTUM_BOTTOM];
-			int near = 1;
-			int far = FP_ONE;
-			boolean insideWidth1 = (location0[VECTOR_X] > left) && (location0[VECTOR_X] < right);
-			boolean insideWidth2 = (location1[VECTOR_X] > left) && (location1[VECTOR_X] < right);
-			boolean insideWidth3 = (location2[VECTOR_X] > left) && (location2[VECTOR_X] < right);
-			boolean insideHeight1 = (location0[VECTOR_Y] > top) && (location0[VECTOR_Y] < bottom);
-			boolean insideHeight2 = (location1[VECTOR_Y] > top) && (location1[VECTOR_Y] < bottom);
-			boolean insideHeight3 = (location2[VECTOR_Y] > top) && (location2[VECTOR_Y] < bottom);
-			boolean insideDepth1 = (location0[VECTOR_Z] > near) && (location0[VECTOR_Z] < far);
-			boolean insideDepth2 = (location1[VECTOR_Z] > near) && (location1[VECTOR_Z] < far);
-			boolean insideDepth3 = (location2[VECTOR_Z] > near) && (location2[VECTOR_Z] < far);
+			final int near = 1;
+			final int far = FP_ONE;
+			final boolean insideWidth1 = (location0[VECTOR_X] > renderTargetLeft) && (location0[VECTOR_X] < renderTargetRight);
+			final boolean insideWidth2 = (location1[VECTOR_X] > renderTargetLeft) && (location1[VECTOR_X] < renderTargetRight);
+			final boolean insideWidth3 = (location2[VECTOR_X] > renderTargetLeft) && (location2[VECTOR_X] < renderTargetRight);
+			final boolean insideHeight1 = (location0[VECTOR_Y] > renderTargetTop) && (location0[VECTOR_Y] < renderTargetBottom);
+			final boolean insideHeight2 = (location1[VECTOR_Y] > renderTargetTop) && (location1[VECTOR_Y] < renderTargetBottom);
+			final boolean insideHeight3 = (location2[VECTOR_Y] > renderTargetTop) && (location2[VECTOR_Y] < renderTargetBottom);
+			final boolean insideDepth1 = (location0[VECTOR_Z] > near) && (location0[VECTOR_Z] < far);
+			final boolean insideDepth2 = (location1[VECTOR_Z] > near) && (location1[VECTOR_Z] < far);
+			final boolean insideDepth3 = (location2[VECTOR_Z] > near) && (location2[VECTOR_Z] < far);
 			if ((!insideDepth1 && !insideDepth2 && !insideDepth3) 
 					|| (!insideHeight1 && !insideHeight2 && !insideHeight3)
 						|| (!insideWidth1 && !insideWidth2 && !insideWidth3)) {
@@ -256,10 +254,11 @@ public class FlatRasterizer {
 		vector[2] = FixedPointMath.multiply(vector[2], location2[VECTOR_Z]);
 	}
 	
-	protected void copyFrustum(int[] target, int[] source) {
-		for (int i = 0; i < Camera.FRUSTUM_SIZE; i++) {
-			target[i] = source[i];
-		}
+	protected void copyFrustum(int[] frustum) {
+		renderTargetLeft = frustum[Camera.FRUSTUM_LEFT];
+		renderTargetRight = frustum[Camera.FRUSTUM_RIGHT];
+		renderTargetTop = frustum[Camera.FRUSTUM_TOP];
+		renderTargetBottom = frustum[Camera.FRUSTUM_BOTTOM];
 	}
 	
 	protected void swapVector(int[] vector0, int[] vector1, int currentIndex, int indexToSet) {
