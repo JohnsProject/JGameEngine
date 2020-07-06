@@ -219,6 +219,21 @@ public class FlatRasterizer {
 	}
 	
 	protected boolean cull() {
+		if(isTooBig()) {
+			return true;
+		}
+		else if(isOutOfFrustum()) {
+			return true;
+		}
+		else if(isLookingAway()) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	private boolean isTooBig() {
 		final int width0 = Math.abs(location0[VECTOR_X] - location1[VECTOR_X]);
 		final int width1 = Math.abs(location2[VECTOR_X] - location1[VECTOR_X]);
 		final int width2 = Math.abs(location2[VECTOR_X] - location0[VECTOR_X]);
@@ -230,6 +245,10 @@ public class FlatRasterizer {
 		if((width > (renderTargetRight - renderTargetLeft)) || (height > (renderTargetBottom - renderTargetTop))) {
 			return true;
 		}
+		return false;
+	}
+	
+	private boolean isOutOfFrustum() {
 		if(frustumCull) {
 			final int near = 1;
 			final int far = FP_ONE;
@@ -248,6 +267,10 @@ public class FlatRasterizer {
 						return true;
 			}
 		}
+		return false;
+	}
+	
+	private boolean isLookingAway() {
 		int size = (location1[VECTOR_X] - location0[VECTOR_X]) * (location2[VECTOR_Y] - location0[VECTOR_Y])
 				- (location2[VECTOR_X] - location0[VECTOR_X]) * (location1[VECTOR_Y] - location0[VECTOR_Y]);
 		return size * faceCull < 0;
