@@ -14,23 +14,23 @@ public class Frustum {
 	private int near;
 	private int far;
 	
-	private int screenLeft;
-	private int screenRight;
-	private int screenTop;
-	private int screenBottom;
+	private int renderTargetLeft;
+	private int renderTargetRight;
+	private int renderTargetTop;
+	private int renderTargetBottom;
 	
-	private int screenWidth;
-	private int screenHeight;
+	private int renderTargetWidth;
+	private int renderTargetHeight;
 
 	private int focalLength;
 	private int[][] projectionMatrix;
 	
-	private CameraType type;
+	private FrustumType type;
 	
 	public Frustum() {
 		this.focalLength = FP_ONE;
 		this.projectionMatrix = MatrixUtils.indentityMatrix();
-		this.type = CameraType.PERSPECTIVE;
+		this.type = FrustumType.PERSPECTIVE;
 	}
 
 	public Frustum(int left, int right, int top, int bottom, int near, int far) {
@@ -45,7 +45,7 @@ public class Frustum {
 	}
 
 	private void recalculateFrustum() {
-		TransformationUtils.screenportFrustum(this);
+		TransformationUtils.viewportFrustum(this);
 		recalculateProjectionMatrix();
 	}
 	
@@ -71,16 +71,16 @@ public class Frustum {
 		recalculateFrustum();
 	}
 	
-	public void setScreenFrustum(int left, int right, int top, int bottom) {
-		this.screenLeft = left;
-		this.screenRight = right;
-		this.screenTop = top;
-		this.screenBottom = bottom;
+	public void setRenderTargetFrustum(int left, int right, int top, int bottom) {
+		this.renderTargetLeft = left;
+		this.renderTargetRight = right;
+		this.renderTargetTop = top;
+		this.renderTargetBottom = bottom;
 	}
 	
-	public void setScreenSize(int width, int height) {
-		this.screenWidth = width;
-		this.screenHeight = height;
+	public void setRenderTargetSize(int width, int height) {
+		this.renderTargetWidth = width;
+		this.renderTargetHeight = height;
 		recalculateFrustum();
 	}
 	
@@ -95,7 +95,7 @@ public class Frustum {
 		}
 	}
 
-	public void setType(CameraType type) {
+	public void setType(FrustumType type) {
 		if(!this.type.equals(type)) {
 			this.type = type;
 			recalculateProjectionMatrix();
@@ -126,35 +126,35 @@ public class Frustum {
 		return far;
 	}
 
-	public int getScreenLeft() {
-		return screenLeft;
+	public int getRenderTargetLeft() {
+		return renderTargetLeft;
 	}
 
-	public int getScreenRight() {
-		return screenRight;
+	public int getRenderTargetRight() {
+		return renderTargetRight;
 	}
 
-	public int getScreenTop() {
-		return screenTop;
+	public int getRenderTargetTop() {
+		return renderTargetTop;
 	}
 
-	public int getScreenBottom() {
-		return screenBottom;
+	public int getRenderTargetBottom() {
+		return renderTargetBottom;
 	}
 
-	public int getScreenWidth() {
-		return screenWidth;
+	public int getRenderTargetWidth() {
+		return renderTargetWidth;
 	}
 
-	public int getScreenHeight() {
-		return screenHeight;
+	public int getRenderTargetHeight() {
+		return renderTargetHeight;
 	}
 
 	public int[][] getProjectionMatrix() {
 		return projectionMatrix;
 	}
 
-	public CameraType getType() {
+	public FrustumType getType() {
 		return type;
 	}
 }

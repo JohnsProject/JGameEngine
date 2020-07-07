@@ -6,9 +6,9 @@ import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
-import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Fragment;
+import com.johnsproject.jgameengine.model.Frustum;
 import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
@@ -87,7 +87,7 @@ public class FlatRasterizer {
 	 * @param geometryBuffer
 	 */
 	public void draw(Face face) {
-		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
+		copyFrustum(shader.getShaderBuffer().getCamera().getFrustum());
 		VectorUtils.copy(location0, face.getVertex(0).getLocation());
 		VectorUtils.copy(location1, face.getVertex(1).getLocation());
 		VectorUtils.copy(location2, face.getVertex(2).getLocation());
@@ -291,11 +291,11 @@ public class FlatRasterizer {
 		vector[2] = FixedPointUtils.multiply(vector[2], location2[VECTOR_Z]);
 	}
 	
-	protected void copyFrustum(int[] frustum) {
-		renderTargetLeft = frustum[Camera.FRUSTUM_LEFT];
-		renderTargetRight = frustum[Camera.FRUSTUM_RIGHT];
-		renderTargetTop = frustum[Camera.FRUSTUM_TOP];
-		renderTargetBottom = frustum[Camera.FRUSTUM_BOTTOM];
+	protected void copyFrustum(Frustum frustum) {
+		renderTargetLeft = frustum.getRenderTargetLeft();
+		renderTargetRight = frustum.getRenderTargetRight();
+		renderTargetTop = frustum.getRenderTargetTop();
+		renderTargetBottom = frustum.getRenderTargetBottom();
 	}
 	
 	protected void swapVector(int[] vector0, int[] vector1, int currentIndex, int indexToSet) {

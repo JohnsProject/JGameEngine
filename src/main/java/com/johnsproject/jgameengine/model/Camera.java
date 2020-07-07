@@ -2,26 +2,11 @@ package com.johnsproject.jgameengine.model;
 
 import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 
-import com.johnsproject.jgameengine.util.MatrixUtils;
-import com.johnsproject.jgameengine.util.TransformationUtils;
-
 public class Camera extends SceneObject {
 
 	public static final String CAMERA_TAG = "Camera";
 	
-	public static final byte FRUSTUM_LEFT = 0;
-	public static final byte FRUSTUM_RIGHT = 1;
-	public static final byte FRUSTUM_TOP = 2;
-	public static final byte FRUSTUM_BOTTOM = 3;
-	public static final byte FRUSTUM_NEAR = 4;
-	public static final byte FRUSTUM_FAR = 5;
-	public static final byte FRUSTUM_SIZE = 6;
-	
-	private final int[] frustum;
-	private final int[] portedFrustum;
-	private final int[][] projectionMatrix;
-	private int focalLength;
-	private CameraType type;
+	private Frustum frustum;
 	private FrameBuffer renderTarget;
 	private boolean isMain;
 
@@ -29,84 +14,18 @@ public class Camera extends SceneObject {
 		super(name, transform);
 		super.tag = CAMERA_TAG;
 		super.rigidBody.setKinematic(true);
-		this.type = CameraType.PERSPECTIVE;
-		this.focalLength = FP_ONE;
-		this.projectionMatrix = MatrixUtils.indentityMatrix();
+		this.frustum = new Frustum(0, FP_ONE, 0, FP_ONE, FP_ONE, FP_ONE * 1000);
 		this.renderTarget = null;
-		this.portedFrustum = new int[FRUSTUM_SIZE];
-		this.frustum = new int[FRUSTUM_SIZE];
-		this.frustum[FRUSTUM_LEFT] = 0;
-		this.frustum[FRUSTUM_RIGHT] = FP_ONE;
-		this.frustum[FRUSTUM_TOP] = 0;
-		this.frustum[FRUSTUM_BOTTOM] = FP_ONE;
-		this.frustum[FRUSTUM_NEAR] = FP_ONE;
-		this.frustum[FRUSTUM_FAR] = FP_ONE * 1000;
 		this.isMain = false;
 	}
-
-	private void recalculateFrustum() {
-		for (int i = 0; i < Camera.FRUSTUM_SIZE; i++) {
-			portedFrustum[i] = frustum[i];
-		}
-		TransformationUtils.screenportFrustum(portedFrustum, renderTarget.getWidth(), renderTarget.getHeight());
-		recalculateProjectionMatrix();
+	
+	public Camera(String name, Transform transform, Frustum frustum) {
+		this(name, transform);
+		this.frustum = frustum;
 	}
 	
-	private void recalculateProjectionMatrix() {
-		switch (type) {
-		case ORTHOGRAPHIC:
-			TransformationUtils.orthographicMatrix(projectionMatrix, portedFrustum, focalLength);
-			break;
-
-		case PERSPECTIVE:
-			TransformationUtils.perspectiveMatrix(projectionMatrix, portedFrustum, focalLength);
-			break;
-		}
-	}
-	
-	public void setFrustum(int left, int right, int top, int bottom, int near, int far) {
-		frustum[FRUSTUM_LEFT] = left;
-		frustum[FRUSTUM_RIGHT] = right;
-		frustum[FRUSTUM_TOP] = top;
-		frustum[FRUSTUM_BOTTOM] = bottom;
-		frustum[FRUSTUM_NEAR] = near;
-		frustum[FRUSTUM_FAR] = far;
-		recalculateFrustum();
-	}
-	
-	public void setFrustum(int index, int value) {
-		frustum[index] = value;
-		recalculateFrustum();
-	}
-	
-	public int[] getFrustum() {
+	public Frustum getFrustum() {
 		return frustum;
-	}
-	
-	public int[] getRenderTargetPortedFrustum() {
-		return portedFrustum;
-	}
-
-	public CameraType getType() {
-		return type;
-	}
-
-	public void setType(CameraType type) {
-		if(!this.type.equals(type)) {
-			this.type = type;
-			recalculateProjectionMatrix();
-		}
-	}
-
-	public int getFocalLength() {
-		return focalLength;
-	}
-
-	public void setFocalLength(int focalLength) {
-		if(this.focalLength != focalLength) {
-			this.focalLength = focalLength;
-			recalculateProjectionMatrix();
-		}
 	}
 
 	public FrameBuffer getRenderTarget() {
@@ -114,14 +33,8 @@ public class Camera extends SceneObject {
 	}
 
 	public void setRenderTarget(FrameBuffer renderTarget) {
-		if(this.renderTarget != renderTarget) {
-			this.renderTarget = renderTarget;
-			recalculateFrustum();
-		}
-	}
-
-	public int[][] getProjectionMatrix() {
-		return projectionMatrix;
+		this.renderTarget = renderTarget;
+		frustum.setRenderTargetSize(renderTarget.getWidth(), renderTarget.getHeight());
 	}
 
 	public boolean isMain() {

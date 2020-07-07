@@ -52,7 +52,7 @@ public class GouraudRasterizer extends FlatRasterizer {
 	 * @param geometryBuffer
 	 */
 	public void draw(Face face) {
-		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
+		copyFrustum(shader.getShaderBuffer().getCamera().getFrustum());
 		VectorUtils.copy(location0, face.getVertex(0).getLocation());
 		VectorUtils.copy(location1, face.getVertex(1).getLocation());
 		VectorUtils.copy(location2, face.getVertex(2).getLocation());

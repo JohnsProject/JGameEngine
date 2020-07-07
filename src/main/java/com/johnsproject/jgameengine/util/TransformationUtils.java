@@ -1,10 +1,10 @@
 package com.johnsproject.jgameengine.util;
 
-import static com.johnsproject.jgameengine.model.Camera.*;
 import static com.johnsproject.jgameengine.util.FixedPointUtils.*;
 import static com.johnsproject.jgameengine.util.MatrixUtils.*;
 import static com.johnsproject.jgameengine.util.VectorUtils.*;
 
+import com.johnsproject.jgameengine.model.Frustum;
 import com.johnsproject.jgameengine.model.Transform;
 
 public final class TransformationUtils {
@@ -79,13 +79,13 @@ public final class TransformationUtils {
 		return matrix;
 	}
 
-	public static int[][] orthographicMatrix(int[][] matrix, int[] cameraFrustum, int focalLength) {
-		int top = cameraFrustum[FRUSTUM_TOP];
-		int bottom = cameraFrustum[FRUSTUM_BOTTOM];
-		int near = cameraFrustum[FRUSTUM_NEAR];
-		int far = cameraFrustum[FRUSTUM_FAR];		
+	public static int[][] orthographicMatrix(int[][] matrix, Frustum frustum) {
+		int top = frustum.getRenderTargetTop();
+		int bottom = frustum.getRenderTargetBottom();
+		int near = frustum.getNear();
+		int far = frustum.getFar();		
 		int farNear = far - near;
-		int scaleFactor = FixedPointUtils.multiply(focalLength, bottom - top + 1);
+		int scaleFactor = FixedPointUtils.multiply(frustum.getFocalLength(), bottom - top + 1);
 		int[][] projectionMatrix = MatrixUtils.copy(matrix, MatrixUtils.MATRIX_IDENTITY);
 		projectionMatrix[0][0] = scaleFactor;
 		projectionMatrix[1][1] = scaleFactor;
@@ -95,13 +95,13 @@ public final class TransformationUtils {
 		return projectionMatrix;
 	}
 
-	public static int[][] perspectiveMatrix(int[][] matrix, int[] cameraFrustum, int focalLength) {
-		int top = cameraFrustum[FRUSTUM_TOP];
-		int bottom = cameraFrustum[FRUSTUM_BOTTOM];
-		int near = cameraFrustum[FRUSTUM_NEAR];
-		int far = cameraFrustum[FRUSTUM_FAR];
+	public static int[][] perspectiveMatrix(int[][] matrix, Frustum frustum) {
+		int top = frustum.getRenderTargetTop();
+		int bottom = frustum.getRenderTargetBottom();
+		int near = frustum.getNear();
+		int far = frustum.getFar();	
 		int farNear = far - near;
-		int scaleFactor = FixedPointUtils.multiply(focalLength, bottom - top + 1);
+		int scaleFactor = FixedPointUtils.multiply(frustum.getFocalLength(), bottom - top + 1);
 		int[][] projectionMatrix = MatrixUtils.copy(matrix, MatrixUtils.MATRIX_IDENTITY);
 		projectionMatrix[0][0] = -scaleFactor;
 		projectionMatrix[1][1] = scaleFactor;
@@ -112,11 +112,11 @@ public final class TransformationUtils {
 		return projectionMatrix;
 	}
 
-	public static int[] screenportVector(int[] location, int[] cameraFrustum) {
-		int top = cameraFrustum[FRUSTUM_TOP];
-		int bottom = cameraFrustum[FRUSTUM_BOTTOM];
-		int left = cameraFrustum[FRUSTUM_LEFT];
-		int right = cameraFrustum[FRUSTUM_RIGHT];
+	public static int[] viewportVector(int[] location, Frustum frustum) {
+		int top = frustum.getRenderTargetTop();
+		int bottom = frustum.getRenderTargetBottom();
+		int left = frustum.getRenderTargetLeft();
+		int right = frustum.getRenderTargetRight();
 		int halfX = left + ((right - left) >> 1);
 		int halfY = top + ((bottom - top) >> 1);
 		int w = location[VECTOR_W];
@@ -126,14 +126,15 @@ public final class TransformationUtils {
 		return location;
 	}
 
-	public static int[] screenportFrustum(int[] cameraFrustum, int screenWidth, int screenHeight) {
-		cameraFrustum[FRUSTUM_LEFT] = FixedPointUtils.multiply(screenWidth, cameraFrustum[FRUSTUM_LEFT]);
-		cameraFrustum[FRUSTUM_RIGHT] = FixedPointUtils.multiply(screenWidth, cameraFrustum[FRUSTUM_RIGHT]);
-		cameraFrustum[FRUSTUM_TOP] = FixedPointUtils.multiply(screenHeight, cameraFrustum[FRUSTUM_TOP]);
-		cameraFrustum[FRUSTUM_BOTTOM] = FixedPointUtils.multiply(screenHeight, cameraFrustum[FRUSTUM_BOTTOM]);
-		cameraFrustum[FRUSTUM_NEAR] = cameraFrustum[FRUSTUM_NEAR];
-		cameraFrustum[FRUSTUM_FAR] = cameraFrustum[FRUSTUM_FAR];
-		return cameraFrustum;
+	public static Frustum viewportFrustum(Frustum frustum) {
+		final int renderTargetWidth = frustum.getRenderTargetWidth();
+		final int renderTargetHeight = frustum.getRenderTargetHeight();
+		final int left = FixedPointUtils.multiply(renderTargetWidth, frustum.getLeft());
+		final int right = FixedPointUtils.multiply(renderTargetWidth, frustum.getRight());
+		final int top = FixedPointUtils.multiply(renderTargetHeight, frustum.getTop());
+		final int bottom = FixedPointUtils.multiply(renderTargetHeight, frustum.getBottom());
+		frustum.setRenderTargetFrustum(left, right, top, bottom);
+		return frustum;
 	}
 	
 	public static int[] translate(int[] vector, int[] direction) {

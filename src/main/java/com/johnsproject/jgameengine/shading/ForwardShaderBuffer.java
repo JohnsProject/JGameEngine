@@ -6,12 +6,13 @@ import static com.johnsproject.jgameengine.util.FixedPointUtils.*;
 import java.util.List;
 
 import com.johnsproject.jgameengine.model.Camera;
+import com.johnsproject.jgameengine.model.Frustum;
+import com.johnsproject.jgameengine.model.FrustumType;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.MatrixUtils;
-import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class ForwardShaderBuffer implements ShaderBuffer {
@@ -24,23 +25,15 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 	private final int[][] projectionMatrix;
 	
 	private int directionalLightIndex;
-	private int directionalFocalLength;
-	private final int[] directionalLightFrustum;
-	private final int[] portedDirectionalLightFrustum;
-	private final int[][] directionalLightMatrix;
+	private final Frustum directionalLightFrustum;
 	private final Texture directionalShadowMap;
 	
 	private int spotLightIndex;
-	private int spotFocalLength;
-	private final int[] spotLightFrustum;
-	private final int[] portedSpotLightFrustum;
-	private final int[][] spotLightMatrix;
+	private final Frustum spotLightFrustum;
 	private final Texture spotShadowMap;
 	
 	private int pointLightIndex;
-	private int pointFocalLength;
-	private final int[] portedPointLightFrustum;
-	private final int[] pointLightFrustum;
+	private final Frustum pointLightFrustum;
 	private final int[][][] pointLightMatrices;
 	private final Texture[] pointShadowMaps;
 	
@@ -48,41 +41,19 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.projectionMatrix = MatrixUtils.indentityMatrix();
 		
 		this.directionalLightIndex = -1;
-		this.directionalFocalLength = FP_ONE >> 3;
-		this.portedDirectionalLightFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.directionalLightFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.directionalLightFrustum[Camera.FRUSTUM_LEFT] = 0;
-		this.directionalLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
-		this.directionalLightFrustum[Camera.FRUSTUM_TOP] = 0;
-		this.directionalLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.directionalLightFrustum[Camera.FRUSTUM_NEAR] = FP_ONE;
-		this.directionalLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 10000;
-		this.directionalLightMatrix = MatrixUtils.indentityMatrix();
+		this.directionalLightFrustum = new Frustum(0, FP_ONE, 0, FP_ONE, FP_ONE, FP_ONE * 10000);
+		this.directionalLightFrustum.setType(FrustumType.ORTHOGRAPHIC);
+		this.directionalLightFrustum.setFocalLength(FP_ONE >> 3);
 		this.directionalShadowMap = new Texture(512, 512);
 		
 		this.spotLightIndex = -1;
-		this.spotFocalLength = FP_HALF;
-		this.portedSpotLightFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.spotLightFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.spotLightFrustum[Camera.FRUSTUM_LEFT] = 0;
-		this.spotLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
-		this.spotLightFrustum[Camera.FRUSTUM_TOP] = 0;
-		this.spotLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.spotLightFrustum[Camera.FRUSTUM_NEAR] = FP_HALF;
-		this.spotLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 1000;
-		this.spotLightMatrix = MatrixUtils.indentityMatrix();
+		this.spotLightFrustum = new Frustum(0, FP_ONE, 0, FP_ONE, FP_HALF, FP_ONE * 1000);
+		this.spotLightFrustum.setFocalLength(FP_HALF);
 		this.spotShadowMap = new Texture(256, 256);
 		
 		this.pointLightIndex = -1;
-		this.pointFocalLength = FP_ONE >> 5;
-		this.portedPointLightFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.pointLightFrustum = new int[Camera.FRUSTUM_SIZE];
-		this.pointLightFrustum[Camera.FRUSTUM_LEFT] = 0;
-		this.pointLightFrustum[Camera.FRUSTUM_RIGHT] = FP_ONE;
-		this.pointLightFrustum[Camera.FRUSTUM_TOP] = 0;
-		this.pointLightFrustum[Camera.FRUSTUM_BOTTOM] = FP_ONE;
-		this.pointLightFrustum[Camera.FRUSTUM_NEAR] = 0;
-		this.pointLightFrustum[Camera.FRUSTUM_FAR] = FP_ONE * 1000;
+		this.pointLightFrustum = new Frustum(0, FP_ONE, 0, FP_ONE, 0, FP_ONE * 1000);
+		this.pointLightFrustum.setFocalLength(FP_ONE >> 5);
 		this.pointLightMatrices = new int[6][MatrixUtils.MATRIX_SIZE][MatrixUtils.MATRIX_SIZE];
 		this.pointShadowMaps = new Texture[6];
 		for (int i = 0; i < 6; i++) {
@@ -173,13 +144,10 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		if (directionalLightIndex != -1) {
 			int portWidth = directionalShadowMap.getWidth();
 			int portHeight = directionalShadowMap.getHeight();
-			for (int i = 0; i < Camera.FRUSTUM_SIZE; i++) {
-				portedDirectionalLightFrustum[i] = directionalLightFrustum[i];
-			}
-			TransformationUtils.screenportFrustum(portedDirectionalLightFrustum, portWidth, portHeight);
+			directionalLightFrustum.setRenderTargetSize(portWidth, portHeight);
 			directionalShadowMap.fill(Integer.MAX_VALUE);
-			TransformationUtils.orthographicMatrix(projectionMatrix, portedDirectionalLightFrustum, directionalFocalLength);
-			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), directionalLightMatrix);
+			MatrixUtils.copy(projectionMatrix, directionalLightFrustum.getProjectionMatrix());
+			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), directionalLightFrustum.getProjectionMatrix());
 		}
 	}
 	
@@ -187,13 +155,10 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		if (spotLightIndex != -1) {
 			int portWidth = spotShadowMap.getWidth();
 			int portHeight = spotShadowMap.getHeight();
-			for (int i = 0; i < Camera.FRUSTUM_SIZE; i++) {
-				portedSpotLightFrustum[i] = spotLightFrustum[i];
-			}
-			TransformationUtils.screenportFrustum(portedSpotLightFrustum, portWidth, portHeight);
+			spotLightFrustum.setRenderTargetSize(portWidth, portHeight);
 			spotShadowMap.fill(Integer.MAX_VALUE);
-			TransformationUtils.perspectiveMatrix(projectionMatrix, portedSpotLightFrustum, spotFocalLength);
-			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), spotLightMatrix);
+			MatrixUtils.copy(projectionMatrix, spotLightFrustum.getProjectionMatrix());
+			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), spotLightFrustum.getProjectionMatrix());
 		}
 	}
 	
@@ -201,14 +166,11 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		if (pointLightIndex != -1) {
 			int portWidth = pointShadowMaps[0].getWidth();
 			int portHeight = pointShadowMaps[0].getHeight();
-			for (int i = 0; i < Camera.FRUSTUM_SIZE; i++) {
-				portedPointLightFrustum[i] = pointLightFrustum[i];
-			}
-			TransformationUtils.screenportFrustum(portedPointLightFrustum, portWidth, portHeight);
+			pointLightFrustum.setRenderTargetSize(portWidth, portHeight);
 			for (int i = 0; i < pointShadowMaps.length; i++) {
 				pointShadowMaps[i].fill(Integer.MAX_VALUE);
 			}
-			TransformationUtils.perspectiveMatrix(projectionMatrix, portedPointLightFrustum, pointFocalLength);
+			MatrixUtils.copy(projectionMatrix, pointLightFrustum.getProjectionMatrix());
 			final int fixedPoint90 = FixedPointUtils.toFixedPoint(90f);
 			lightTransform.setRotation(0, 0, 0);
 			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), pointLightMatrices[0]);
@@ -238,32 +200,24 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		return directionalLightIndex;
 	}
 
-	public int[][] getDirectionalLightMatrix() {
-		return directionalLightMatrix;
-	}
-
 	public Texture getDirectionalShadowMap() {
 		return directionalShadowMap;
 	}
 	
-	public int[] getDirectionalLightFrustum() {
-		return portedDirectionalLightFrustum;
+	public Frustum getDirectionalLightFrustum() {
+		return directionalLightFrustum;
 	}
 	
 	public int getSpotLightIndex() {
 		return spotLightIndex;
 	}
 
-	public int[][] getSpotLightMatrix() {
-		return spotLightMatrix;
-	}
-
 	public Texture getSpotShadowMap() {
 		return spotShadowMap;
 	}
 
-	public int[] getSpotLightFrustum() {
-		return portedSpotLightFrustum;
+	public Frustum getSpotLightFrustum() {
+		return spotLightFrustum;
 	}
 
 	public int getPointLightIndex() {
@@ -278,7 +232,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		return pointShadowMaps;
 	}
 	
-	public int[] getPointLightFrustum() {
-		return portedPointLightFrustum;
+	public Frustum getPointLightFrustum() {
+		return pointLightFrustum;
 	}
 }

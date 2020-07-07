@@ -25,7 +25,7 @@ public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
 	 * @param geometryBuffer
 	 */
 	public void perspectiveDraw(Face face, Texture texture) {
-		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
+		copyFrustum(shader.getShaderBuffer().getCamera().getFrustum());
 		VectorUtils.copy(location0, face.getVertex(0).getLocation());
 		VectorUtils.copy(location1, face.getVertex(1).getLocation());
 		VectorUtils.copy(location2, face.getVertex(2).getLocation());

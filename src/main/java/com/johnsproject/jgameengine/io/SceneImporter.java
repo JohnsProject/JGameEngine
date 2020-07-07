@@ -9,7 +9,7 @@ import com.johnsproject.jgameengine.model.Animation;
 import com.johnsproject.jgameengine.model.AnimationFrame;
 import com.johnsproject.jgameengine.model.Armature;
 import com.johnsproject.jgameengine.model.Camera;
-import com.johnsproject.jgameengine.model.CameraType;
+import com.johnsproject.jgameengine.model.FrustumType;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.LightType;
@@ -124,9 +124,9 @@ public final class SceneImporter {
 			transform.setRotation(-(90 << FixedPointUtils.FP_BIT) - x, y, z);
 			Camera camera = new Camera(name, transform);
 			if (typeData.equals("ORTHO"))
-				camera.setType(CameraType.ORTHOGRAPHIC);
+				camera.getFrustum().setType(FrustumType.ORTHOGRAPHIC);
 			if (typeData.equals("PERSP"))
-				camera.setType(CameraType.PERSPECTIVE);
+				camera.getFrustum().setType(FrustumType.PERSPECTIVE);
 			cameras[i] = camera;
 		}
 		return cameras;

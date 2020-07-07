@@ -6,6 +6,7 @@ import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Fragment;
+import com.johnsproject.jgameengine.model.Frustum;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterization.FlatRasterizer;
@@ -43,14 +44,15 @@ public class ShadowMappingShader implements Shader {
 		if(directionalShadows && (shaderBuffer.getDirectionalLightIndex() != -1)) {
 			shadowBias = DIRECTIONAL_BIAS;
 			currentShadowMap = shaderBuffer.getDirectionalShadowMap();
-			transformVertices(face, shaderBuffer.getDirectionalLightMatrix(), shaderBuffer.getDirectionalLightFrustum());
+			final Frustum frustum = shaderBuffer.getDirectionalLightFrustum();
+			transformVertices(face, frustum.getProjectionMatrix(), frustum);
 			rasterizer.setFrustumCull(false);
 			rasterizer.draw(face);
 		}
 		if(spotShadows && (shaderBuffer.getSpotLightIndex() != -1)) {
 			shadowBias = SPOT_BIAS;
-			currentShadowMap = shaderBuffer.getSpotShadowMap();
-			transformVertices(face, shaderBuffer.getSpotLightMatrix(), shaderBuffer.getSpotLightFrustum());
+			final Frustum frustum = shaderBuffer.getSpotLightFrustum();
+			transformVertices(face, frustum.getProjectionMatrix(), frustum);
 			rasterizer.setFrustumCull(true);
 			rasterizer.draw(face);
 		}
@@ -65,12 +67,12 @@ public class ShadowMappingShader implements Shader {
 		}
 	}
 	
-	private void transformVertices(Face face, int[][] lightMatrix, int[] lightFrustum) {
+	private void transformVertices(Face face, int[][] lightMatrix, Frustum lightFrustum) {
 		for (int i = 0; i < face.getVertices().length; i++) {
 			int[] location = face.getVertex(i).getLocation();
 			VectorUtils.copy(location, face.getVertex(i).getWorldLocation());
 			VectorUtils.multiply(location, lightMatrix);
-			TransformationUtils.screenportVector(location, lightFrustum);
+			TransformationUtils.viewportVector(location, lightFrustum);
 		}
 	}
 

@@ -8,6 +8,7 @@ import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Fragment;
+import com.johnsproject.jgameengine.model.Frustum;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Texture;
@@ -49,8 +50,8 @@ public class FlatSpecularShader  implements Shader {
 		int[] location = vertex.getLocation();
 		VectorUtils.copy(location, vertex.getWorldLocation());
 		VectorUtils.multiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
-		VectorUtils.multiply(location, shaderBuffer.getCamera().getProjectionMatrix());
-		TransformationUtils.screenportVector(location, shaderBuffer.getCamera().getRenderTargetPortedFrustum());
+		VectorUtils.multiply(location, shaderBuffer.getCamera().getFrustum().getProjectionMatrix());
+		TransformationUtils.viewportVector(location, shaderBuffer.getCamera().getFrustum());
 	}
 
 	public void geometry(Face face) {
@@ -84,8 +85,8 @@ public class FlatSpecularShader  implements Shader {
 				VectorUtils.invert(lightDirection);
 				currentFactor = getLightFactor(normal, lightDirection, viewDirection);
 				if (lightIndex == shaderBuffer.getDirectionalLightIndex()) {
-					int[][] lightMatrix = shaderBuffer.getDirectionalLightMatrix();
-					int[] lightFrustum = shaderBuffer.getDirectionalLightFrustum();
+					final Frustum lightFrustum = shaderBuffer.getDirectionalLightFrustum();
+					final int[][] lightMatrix = lightFrustum.getProjectionMatrix();
 					Texture shadowMap = shaderBuffer.getDirectionalShadowMap();
 					if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
 						currentFactor = ColorUtils.multiplyColor(currentFactor, light.getShadowColor());
@@ -102,9 +103,9 @@ public class FlatSpecularShader  implements Shader {
 				currentFactor = getLightFactor(normal, lightLocation, viewDirection);
 				currentFactor = FixedPointUtils.divide(currentFactor, attenuation);
 				if ((lightIndex == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
+					final Frustum lightFrustum = shaderBuffer.getPointLightFrustum();
 					for (int j = 0; j < shaderBuffer.getPointLightMatrices().length; j++) {
 						int[][] lightMatrix = shaderBuffer.getPointLightMatrices()[j];
-						int[] lightFrustum = shaderBuffer.getPointLightFrustum();
 						Texture shadowMap = shaderBuffer.getPointShadowMaps()[j];
 						if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
 							currentFactor = ColorUtils.multiplyColor(currentFactor, light.getShadowColor());
@@ -129,8 +130,8 @@ public class FlatSpecularShader  implements Shader {
 					currentFactor = FixedPointUtils.multiply(currentFactor, intensity * 2);
 					currentFactor = FixedPointUtils.divide(currentFactor, attenuation);
 					if ((lightIndex == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
-						int[][] lightMatrix = shaderBuffer.getSpotLightMatrix();
-						int[] lightFrustum = shaderBuffer.getSpotLightFrustum();
+						final Frustum lightFrustum = shaderBuffer.getSpotLightFrustum();
+						final int[][] lightMatrix = lightFrustum.getProjectionMatrix();
 						Texture shadowMap = shaderBuffer.getSpotShadowMap();
 						if(inShadow(faceLocation, lightMatrix, lightFrustum, shadowMap)) {
 							currentFactor = ColorUtils.multiplyColor(currentFactor, light.getShadowColor());
@@ -204,10 +205,10 @@ public class FlatSpecularShader  implements Shader {
 		return attenuation + 1;
 	}
 	
-	private boolean inShadow(int[] location, int[][] lightMatrix, int[] lightFrustum, Texture shadowMap) {
+	private boolean inShadow(int[] location, int[][] lightMatrix, Frustum lightFrustum, Texture shadowMap) {
 		VectorUtils.copy(lightSpaceLocation, location);
 		VectorUtils.multiply(lightSpaceLocation, lightMatrix);
-		TransformationUtils.screenportVector(lightSpaceLocation, lightFrustum);
+		TransformationUtils.viewportVector(lightSpaceLocation, lightFrustum);
 		int x = lightSpaceLocation[VECTOR_X];
 		int y = lightSpaceLocation[VECTOR_Y];
 		int depth = shadowMap.getPixel(x, y);
