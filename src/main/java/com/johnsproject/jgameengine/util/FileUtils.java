@@ -1,4 +1,4 @@
-package com.johnsproject.jgameengine.io;
+package com.johnsproject.jgameengine.util;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -14,16 +14,14 @@ import java.io.ObjectOutputStream;
 
 import javax.imageio.ImageIO;
 
-import com.johnsproject.jgameengine.math.ColorMath;
-
 /**
- * The FileIO class contains methods for writing/reading files from the file system.
+ * The FileUtils class contains methods for writing/reading files from the file system.
  * 
  * @author John Ferraz Salomon
  */
-public final class FileIO {
+public final class FileUtils {
 
-	private FileIO() {}
+	private FileUtils() {}
 	
 	/**
 	 * Reads the content of the file at the given path and returns it.
@@ -122,7 +120,7 @@ public final class FileIO {
 		try {
 			fileInputStream = new FileInputStream(path);
 			BufferedImage tmp = ImageIO.read(fileInputStream);
-			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), ColorMath.COLOR_TYPE);
+			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), ColorUtils.COLOR_TYPE);
 			image.createGraphics().drawImage(tmp, 0, 0, null);
 			image.createGraphics().dispose();
 		} finally {
@@ -145,7 +143,7 @@ public final class FileIO {
 		BufferedImage image = null;
 		try {
 			BufferedImage tmp = ImageIO.read(stream);
-			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), ColorMath.COLOR_TYPE);
+			image = new BufferedImage(tmp.getWidth(), tmp.getHeight(), ColorUtils.COLOR_TYPE);
 			image.createGraphics().drawImage(tmp, 0, 0, null);
 			image.createGraphics().dispose();
 		} finally {}
@@ -175,7 +173,7 @@ public final class FileIO {
 			}
 		}
 		Image tmp = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		BufferedImage resized = new BufferedImage(width, height, ColorMath.COLOR_TYPE);
+		BufferedImage resized = new BufferedImage(width, height, ColorUtils.COLOR_TYPE);
 		resized.createGraphics().drawImage(tmp, 0, 0, null);
 		resized.createGraphics().dispose();
 		return resized;
@@ -197,7 +195,7 @@ public final class FileIO {
 			image = ImageIO.read(stream);
 		} finally { }
 		Image tmp = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		BufferedImage resized = new BufferedImage(width, height, ColorMath.COLOR_TYPE);
+		BufferedImage resized = new BufferedImage(width, height, ColorUtils.COLOR_TYPE);
 		resized.createGraphics().drawImage(tmp, 0, 0, null);
 		resized.createGraphics().dispose();
 		return resized;

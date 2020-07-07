@@ -1,23 +1,23 @@
 package com.johnsproject.jgameengine.shader;
 
-import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_X;
-import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Y;
-import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Z;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
-import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.math.TransformationMath;
-import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.TransformationUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class ShadowMappingShader implements Shader {
 	
-	private static final int DIRECTIONAL_BIAS = FixedPointMath.toFixedPoint(0.00005f);
-	private static final int SPOT_BIAS = FixedPointMath.toFixedPoint(0.00025f);
-	private static final int POINT_BIAS = FixedPointMath.toFixedPoint(0.00035f);
+	private static final int DIRECTIONAL_BIAS = FixedPointUtils.toFixedPoint(0.00005f);
+	private static final int SPOT_BIAS = FixedPointUtils.toFixedPoint(0.00025f);
+	private static final int POINT_BIAS = FixedPointUtils.toFixedPoint(0.00035f);
 	
 	private int shadowBias = 0;
 	
@@ -68,9 +68,9 @@ public class ShadowMappingShader implements Shader {
 	private void transformVertices(Face face, int[][] lightMatrix, int[] lightFrustum) {
 		for (int i = 0; i < face.getVertices().length; i++) {
 			int[] location = face.getVertex(i).getLocation();
-			VectorMath.copy(location, face.getVertex(i).getWorldLocation());
-			VectorMath.multiply(location, lightMatrix);
-			TransformationMath.screenportVector(location, lightFrustum);
+			VectorUtils.copy(location, face.getVertex(i).getWorldLocation());
+			VectorUtils.multiply(location, lightMatrix);
+			TransformationUtils.screenportVector(location, lightFrustum);
 		}
 	}
 

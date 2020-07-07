@@ -1,17 +1,17 @@
 package com.johnsproject.jgameengine.rasterizer;
 
-import static com.johnsproject.jgameengine.math.FixedPointMath.FP_BIT;
-import static com.johnsproject.jgameengine.math.FixedPointMath.FP_ONE;
-import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_X;
-import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Y;
-import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Z;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
-import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 
 public class FlatRasterizer {
@@ -36,10 +36,10 @@ public class FlatRasterizer {
 	public FlatRasterizer(Shader shader) {
 		this.shader = shader;
 		this.fragment = new Fragment();
-		this.vectorCache = VectorMath.emptyVector();
-		this.location0 = VectorMath.emptyVector();
-		this.location1 = VectorMath.emptyVector();
-		this.location2 = VectorMath.emptyVector();
+		this.vectorCache = VectorUtils.emptyVector();
+		this.location0 = VectorUtils.emptyVector();
+		this.location1 = VectorUtils.emptyVector();
+		this.location2 = VectorUtils.emptyVector();
 		this.frustumCull = true;
 		this.faceCull = -1;
 	}
@@ -66,15 +66,15 @@ public class FlatRasterizer {
 	}
 
 	protected final void setLocation0(int[] location) {
-		VectorMath.copy(location0, location);
+		VectorUtils.copy(location0, location);
 	}
 	
 	protected final void setLocation1(int[] location) {
-		VectorMath.copy(location1, location);
+		VectorUtils.copy(location1, location);
 	}
 	
 	protected final void setLocation2(int[] location) {
-		VectorMath.copy(location2, location);
+		VectorUtils.copy(location2, location);
 	}
 	
 	/**
@@ -88,20 +88,20 @@ public class FlatRasterizer {
 	 */
 	public void draw(Face face) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
-		VectorMath.copy(location0, face.getVertex(0).getLocation());
-		VectorMath.copy(location1, face.getVertex(1).getLocation());
-		VectorMath.copy(location2, face.getVertex(2).getLocation());
+		VectorUtils.copy(location0, face.getVertex(0).getLocation());
+		VectorUtils.copy(location1, face.getVertex(1).getLocation());
+		VectorUtils.copy(location2, face.getVertex(2).getLocation());
 		if(cull()) {
 			return;
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorMath.swap(location0, location1);
+			VectorUtils.swap(location0, location1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			VectorMath.swap(location1, location2);
+			VectorUtils.swap(location1, location2);
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorMath.swap(location0, location1);
+			VectorUtils.swap(location0, location1);
 		}
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
         	drawBottomTriangle();
@@ -111,19 +111,19 @@ public class FlatRasterizer {
             int x = location0[VECTOR_X];
             int y = location1[VECTOR_Y];
             int z = location0[VECTOR_Z];
-            int dy = FixedPointMath.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
+            int dy = FixedPointUtils.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
             int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
-            x += FixedPointMath.multiply(dy, multiplier);
+            x += FixedPointUtils.multiply(dy, multiplier);
             multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
-            z += FixedPointMath.multiply(dy, multiplier);
+            z += FixedPointUtils.multiply(dy, multiplier);
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
-            VectorMath.swap(vectorCache, location2);
+            VectorUtils.swap(vectorCache, location2);
             drawBottomTriangle();
-            VectorMath.swap(vectorCache, location2);
-            VectorMath.swap(location0, location1);
-            VectorMath.swap(location1, vectorCache);
+            VectorUtils.swap(vectorCache, location2);
+            VectorUtils.swap(location0, location1);
+            VectorUtils.swap(location1, vectorCache);
             drawTopTriangle();
         }
 	}
@@ -135,10 +135,10 @@ public class FlatRasterizer {
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		z2z1 = z2z1 == 0 ? 1 : z2z1;
 		int y3y1 = y2y1;
-        int dx1 = FixedPointMath.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
-        int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-        int dz1 = FixedPointMath.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
-        int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+        int dx1 = FixedPointUtils.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+        int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+        int dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+        int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
         int x1 = xShifted;
         int x2 = xShifted;
         int z = location0[VECTOR_Z] << FP_BIT;
@@ -147,7 +147,7 @@ public class FlatRasterizer {
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
+        	int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
 	        for (; y1 <= y2; y1++) {
 	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 += dx1;
@@ -157,7 +157,7 @@ public class FlatRasterizer {
         } else {
         	int dxdx = dx1 - dx2;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
+        	int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
         	for (; y1 <= y2; y1++) {
         		drawScanline(x1, x2, y1, z, dz);
 	            x1 += dx2;
@@ -177,10 +177,10 @@ public class FlatRasterizer {
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
 		z3z1 = z3z1 == 0 ? 1 : z3z1;
 		z3z2 = z3z2 == 0 ? 1 : z3z2;
-		int dx1 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-		int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
-		int dz1 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-		int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
+		int dx1 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		int dz1 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
 		int x1 = xShifted;
 		int x2 = xShifted;
 		int z = location2[VECTOR_Z] << FP_BIT;
@@ -189,7 +189,7 @@ public class FlatRasterizer {
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
+			int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
 	        for (; y1 > y2; y1--) {
 	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 -= dx1;
@@ -199,7 +199,7 @@ public class FlatRasterizer {
 		} else {
 			int dxdx = dx2 - dx1;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
+			int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
 	        for (; y1 > y2; y1--) {
 	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 -= dx2;
@@ -280,15 +280,15 @@ public class FlatRasterizer {
 	}
 	
 	protected void divideOneByZ() {
-		location0[VECTOR_Z] = FixedPointMath.divide(INTERPOLATE_ONE, location0[VECTOR_Z]);
-		location1[VECTOR_Z] = FixedPointMath.divide(INTERPOLATE_ONE, location1[VECTOR_Z]);
-		location2[VECTOR_Z] = FixedPointMath.divide(INTERPOLATE_ONE, location2[VECTOR_Z]);
+		location0[VECTOR_Z] = FixedPointUtils.divide(INTERPOLATE_ONE, location0[VECTOR_Z]);
+		location1[VECTOR_Z] = FixedPointUtils.divide(INTERPOLATE_ONE, location1[VECTOR_Z]);
+		location2[VECTOR_Z] = FixedPointUtils.divide(INTERPOLATE_ONE, location2[VECTOR_Z]);
 	}
 	
 	protected void zMultiply(int[] vector) {
-		vector[0] = FixedPointMath.multiply(vector[0], location0[VECTOR_Z]);
-		vector[1] = FixedPointMath.multiply(vector[1], location1[VECTOR_Z]);
-		vector[2] = FixedPointMath.multiply(vector[2], location2[VECTOR_Z]);
+		vector[0] = FixedPointUtils.multiply(vector[0], location0[VECTOR_Z]);
+		vector[1] = FixedPointUtils.multiply(vector[1], location1[VECTOR_Z]);
+		vector[2] = FixedPointUtils.multiply(vector[2], location2[VECTOR_Z]);
 	}
 	
 	protected void copyFrustum(int[] frustum) {

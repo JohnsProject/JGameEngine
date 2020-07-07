@@ -1,8 +1,8 @@
 package com.johnsproject.jgameengine.model;
 
-import com.johnsproject.jgameengine.math.ColorMath;
-import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.util.ColorUtils;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
 
 public class Material {
 
@@ -19,9 +19,9 @@ public class Material {
 		this.index = index;
 		this.name = name;
 		this.shader = null;
-		this.diffuseIntensity = FixedPointMath.FP_ONE;
-		this.diffuseIntensity = ColorMath.WHITE;
-		this.specularIntensity = FixedPointMath.FP_ONE;
+		this.diffuseIntensity = FixedPointUtils.FP_ONE;
+		this.diffuseIntensity = ColorUtils.WHITE;
+		this.specularIntensity = FixedPointUtils.FP_ONE;
 		this.shininess = 0;
 		this.texture = null;
 	}

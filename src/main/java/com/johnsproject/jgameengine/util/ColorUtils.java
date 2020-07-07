@@ -1,15 +1,15 @@
-package com.johnsproject.jgameengine.math;
+package com.johnsproject.jgameengine.util;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
- * The ColorLibrary class contains methods for generating integer sRGB colors 
+ * The ColorUtils class contains methods for generating integer sRGB colors 
  * and performing integer sRGB color operations such as lerp, multiply and add.
  * 
  * @author John Ferraz Salomon
  */
-public final class ColorMath {
+public final class ColorUtils {
 
 	/**
 	 * Some default integer sRGB colors.
@@ -46,7 +46,7 @@ public final class ColorMath {
 	private static final byte REDSHIFT = COLOR_BITS * 2;
 	private static final byte ALPHASHIFT = COLOR_BITS * 3;
 	
-	private ColorMath() { }
+	private ColorUtils() { }
 	
 	/**
 	 * Returns a integer sRGB color. 

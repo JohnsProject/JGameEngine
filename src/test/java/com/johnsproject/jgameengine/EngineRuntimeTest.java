@@ -1,6 +1,6 @@
 package com.johnsproject.jgameengine;
 
-import static com.johnsproject.jgameengine.math.FixedPointMath.*;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.*;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -15,12 +15,7 @@ import com.johnsproject.jgameengine.InputEngine;
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineKeyListener;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.io.FileIO;
 import com.johnsproject.jgameengine.io.SceneImporter;
-import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.math.MatrixMath;
-import com.johnsproject.jgameengine.math.TransformationMath;
-import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.Light;
@@ -34,6 +29,11 @@ import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.shader.FlatSpecularShader;
 import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.PhongSpecularShader;
+import com.johnsproject.jgameengine.util.FileUtils;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.MatrixUtils;
+import com.johnsproject.jgameengine.util.TransformationUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class EngineRuntimeTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
@@ -62,7 +62,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		WINDOW_H = 768;
 		RENDER_W = (WINDOW_W * 100) / 100;
 		RENDER_H = (WINDOW_H * 100) / 100;
-		cache = VectorMath.emptyVector();
+		cache = VectorUtils.emptyVector();
 		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
 		EngineWindow window = new EngineWindow(frameBuffer);
 		EngineStatistics stats = new EngineStatistics(window);
@@ -141,7 +141,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			Scene scene = SceneImporter.load("C:/Development/JGameEngineTests/Test.scene");
 			//scene.getMainCamera().getTransform().setLocation(0, 0, FP_ONE * 10);
 			//scene.getMainCamera().getTransform().setRotation(0, 0, 0);
-			Texture texture = new Texture(FileIO.loadImage("C:/Development/JGameEngineTests/JohnsProject.png"));
+			Texture texture = new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/JohnsProject.png"));
 			for (int m = 0; m < scene.getModels().size(); m++) {
 				Model model = scene.getModels().get(m);
 //				model.getRigidBody().setKinematic(true);
@@ -223,30 +223,30 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	int startSpeed = FP_ONE / 10;
 	int speed = startSpeed;
 	public void keyDown(KeyEvent e) {
-		VectorMath.copy(cache, VectorMath.VECTOR_ZERO);
+		VectorUtils.copy(cache, VectorUtils.VECTOR_ZERO);
 		if(e.getKeyCode() == KeyEvent.VK_W) {
-			VectorMath.copy(cache, VectorMath.VECTOR_FORWARD);
+			VectorUtils.copy(cache, VectorUtils.VECTOR_FORWARD);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_A) {
-			VectorMath.copy(cache, VectorMath.VECTOR_LEFT);
+			VectorUtils.copy(cache, VectorUtils.VECTOR_LEFT);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_D) {
-			VectorMath.copy(cache, VectorMath.VECTOR_RIGHT);
+			VectorUtils.copy(cache, VectorUtils.VECTOR_RIGHT);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_S) {
-			VectorMath.copy(cache, VectorMath.VECTOR_BACK);
+			VectorUtils.copy(cache, VectorUtils.VECTOR_BACK);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_E) {
-			VectorMath.copy(cache, VectorMath.VECTOR_UP);
+			VectorUtils.copy(cache, VectorUtils.VECTOR_UP);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_Y) {
-			VectorMath.copy(cache, VectorMath.VECTOR_DOWN);
+			VectorUtils.copy(cache, VectorUtils.VECTOR_DOWN);
 		}
-		if(!VectorMath.equals(cache, VectorMath.VECTOR_ZERO)) {
-			TransformationMath.rotateX(cache, cameraTransform.getRotation()[VectorMath.VECTOR_X]);
-			TransformationMath.rotateY(cache, cameraTransform.getRotation()[VectorMath.VECTOR_Y]);
-			TransformationMath.rotateZ(cache, cameraTransform.getRotation()[VectorMath.VECTOR_Z]);
-			VectorMath.multiply(cache, speed);
+		if(!VectorUtils.equals(cache, VectorUtils.VECTOR_ZERO)) {
+			TransformationUtils.rotateX(cache, cameraTransform.getRotation()[VectorUtils.VECTOR_X]);
+			TransformationUtils.rotateY(cache, cameraTransform.getRotation()[VectorUtils.VECTOR_Y]);
+			TransformationUtils.rotateZ(cache, cameraTransform.getRotation()[VectorUtils.VECTOR_Z]);
+			VectorUtils.multiply(cache, speed);
 			cameraTransform.translate(cache);
 		}
 	}

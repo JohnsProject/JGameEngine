@@ -1,13 +1,13 @@
-package com.johnsproject.jgameengine.math;
+package com.johnsproject.jgameengine.util;
 
 /**
- * The MathLibrary class contains methods for generating fixed point numbers and 
+ * The FixedPointUtils class contains methods for generating fixed point numbers and 
  * performing fixed point math operations such as power, square root, multiply, 
  * divide, and some trigonometric functions.
  * 
  * @author John Ferraz Salomon
  */
-public final class FixedPointMath {
+public final class FixedPointUtils {
 	
 	/**
 	 * This is the bit representation of the default fixed point precision value. 
@@ -39,7 +39,7 @@ public final class FixedPointMath {
 			32365, 32449, 32524, 32588, 32643, 32688, 32723, 32748, 32763, 32768
 	};
 	
-	private FixedPointMath() { }
+	private FixedPointUtils() { }
 	
 	/**
 	 * Returns the fixed point representation of value.

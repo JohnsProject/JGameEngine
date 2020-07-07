@@ -1,9 +1,9 @@
 package com.johnsproject.jgameengine.model;
 
-import static com.johnsproject.jgameengine.math.FixedPointMath.FP_ONE;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 
-import com.johnsproject.jgameengine.math.MatrixMath;
-import com.johnsproject.jgameengine.math.TransformationMath;
+import com.johnsproject.jgameengine.util.MatrixUtils;
+import com.johnsproject.jgameengine.util.TransformationUtils;
 
 public class Frustum {
 
@@ -29,7 +29,7 @@ public class Frustum {
 	
 	public Frustum() {
 		this.focalLength = FP_ONE;
-		this.projectionMatrix = MatrixMath.indentityMatrix();
+		this.projectionMatrix = MatrixUtils.indentityMatrix();
 		this.type = CameraType.PERSPECTIVE;
 	}
 
@@ -45,18 +45,18 @@ public class Frustum {
 	}
 
 	private void recalculateFrustum() {
-		TransformationMath.screenportFrustum(this);
+		TransformationUtils.screenportFrustum(this);
 		recalculateProjectionMatrix();
 	}
 	
 	private void recalculateProjectionMatrix() {
 		switch (type) {
 		case ORTHOGRAPHIC:
-			TransformationMath.orthographicMatrix(projectionMatrix, this);
+			TransformationUtils.orthographicMatrix(projectionMatrix, this);
 			break;
 
 		case PERSPECTIVE:
-			TransformationMath.perspectiveMatrix(projectionMatrix, this);
+			TransformationUtils.perspectiveMatrix(projectionMatrix, this);
 			break;
 		}
 	}

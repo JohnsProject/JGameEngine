@@ -1,9 +1,9 @@
 package com.johnsproject.jgameengine.model;
 
-import static com.johnsproject.jgameengine.math.FixedPointMath.FP_ONE;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 
-import com.johnsproject.jgameengine.math.MatrixMath;
-import com.johnsproject.jgameengine.math.TransformationMath;
+import com.johnsproject.jgameengine.util.MatrixUtils;
+import com.johnsproject.jgameengine.util.TransformationUtils;
 
 public class Camera extends SceneObject {
 
@@ -31,7 +31,7 @@ public class Camera extends SceneObject {
 		super.rigidBody.setKinematic(true);
 		this.type = CameraType.PERSPECTIVE;
 		this.focalLength = FP_ONE;
-		this.projectionMatrix = MatrixMath.indentityMatrix();
+		this.projectionMatrix = MatrixUtils.indentityMatrix();
 		this.renderTarget = null;
 		this.portedFrustum = new int[FRUSTUM_SIZE];
 		this.frustum = new int[FRUSTUM_SIZE];
@@ -48,18 +48,18 @@ public class Camera extends SceneObject {
 		for (int i = 0; i < Camera.FRUSTUM_SIZE; i++) {
 			portedFrustum[i] = frustum[i];
 		}
-		TransformationMath.screenportFrustum(portedFrustum, renderTarget.getWidth(), renderTarget.getHeight());
+		TransformationUtils.screenportFrustum(portedFrustum, renderTarget.getWidth(), renderTarget.getHeight());
 		recalculateProjectionMatrix();
 	}
 	
 	private void recalculateProjectionMatrix() {
 		switch (type) {
 		case ORTHOGRAPHIC:
-			TransformationMath.orthographicMatrix(projectionMatrix, portedFrustum, focalLength);
+			TransformationUtils.orthographicMatrix(projectionMatrix, portedFrustum, focalLength);
 			break;
 
 		case PERSPECTIVE:
-			TransformationMath.perspectiveMatrix(projectionMatrix, portedFrustum, focalLength);
+			TransformationUtils.perspectiveMatrix(projectionMatrix, portedFrustum, focalLength);
 			break;
 		}
 	}

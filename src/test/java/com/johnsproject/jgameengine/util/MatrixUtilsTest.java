@@ -1,14 +1,14 @@
-package com.johnsproject.jgameengine.math;
+package com.johnsproject.jgameengine.util;
 
 
-import static com.johnsproject.jgameengine.math.MatrixMath.MATRIX_SIZE;
+import static com.johnsproject.jgameengine.util.MatrixUtils.MATRIX_SIZE;
 
 import org.junit.Test;
 
-import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.math.MatrixMath;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.MatrixUtils;
 
-public class MatrixMathTest {
+public class MatrixUtilsTest {
 	
 	@Test
 	public void matrixValueOperationsTest() throws Exception {
@@ -16,25 +16,25 @@ public class MatrixMathTest {
 		for (int i = 1; i < 256; i++) {
 			double precision = 0.000000000000000000000000000000000001;
 			double value1 = i;
-			int fpValue1 = FixedPointMath.toFixedPoint(i);
-			int[][] fpMatrix1 = MatrixMath.indentityMatrix();
+			int fpValue1 = FixedPointUtils.toFixedPoint(i);
+			int[][] fpMatrix1 = MatrixUtils.indentityMatrix();
 			// fill matrix
-			MatrixMath.add(fpMatrix1, fpValue1);
+			MatrixUtils.add(fpMatrix1, fpValue1);
 			double[][] matrix1 = toMatrix(fpMatrix1);
 			// matrix add
-			MatrixMath.add(fpMatrix1, fpValue1);
+			MatrixUtils.add(fpMatrix1, fpValue1);
 			add(matrix1, value1);
 			assertMatrix(matrix1, toMatrix(fpMatrix1), precision);
 			// matrix subtract
-			MatrixMath.subtract(fpMatrix1, fpValue1);
+			MatrixUtils.subtract(fpMatrix1, fpValue1);
 			subtract(matrix1, value1);
 			assertMatrix(matrix1, toMatrix(fpMatrix1), precision);
 			// matrix multiply
-			MatrixMath.multiply(fpMatrix1, fpValue1);
+			MatrixUtils.multiply(fpMatrix1, fpValue1);
 			multiply(matrix1, value1);
 			assertMatrix(matrix1, toMatrix(fpMatrix1), precision);
 			// matrix divide
-			MatrixMath.divide(fpMatrix1, fpValue1);
+			MatrixUtils.divide(fpMatrix1, fpValue1);
 			divide(matrix1, value1);
 			assertMatrix(matrix1, toMatrix(fpMatrix1), precision);
 		}
@@ -45,30 +45,30 @@ public class MatrixMathTest {
 		// 127 because 128 * 128 = 16384 and 16384 * 4 = 65536 will cause overflow of integer part of fixed point
 		for (int i = 1; i < 128; i++) {
 			double precision = 0.0001;
-			int fpValue = FixedPointMath.toFixedPoint(i);
-			int[][] fpMatrix1 = MatrixMath.indentityMatrix();
-			int[][] fpMatrix2 = MatrixMath.indentityMatrix();
-			int[][] fpResult = MatrixMath.indentityMatrix();
+			int fpValue = FixedPointUtils.toFixedPoint(i);
+			int[][] fpMatrix1 = MatrixUtils.indentityMatrix();
+			int[][] fpMatrix2 = MatrixUtils.indentityMatrix();
+			int[][] fpResult = MatrixUtils.indentityMatrix();
 			// fill matrix
-			MatrixMath.add(fpMatrix1, fpValue);
-			MatrixMath.add(fpMatrix2, fpValue);
+			MatrixUtils.add(fpMatrix1, fpValue);
+			MatrixUtils.add(fpMatrix2, fpValue);
 			double[][] matrix1 = toMatrix(fpMatrix1);
 			double[][] matrix2 = toMatrix(fpMatrix2);
 			double[][] result = toMatrix(fpResult);
 			// matrix add
-			MatrixMath.add(fpMatrix1, fpMatrix2, fpResult);
+			MatrixUtils.add(fpMatrix1, fpMatrix2, fpResult);
 			result = add(matrix1, matrix2);
 			assertMatrix(result, toMatrix(fpResult), precision);
 			// matrix subtract
-			MatrixMath.subtract(fpMatrix1, fpMatrix2, fpResult);
+			MatrixUtils.subtract(fpMatrix1, fpMatrix2, fpResult);
 			result = subtract(matrix1, matrix2);
 			assertMatrix(result, toMatrix(fpResult), precision);
 			// matrix multiply
-			MatrixMath.multiply(fpMatrix1, fpMatrix2, fpResult);
+			MatrixUtils.multiply(fpMatrix1, fpMatrix2, fpResult);
 			result = multiply(matrix1, matrix2);
 			assertMatrix(result, toMatrix(fpResult), precision);
 			// matrix divide
-			MatrixMath.divide(fpMatrix1, fpMatrix2, fpResult);
+			MatrixUtils.divide(fpMatrix1, fpMatrix2, fpResult);
 			result = divide(matrix1, matrix2);
 			assertMatrix(result, toMatrix(fpResult), precision);
 		}
@@ -78,15 +78,15 @@ public class MatrixMathTest {
 	public void determinantTest() throws Exception {
 		for (int i = 1; i < 16; i++) {
 			double precision = 0.000000001;
-			int fpValue = FixedPointMath.toFixedPoint(i);
-			int[][] fpMatrix1 = MatrixMath.indentityMatrix();
+			int fpValue = FixedPointUtils.toFixedPoint(i);
+			int[][] fpMatrix1 = MatrixUtils.indentityMatrix();
 			fpMatrix1[0][0] = fpValue;
 			fpMatrix1[1][1] = fpValue;
 			fpMatrix1[2][2] = fpValue;
 			fpMatrix1[3][3] = fpValue;
 			double[][] matrix1 = toMatrix(fpMatrix1);
-			double fpResult = MatrixMath.determinant(fpMatrix1);
-			fpResult = FixedPointMath.toDouble((long)fpResult);
+			double fpResult = MatrixUtils.determinant(fpMatrix1);
+			fpResult = FixedPointUtils.toDouble((long)fpResult);
 			double result = determinant(matrix1);
 			assert((fpResult >= result - precision) && (fpResult <= result + precision));
 		}
@@ -96,15 +96,15 @@ public class MatrixMathTest {
 	public void inverseTest() throws Exception {
 		for (int i = 1; i < 16; i++) {
 			double precision = 0.0001;
-			int fpValue = FixedPointMath.toFixedPoint(i);
-			int[][] fpMatrix1 = MatrixMath.indentityMatrix();
+			int fpValue = FixedPointUtils.toFixedPoint(i);
+			int[][] fpMatrix1 = MatrixUtils.indentityMatrix();
 			fpMatrix1[0][0] = fpValue;
 			fpMatrix1[1][1] = fpValue;
 			fpMatrix1[2][2] = fpValue;
 			fpMatrix1[3][3] = fpValue;
 			double[][] matrix1 = toMatrix(fpMatrix1);
-			int[][] fpResult = MatrixMath.indentityMatrix();
-			MatrixMath.inverse(fpMatrix1, fpResult);
+			int[][] fpResult = MatrixUtils.indentityMatrix();
+			MatrixUtils.inverse(fpMatrix1, fpResult);
 			double[][] result = inverse(matrix1);
 			assertMatrix(result, toMatrix(fpResult), precision);
 		}
@@ -144,7 +144,7 @@ public class MatrixMathTest {
 		double[][] result = new double[MATRIX_SIZE][MATRIX_SIZE];
 		for (int i = 0; i < MATRIX_SIZE; i++) {
 			for (int j = 0; j < MATRIX_SIZE; j++) {
-				result[i][j] = FixedPointMath.toDouble(matrix[i][j]);
+				result[i][j] = FixedPointUtils.toDouble(matrix[i][j]);
 			}
 		}
 		return result;

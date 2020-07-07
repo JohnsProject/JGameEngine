@@ -1,19 +1,20 @@
 package com.johnsproject.jgameengine.io;
 
-import static com.johnsproject.jgameengine.math.VectorMath.*;
+import static com.johnsproject.jgameengine.util.VectorUtils.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.johnsproject.jgameengine.math.ColorMath;
-import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Mesh;
 import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
+import com.johnsproject.jgameengine.util.ColorUtils;
+import com.johnsproject.jgameengine.util.FileUtils;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 /**
  * The SOMImporter class imports .som (Scene Object Mesh) files exported 
@@ -35,7 +36,7 @@ public final class SOMImporter {
 	 * @throws IOException
 	 */
 	public static Model load(String path) throws IOException {
-		String content = FileIO.readFile(path);
+		String content = FileUtils.readFile(path);
 		return loadFromRaw(content);
 	}
 
@@ -48,7 +49,7 @@ public final class SOMImporter {
 	 * @throws IOException
 	 */
 	public static Model load(InputStream stream) throws IOException {
-		String content = FileIO.readStream(stream);
+		String content = FileUtils.readStream(stream);
 		return loadFromRaw(content);
 	}
 
@@ -65,10 +66,10 @@ public final class SOMImporter {
 		Material[] materials = parseMaterials(rawData);
 		Vertex[] vertices = parseVertices(rawData, materials);
 		Face[] faces = parseFaces(rawData, vertices, materials);
-		int[] location = VectorMath.emptyVector();
-		int[] rotation = VectorMath.emptyVector();
-		int one = FixedPointMath.FP_ONE;
-		int[] scale = VectorMath.toVector(one, one, one);
+		int[] location = VectorUtils.emptyVector();
+		int[] rotation = VectorUtils.emptyVector();
+		int one = FixedPointUtils.FP_ONE;
+		int[] scale = VectorUtils.toVector(one, one, one);
 		Transform transform = new Transform(location, rotation, scale);
 		Mesh mesh = new Mesh(vertices, faces, materials);
 		Model result = new Model("Model", transform, mesh);
@@ -83,14 +84,14 @@ public final class SOMImporter {
 		String[] vNormalData = rawData.split("vNormal<")[1].split(">vNormal", 2)[0].split(",");
 		String[] vMaterialData = rawData.split("vMaterial<")[1].split(">vMaterial", 2)[0].split(",");
 		for (int i = 0; i < vertices.length * 3; i += 3) {
-			int[] location = VectorMath.emptyVector();
-			location[VECTOR_X] = -FixedPointMath.toFixedPoint(getFloat(vLocationData[i + VECTOR_X]));
-			location[VECTOR_Y] = -FixedPointMath.toFixedPoint(getFloat(vLocationData[i + VECTOR_Y]));
-			location[VECTOR_Z] = -FixedPointMath.toFixedPoint(getFloat(vLocationData[i + VECTOR_Z]));
-			int[] normal = VectorMath.emptyVector();
-			normal[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(vNormalData[i + VECTOR_X]));
-			normal[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(vNormalData[i + VECTOR_Y]));
-			normal[VECTOR_Z] = FixedPointMath.toFixedPoint(getFloat(vNormalData[i + VECTOR_Z]));
+			int[] location = VectorUtils.emptyVector();
+			location[VECTOR_X] = -FixedPointUtils.toFixedPoint(getFloat(vLocationData[i + VECTOR_X]));
+			location[VECTOR_Y] = -FixedPointUtils.toFixedPoint(getFloat(vLocationData[i + VECTOR_Y]));
+			location[VECTOR_Z] = -FixedPointUtils.toFixedPoint(getFloat(vLocationData[i + VECTOR_Z]));
+			int[] normal = VectorUtils.emptyVector();
+			normal[VECTOR_X] = FixedPointUtils.toFixedPoint(getFloat(vNormalData[i + VECTOR_X]));
+			normal[VECTOR_Y] = FixedPointUtils.toFixedPoint(getFloat(vNormalData[i + VECTOR_Y]));
+			normal[VECTOR_Z] = FixedPointUtils.toFixedPoint(getFloat(vNormalData[i + VECTOR_Z]));
 			int material = getint(vMaterialData[i / 3]);
 			vertices[i / 3] = new Vertex(i / 3, location, normal, materials[material]);
 		}
@@ -113,20 +114,20 @@ public final class SOMImporter {
 			final int vertex2 = getint(fVertex2Data[i / 6]);
 			final int vertex3 = getint(fVertex3Data[i / 6]);
 			final Vertex[] faceVertices = new Vertex[] {vertices[vertex1], vertices[vertex2], vertices[vertex3]};
-			final int[] normal = VectorMath.emptyVector();
-			normal[VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_X]));
-			normal[VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_Y]));
-			normal[VECTOR_Z] = FixedPointMath.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_Z]));
+			final int[] normal = VectorUtils.emptyVector();
+			normal[VECTOR_X] = FixedPointUtils.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_X]));
+			normal[VECTOR_Y] = FixedPointUtils.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_Y]));
+			normal[VECTOR_Z] = FixedPointUtils.toFixedPoint(getFloat(fNormalData[(i / 2) + VECTOR_Z]));
 			final int[][] uvs = new int[3][];
-			uvs[0] = VectorMath.emptyVector();
-			uvs[0][VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fUV1Data[(i / 3) + VECTOR_X]));
-			uvs[0][VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fUV1Data[(i / 3) + VECTOR_Y]));
-			uvs[1] = VectorMath.emptyVector();
-			uvs[1][VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fUV2Data[(i / 3) + VECTOR_X]));
-			uvs[1][VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fUV2Data[(i / 3) + VECTOR_Y]));
-			uvs[2] = VectorMath.emptyVector();
-			uvs[2][VECTOR_X] = FixedPointMath.toFixedPoint(getFloat(fUV3Data[(i / 3) + VECTOR_X]));
-			uvs[2][VECTOR_Y] = FixedPointMath.toFixedPoint(getFloat(fUV3Data[(i / 3) + VECTOR_Y]));
+			uvs[0] = VectorUtils.emptyVector();
+			uvs[0][VECTOR_X] = FixedPointUtils.toFixedPoint(getFloat(fUV1Data[(i / 3) + VECTOR_X]));
+			uvs[0][VECTOR_Y] = FixedPointUtils.toFixedPoint(getFloat(fUV1Data[(i / 3) + VECTOR_Y]));
+			uvs[1] = VectorUtils.emptyVector();
+			uvs[1][VECTOR_X] = FixedPointUtils.toFixedPoint(getFloat(fUV2Data[(i / 3) + VECTOR_X]));
+			uvs[1][VECTOR_Y] = FixedPointUtils.toFixedPoint(getFloat(fUV2Data[(i / 3) + VECTOR_Y]));
+			uvs[2] = VectorUtils.emptyVector();
+			uvs[2][VECTOR_X] = FixedPointUtils.toFixedPoint(getFloat(fUV3Data[(i / 3) + VECTOR_X]));
+			uvs[2][VECTOR_Y] = FixedPointUtils.toFixedPoint(getFloat(fUV3Data[(i / 3) + VECTOR_Y]));
 			final int material = getint(fMaterialData[i / 6]);
 			faces[i / 6] = new Face(i / 6, faceVertices, normal, uvs, materials[material]);
 		}
@@ -141,14 +142,14 @@ public final class SOMImporter {
 		String[] mSpecularIntensityData = rawData.split("mSpecularIntensity<")[1].split(">mSpecularIntensity", 2)[0].split(",");
 		for (int i = 0; i < materials.length * 4; i+=4) {
 			// * 256 to get int rgb values
-			int r = FixedPointMath.toFixedPoint(getFloat(mDiffuseColorData[i]) * 256);
-			int	g = FixedPointMath.toFixedPoint(getFloat(mDiffuseColorData[i+1]) * 256);
-			int	b = FixedPointMath.toFixedPoint(getFloat(mDiffuseColorData[i+2]) * 256);
-			int	a = FixedPointMath.toFixedPoint(getFloat(mDiffuseColorData[i+3]) * 256);
-			int diffuseIntensity = FixedPointMath.toFixedPoint(getFloat(mDiffuseIntensityData[i / 4]));
-			int specularIntensity = FixedPointMath.toFixedPoint(getFloat(mSpecularIntensityData[i / 4]));
+			int r = FixedPointUtils.toFixedPoint(getFloat(mDiffuseColorData[i]) * 256);
+			int	g = FixedPointUtils.toFixedPoint(getFloat(mDiffuseColorData[i+1]) * 256);
+			int	b = FixedPointUtils.toFixedPoint(getFloat(mDiffuseColorData[i+2]) * 256);
+			int	a = FixedPointUtils.toFixedPoint(getFloat(mDiffuseColorData[i+3]) * 256);
+			int diffuseIntensity = FixedPointUtils.toFixedPoint(getFloat(mDiffuseIntensityData[i / 4]));
+			int specularIntensity = FixedPointUtils.toFixedPoint(getFloat(mSpecularIntensityData[i / 4]));
 			Material material = new Material(i/4, "Material");
-			material.setDiffuseColor(ColorMath.toColor(a, r, g, b));
+			material.setDiffuseColor(ColorUtils.toColor(a, r, g, b));
 			material.setDiffuseIntensity(diffuseIntensity);
 			material.setSpecularIntensity(specularIntensity);
 			materials[i/4] = material;

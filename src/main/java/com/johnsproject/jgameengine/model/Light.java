@@ -1,7 +1,7 @@
 package com.johnsproject.jgameengine.model;
 
-import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.math.VectorMath;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class Light extends SceneObject {
 	
@@ -21,9 +21,9 @@ public class Light extends SceneObject {
 		super.tag = LIGHT_TAG;
 		super.rigidBody.setKinematic(true);
 		this.type = LightType.DIRECTIONAL;
-		this.strength = 100 * FixedPointMath.FP_ONE;
-		this.direction = VectorMath.VECTOR_DOWN;
-		this.spotSize = 60 * FixedPointMath.FP_ONE;
+		this.strength = 100 * FixedPointUtils.FP_ONE;
+		this.direction = VectorUtils.VECTOR_DOWN;
+		this.spotSize = 60 * FixedPointUtils.FP_ONE;
 		this.spotSoftness = 800;
 		this.isMain = false;
 	}

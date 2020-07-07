@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.model.Scene;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
 
 public final class Engine {
 
@@ -65,7 +65,7 @@ public final class Engine {
 				updateTime = 1000 / updateRate;
 				loops = 0;
 				callFixedUpdate();
-				callDynamicUpdate(loops << FixedPointMath.FP_BIT);
+				callDynamicUpdate(loops << FixedPointUtils.FP_BIT);
 				limitUpdateRateSleep(updateTime - elapsedTime);
 			} else {
 				sleep();

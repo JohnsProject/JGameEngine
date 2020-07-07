@@ -3,7 +3,7 @@ package com.johnsproject.jgameengine.model;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-import com.johnsproject.jgameengine.math.ColorMath;
+import com.johnsproject.jgameengine.util.ColorUtils;
 
 public class FrameBuffer {
 
@@ -26,7 +26,7 @@ public class FrameBuffer {
 	public FrameBuffer(int width, int height) {
 		this.size = new int[] {width, height, 0, 0};
 		this.size[2] = width * height;
-		this.image = new BufferedImage(width, height, ColorMath.COLOR_TYPE);
+		this.image = new BufferedImage(width, height, ColorUtils.COLOR_TYPE);
 		int[] pixelBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		this.colorBuffer = new Texture(width, height, pixelBuffer);
 		this.depthBuffer = new Texture(width, height);

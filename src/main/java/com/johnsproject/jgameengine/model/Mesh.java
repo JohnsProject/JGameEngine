@@ -1,7 +1,7 @@
 package com.johnsproject.jgameengine.model;
 
-import com.johnsproject.jgameengine.math.ColorMath;
-import com.johnsproject.jgameengine.math.VectorMath;
+import com.johnsproject.jgameengine.util.ColorUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class Mesh {
 
@@ -19,7 +19,7 @@ public class Mesh {
 		this.materials = new Material[materials.length];
 		for (int i = 0; i < materials.length; i++) {
 			int[] materialData = materials[i];
-			int color = ColorMath.toColor(materialData[0], materialData[1], materialData[2], materialData[3]);
+			int color = ColorUtils.toColor(materialData[0], materialData[1], materialData[2], materialData[3]);
 			Material material = new Material(i, "Material");
 			material.setDiffuseColor(color);
 			this.materials[i] = material;
@@ -27,7 +27,7 @@ public class Mesh {
 		this.vertices = new Vertex[vertices.length];
 		for (int i = 0; i < vertices.length; i++) {
 			int[] vertex = vertices[i];
-			int[] location = VectorMath.emptyVector();
+			int[] location = VectorUtils.emptyVector();
 			location[0] = vertex[0];
 			location[1] = vertex[1];
 			location[2] = vertex[2];
@@ -44,10 +44,10 @@ public class Mesh {
 			Vertex vertex3 = this.vertices[face[2]];
 			Vertex[] faceVertices = new Vertex[] {vertex1, vertex2, vertex3};
 			int[] normal = new int[4];
-			int[][] uvs = new int[3][VectorMath.VECTOR_SIZE];
-			uvs[0] = VectorMath.emptyVector();
-			uvs[1] = VectorMath.emptyVector();
-			uvs[2] = VectorMath.emptyVector();
+			int[][] uvs = new int[3][VectorUtils.VECTOR_SIZE];
+			uvs[0] = VectorUtils.emptyVector();
+			uvs[1] = VectorUtils.emptyVector();
+			uvs[2] = VectorUtils.emptyVector();
 			Material material = this.materials[face[3]];
 			this.faces[i] = new Face(i, faceVertices, normal, uvs, material);
 		}

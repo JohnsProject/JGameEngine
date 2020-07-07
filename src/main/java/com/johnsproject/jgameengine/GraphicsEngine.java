@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.AnimationFrame;
 import com.johnsproject.jgameengine.model.Armature;
 import com.johnsproject.jgameengine.model.Camera;
@@ -25,6 +24,7 @@ import com.johnsproject.jgameengine.shader.PhongSpecularShader;
 import com.johnsproject.jgameengine.shader.Shader;
 import com.johnsproject.jgameengine.shader.ShaderBuffer;
 import com.johnsproject.jgameengine.shader.ShadowMappingShader;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class GraphicsEngine implements EngineListener {
 	
@@ -40,9 +40,9 @@ public class GraphicsEngine implements EngineListener {
 		this.shaderBuffer = new ForwardShaderBuffer();
 		this.shaders = new ArrayList<Shader>();
 		this.frameBuffer = frameBuffer;
-		this.locationVector = VectorMath.emptyVector();
-		this.normalVector = VectorMath.emptyVector();
-		this.multiplyVector = VectorMath.emptyVector();
+		this.locationVector = VectorUtils.emptyVector();
+		this.normalVector = VectorUtils.emptyVector();
+		this.multiplyVector = VectorUtils.emptyVector();
 		defaultShader = new GouraudSpecularShader();
 		addShader(new ShadowMappingShader());
 		addShader(new FlatSpecularShader());
@@ -92,18 +92,18 @@ public class GraphicsEngine implements EngineListener {
 		}
 		for (int v = 0; v < mesh.getVertices().length; v++) {
 			final Vertex vertex = mesh.getVertex(v);
-			VectorMath.copy(vertex.getWorldLocation(), vertex.getLocalLocation());
-			VectorMath.copy(vertex.getWorldNormal(), vertex.getLocalNormal());
+			VectorUtils.copy(vertex.getWorldLocation(), vertex.getLocalLocation());
+			VectorUtils.copy(vertex.getWorldNormal(), vertex.getLocalNormal());
 			animateVertex(armature, animationFrame, vertex);
-			VectorMath.multiply(vertex.getWorldLocation(), transform.getSpaceExitMatrix());
-			VectorMath.multiply(vertex.getWorldNormal(), transform.getSpaceExitNormalMatrix());
+			VectorUtils.multiply(vertex.getWorldLocation(), transform.getSpaceExitMatrix());
+			VectorUtils.multiply(vertex.getWorldNormal(), transform.getSpaceExitNormalMatrix());
 		}
 	}
 	
 	private void animateVertex(Armature armature, AnimationFrame animationFrame, Vertex vertex) {
 		if(animationFrame != null) {
-			VectorMath.copy(locationVector, VectorMath.VECTOR_ZERO);
-			VectorMath.copy(normalVector, VectorMath.VECTOR_ZERO);
+			VectorUtils.copy(locationVector, VectorUtils.VECTOR_ZERO);
+			VectorUtils.copy(normalVector, VectorUtils.VECTOR_ZERO);
 			for (int i = 0; i < armature.getVertexGroups().length; i++) {
 				final VertexGroup vertexGroup = armature.getVertexGroup(i);
 				final int boneWeight = vertexGroup.getWeight(vertex);
@@ -112,27 +112,27 @@ public class GraphicsEngine implements EngineListener {
 					applyBone(vertex, boneWeight, boneMatrix);
 				}
 			}
-			VectorMath.copy(vertex.getWorldLocation(), locationVector);
-			VectorMath.copy(vertex.getWorldNormal(), normalVector);
+			VectorUtils.copy(vertex.getWorldLocation(), locationVector);
+			VectorUtils.copy(vertex.getWorldNormal(), normalVector);
 		}
 	}
 	
 	private void applyBone(Vertex vertex, int boneWeight, int[][] boneMatrix) {
-		VectorMath.copy(multiplyVector, vertex.getWorldLocation());
-		VectorMath.multiply(multiplyVector, boneMatrix);
-		VectorMath.multiply(multiplyVector, boneWeight);
-		VectorMath.add(locationVector, multiplyVector);
-		VectorMath.copy(multiplyVector, vertex.getWorldNormal());
-		VectorMath.multiply(multiplyVector, boneMatrix);
-		VectorMath.multiply(multiplyVector, boneWeight);
-		VectorMath.add(normalVector, multiplyVector);
+		VectorUtils.copy(multiplyVector, vertex.getWorldLocation());
+		VectorUtils.multiply(multiplyVector, boneMatrix);
+		VectorUtils.multiply(multiplyVector, boneWeight);
+		VectorUtils.add(locationVector, multiplyVector);
+		VectorUtils.copy(multiplyVector, vertex.getWorldNormal());
+		VectorUtils.multiply(multiplyVector, boneMatrix);
+		VectorUtils.multiply(multiplyVector, boneWeight);
+		VectorUtils.add(normalVector, multiplyVector);
 	}
 	
 	private void transformFaces(Mesh mesh, Transform transform) {
 		for (int f = 0; f < mesh.getFaces().length; f++) {
 			final Face face = mesh.getFace(f);
-			VectorMath.copy(face.getWorldNormal(), face.getLocalNormal());
-			VectorMath.multiply(face.getWorldNormal(), transform.getSpaceExitNormalMatrix());
+			VectorUtils.copy(face.getWorldNormal(), face.getLocalNormal());
+			VectorUtils.multiply(face.getWorldNormal(), transform.getSpaceExitNormalMatrix());
 		}
 	}
 	

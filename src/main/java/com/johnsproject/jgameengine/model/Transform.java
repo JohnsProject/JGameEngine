@@ -1,10 +1,10 @@
 package com.johnsproject.jgameengine.model;
 
-import static com.johnsproject.jgameengine.math.VectorMath.*;
+import static com.johnsproject.jgameengine.util.VectorUtils.*;
 
-import com.johnsproject.jgameengine.math.MatrixMath;
-import com.johnsproject.jgameengine.math.TransformationMath;
-import com.johnsproject.jgameengine.math.VectorMath;
+import com.johnsproject.jgameengine.util.MatrixUtils;
+import com.johnsproject.jgameengine.util.TransformationUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class Transform {
 	
@@ -20,27 +20,27 @@ public class Transform {
 	private final int[][] spaceExitNormalMatrix;
 	
 	public Transform() {
-		this(VectorMath.emptyVector(), VectorMath.emptyVector(), VectorMath.VECTOR_ONE.clone());
+		this(VectorUtils.emptyVector(), VectorUtils.emptyVector(), VectorUtils.VECTOR_ONE.clone());
 	}
 	
 	public Transform(int[] location, int[] rotation, int[] scale) {
 		this.location = location;
 		this.rotation = rotation;
 		this.scale = scale;
-		this.matrixCache1 = MatrixMath.indentityMatrix();
-		this.matrixCache2 = MatrixMath.indentityMatrix();
-		this.spaceEnterMatrix = MatrixMath.indentityMatrix();
-		this.spaceEnterNormalMatrix = MatrixMath.indentityMatrix();
-		this.spaceExitMatrix = MatrixMath.indentityMatrix();
-		this.spaceExitNormalMatrix = MatrixMath.indentityMatrix();
+		this.matrixCache1 = MatrixUtils.indentityMatrix();
+		this.matrixCache2 = MatrixUtils.indentityMatrix();
+		this.spaceEnterMatrix = MatrixUtils.indentityMatrix();
+		this.spaceEnterNormalMatrix = MatrixUtils.indentityMatrix();
+		this.spaceExitMatrix = MatrixUtils.indentityMatrix();
+		this.spaceExitNormalMatrix = MatrixUtils.indentityMatrix();
 		recalculateMatrices();
 	}
 	
 	private void recalculateMatrices() {
-		TransformationMath.spaceExitMatrix(spaceExitMatrix, this, matrixCache1, matrixCache2);
-		TransformationMath.spaceExitNormalMatrix(spaceExitNormalMatrix, this, matrixCache1, matrixCache2);
-		TransformationMath.spaceEnterMatrix(spaceEnterMatrix, this, matrixCache1, matrixCache2);
-		TransformationMath.spaceEnterNormalMatrix(spaceEnterNormalMatrix, this, matrixCache1, matrixCache2);
+		TransformationUtils.spaceExitMatrix(spaceExitMatrix, this, matrixCache1, matrixCache2);
+		TransformationUtils.spaceExitNormalMatrix(spaceExitNormalMatrix, this, matrixCache1, matrixCache2);
+		TransformationUtils.spaceEnterMatrix(spaceEnterMatrix, this, matrixCache1, matrixCache2);
+		TransformationUtils.spaceEnterNormalMatrix(spaceEnterNormalMatrix, this, matrixCache1, matrixCache2);
 	}
 	
 	public void setLocation(int x, int y, int z) {

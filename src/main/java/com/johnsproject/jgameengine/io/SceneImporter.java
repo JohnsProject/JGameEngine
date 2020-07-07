@@ -1,15 +1,10 @@
 package com.johnsproject.jgameengine.io;
 
-import static com.johnsproject.jgameengine.math.VectorMath.*;
+import static com.johnsproject.jgameengine.util.VectorUtils.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.johnsproject.jgameengine.math.ColorMath;
-import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.math.MatrixMath;
-import com.johnsproject.jgameengine.math.TransformationMath;
-import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Animation;
 import com.johnsproject.jgameengine.model.AnimationFrame;
 import com.johnsproject.jgameengine.model.Armature;
@@ -25,6 +20,12 @@ import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.model.VertexGroup;
+import com.johnsproject.jgameengine.util.ColorUtils;
+import com.johnsproject.jgameengine.util.FileUtils;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.MatrixUtils;
+import com.johnsproject.jgameengine.util.TransformationUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 /**
  * The SceneImporter class imports .scene files exported 
@@ -46,7 +47,7 @@ public final class SceneImporter {
 	 * @throws IOException
 	 */
 	public static Scene load(String path) throws IOException {
-		String content = FileIO.readFile(path);
+		String content = FileUtils.readFile(path);
 		return loadFromRaw(content);
 	}
 
@@ -59,7 +60,7 @@ public final class SceneImporter {
 	 * @throws IOException
 	 */
 	public static Scene load(InputStream stream) throws IOException {
-		String content = FileIO.readStream(stream);
+		String content = FileUtils.readStream(stream);
 		return loadFromRaw(content);
 	}
 
@@ -120,7 +121,7 @@ public final class SceneImporter {
 			int x = transform.getRotation()[VECTOR_X];
 			int y = transform.getRotation()[VECTOR_Y];
 			int z = transform.getRotation()[VECTOR_Z];
-			transform.setRotation(-(90 << FixedPointMath.FP_BIT) - x, y, z);
+			transform.setRotation(-(90 << FixedPointUtils.FP_BIT) - x, y, z);
 			Camera camera = new Camera(name, transform);
 			if (typeData.equals("ORTHO"))
 				camera.setType(CameraType.ORTHOGRAPHIC);
@@ -144,16 +145,16 @@ public final class SceneImporter {
 			String[] colorData = lightData.split("color<")[1].split(">color")[0].split(",");
 			String[] shadowColorData = lightData.split("shadowColor<")[1].split(">shadowColor")[0].split(",");
 			Transform transform = parseTransform(lightData.split("transform<")[1].split(">transform")[0].split(","));
-			int[] direction = VectorMath.VECTOR_DOWN.clone();
-			TransformationMath.rotateX(direction, transform.getRotation()[VECTOR_X]);
-			TransformationMath.rotateY(direction, transform.getRotation()[VECTOR_Y]);
-			TransformationMath.rotateZ(direction, transform.getRotation()[VECTOR_Z]);
+			int[] direction = VectorUtils.VECTOR_DOWN.clone();
+			TransformationUtils.rotateX(direction, transform.getRotation()[VECTOR_X]);
+			TransformationUtils.rotateY(direction, transform.getRotation()[VECTOR_Y]);
+			TransformationUtils.rotateZ(direction, transform.getRotation()[VECTOR_Z]);
 			direction[VECTOR_X] = -direction[VECTOR_X];
 			direction[VECTOR_Z] = -direction[VECTOR_Z];
 			int x = transform.getRotation()[VECTOR_X];
 			int y = transform.getRotation()[VECTOR_Y];
 			int z = transform.getRotation()[VECTOR_Z];
-			transform.setRotation(-(90 << FixedPointMath.FP_BIT) - x, y, z);
+			transform.setRotation(-(90 << FixedPointUtils.FP_BIT) - x, y, z);
 			Light light = new Light(name, transform);
 			if (typeData.equals("SUN")) {
 				light.setType(LightType.DIRECTIONAL);
@@ -164,17 +165,17 @@ public final class SceneImporter {
 			if (typeData.equals("SPOT")) {
 				light.setType(LightType.SPOT);
 			}
-			light.setStrength(FixedPointMath.toFixedPoint(Float.parseFloat(strengthData)));
+			light.setStrength(FixedPointUtils.toFixedPoint(Float.parseFloat(strengthData)));
 			int red = (int)(Float.parseFloat(colorData[0]) * 256);
 			int green = (int)(Float.parseFloat(colorData[1]) * 256);
 			int blue = (int)(Float.parseFloat(colorData[2]) * 256);
-			light.setColor(ColorMath.toColor(red, green, blue));
+			light.setColor(ColorUtils.toColor(red, green, blue));
 			red = (int)(Float.parseFloat(shadowColorData[0]) * 256);
 			green = (int)(Float.parseFloat(shadowColorData[1]) * 256);
 			blue = (int)(Float.parseFloat(shadowColorData[2]) * 256);
-			light.setShadowColor(ColorMath.toColor(red, green, blue));
-			light.setSpotSize(FixedPointMath.toFixedPoint(Float.parseFloat(spotData)));
-			light.setSpotSoftness(FixedPointMath.toFixedPoint(Float.parseFloat(blendData)));
+			light.setShadowColor(ColorUtils.toColor(red, green, blue));
+			light.setSpotSize(FixedPointUtils.toFixedPoint(Float.parseFloat(spotData)));
+			light.setSpotSoftness(FixedPointUtils.toFixedPoint(Float.parseFloat(blendData)));
 			light.setDirection(direction);
 			lights[i] = light;
 		}
@@ -182,18 +183,18 @@ public final class SceneImporter {
 	}
 
 	private static Transform parseTransform(String[] transformData) {
-		int x = FixedPointMath.toFixedPoint(Float.parseFloat(transformData[VECTOR_X]));
-		int y = FixedPointMath.toFixedPoint(Float.parseFloat(transformData[VECTOR_Z]));
-		int z = FixedPointMath.toFixedPoint(Float.parseFloat(transformData[VECTOR_Y]));
-		int[] location = VectorMath.toVector(x, y, -z);
-		x = FixedPointMath.toFixedPoint(Float.parseFloat(transformData[3 + VECTOR_X]));
-		y = FixedPointMath.toFixedPoint(Float.parseFloat(transformData[3 + VECTOR_Z]));
-		z = FixedPointMath.toFixedPoint(Float.parseFloat(transformData[3 + VECTOR_Y]));
-		int[] rotation = VectorMath.toVector(-x, y, -z);
-		x = FixedPointMath.toFixedPoint(Float.parseFloat(transformData[6 + VECTOR_X]));
-		y = FixedPointMath.toFixedPoint(Float.parseFloat(transformData[6 + VECTOR_Z]));
-		z = FixedPointMath.toFixedPoint(Float.parseFloat(transformData[6 + VECTOR_Y]));
-		int[] scale = VectorMath.toVector(x, y, z);
+		int x = FixedPointUtils.toFixedPoint(Float.parseFloat(transformData[VECTOR_X]));
+		int y = FixedPointUtils.toFixedPoint(Float.parseFloat(transformData[VECTOR_Z]));
+		int z = FixedPointUtils.toFixedPoint(Float.parseFloat(transformData[VECTOR_Y]));
+		int[] location = VectorUtils.toVector(x, y, -z);
+		x = FixedPointUtils.toFixedPoint(Float.parseFloat(transformData[3 + VECTOR_X]));
+		y = FixedPointUtils.toFixedPoint(Float.parseFloat(transformData[3 + VECTOR_Z]));
+		z = FixedPointUtils.toFixedPoint(Float.parseFloat(transformData[3 + VECTOR_Y]));
+		int[] rotation = VectorUtils.toVector(-x, y, -z);
+		x = FixedPointUtils.toFixedPoint(Float.parseFloat(transformData[6 + VECTOR_X]));
+		y = FixedPointUtils.toFixedPoint(Float.parseFloat(transformData[6 + VECTOR_Z]));
+		z = FixedPointUtils.toFixedPoint(Float.parseFloat(transformData[6 + VECTOR_Y]));
+		int[] scale = VectorUtils.toVector(x, y, z);
 		return new Transform(location, rotation, scale);
 	}
 
@@ -201,14 +202,14 @@ public final class SceneImporter {
 		Vertex[] vertices = new Vertex[verticesData.length];
 		for (int i = 0; i < vertices.length; i++) {
 			String[] vertexData = verticesData[i].split(",");
-			int x = FixedPointMath.toFixedPoint(Float.parseFloat(vertexData[VECTOR_X]));
-			int y = FixedPointMath.toFixedPoint(Float.parseFloat(vertexData[VECTOR_Z]));
-			int z = FixedPointMath.toFixedPoint(Float.parseFloat(vertexData[VECTOR_Y]));
-			int[] location = VectorMath.toVector(x, y, -z);
-			x = FixedPointMath.toFixedPoint(Float.parseFloat(vertexData[3 + VECTOR_X]));
-			y = FixedPointMath.toFixedPoint(Float.parseFloat(vertexData[3 + VECTOR_Z]));
-			z = FixedPointMath.toFixedPoint(Float.parseFloat(vertexData[3 + VECTOR_Y]));
-			int[] normal = VectorMath.toVector(x, y, -z);
+			int x = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexData[VECTOR_X]));
+			int y = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexData[VECTOR_Z]));
+			int z = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexData[VECTOR_Y]));
+			int[] location = VectorUtils.toVector(x, y, -z);
+			x = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexData[3 + VECTOR_X]));
+			y = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexData[3 + VECTOR_Z]));
+			z = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexData[3 + VECTOR_Y]));
+			int[] normal = VectorUtils.toVector(x, y, -z);
 			int material = Integer.parseInt(vertexData[6]);
 			vertices[i] = new Vertex(i, location, normal, materials[material]);
 		}
@@ -223,20 +224,20 @@ public final class SceneImporter {
 			final int vertex2 = Integer.parseInt(faceData[1]);
 			final int vertex3 = Integer.parseInt(faceData[2]);
 			final Vertex[] faceVertices = new Vertex[] {vertices[vertex1], vertices[vertex2], vertices[vertex3]};
-			int x = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[3 + VECTOR_X]));
-			int y = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[3 + VECTOR_Z]));
-			int z = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[3 + VECTOR_Y]));
-			final int[] normal = VectorMath.toVector(x, y, -z);
-			x = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[6 + VECTOR_X]));
-			y = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[6 + VECTOR_Y]));
+			int x = FixedPointUtils.toFixedPoint(Float.parseFloat(faceData[3 + VECTOR_X]));
+			int y = FixedPointUtils.toFixedPoint(Float.parseFloat(faceData[3 + VECTOR_Z]));
+			int z = FixedPointUtils.toFixedPoint(Float.parseFloat(faceData[3 + VECTOR_Y]));
+			final int[] normal = VectorUtils.toVector(x, y, -z);
+			x = FixedPointUtils.toFixedPoint(Float.parseFloat(faceData[6 + VECTOR_X]));
+			y = FixedPointUtils.toFixedPoint(Float.parseFloat(faceData[6 + VECTOR_Y]));
 			final int[][] uvs = new int[3][];
-			uvs[0] = VectorMath.toVector(x, FixedPointMath.FP_ONE - y);
-			x = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[8 + VECTOR_X]));
-			y = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[8 + VECTOR_Y]));
-			uvs[1] = VectorMath.toVector(x, FixedPointMath.FP_ONE - y);
-			x = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[10 + VECTOR_X]));
-			y = FixedPointMath.toFixedPoint(Float.parseFloat(faceData[10 + VECTOR_Y]));
-			uvs[2] = VectorMath.toVector(x, FixedPointMath.FP_ONE - y);
+			uvs[0] = VectorUtils.toVector(x, FixedPointUtils.FP_ONE - y);
+			x = FixedPointUtils.toFixedPoint(Float.parseFloat(faceData[8 + VECTOR_X]));
+			y = FixedPointUtils.toFixedPoint(Float.parseFloat(faceData[8 + VECTOR_Y]));
+			uvs[1] = VectorUtils.toVector(x, FixedPointUtils.FP_ONE - y);
+			x = FixedPointUtils.toFixedPoint(Float.parseFloat(faceData[10 + VECTOR_X]));
+			y = FixedPointUtils.toFixedPoint(Float.parseFloat(faceData[10 + VECTOR_Y]));
+			uvs[2] = VectorUtils.toVector(x, FixedPointUtils.FP_ONE - y);
 			final int material = Integer.parseInt(faceData[12]);
 			faces[i] = new Face(i, faceVertices, normal, uvs, materials[material]);
 		}
@@ -252,11 +253,11 @@ public final class SceneImporter {
 			int green = (int)(Float.parseFloat(materialData[2]) * 256);
 			int blue = (int)(Float.parseFloat(materialData[3]) * 256);
 			int alpha = (int)(Float.parseFloat(materialData[4]) * 256);
-			int diffuse = FixedPointMath.toFixedPoint(Float.parseFloat(materialData[5]));
-			int specular = FixedPointMath.toFixedPoint(Float.parseFloat(materialData[6]));
-			int shininess = FixedPointMath.toFixedPoint(Float.parseFloat(materialData[7]) / 10);
+			int diffuse = FixedPointUtils.toFixedPoint(Float.parseFloat(materialData[5]));
+			int specular = FixedPointUtils.toFixedPoint(Float.parseFloat(materialData[6]));
+			int shininess = FixedPointUtils.toFixedPoint(Float.parseFloat(materialData[7]) / 10);
 			Material material = new Material(i, name);
-			material.setDiffuseColor(ColorMath.toColor(alpha, red, green, blue));
+			material.setDiffuseColor(ColorUtils.toColor(alpha, red, green, blue));
 			material.setDiffuseIntensity(diffuse);
 			material.setSpecularIntensity(specular);
 			material.setShininess(shininess);
@@ -277,7 +278,7 @@ public final class SceneImporter {
 			}
 			int[] weights = new int[vertexCount];
 			for (int j = 0; j < vertexCount; j++) {
-				weights[j] = FixedPointMath.toFixedPoint(Float.parseFloat(vertexGroupData[j + vertexCount + 2]));
+				weights[j] = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexGroupData[j + vertexCount + 2]));
 			}
 			vertexGroups[i] = new VertexGroup(boneIndex, vertices, weights);
 		}
@@ -286,8 +287,8 @@ public final class SceneImporter {
 	
 	private static Animation[] parseAnimations(String[] animationsData) {
 		Animation[] animations = new Animation[animationsData.length];
-		int[][] matrixCache1 = MatrixMath.indentityMatrix();
-		int[][] matrixCache2 = MatrixMath.indentityMatrix();
+		int[][] matrixCache1 = MatrixUtils.indentityMatrix();
+		int[][] matrixCache2 = MatrixUtils.indentityMatrix();
 		for (int i = 0; i < animations.length; i++) {
 			String[] animationData = animationsData[i].split(",");
 			String name = animationData[0];
@@ -295,26 +296,26 @@ public final class SceneImporter {
 			int framesCount = Integer.parseInt(animationData[2]);
 			AnimationFrame[] frames = new AnimationFrame[framesCount];
 			for (int f = 3, fi = 0; f < animationData.length; f += bonesCount * 9, fi++) {
-				int[][][] boneRotationMatrices = new int[bonesCount][MatrixMath.MATRIX_SIZE][MatrixMath.MATRIX_SIZE];
+				int[][][] boneRotationMatrices = new int[bonesCount][MatrixUtils.MATRIX_SIZE][MatrixUtils.MATRIX_SIZE];
 				for (int b = f, bi = 0; b < f + bonesCount * 9; b += 9, bi++) {
-					int x = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + VECTOR_X]));
-					int y = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + VECTOR_Y]));
-					int z = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + VECTOR_Z]));
-					int[] location = VectorMath.toVector(-x, y, z);
-					x = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + 3 + VECTOR_X]));
-					y = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + 3 + VECTOR_Y]));
-					z = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + 3 + VECTOR_Z]));
-					int[] rotation = VectorMath.toVector(x, y, z);
-					x = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + 6 + VECTOR_X]));
-					y = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + 6 + VECTOR_Y]));
-					z = FixedPointMath.toFixedPoint(Float.parseFloat(animationData[b + 6 + VECTOR_Z]));
-					int[] scale = VectorMath.toVector(x, y, z);
-					int[][] boneRotationMatrix = MatrixMath.indentityMatrix();
-					TransformationMath.scale(boneRotationMatrix, scale, matrixCache1, matrixCache2);
-					TransformationMath.rotateX(boneRotationMatrix, rotation[VECTOR_X], matrixCache1, matrixCache2);
-					TransformationMath.rotateY(boneRotationMatrix, rotation[VECTOR_Y], matrixCache1, matrixCache2);
-					TransformationMath.rotateZ(boneRotationMatrix, rotation[VECTOR_Z], matrixCache1, matrixCache2);
-					TransformationMath.translate(boneRotationMatrix, location, matrixCache1, matrixCache2);
+					int x = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + VECTOR_X]));
+					int y = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + VECTOR_Y]));
+					int z = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + VECTOR_Z]));
+					int[] location = VectorUtils.toVector(-x, y, z);
+					x = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 3 + VECTOR_X]));
+					y = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 3 + VECTOR_Y]));
+					z = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 3 + VECTOR_Z]));
+					int[] rotation = VectorUtils.toVector(x, y, z);
+					x = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 6 + VECTOR_X]));
+					y = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 6 + VECTOR_Y]));
+					z = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 6 + VECTOR_Z]));
+					int[] scale = VectorUtils.toVector(x, y, z);
+					int[][] boneRotationMatrix = MatrixUtils.indentityMatrix();
+					TransformationUtils.scale(boneRotationMatrix, scale, matrixCache1, matrixCache2);
+					TransformationUtils.rotateX(boneRotationMatrix, rotation[VECTOR_X], matrixCache1, matrixCache2);
+					TransformationUtils.rotateY(boneRotationMatrix, rotation[VECTOR_Y], matrixCache1, matrixCache2);
+					TransformationUtils.rotateZ(boneRotationMatrix, rotation[VECTOR_Z], matrixCache1, matrixCache2);
+					TransformationUtils.translate(boneRotationMatrix, location, matrixCache1, matrixCache2);
 					boneRotationMatrices[bi] = boneRotationMatrix;
 				}
 				frames[fi] = new AnimationFrame(boneRotationMatrices);

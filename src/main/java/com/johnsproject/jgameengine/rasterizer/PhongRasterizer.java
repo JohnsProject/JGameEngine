@@ -1,14 +1,14 @@
 package com.johnsproject.jgameengine.rasterizer;
 
-import static com.johnsproject.jgameengine.math.FixedPointMath.FP_BIT;
-import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_X;
-import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Y;
-import static com.johnsproject.jgameengine.math.VectorMath.VECTOR_Z;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
-import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class PhongRasterizer extends FlatRasterizer {
 	
@@ -28,16 +28,16 @@ public class PhongRasterizer extends FlatRasterizer {
 	
 	public PhongRasterizer(Shader shader) {
 		super(shader);
-		worldX = VectorMath.emptyVector();
-		worldY = VectorMath.emptyVector();
-		worldZ = VectorMath.emptyVector();
-		worldLocation = VectorMath.emptyVector();
-		worldCache = VectorMath.emptyVector();
-		normalX = VectorMath.emptyVector();
-		normalY = VectorMath.emptyVector();
-		normalZ = VectorMath.emptyVector();
-		normal = VectorMath.emptyVector();
-		normalCache = VectorMath.emptyVector();
+		worldX = VectorUtils.emptyVector();
+		worldY = VectorUtils.emptyVector();
+		worldZ = VectorUtils.emptyVector();
+		worldLocation = VectorUtils.emptyVector();
+		worldCache = VectorUtils.emptyVector();
+		normalX = VectorUtils.emptyVector();
+		normalY = VectorUtils.emptyVector();
+		normalZ = VectorUtils.emptyVector();
+		normal = VectorUtils.emptyVector();
+		normalCache = VectorUtils.emptyVector();
 	}
 	
 	protected void setWorldLocation0(int[] location) {
@@ -87,9 +87,9 @@ public class PhongRasterizer extends FlatRasterizer {
 	 */
 	public void draw(Face face) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
-		VectorMath.copy(location0, face.getVertex(0).getLocation());
-		VectorMath.copy(location1, face.getVertex(1).getLocation());
-		VectorMath.copy(location2, face.getVertex(2).getLocation());
+		VectorUtils.copy(location0, face.getVertex(0).getLocation());
+		VectorUtils.copy(location1, face.getVertex(1).getLocation());
+		VectorUtils.copy(location2, face.getVertex(2).getLocation());
 		if(cull()) {
 			return;
 		}
@@ -100,17 +100,17 @@ public class PhongRasterizer extends FlatRasterizer {
 		setNormal1(face.getVertex(1).getWorldNormal());
 		setNormal2(face.getVertex(2).getWorldNormal());
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorMath.swap(location0, location1);
+			VectorUtils.swap(location0, location1);
 			swapVector(worldX, worldY, worldZ, 0, 1);
 			swapVector(normalX, normalY, normalZ, 0, 1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			VectorMath.swap(location1, location2);
+			VectorUtils.swap(location1, location2);
 			swapVector(worldX, worldY, worldZ, 2, 1);
 			swapVector(normalX, normalY, normalZ, 2, 1);
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorMath.swap(location0, location1);
+			VectorUtils.swap(location0, location1);
 			swapVector(worldX, worldY, worldZ, 0, 1);
 			swapVector(normalX, normalY, normalZ, 0, 1);
 		}
@@ -128,23 +128,23 @@ public class PhongRasterizer extends FlatRasterizer {
             int nx = normalX[0];
             int ny = normalY[0];
             int nz = normalZ[0];
-            int dy = FixedPointMath.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
+            int dy = FixedPointUtils.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
             int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
-            x += FixedPointMath.multiply(dy, multiplier);
+            x += FixedPointUtils.multiply(dy, multiplier);
             multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
-            z += FixedPointMath.multiply(dy, multiplier);
+            z += FixedPointUtils.multiply(dy, multiplier);
             multiplier = worldX[2] - worldX[0];
-            wx += FixedPointMath.multiply(dy, multiplier);
+            wx += FixedPointUtils.multiply(dy, multiplier);
             multiplier = worldY[2] - worldY[0];
-            wy += FixedPointMath.multiply(dy, multiplier);
+            wy += FixedPointUtils.multiply(dy, multiplier);
             multiplier = worldZ[2] - worldZ[0];
-            wz += FixedPointMath.multiply(dy, multiplier);
+            wz += FixedPointUtils.multiply(dy, multiplier);
             multiplier = normalX[2] - normalX[0];
-            nx += FixedPointMath.multiply(dy, multiplier);
+            nx += FixedPointUtils.multiply(dy, multiplier);
             multiplier = normalY[2] - normalY[0];
-            ny += FixedPointMath.multiply(dy, multiplier);
+            ny += FixedPointUtils.multiply(dy, multiplier);
             multiplier = normalZ[2] - normalZ[0];
-            nz += FixedPointMath.multiply(dy, multiplier);
+            nz += FixedPointUtils.multiply(dy, multiplier);
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
@@ -154,13 +154,13 @@ public class PhongRasterizer extends FlatRasterizer {
             normalCache[VECTOR_X] = nx;
             normalCache[VECTOR_Y] = ny;
             normalCache[VECTOR_Z] = nz;
-            VectorMath.swap(vectorCache, location2);
+            VectorUtils.swap(vectorCache, location2);
             swapCache(worldX, worldY, worldZ, worldCache, 2);
             swapCache(normalX, normalY, normalZ, normalCache, 2);
             drawBottomTriangle();
-            VectorMath.swap(vectorCache, location2);
-            VectorMath.swap(location0, location1);
-            VectorMath.swap(location1, vectorCache);
+            VectorUtils.swap(vectorCache, location2);
+            VectorUtils.swap(location0, location1);
+            VectorUtils.swap(location1, vectorCache);
             swapCache(worldX, worldY, worldZ, worldCache, 2);
             swapVector(worldX, worldY, worldZ, 0, 1);
             swapCache(worldX, worldY, worldZ, worldCache, 1);
@@ -177,32 +177,32 @@ public class PhongRasterizer extends FlatRasterizer {
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = FixedPointMath.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
-        int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-        int dz1 = FixedPointMath.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
-        int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-        int dwx1 = FixedPointMath.divide(worldX[1] - worldX[0], y2y1);
-        int dwx2 = FixedPointMath.divide(worldX[2] - worldX[0], y3y1);
-        int dwy1 = FixedPointMath.divide(worldY[1] - worldY[0], y2y1);
-        int dwy2 = FixedPointMath.divide(worldY[2] - worldY[0], y3y1);
-        int dwz1 = FixedPointMath.divide(worldZ[1] - worldZ[0], y2y1);
-        int dwz2 = FixedPointMath.divide(worldZ[2] - worldZ[0], y3y1);
-        int dnx1 = FixedPointMath.divide(normalX[1] - normalX[0], y2y1);
-        int dnx2 = FixedPointMath.divide(normalX[2] - normalX[0], y3y1);
-        int dny1 = FixedPointMath.divide(normalY[1] - normalY[0], y2y1);
-        int dny2 = FixedPointMath.divide(normalY[2] - normalY[0], y3y1);
-        int dnz1 = FixedPointMath.divide(normalZ[1] - normalZ[0], y2y1);
-        int dnz2 = FixedPointMath.divide(normalZ[2] - normalZ[0], y3y1);
+        int dx1 = FixedPointUtils.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+        int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+        int dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+        int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+        int dwx1 = FixedPointUtils.divide(worldX[1] - worldX[0], y2y1);
+        int dwx2 = FixedPointUtils.divide(worldX[2] - worldX[0], y3y1);
+        int dwy1 = FixedPointUtils.divide(worldY[1] - worldY[0], y2y1);
+        int dwy2 = FixedPointUtils.divide(worldY[2] - worldY[0], y3y1);
+        int dwz1 = FixedPointUtils.divide(worldZ[1] - worldZ[0], y2y1);
+        int dwz2 = FixedPointUtils.divide(worldZ[2] - worldZ[0], y3y1);
+        int dnx1 = FixedPointUtils.divide(normalX[1] - normalX[0], y2y1);
+        int dnx2 = FixedPointUtils.divide(normalX[2] - normalX[0], y3y1);
+        int dny1 = FixedPointUtils.divide(normalY[1] - normalY[0], y2y1);
+        int dny2 = FixedPointUtils.divide(normalY[2] - normalY[0], y3y1);
+        int dnz1 = FixedPointUtils.divide(normalZ[1] - normalZ[0], y2y1);
+        int dnz2 = FixedPointUtils.divide(normalZ[2] - normalZ[0], y3y1);
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
-        	int dwx = FixedPointMath.divide(dwx2 - dwx1, dxdx);
-        	int dwy = FixedPointMath.divide(dwy2 - dwy1, dxdx);
-        	int dwz = FixedPointMath.divide(dwz2 - dwz1, dxdx);
-        	int dnx = FixedPointMath.divide(dnx2 - dnx1, dxdx);
-        	int dny = FixedPointMath.divide(dny2 - dny1, dxdx);
-        	int dnz = FixedPointMath.divide(dnz2 - dnz1, dxdx);
+        	int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
+        	int dwx = FixedPointUtils.divide(dwx2 - dwx1, dxdx);
+        	int dwy = FixedPointUtils.divide(dwy2 - dwy1, dxdx);
+        	int dwz = FixedPointUtils.divide(dwz2 - dwz1, dxdx);
+        	int dnx = FixedPointUtils.divide(dnx2 - dnx1, dxdx);
+        	int dny = FixedPointUtils.divide(dny2 - dny1, dxdx);
+        	int dnz = FixedPointUtils.divide(dnz2 - dnz1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -227,13 +227,13 @@ public class PhongRasterizer extends FlatRasterizer {
         } else {
         	int dxdx = dx1 - dx2;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
-        	int dwx = FixedPointMath.divide(dwx1 - dwx2, dxdx);
-        	int dwy = FixedPointMath.divide(dwy1 - dwy2, dxdx);
-        	int dwz = FixedPointMath.divide(dwz1 - dwz2, dxdx);
-        	int dnx = FixedPointMath.divide(dnx1 - dnx2, dxdx);
-        	int dny = FixedPointMath.divide(dny1 - dny2, dxdx);
-        	int dnz = FixedPointMath.divide(dnz1 - dnz2, dxdx);
+        	int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
+        	int dwx = FixedPointUtils.divide(dwx1 - dwx2, dxdx);
+        	int dwy = FixedPointUtils.divide(dwy1 - dwy2, dxdx);
+        	int dwz = FixedPointUtils.divide(dwz1 - dwz2, dxdx);
+        	int dnx = FixedPointUtils.divide(dnx1 - dnx2, dxdx);
+        	int dny = FixedPointUtils.divide(dny1 - dny2, dxdx);
+        	int dnz = FixedPointUtils.divide(dnz1 - dnz2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -264,32 +264,32 @@ public class PhongRasterizer extends FlatRasterizer {
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-		int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
-		int dz1 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-		int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
-		int dwx1 = FixedPointMath.divide(worldX[2] - worldX[0], y3y1);
-		int dwx2 = FixedPointMath.divide(worldX[2] - worldX[1], y3y2);
-		int dwy1 = FixedPointMath.divide(worldY[2] - worldY[0], y3y1);
-		int dwy2 = FixedPointMath.divide(worldY[2] - worldY[1], y3y2);
-		int dwz1 = FixedPointMath.divide(worldZ[2] - worldZ[0], y3y1);
-		int dwz2 = FixedPointMath.divide(worldZ[2] - worldZ[1], y3y2);
-		int dnx1 = FixedPointMath.divide(normalX[2] - normalX[0], y3y1);
-		int dnx2 = FixedPointMath.divide(normalX[2] - normalX[1], y3y2);
-		int dny1 = FixedPointMath.divide(normalY[2] - normalY[0], y3y1);
-		int dny2 = FixedPointMath.divide(normalY[2] - normalY[1], y3y2);
-		int dnz1 = FixedPointMath.divide(normalZ[2] - normalZ[0], y3y1);
-		int dnz2 = FixedPointMath.divide(normalZ[2] - normalZ[1], y3y2);
+		int dx1 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		int dz1 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
+		int dwx1 = FixedPointUtils.divide(worldX[2] - worldX[0], y3y1);
+		int dwx2 = FixedPointUtils.divide(worldX[2] - worldX[1], y3y2);
+		int dwy1 = FixedPointUtils.divide(worldY[2] - worldY[0], y3y1);
+		int dwy2 = FixedPointUtils.divide(worldY[2] - worldY[1], y3y2);
+		int dwz1 = FixedPointUtils.divide(worldZ[2] - worldZ[0], y3y1);
+		int dwz2 = FixedPointUtils.divide(worldZ[2] - worldZ[1], y3y2);
+		int dnx1 = FixedPointUtils.divide(normalX[2] - normalX[0], y3y1);
+		int dnx2 = FixedPointUtils.divide(normalX[2] - normalX[1], y3y2);
+		int dny1 = FixedPointUtils.divide(normalY[2] - normalY[0], y3y1);
+		int dny2 = FixedPointUtils.divide(normalY[2] - normalY[1], y3y2);
+		int dnz1 = FixedPointUtils.divide(normalZ[2] - normalZ[0], y3y1);
+		int dnz2 = FixedPointUtils.divide(normalZ[2] - normalZ[1], y3y2);
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
-			int dwx = FixedPointMath.divide(dwx1 - dwx2, dxdx);
-			int dwy = FixedPointMath.divide(dwy1 - dwy2, dxdx);
-			int dwz = FixedPointMath.divide(dwz1 - dwz2, dxdx);
-			int dnx = FixedPointMath.divide(dnx1 - dnx2, dxdx);
-			int dny = FixedPointMath.divide(dny1 - dny2, dxdx);
-			int dnz = FixedPointMath.divide(dnz1 - dnz2, dxdx);
+			int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
+			int dwx = FixedPointUtils.divide(dwx1 - dwx2, dxdx);
+			int dwy = FixedPointUtils.divide(dwy1 - dwy2, dxdx);
+			int dwz = FixedPointUtils.divide(dwz1 - dwz2, dxdx);
+			int dnx = FixedPointUtils.divide(dnx1 - dnx2, dxdx);
+			int dny = FixedPointUtils.divide(dny1 - dny2, dxdx);
+			int dnz = FixedPointUtils.divide(dnz1 - dnz2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
@@ -314,13 +314,13 @@ public class PhongRasterizer extends FlatRasterizer {
 		} else {
 			int dxdx = dx2 - dx1;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
-			int dwx = FixedPointMath.divide(dwx2 - dwx1, dxdx);
-			int dwy = FixedPointMath.divide(dwy2 - dwy1, dxdx);
-			int dwz = FixedPointMath.divide(dwz2 - dwz1, dxdx);
-			int dnx = FixedPointMath.divide(dnx2 - dnx1, dxdx);
-			int dny = FixedPointMath.divide(dny2 - dny1, dxdx);
-			int dnz = FixedPointMath.divide(dnz2 - dnz1, dxdx);
+			int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
+			int dwx = FixedPointUtils.divide(dwx2 - dwx1, dxdx);
+			int dwy = FixedPointUtils.divide(dwy2 - dwy1, dxdx);
+			int dwz = FixedPointUtils.divide(dwz2 - dwz1, dxdx);
+			int dnx = FixedPointUtils.divide(dnx2 - dnx1, dxdx);
+			int dny = FixedPointUtils.divide(dny2 - dny1, dxdx);
+			int dnz = FixedPointUtils.divide(dnz2 - dnz1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;

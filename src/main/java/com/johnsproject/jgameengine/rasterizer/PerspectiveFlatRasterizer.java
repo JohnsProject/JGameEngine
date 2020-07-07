@@ -1,13 +1,13 @@
 package com.johnsproject.jgameengine.rasterizer;
 
-import static com.johnsproject.jgameengine.math.FixedPointMath.*;
-import static com.johnsproject.jgameengine.math.VectorMath.*;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.*;
+import static com.johnsproject.jgameengine.util.VectorUtils.*;
 
-import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
 	
@@ -26,9 +26,9 @@ public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
 	 */
 	public void perspectiveDraw(Face face, Texture texture) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
-		VectorMath.copy(location0, face.getVertex(0).getLocation());
-		VectorMath.copy(location1, face.getVertex(1).getLocation());
-		VectorMath.copy(location2, face.getVertex(2).getLocation());
+		VectorUtils.copy(location0, face.getVertex(0).getLocation());
+		VectorUtils.copy(location1, face.getVertex(1).getLocation());
+		VectorUtils.copy(location2, face.getVertex(2).getLocation());
 		if(cull()) {
 			return;
 		}
@@ -39,15 +39,15 @@ public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
 		zMultiply(u);
 		zMultiply(v);
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorMath.swap(location0, location1);
+			VectorUtils.swap(location0, location1);
 			swapVector(u, v, 0, 1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			VectorMath.swap(location1, location2);
+			VectorUtils.swap(location1, location2);
 			swapVector(u, v, 2, 1);
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorMath.swap(location0, location1);
+			VectorUtils.swap(location0, location1);
 			swapVector(u, v, 0, 1);
 		}
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
@@ -60,26 +60,26 @@ public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
              int z = location0[VECTOR_Z];
              int uvx = u[0];
              int uvy = v[0];
-             int dy = FixedPointMath.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
+             int dy = FixedPointUtils.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
              int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
-             x += FixedPointMath.multiply(dy, multiplier);
+             x += FixedPointUtils.multiply(dy, multiplier);
              multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
-             z += FixedPointMath.multiply(dy, multiplier);
+             z += FixedPointUtils.multiply(dy, multiplier);
              multiplier = u[2] - u[0];
-             uvx += FixedPointMath.multiply(dy, multiplier);
+             uvx += FixedPointUtils.multiply(dy, multiplier);
              multiplier = v[2] - v[0];
-             uvy += FixedPointMath.multiply(dy, multiplier);
+             uvy += FixedPointUtils.multiply(dy, multiplier);
              vectorCache[VECTOR_X] = x;
              vectorCache[VECTOR_Y] = y;
              vectorCache[VECTOR_Z] = z;
              uvCache[VECTOR_X] = uvx;
              uvCache[VECTOR_Y] = uvy;
-             VectorMath.swap(vectorCache, location2);
+             VectorUtils.swap(vectorCache, location2);
              swapCache(u, v, uvCache, 2);
              drawBottomTriangle();
-             VectorMath.swap(vectorCache, location2);
-             VectorMath.swap(location0, location1);
-             VectorMath.swap(location1, vectorCache);
+             VectorUtils.swap(vectorCache, location2);
+             VectorUtils.swap(location0, location1);
+             VectorUtils.swap(location1, vectorCache);
              swapCache(u, v, uvCache, 2);
              swapVector(u, v, 0, 1);
              swapCache(u, v, uvCache, 1);
@@ -93,20 +93,20 @@ public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
-        int dx1 = FixedPointMath.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
-        int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-        int dz1 = FixedPointMath.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
-        int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-        int du1 = FixedPointMath.divide(u[1] - u[0], y2y1);
-        int du2 = FixedPointMath.divide(u[2] - u[0], y3y1);
-        int dv1 = FixedPointMath.divide(v[1] - v[0], y2y1);
-        int dv2 = FixedPointMath.divide(v[2] - v[0], y3y1);
+        int dx1 = FixedPointUtils.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+        int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+        int dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+        int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+        int du1 = FixedPointUtils.divide(u[1] - u[0], y2y1);
+        int du2 = FixedPointUtils.divide(u[2] - u[0], y3y1);
+        int dv1 = FixedPointUtils.divide(v[1] - v[0], y2y1);
+        int dv2 = FixedPointUtils.divide(v[2] - v[0], y3y1);
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
-        	int du = FixedPointMath.divide(du2 - du1, dxdx);
-        	int dv = FixedPointMath.divide(dv2 - dv1, dxdx);
+        	int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
+        	int du = FixedPointUtils.divide(du2 - du1, dxdx);
+        	int dv = FixedPointUtils.divide(dv2 - dv1, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -123,9 +123,9 @@ public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
         } else {
         	int dxdx = dx1 - dx2;
         	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
-        	int du = FixedPointMath.divide(du1 - du2, dxdx);
-        	int dv = FixedPointMath.divide(dv1 - dv2, dxdx);
+        	int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
+        	int du = FixedPointUtils.divide(du1 - du2, dxdx);
+        	int dv = FixedPointUtils.divide(dv1 - dv2, dxdx);
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
@@ -148,20 +148,20 @@ public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		int dx1 = FixedPointMath.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-		int dx2 = FixedPointMath.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
-		int dz1 = FixedPointMath.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-		int dz2 = FixedPointMath.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
-		int du1 = FixedPointMath.divide(u[2] - u[0], y3y1);
-		int du2 = FixedPointMath.divide(u[2] - u[1], y3y2);
-		int dv1 = FixedPointMath.divide(v[2] - v[0], y3y1);
-		int dv2 = FixedPointMath.divide(v[2] - v[1], y3y2);
+		int dx1 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		int dz1 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
+		int du1 = FixedPointUtils.divide(u[2] - u[0], y3y1);
+		int du2 = FixedPointUtils.divide(u[2] - u[1], y3y2);
+		int dv1 = FixedPointUtils.divide(v[2] - v[0], y3y1);
+		int dv2 = FixedPointUtils.divide(v[2] - v[1], y3y2);
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = FixedPointMath.divide(dz1 - dz2, dxdx);
-			int du = FixedPointMath.divide(du1 - du2, dxdx);
-			int dv = FixedPointMath.divide(dv1 - dv2, dxdx);
+			int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
+			int du = FixedPointUtils.divide(du1 - du2, dxdx);
+			int dv = FixedPointUtils.divide(dv1 - dv2, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
@@ -178,9 +178,9 @@ public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
 		} else {
 			int dxdx = dx2 - dx1;
 			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = FixedPointMath.divide(dz2 - dz1, dxdx);
-			int du = FixedPointMath.divide(du2 - du1, dxdx);
-			int dv = FixedPointMath.divide(dv2 - dv1, dxdx);
+			int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
+			int du = FixedPointUtils.divide(du2 - du1, dxdx);
+			int dv = FixedPointUtils.divide(dv2 - dv1, dxdx);
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
@@ -208,8 +208,8 @@ public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
 			fragment.getLocation()[VECTOR_Y] = y;
 			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
 			fragment.getLocation()[VECTOR_Z] = oneByZ;
-			fragment.getUV()[VECTOR_X] = FixedPointMath.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
-			fragment.getUV()[VECTOR_Y] = FixedPointMath.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
+			fragment.getUV()[VECTOR_X] = FixedPointUtils.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
+			fragment.getUV()[VECTOR_Y] = FixedPointUtils.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
 			shader.fragment(fragment);
 			z += dz;
 			u += du;

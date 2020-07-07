@@ -1,6 +1,6 @@
 package com.johnsproject.jgameengine.model;
 
-import com.johnsproject.jgameengine.math.VectorMath;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class Fragment {
 
@@ -11,10 +11,10 @@ public class Fragment {
 	private int color;
 	
 	public Fragment() {
-		this.location = VectorMath.emptyVector();
-		this.worldLocation = VectorMath.emptyVector();
-		this.worldNormal = VectorMath.emptyVector();
-		this.uv = VectorMath.emptyVector();
+		this.location = VectorUtils.emptyVector();
+		this.worldLocation = VectorUtils.emptyVector();
+		this.worldNormal = VectorUtils.emptyVector();
+		this.uv = VectorUtils.emptyVector();
 		this.color = 0;
 	}
 
