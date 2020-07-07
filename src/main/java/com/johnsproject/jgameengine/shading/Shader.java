@@ -1,4 +1,4 @@
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.shading;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Fragment;

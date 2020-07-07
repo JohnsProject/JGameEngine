@@ -1,34 +1,57 @@
-package com.johnsproject.jgameengine.rasterizer;
+package com.johnsproject.jgameengine.rasterization;
 
 import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
-import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Texture;
-import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.util.ColorUtils;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
-public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
+public class AffineGouraudRasterizer extends GouraudRasterizer {
 	
-	public PerspectiveGouraudRasterizer(Shader shader) {
+	protected final int[] u;
+	protected final int[] v;
+	protected final int[] uv;
+	protected final int[] uvCache;
+	
+	public AffineGouraudRasterizer(Shader shader) {
 		super(shader);
+		u = VectorUtils.emptyVector();
+		v = VectorUtils.emptyVector();
+		uv = VectorUtils.emptyVector();
+		uvCache = VectorUtils.emptyVector();
+	}
+	
+	protected final void setUV0(int[] uv, Texture texture) {
+		u[0] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[0] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+	}
+	
+	protected final void setUV1(int[] uv, Texture texture) {
+		u[1] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[1] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+	}
+	
+	protected final void setUV2(int[] uv, Texture texture) {
+		u[2] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[2] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
 	}
 	
 	/**
 	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
 	 * This rasterizer draws a triangle using the x, y coordinates of each vertex of the geometryBuffer. 
-	 * It uses perspective interpolation to find out the z and the uv coordinate, as well as the colors for each pixel.
+	 * It uses linear interpolation to find out the z and the uv coordinate, as well as the colors for each pixel.
 	 * While rasterizing the geometryBuffer, for each pixel/fragment the {@link Shader#fragment} 
 	 * method of this rasterizer's {@link Shader} will be called.
 	 * 
 	 * @param geometryBuffer
 	 */
-	public void perspectiveDraw(Face face, Texture texture) {
+	public void affineDraw(Face face, Texture texture) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
 		VectorUtils.copy(location0, face.getVertex(0).getLocation());
 		VectorUtils.copy(location1, face.getVertex(1).getLocation());
@@ -42,12 +65,6 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		setUV0(face.getUV(0), texture);
 		setUV1(face.getUV(1), texture);
 		setUV2(face.getUV(2), texture);
-		divideOneByZ();
-		zMultiply(u);
-		zMultiply(v);
-		zMultiply(red);
-		zMultiply(green);
-		zMultiply(blue);
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			VectorUtils.swap(location0, location1);
 			swapVector(u, v, 0, 1);
@@ -126,10 +143,10 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
         int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
         int dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
         int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-        int du1 = FixedPointUtils.divide(this.u[1] - this.u[0], y2y1);
-        int du2 = FixedPointUtils.divide(this.u[2] - this.u[0], y3y1);
-        int dv1 = FixedPointUtils.divide(this.v[1] - this.v[0], y2y1);
-        int dv2 = FixedPointUtils.divide(this.v[2] - this.v[0], y3y1);
+        int du1 = FixedPointUtils.divide(u[1] - u[0], y2y1);
+        int du2 = FixedPointUtils.divide(u[2] - u[0], y3y1);
+        int dv1 = FixedPointUtils.divide(v[1] - v[0], y2y1);
+        int dv2 = FixedPointUtils.divide(v[2] - v[0], y3y1);
         int dr1 = FixedPointUtils.divide(red[1] - red[0], y2y1);
         int dr2 = FixedPointUtils.divide(red[2] - red[0], y3y1);
         int dg1 = FixedPointUtils.divide(green[1] - green[0], y2y1);
@@ -205,10 +222,10 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
 		int dz1 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
 		int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
-		int du1 = FixedPointUtils.divide(this.u[2] - this.u[0], y3y1);
-		int du2 = FixedPointUtils.divide(this.u[2] - this.u[1], y3y2);
-		int dv1 = FixedPointUtils.divide(this.v[2] - this.v[0], y3y1);
-		int dv2 = FixedPointUtils.divide(this.v[2] - this.v[1], y3y2);
+		int du1 = FixedPointUtils.divide(u[2] - u[0], y3y1);
+		int du2 = FixedPointUtils.divide(u[2] - u[1], y3y2);
+		int dv1 = FixedPointUtils.divide(v[2] - v[0], y3y1);
+		int dv2 = FixedPointUtils.divide(v[2] - v[1], y3y2);
 		int dr1 = FixedPointUtils.divide(red[2] - red[0], y3y1);
 		int dr2 = FixedPointUtils.divide(red[2] - red[1], y3y2);
 		int dg1 = FixedPointUtils.divide(green[2] - green[0], y3y1);
@@ -274,22 +291,19 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		}
     }
 	
-	private static final int DIVISION_ONE = FP_ONE << FP_BIT;
-	private static final int INTERPOLATE_BIT_2 = INTERPOLATE_BIT * 2;
 	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int r, int g, int b, int dz, int du, int dv, int dr, int dg, int db) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
-		int oneByZ, cr, cg, cb;
+		int cr, cg, cb;
 		for (; x1 <= x2; x1++) {
 			fragment.getLocation()[VECTOR_X] = x1;
 			fragment.getLocation()[VECTOR_Y] = y;
-			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
-			fragment.getLocation()[VECTOR_Z] = oneByZ;
-			fragment.getUV()[VECTOR_X] = FixedPointUtils.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
-			fragment.getUV()[VECTOR_Y] = FixedPointUtils.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
-			cr = FixedPointUtils.multiply(r, oneByZ) >> INTERPOLATE_BIT_2;
-			cg = FixedPointUtils.multiply(g, oneByZ) >> INTERPOLATE_BIT_2;
-			cb = FixedPointUtils.multiply(b, oneByZ) >> INTERPOLATE_BIT_2;
+			fragment.getLocation()[VECTOR_Z] = z >> FP_BIT;
+			fragment.getUV()[VECTOR_X] = u >> FP_PLUS_INTERPOLATE_BIT;
+			fragment.getUV()[VECTOR_Y] = v >> FP_PLUS_INTERPOLATE_BIT;
+			cr = r >> FP_PLUS_INTERPOLATE_BIT;
+			cg = g >> FP_PLUS_INTERPOLATE_BIT;
+			cb = b >> FP_PLUS_INTERPOLATE_BIT;
 			fragment.setColor(ColorUtils.toColor(cr, cg, cb));
 			shader.fragment(fragment);
 			z += dz;
@@ -301,3 +315,4 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		}
 	}
 }
+

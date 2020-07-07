@@ -1,33 +1,56 @@
-package com.johnsproject.jgameengine.rasterizer;
+package com.johnsproject.jgameengine.rasterization;
 
 import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
-import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Texture;
-import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
-public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
+public class AffinePhongRasterizer extends PhongRasterizer {
 	
-	public PerspectivePhongRasterizer(Shader shader) {
+	protected final int[] u;
+	protected final int[] v;
+	protected final int[] uv;
+	protected final int[] uvCache;
+	
+	public AffinePhongRasterizer(Shader shader) {
 		super(shader);
+		u = VectorUtils.emptyVector();
+		v = VectorUtils.emptyVector();
+		uv = VectorUtils.emptyVector();
+		uvCache = VectorUtils.emptyVector();
+	}
+
+	protected final void setUV0(int[] uv, Texture texture) {
+		u[0] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[0] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+	}
+	
+	protected final void setUV1(int[] uv, Texture texture) {
+		u[1] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[1] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+	}
+	
+	protected final void setUV2(int[] uv, Texture texture) {
+		u[2] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[2] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
 	}
 	
 	/**
 	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
 	 * This rasterizer draws a triangle using the x, y coordinates of each vertex of the geometryBuffer. 
-	 * It uses perspective interpolation to find out the z and the uv coordinate, as well as the world coordinates and the normals for each pixel.
+	 * It uses linear interpolation to find out the z and the uv coordinate, as well as the world coordinates and the normals for each pixel.
 	 * While rasterizing the geometryBuffer, for each pixel/fragment the {@link Shader#fragment} 
 	 * method of this rasterizer's {@link Shader} will be called.
 	 * 
 	 * @param geometryBuffer
-	 */	
-	public void perspectiveDraw(Face face, Texture texture) {
+	 */
+	public void affineDraw(Face face, Texture texture) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
 		VectorUtils.copy(location0, face.getVertex(0).getLocation());
 		VectorUtils.copy(location1, face.getVertex(1).getLocation());
@@ -44,15 +67,6 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 		setUV0(face.getUV(0), texture);
 		setUV1(face.getUV(1), texture);
 		setUV2(face.getUV(2), texture);
-		divideOneByZ();
-		zMultiply(u);
-		zMultiply(v);
-		zMultiply(worldX);
-		zMultiply(worldY);
-		zMultiply(worldZ);
-		zMultiply(normalX);
-		zMultiply(normalY);
-		zMultiply(normalZ);
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			VectorUtils.swap(location0, location1);
 			swapVector(u, v, 0, 1);
@@ -346,26 +360,22 @@ public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 		}
     }
 	
-	private static final int DIVISION_ONE = FP_ONE << FP_BIT;
-	private static final int INTERPOLATE_BIT_2 = INTERPOLATE_BIT * 2;
 	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int wx, int wy, int wz, int nx, int ny, int nz,
 							int dz, int du, int dv, int dwx, int dwy, int dwz, int dnx, int dny, int dnz) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
-        int oneByZ;
 		for (; x1 <= x2; x1++) {
 			fragment.getLocation()[VECTOR_X] = x1;
 			fragment.getLocation()[VECTOR_Y] = y;
-			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
-			fragment.getLocation()[VECTOR_Z] = oneByZ;
-			fragment.getUV()[VECTOR_X] = FixedPointUtils.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
-			fragment.getUV()[VECTOR_Y] = FixedPointUtils.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
-            fragment.getWorldLocation()[VECTOR_X] = FixedPointUtils.multiply(wx, oneByZ);
-            fragment.getWorldLocation()[VECTOR_Y] = FixedPointUtils.multiply(wy, oneByZ);
-            fragment.getWorldLocation()[VECTOR_Z] = FixedPointUtils.multiply(wz, oneByZ);
-            fragment.getWorldNormal()[VECTOR_X] = FixedPointUtils.multiply(nx, oneByZ);
-            fragment.getWorldNormal()[VECTOR_Y] = FixedPointUtils.multiply(ny, oneByZ);
-            fragment.getWorldNormal()[VECTOR_Z] = FixedPointUtils.multiply(nz, oneByZ);
+			fragment.getLocation()[VECTOR_Z] = z >> FP_BIT;
+			fragment.getUV()[VECTOR_X] = u >> FP_PLUS_INTERPOLATE_BIT;
+            fragment.getUV()[VECTOR_Y] = v >> FP_PLUS_INTERPOLATE_BIT;
+			fragment.getWorldLocation()[VECTOR_X] = wx >> FP_MINUS_INTERPOLATE_BIT;
+            fragment.getWorldLocation()[VECTOR_Y] = wy >> FP_MINUS_INTERPOLATE_BIT;
+            fragment.getWorldLocation()[VECTOR_Z] = wz >> FP_MINUS_INTERPOLATE_BIT;
+			fragment.getWorldNormal()[VECTOR_X] = nx >> FP_MINUS_INTERPOLATE_BIT;
+			fragment.getWorldNormal()[VECTOR_Y] = ny >> FP_MINUS_INTERPOLATE_BIT;
+            fragment.getWorldNormal()[VECTOR_Z] = nz >> FP_MINUS_INTERPOLATE_BIT;
 			shader.fragment(fragment);
 			z += dz;
 			u += du;

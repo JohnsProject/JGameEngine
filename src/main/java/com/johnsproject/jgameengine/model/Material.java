@@ -1,6 +1,6 @@
 package com.johnsproject.jgameengine.model;
 
-import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.util.ColorUtils;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 

@@ -1,11 +1,11 @@
-package com.johnsproject.jgameengine.rasterizer;
+package com.johnsproject.jgameengine.rasterization;
 
 import static com.johnsproject.jgameengine.util.FixedPointUtils.*;
 import static com.johnsproject.jgameengine.util.VectorUtils.*;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Texture;
-import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 

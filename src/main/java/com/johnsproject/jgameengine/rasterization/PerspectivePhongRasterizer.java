@@ -1,91 +1,33 @@
-package com.johnsproject.jgameengine.rasterizer;
+package com.johnsproject.jgameengine.rasterization;
 
 import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
 import com.johnsproject.jgameengine.model.Face;
-import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.model.Texture;
+import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
-public class PhongRasterizer extends FlatRasterizer {
+public class PerspectivePhongRasterizer extends AffinePhongRasterizer {
 	
-	// in phong rasterizer it's needed to decrease precision or a overflow will happen.
-	public static final byte FP_MINUS_INTERPOLATE_BIT = FP_BIT - INTERPOLATE_BIT;
-	
-	protected final int[] worldX;
-	protected final int[] worldY;
-	protected final int[] worldZ;
-	protected final int[] worldLocation;
-	protected final int[] worldCache;
-	protected final int[] normalX;
-	protected final int[] normalY;
-	protected final int[] normalZ;
-	protected final int[] normal;
-	protected final int[] normalCache;
-	
-	public PhongRasterizer(Shader shader) {
+	public PerspectivePhongRasterizer(Shader shader) {
 		super(shader);
-		worldX = VectorUtils.emptyVector();
-		worldY = VectorUtils.emptyVector();
-		worldZ = VectorUtils.emptyVector();
-		worldLocation = VectorUtils.emptyVector();
-		worldCache = VectorUtils.emptyVector();
-		normalX = VectorUtils.emptyVector();
-		normalY = VectorUtils.emptyVector();
-		normalZ = VectorUtils.emptyVector();
-		normal = VectorUtils.emptyVector();
-		normalCache = VectorUtils.emptyVector();
 	}
 	
-	protected void setWorldLocation0(int[] location) {
-		worldX[0] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		worldY[0] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		worldZ[0] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
-	
-	protected void setWorldLocation1(int[] location) {
-		worldX[1] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		worldY[1] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		worldZ[1] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
-	
-	protected void setWorldLocation2(int[] location) {
-		worldX[2] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		worldY[2] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		worldZ[2] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
-	
-	protected void setNormal0(int[] location) {
-		normalX[0] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		normalY[0] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		normalZ[0] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
-	
-	protected void setNormal1(int[] location) {
-		normalX[1] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		normalY[1] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		normalZ[1] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
-	
-	protected void setNormal2(int[] location) {
-		normalX[2] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		normalY[2] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		normalZ[2] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
-
 	/**
 	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
 	 * This rasterizer draws a triangle using the x, y coordinates of each vertex of the geometryBuffer. 
-	 * It uses linear interpolation to find out the z coordinate, the world coordinates and the normals for each pixel.
+	 * It uses perspective interpolation to find out the z and the uv coordinate, as well as the world coordinates and the normals for each pixel.
 	 * While rasterizing the geometryBuffer, for each pixel/fragment the {@link Shader#fragment} 
 	 * method of this rasterizer's {@link Shader} will be called.
 	 * 
 	 * @param geometryBuffer
-	 */
-	public void draw(Face face) {
+	 */	
+	public void perspectiveDraw(Face face, Texture texture) {
 		copyFrustum(shader.getShaderBuffer().getCamera().getRenderTargetPortedFrustum());
 		VectorUtils.copy(location0, face.getVertex(0).getLocation());
 		VectorUtils.copy(location1, face.getVertex(1).getLocation());
@@ -99,18 +41,33 @@ public class PhongRasterizer extends FlatRasterizer {
 		setNormal0(face.getVertex(0).getWorldNormal());
 		setNormal1(face.getVertex(1).getWorldNormal());
 		setNormal2(face.getVertex(2).getWorldNormal());
+		setUV0(face.getUV(0), texture);
+		setUV1(face.getUV(1), texture);
+		setUV2(face.getUV(2), texture);
+		divideOneByZ();
+		zMultiply(u);
+		zMultiply(v);
+		zMultiply(worldX);
+		zMultiply(worldY);
+		zMultiply(worldZ);
+		zMultiply(normalX);
+		zMultiply(normalY);
+		zMultiply(normalZ);
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			VectorUtils.swap(location0, location1);
+			swapVector(u, v, 0, 1);
 			swapVector(worldX, worldY, worldZ, 0, 1);
 			swapVector(normalX, normalY, normalZ, 0, 1);
 		}
 		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
 			VectorUtils.swap(location1, location2);
+			swapVector(u, v, 2, 1);
 			swapVector(worldX, worldY, worldZ, 2, 1);
 			swapVector(normalX, normalY, normalZ, 2, 1);
 		}
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			VectorUtils.swap(location0, location1);
+			swapVector(u, v, 0, 1);
 			swapVector(worldX, worldY, worldZ, 0, 1);
 			swapVector(normalX, normalY, normalZ, 0, 1);
 		}
@@ -119,9 +76,11 @@ public class PhongRasterizer extends FlatRasterizer {
         } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
         	drawTopTriangle();
         } else {
-            int x = location0[VECTOR_X];
+        	int x = location0[VECTOR_X];
             int y = location1[VECTOR_Y];
             int z = location0[VECTOR_Z];
+            int uvx = u[0];
+            int uvy = v[0];
             int wx = worldX[0];
             int wy = worldY[0];
             int wz = worldZ[0];
@@ -133,6 +92,10 @@ public class PhongRasterizer extends FlatRasterizer {
             x += FixedPointUtils.multiply(dy, multiplier);
             multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
             z += FixedPointUtils.multiply(dy, multiplier);
+            multiplier = u[2] - u[0];
+            uvx += FixedPointUtils.multiply(dy, multiplier);
+            multiplier = v[2] - v[0];
+            uvy += FixedPointUtils.multiply(dy, multiplier);
             multiplier = worldX[2] - worldX[0];
             wx += FixedPointUtils.multiply(dy, multiplier);
             multiplier = worldY[2] - worldY[0];
@@ -148,6 +111,8 @@ public class PhongRasterizer extends FlatRasterizer {
             vectorCache[VECTOR_X] = x;
             vectorCache[VECTOR_Y] = y;
             vectorCache[VECTOR_Z] = z;
+            uvCache[VECTOR_X] = uvx;
+            uvCache[VECTOR_Y] = uvy;
             worldCache[VECTOR_X] = wx;
             worldCache[VECTOR_Y] = wy;
             worldCache[VECTOR_Z] = wz;
@@ -155,12 +120,16 @@ public class PhongRasterizer extends FlatRasterizer {
             normalCache[VECTOR_Y] = ny;
             normalCache[VECTOR_Z] = nz;
             VectorUtils.swap(vectorCache, location2);
+            swapCache(u, v, uvCache, 2);
             swapCache(worldX, worldY, worldZ, worldCache, 2);
             swapCache(normalX, normalY, normalZ, normalCache, 2);
             drawBottomTriangle();
             VectorUtils.swap(vectorCache, location2);
             VectorUtils.swap(location0, location1);
             VectorUtils.swap(location1, vectorCache);
+            swapCache(u, v, uvCache, 2);
+            swapVector(u, v, 0, 1);
+            swapCache(u, v, uvCache, 1);
             swapCache(worldX, worldY, worldZ, worldCache, 2);
             swapVector(worldX, worldY, worldZ, 0, 1);
             swapCache(worldX, worldY, worldZ, worldCache, 1);
@@ -181,6 +150,10 @@ public class PhongRasterizer extends FlatRasterizer {
         int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
         int dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
         int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+        int du1 = FixedPointUtils.divide(this.u[1] - this.u[0], y2y1);
+        int du2 = FixedPointUtils.divide(this.u[2] - this.u[0], y3y1);
+        int dv1 = FixedPointUtils.divide(this.v[1] - this.v[0], y2y1);
+        int dv2 = FixedPointUtils.divide(this.v[2] - this.v[0], y3y1);
         int dwx1 = FixedPointUtils.divide(worldX[1] - worldX[0], y2y1);
         int dwx2 = FixedPointUtils.divide(worldX[2] - worldX[0], y3y1);
         int dwy1 = FixedPointUtils.divide(worldY[1] - worldY[0], y2y1);
@@ -197,6 +170,8 @@ public class PhongRasterizer extends FlatRasterizer {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
         	int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
+        	int du = FixedPointUtils.divide(du2 - du1, dxdx);
+        	int dv = FixedPointUtils.divide(dv2 - dv1, dxdx);
         	int dwx = FixedPointUtils.divide(dwx2 - dwx1, dxdx);
         	int dwy = FixedPointUtils.divide(dwy2 - dwy1, dxdx);
         	int dwz = FixedPointUtils.divide(dwz2 - dwz1, dxdx);
@@ -206,6 +181,8 @@ public class PhongRasterizer extends FlatRasterizer {
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
+            int u = this.u[0] << FP_BIT;
+            int v = this.v[0] << FP_BIT;
             int wx = worldX[0] << FP_BIT;
             int wy = worldY[0] << FP_BIT;
             int wz = worldZ[0] << FP_BIT;
@@ -213,10 +190,12 @@ public class PhongRasterizer extends FlatRasterizer {
             int ny = normalY[0] << FP_BIT;
             int nz = normalZ[0] << FP_BIT;
 	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
-	        	drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz);
+	        	drawScanline(x1, x2, y, z, u, v, wx, wy, wz, nx, ny, nz, dz, du, dv, dwx, dwy, dwz, dnx, dny, dnz);
 	            x1 += dx1;
 	            x2 += dx2;
 	            z += dz1;
+	            u += du1;
+	            v += dv1;
 	            wx += dwx1;
 	            wy += dwy1;
 	            wz += dwz1;
@@ -228,6 +207,8 @@ public class PhongRasterizer extends FlatRasterizer {
         	int dxdx = dx1 - dx2;
         	dxdx = dxdx == 0 ? 1 : dxdx;
         	int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
+        	int du = FixedPointUtils.divide(du1 - du2, dxdx);
+        	int dv = FixedPointUtils.divide(dv1 - dv2, dxdx);
         	int dwx = FixedPointUtils.divide(dwx1 - dwx2, dxdx);
         	int dwy = FixedPointUtils.divide(dwy1 - dwy2, dxdx);
         	int dwz = FixedPointUtils.divide(dwz1 - dwz2, dxdx);
@@ -237,6 +218,8 @@ public class PhongRasterizer extends FlatRasterizer {
         	int x1 = xShifted;
             int x2 = xShifted;
             int z = location0[VECTOR_Z] << FP_BIT;
+            int u = this.u[0] << FP_BIT;
+            int v = this.v[0] << FP_BIT;
             int wx = worldX[0] << FP_BIT;
             int wy = worldY[0] << FP_BIT;
             int wz = worldZ[0] << FP_BIT;
@@ -244,10 +227,12 @@ public class PhongRasterizer extends FlatRasterizer {
             int ny = normalY[0] << FP_BIT;
             int nz = normalZ[0] << FP_BIT;
         	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
-        		drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz);
+        		drawScanline(x1, x2, y, z, u, v, wx, wy, wz, nx, ny, nz, dz, du, dv, dwx, dwy, dwz, dnx, dny, dnz);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
+	            u += du2;
+	            v += dv2;
 	            wx += dwx2;
 	            wy += dwy2;
 	            wz += dwz2;
@@ -268,6 +253,10 @@ public class PhongRasterizer extends FlatRasterizer {
 		int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
 		int dz1 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
 		int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
+		int du1 = FixedPointUtils.divide(this.u[2] - this.u[0], y3y1);
+		int du2 = FixedPointUtils.divide(this.u[2] - this.u[1], y3y2);
+		int dv1 = FixedPointUtils.divide(this.v[2] - this.v[0], y3y1);
+		int dv2 = FixedPointUtils.divide(this.v[2] - this.v[1], y3y2);
 		int dwx1 = FixedPointUtils.divide(worldX[2] - worldX[0], y3y1);
 		int dwx2 = FixedPointUtils.divide(worldX[2] - worldX[1], y3y2);
 		int dwy1 = FixedPointUtils.divide(worldY[2] - worldY[0], y3y1);
@@ -284,6 +273,8 @@ public class PhongRasterizer extends FlatRasterizer {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
 			int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
+			int du = FixedPointUtils.divide(du1 - du2, dxdx);
+			int dv = FixedPointUtils.divide(dv1 - dv2, dxdx);
 			int dwx = FixedPointUtils.divide(dwx1 - dwx2, dxdx);
 			int dwy = FixedPointUtils.divide(dwy1 - dwy2, dxdx);
 			int dwz = FixedPointUtils.divide(dwz1 - dwz2, dxdx);
@@ -293,6 +284,8 @@ public class PhongRasterizer extends FlatRasterizer {
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
+			int u = this.u[2] << FP_BIT;
+			int v = this.v[2] << FP_BIT;
 			int wx = worldX[2] << FP_BIT;
             int wy = worldY[2] << FP_BIT;
             int wz = worldZ[2] << FP_BIT;
@@ -300,10 +293,12 @@ public class PhongRasterizer extends FlatRasterizer {
             int ny = normalY[2] << FP_BIT;
             int nz = normalZ[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz);
+	        	drawScanline(x1, x2, y, z, u, v, wx, wy, wz, nx, ny, nz, dz, du, dv, dwx, dwy, dwz, dnx, dny, dnz);
 	            x1 -= dx1;
 	            x2 -= dx2;
 	            z -= dz1;
+	            u -= du1;
+	            v -= dv1;
 	            wx -= dwx1;
 	            wy -= dwy1;
 	            wz -= dwz1;
@@ -315,6 +310,8 @@ public class PhongRasterizer extends FlatRasterizer {
 			int dxdx = dx2 - dx1;
 			dxdx = dxdx == 0 ? 1 : dxdx;
 			int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
+			int du = FixedPointUtils.divide(du2 - du1, dxdx);
+			int dv = FixedPointUtils.divide(dv2 - dv1, dxdx);
 			int dwx = FixedPointUtils.divide(dwx2 - dwx1, dxdx);
 			int dwy = FixedPointUtils.divide(dwy2 - dwy1, dxdx);
 			int dwz = FixedPointUtils.divide(dwz2 - dwz1, dxdx);
@@ -324,6 +321,8 @@ public class PhongRasterizer extends FlatRasterizer {
 			int x1 = xShifted;
 			int x2 = xShifted;
 			int z = location2[VECTOR_Z] << FP_BIT;
+			int u = this.u[2] << FP_BIT;
+			int v = this.v[2] << FP_BIT;
 			int wx = worldX[2] << FP_BIT;
             int wy = worldY[2] << FP_BIT;
             int wz = worldZ[2] << FP_BIT;
@@ -331,10 +330,12 @@ public class PhongRasterizer extends FlatRasterizer {
             int ny = normalY[2] << FP_BIT;
             int nz = normalZ[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
-	        	drawScanline(x1, x2, y, z, wx, wy, wz, nx, ny, nz, dz, dwx, dwy, dwz, dnx, dny, dnz);
+	        	drawScanline(x1, x2, y, z, u, v, wx, wy, wz, nx, ny, nz, dz, du, dv, dwx, dwy, dwz, dnx, dny, dnz);
 	            x1 -= dx2;
 	            x2 -= dx1;
 	            z -= dz2;
+	            u -= du2;
+	            v -= dv2;
 	            wx -= dwx2;
 	            wy -= dwy2;
 	            wz -= dwz2;
@@ -345,22 +346,30 @@ public class PhongRasterizer extends FlatRasterizer {
 		}
     }
 	
-	private void drawScanline(int x1, int x2, int y, int z, int wx, int wy, int wz, int nx, int ny, int nz,
-							int dz, int dwx, int dwy, int dwz, int dnx, int dny, int dnz) {
+	private static final int DIVISION_ONE = FP_ONE << FP_BIT;
+	private static final int INTERPOLATE_BIT_2 = INTERPOLATE_BIT * 2;
+	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int wx, int wy, int wz, int nx, int ny, int nz,
+							int dz, int du, int dv, int dwx, int dwy, int dwz, int dnx, int dny, int dnz) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
+        int oneByZ;
 		for (; x1 <= x2; x1++) {
 			fragment.getLocation()[VECTOR_X] = x1;
 			fragment.getLocation()[VECTOR_Y] = y;
-			fragment.getLocation()[VECTOR_Z] = z >> FP_BIT;
-			fragment.getWorldLocation()[VECTOR_X] = wx >> FP_MINUS_INTERPOLATE_BIT;
-            fragment.getWorldLocation()[VECTOR_Y] = wy >> FP_MINUS_INTERPOLATE_BIT;
-            fragment.getWorldLocation()[VECTOR_Z] = wz >> FP_MINUS_INTERPOLATE_BIT;
-			fragment.getWorldNormal()[VECTOR_X] = nx >> FP_MINUS_INTERPOLATE_BIT;
-			fragment.getWorldNormal()[VECTOR_Y] = ny >> FP_MINUS_INTERPOLATE_BIT;
-            fragment.getWorldNormal()[VECTOR_Z] = nz >> FP_MINUS_INTERPOLATE_BIT;
+			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
+			fragment.getLocation()[VECTOR_Z] = oneByZ;
+			fragment.getUV()[VECTOR_X] = FixedPointUtils.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
+			fragment.getUV()[VECTOR_Y] = FixedPointUtils.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
+            fragment.getWorldLocation()[VECTOR_X] = FixedPointUtils.multiply(wx, oneByZ);
+            fragment.getWorldLocation()[VECTOR_Y] = FixedPointUtils.multiply(wy, oneByZ);
+            fragment.getWorldLocation()[VECTOR_Z] = FixedPointUtils.multiply(wz, oneByZ);
+            fragment.getWorldNormal()[VECTOR_X] = FixedPointUtils.multiply(nx, oneByZ);
+            fragment.getWorldNormal()[VECTOR_Y] = FixedPointUtils.multiply(ny, oneByZ);
+            fragment.getWorldNormal()[VECTOR_Z] = FixedPointUtils.multiply(nz, oneByZ);
 			shader.fragment(fragment);
 			z += dz;
+			u += du;
+			v += dv;
 			wx += dwx;
 			wy += dwy;
 			wz += dwz;

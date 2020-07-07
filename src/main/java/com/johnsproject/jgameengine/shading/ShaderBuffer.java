@@ -1,4 +1,4 @@
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.shading;
 
 import java.util.List;
 

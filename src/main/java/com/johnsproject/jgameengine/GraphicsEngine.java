@@ -17,13 +17,13 @@ import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.model.VertexGroup;
-import com.johnsproject.jgameengine.shader.FlatSpecularShader;
-import com.johnsproject.jgameengine.shader.ForwardShaderBuffer;
-import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
-import com.johnsproject.jgameengine.shader.PhongSpecularShader;
-import com.johnsproject.jgameengine.shader.Shader;
-import com.johnsproject.jgameengine.shader.ShaderBuffer;
-import com.johnsproject.jgameengine.shader.ShadowMappingShader;
+import com.johnsproject.jgameengine.shading.FlatSpecularShader;
+import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
+import com.johnsproject.jgameengine.shading.GouraudSpecularShader;
+import com.johnsproject.jgameengine.shading.PhongSpecularShader;
+import com.johnsproject.jgameengine.shading.Shader;
+import com.johnsproject.jgameengine.shading.ShaderBuffer;
+import com.johnsproject.jgameengine.shading.ShadowMappingShader;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class GraphicsEngine implements EngineListener {

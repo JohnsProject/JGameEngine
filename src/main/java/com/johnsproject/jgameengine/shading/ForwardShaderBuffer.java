@@ -1,5 +1,5 @@
 
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.shading;
 
 import static com.johnsproject.jgameengine.util.FixedPointUtils.*;
 

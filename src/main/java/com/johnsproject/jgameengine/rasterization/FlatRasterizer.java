@@ -1,4 +1,4 @@
-package com.johnsproject.jgameengine.rasterizer;
+package com.johnsproject.jgameengine.rasterization;
 
 import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
 import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
@@ -9,7 +9,7 @@ import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Fragment;
-import com.johnsproject.jgameengine.shader.Shader;
+import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 

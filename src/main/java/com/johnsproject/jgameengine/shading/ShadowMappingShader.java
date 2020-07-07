@@ -1,4 +1,4 @@
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.shading;
 
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
@@ -8,7 +8,7 @@ import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
-import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
+import com.johnsproject.jgameengine.rasterization.FlatRasterizer;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;

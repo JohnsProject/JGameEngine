@@ -1,4 +1,4 @@
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.shading;
 
 import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
@@ -11,7 +11,7 @@ import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
-import com.johnsproject.jgameengine.rasterizer.PerspectivePhongRasterizer;
+import com.johnsproject.jgameengine.rasterization.PerspectivePhongRasterizer;
 import com.johnsproject.jgameengine.util.ColorUtils;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
