@@ -75,7 +75,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		inputEngine.addMouseMotionListener(this);
 		inputEngine.addEngineKeyListener(this);
 		cameraTransform = Engine.getInstance().getScene().getMainCamera().getTransform();
-		graphicsEngine.getPreprocessingShaders().clear();
+//		graphicsEngine.getPreprocessingShaders().clear();
 //		Engine.getInstance().limitUpdateRate(true);
 		Engine.getInstance().addEngineListener(this);
 		Engine.getInstance().addEngineListener(graphicsEngine);

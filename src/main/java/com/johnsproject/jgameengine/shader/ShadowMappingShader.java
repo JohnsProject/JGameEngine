@@ -117,6 +117,10 @@ public class ShadowMappingShader implements Shader {
 	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
 		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
 	}
+	
+	public boolean isGlobal() {
+		return true;
+	}
 
 	public boolean directionalShadows() {
 		return directionalShadows;

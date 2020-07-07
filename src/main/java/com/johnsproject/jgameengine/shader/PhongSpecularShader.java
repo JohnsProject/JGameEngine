@@ -205,5 +205,9 @@ public class PhongSpecularShader  implements Shader {
 	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
 		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
 	}
+	
+	public boolean isGlobal() {
+		return false;
+	}
 }
 

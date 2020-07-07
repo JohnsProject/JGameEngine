@@ -6,13 +6,21 @@ import com.johnsproject.jgameengine.model.Vertex;
 
 public interface Shader {
 	
-	public void vertex(Vertex vertex);
+	void vertex(Vertex vertex);
 	
-	public void geometry(Face face);
+	void geometry(Face face);
 	
-	public void fragment(Fragment fragment);
+	void fragment(Fragment fragment);
 
-	public ShaderBuffer getShaderBuffer();
+	ShaderBuffer getShaderBuffer();
 
-	public void setShaderBuffer(ShaderBuffer shaderBuffer);
+	void setShaderBuffer(ShaderBuffer shaderBuffer);
+	
+	/**
+	 * Is this shader a global shader?
+	 * Global shaders are used on all Models.
+	 * 
+	 * @return If this shader is a global shader.
+	 */
+	boolean isGlobal();
 }

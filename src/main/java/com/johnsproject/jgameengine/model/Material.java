@@ -2,7 +2,6 @@ package com.johnsproject.jgameengine.model;
 
 import com.johnsproject.jgameengine.math.ColorMath;
 import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.Shader;
 
 public class Material {
@@ -19,7 +18,7 @@ public class Material {
 	public Material(int index, String name) {
 		this.index = index;
 		this.name = name;
-		this.shader = new GouraudSpecularShader();
+		this.shader = null;
 		this.diffuseIntensity = FixedPointMath.FP_ONE;
 		this.diffuseIntensity = ColorMath.WHITE;
 		this.specularIntensity = FixedPointMath.FP_ONE;
