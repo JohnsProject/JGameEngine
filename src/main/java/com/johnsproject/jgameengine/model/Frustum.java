@@ -2,6 +2,7 @@ package com.johnsproject.jgameengine.model;
 
 import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 
+import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.MatrixUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
 
@@ -45,7 +46,10 @@ public class Frustum {
 	}
 
 	private void recalculateFrustum() {
-		TransformationUtils.viewportFrustum(this);
+		renderTargetLeft = FixedPointUtils.multiply(renderTargetWidth, left);
+		renderTargetRight = FixedPointUtils.multiply(renderTargetWidth, right);
+		renderTargetTop = FixedPointUtils.multiply(renderTargetHeight, top);
+		renderTargetBottom = FixedPointUtils.multiply(renderTargetHeight, bottom);
 		recalculateProjectionMatrix();
 	}
 	

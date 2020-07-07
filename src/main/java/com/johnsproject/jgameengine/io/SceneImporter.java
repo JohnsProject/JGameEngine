@@ -286,39 +286,32 @@ public final class SceneImporter {
 	}
 	
 	private static Animation[] parseAnimations(String[] animationsData) {
-		Animation[] animations = new Animation[animationsData.length];
-		int[][] matrixCache1 = MatrixUtils.indentityMatrix();
-		int[][] matrixCache2 = MatrixUtils.indentityMatrix();
+		final Animation[] animations = new Animation[animationsData.length];
 		for (int i = 0; i < animations.length; i++) {
-			String[] animationData = animationsData[i].split(",");
-			String name = animationData[0];
-			int bonesCount = Integer.parseInt(animationData[1]);
-			int framesCount = Integer.parseInt(animationData[2]);
-			AnimationFrame[] frames = new AnimationFrame[framesCount];
+			final String[] animationData = animationsData[i].split(",");
+			final String name = animationData[0];
+			final int bonesCount = Integer.parseInt(animationData[1]);
+			final int framesCount = Integer.parseInt(animationData[2]);
+			final AnimationFrame[] frames = new AnimationFrame[framesCount];
 			for (int f = 3, fi = 0; f < animationData.length; f += bonesCount * 9, fi++) {
-				int[][][] boneRotationMatrices = new int[bonesCount][MatrixUtils.MATRIX_SIZE][MatrixUtils.MATRIX_SIZE];
+				final int[][][] boneMatrices = new int[bonesCount][MatrixUtils.MATRIX_SIZE][MatrixUtils.MATRIX_SIZE];
 				for (int b = f, bi = 0; b < f + bonesCount * 9; b += 9, bi++) {
 					int x = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + VECTOR_X]));
 					int y = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + VECTOR_Y]));
 					int z = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + VECTOR_Z]));
-					int[] location = VectorUtils.toVector(-x, y, z);
+					final int[] location = VectorUtils.toVector(-x, y, z);
 					x = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 3 + VECTOR_X]));
 					y = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 3 + VECTOR_Y]));
 					z = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 3 + VECTOR_Z]));
-					int[] rotation = VectorUtils.toVector(x, y, z);
+					final int[] rotation = VectorUtils.toVector(x, y, z);
 					x = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 6 + VECTOR_X]));
 					y = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 6 + VECTOR_Y]));
 					z = FixedPointUtils.toFixedPoint(Float.parseFloat(animationData[b + 6 + VECTOR_Z]));
-					int[] scale = VectorUtils.toVector(x, y, z);
-					int[][] boneRotationMatrix = MatrixUtils.indentityMatrix();
-					TransformationUtils.scale(boneRotationMatrix, scale, matrixCache1, matrixCache2);
-					TransformationUtils.rotateX(boneRotationMatrix, rotation[VECTOR_X], matrixCache1, matrixCache2);
-					TransformationUtils.rotateY(boneRotationMatrix, rotation[VECTOR_Y], matrixCache1, matrixCache2);
-					TransformationUtils.rotateZ(boneRotationMatrix, rotation[VECTOR_Z], matrixCache1, matrixCache2);
-					TransformationUtils.translate(boneRotationMatrix, location, matrixCache1, matrixCache2);
-					boneRotationMatrices[bi] = boneRotationMatrix;
+					final int[] scale = VectorUtils.toVector(x, y, z);
+					final Transform bone = new Transform(location, rotation, scale);
+					boneMatrices[bi] = bone.getSpaceExitMatrix();
 				}
-				frames[fi] = new AnimationFrame(boneRotationMatrices);
+				frames[fi] = new AnimationFrame(boneMatrices);
 			}
 			animations[i] = new Animation(name, frames);
 		}

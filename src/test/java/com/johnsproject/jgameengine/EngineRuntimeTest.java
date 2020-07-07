@@ -153,8 +153,8 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 				}
 				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
 					Material material = model.getMesh().getMaterial(j);
-					//material.setShader(new FlatSpecularShader());
-					//material.setShader(new PhongSpecularShader());
+					//material.setShader(graphicsEngine.getShader(1)); // FlatSpecularShader
+					//material.setShader(graphicsEngine.getShader(3)); // PhongSpecularShader
 					//properties.setTexture(texture);
 				}
 				model.getArmature().playAnimation("Walk", true);

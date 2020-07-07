@@ -1,7 +1,12 @@
 package com.johnsproject.jgameengine.model;
 
-import static com.johnsproject.jgameengine.util.VectorUtils.*;
 
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
+
+import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.MatrixUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
@@ -37,10 +42,98 @@ public class Transform {
 	}
 	
 	private void recalculateMatrices() {
-		TransformationUtils.spaceExitMatrix(spaceExitMatrix, this, matrixCache1, matrixCache2);
-		TransformationUtils.spaceExitNormalMatrix(spaceExitNormalMatrix, this, matrixCache1, matrixCache2);
-		TransformationUtils.spaceEnterMatrix(spaceEnterMatrix, this, matrixCache1, matrixCache2);
-		TransformationUtils.spaceEnterNormalMatrix(spaceEnterNormalMatrix, this, matrixCache1, matrixCache2);
+		spaceExitMatrix();
+		spaceExitNormalMatrix();
+		spaceEnterMatrix();
+		spaceEnterNormalMatrix();
+	}
+	
+	private void spaceExitMatrix() {
+		MatrixUtils.copy(spaceExitMatrix, MatrixUtils.MATRIX_IDENTITY);
+		scale(spaceExitMatrix);
+		rotateX(spaceExitMatrix, rotation[VECTOR_X]);
+		rotateY(spaceExitMatrix, rotation[VECTOR_Y]);
+		rotateZ(spaceExitMatrix, rotation[VECTOR_Z]);
+		translate(spaceExitMatrix);
+	}
+
+	private void spaceExitNormalMatrix() {
+		MatrixUtils.copy(spaceExitNormalMatrix, MatrixUtils.MATRIX_IDENTITY);
+		scale(spaceExitNormalMatrix);
+		rotateX(spaceExitNormalMatrix, rotation[VECTOR_X]);
+		rotateY(spaceExitNormalMatrix, rotation[VECTOR_Y]);
+		rotateZ(spaceExitNormalMatrix, rotation[VECTOR_Z]);
+		if ((scale[VECTOR_X] != scale[VECTOR_Y]) || (scale[VECTOR_Y] != scale[VECTOR_Z])) {
+			MatrixUtils.inverse(spaceExitNormalMatrix, matrixCache2);
+			MatrixUtils.transpose(matrixCache2, spaceExitNormalMatrix);
+		}
+	}
+	
+	private void spaceEnterMatrix() {
+		int scaleX = FixedPointUtils.divide(FP_ONE, scale[VECTOR_X] == 0 ? 1 : scale[VECTOR_X]);
+		int scaleY = FixedPointUtils.divide(FP_ONE, scale[VECTOR_Y] == 0 ? 1 : scale[VECTOR_Y]);
+		int scaleZ = FixedPointUtils.divide(FP_ONE, scale[VECTOR_Z] == 0 ? 1 : scale[VECTOR_Z]);
+		VectorUtils.invert(location);
+		VectorUtils.invert(rotation);
+		MatrixUtils.copy(spaceEnterMatrix, MatrixUtils.MATRIX_IDENTITY);
+		translate(spaceEnterMatrix);
+		rotateZ(spaceEnterMatrix, rotation[VECTOR_Z]);
+		rotateY(spaceEnterMatrix, rotation[VECTOR_Y]);
+		rotateX(spaceEnterMatrix, rotation[VECTOR_X]);
+		scale(spaceEnterMatrix, scaleX, scaleY, scaleZ);
+		VectorUtils.invert(location);
+		VectorUtils.invert(rotation);
+	}
+	
+	private void spaceEnterNormalMatrix() {
+		int scaleX = FixedPointUtils.divide(FP_ONE, scale[VECTOR_X] == 0 ? 1 : scale[VECTOR_X]);
+		int scaleY = FixedPointUtils.divide(FP_ONE, scale[VECTOR_Y] == 0 ? 1 : scale[VECTOR_Y]);
+		int scaleZ = FixedPointUtils.divide(FP_ONE, scale[VECTOR_Z] == 0 ? 1 : scale[VECTOR_Z]);
+		VectorUtils.invert(rotation);
+		MatrixUtils.copy(spaceEnterNormalMatrix, MatrixUtils.MATRIX_IDENTITY);
+		rotateZ(spaceEnterNormalMatrix, rotation[VECTOR_Z]);
+		rotateY(spaceEnterNormalMatrix, rotation[VECTOR_Y]);
+		rotateX(spaceEnterNormalMatrix, rotation[VECTOR_X]);
+		scale(spaceEnterNormalMatrix, scaleX, scaleY, scaleZ);
+		VectorUtils.invert(rotation);
+		if ((scale[VECTOR_X] != scale[VECTOR_Y]) || (scale[VECTOR_Y] != scale[VECTOR_Z])) {
+			MatrixUtils.inverse(spaceEnterNormalMatrix, matrixCache2);
+			MatrixUtils.transpose(matrixCache2, spaceEnterNormalMatrix);
+		}
+	}
+	
+	private void translate(int[][] matrix) {
+		TransformationUtils.translationMatrix(matrixCache1, location);
+		MatrixUtils.copy(matrixCache2, matrix);
+		MatrixUtils.multiply(matrixCache1, matrixCache2, matrix);
+	}
+	
+	private void scale(int[][] matrix) {
+		scale(matrix, scale[VECTOR_X], scale[VECTOR_Y], scale[VECTOR_Z]);
+	}
+	
+	private void scale(int[][] matrix, int x, int y, int z) {
+		TransformationUtils.scaleMatrix(matrixCache1, x, y, z);
+		MatrixUtils.copy(matrixCache2, matrix);
+		MatrixUtils.multiply(matrixCache1, matrixCache2, matrix);
+	}
+	
+	private void rotateX(int[][] matrix, int angle) {
+		TransformationUtils.xRotationMatrix(matrixCache1, angle);
+		MatrixUtils.copy(matrixCache2, matrix);
+		MatrixUtils.multiply(matrixCache1, matrixCache2, matrix);
+	}
+	
+	private void rotateY(int[][] matrix, int angle) {
+		TransformationUtils.yRotationMatrix(matrixCache1, angle);
+		MatrixUtils.copy(matrixCache2, matrix);
+		MatrixUtils.multiply(matrixCache1, matrixCache2, matrix);
+	}
+	
+	private void rotateZ(int[][] matrix, int angle) {
+		TransformationUtils.yRotationMatrix(matrixCache1, angle);
+		MatrixUtils.copy(matrixCache2, matrix);
+		MatrixUtils.multiply(matrixCache1, matrixCache2, matrix);
 	}
 	
 	public void setLocation(int x, int y, int z) {
