@@ -10,7 +10,7 @@ import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Face;
-import com.johnsproject.jgameengine.shader.FragmentBuffer;
+import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.shader.Shader;
 
 
@@ -21,7 +21,7 @@ public class FlatRasterizer {
 	public static final byte FP_PLUS_INTERPOLATE_BIT = FP_BIT + INTERPOLATE_BIT;
 
 	protected final Shader shader;
-	protected final FragmentBuffer fragmentBuffer;
+	protected final Fragment fragment;
 	protected final int[] location0;
 	protected final int[] location1;
 	protected final int[] location2;
@@ -35,7 +35,7 @@ public class FlatRasterizer {
 	
 	public FlatRasterizer(Shader shader) {
 		this.shader = shader;
-		this.fragmentBuffer = new FragmentBuffer();
+		this.fragment = new Fragment();
 		this.vectorCache = VectorMath.emptyVector();
 		this.location0 = VectorMath.emptyVector();
 		this.location1 = VectorMath.emptyVector();
@@ -213,10 +213,10 @@ public class FlatRasterizer {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {
-			fragmentBuffer.getLocation()[VECTOR_X] = x1;
-			fragmentBuffer.getLocation()[VECTOR_Y] = y;
-			fragmentBuffer.getLocation()[VECTOR_Z] = z >> FP_BIT;
-			shader.fragment(fragmentBuffer);
+			fragment.getLocation()[VECTOR_X] = x1;
+			fragment.getLocation()[VECTOR_Y] = y;
+			fragment.getLocation()[VECTOR_Z] = z >> FP_BIT;
+			shader.fragment(fragment);
 			z += dz;
 		}
 	}

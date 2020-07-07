@@ -11,6 +11,7 @@ import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.math.TransformationMath;
 import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Face;
+import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
@@ -154,17 +155,17 @@ public class FlatSpecularShader  implements Shader {
 		}
 	}
 
-	public void fragment(FragmentBuffer fragmentBuffer) {
+	public void fragment(Fragment fragment) {
 		Texture depthBuffer = shaderBuffer.getCamera().getRenderTarget().getDepthBuffer();
 		Texture colorBuffer = shaderBuffer.getCamera().getRenderTarget().getColorBuffer();
-		int x = fragmentBuffer.getLocation()[VECTOR_X];
-		int y = fragmentBuffer.getLocation()[VECTOR_Y];
-		int z = fragmentBuffer.getLocation()[VECTOR_Z];
+		final int x = fragment.getLocation()[VECTOR_X];
+		final int y = fragment.getLocation()[VECTOR_Y];
+		final int z = fragment.getLocation()[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
 			Texture texture = shaderProperties.getTexture();
 			int color = shaderProperties.getDiffuseColor();
 			if (texture != null) {
-				int[] uv = fragmentBuffer.getUV();
+				int[] uv = fragment.getUV();
 				int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
 				if (ColorMath.getAlpha(texel) == 0) // discard pixel if alpha = 0
 					return;

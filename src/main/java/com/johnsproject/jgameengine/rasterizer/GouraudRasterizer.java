@@ -246,14 +246,14 @@ public class GouraudRasterizer extends FlatRasterizer {
 		x2 >>= FP_BIT;
 		int cr, cg, cb;
 		for (; x1 <= x2; x1++) {
-			fragmentBuffer.getLocation()[VECTOR_X] = x1;
-			fragmentBuffer.getLocation()[VECTOR_Y] = y;
-			fragmentBuffer.getLocation()[VECTOR_Z] = z >> FP_BIT;
+			fragment.getLocation()[VECTOR_X] = x1;
+			fragment.getLocation()[VECTOR_Y] = y;
+			fragment.getLocation()[VECTOR_Z] = z >> FP_BIT;
 			cr = r >> FP_PLUS_INTERPOLATE_BIT;
 			cg = g >> FP_PLUS_INTERPOLATE_BIT;
 			cb = b >> FP_PLUS_INTERPOLATE_BIT;
-			fragmentBuffer.setColor(ColorMath.toColor(cr, cg, cb));
-			shader.fragment(fragmentBuffer);
+			fragment.setColor(ColorMath.toColor(cr, cg, cb));
+			shader.fragment(fragment);
 			z += dz;
 			r += dr;
 			g += dg;

@@ -350,16 +350,16 @@ public class PhongRasterizer extends FlatRasterizer {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {
-			fragmentBuffer.getLocation()[VECTOR_X] = x1;
-			fragmentBuffer.getLocation()[VECTOR_Y] = y;
-			fragmentBuffer.getLocation()[VECTOR_Z] = z >> FP_BIT;
-			fragmentBuffer.getWorldLocation()[VECTOR_X] = wx >> FP_MINUS_INTERPOLATE_BIT;
-            fragmentBuffer.getWorldLocation()[VECTOR_Y] = wy >> FP_MINUS_INTERPOLATE_BIT;
-            fragmentBuffer.getWorldLocation()[VECTOR_Z] = wz >> FP_MINUS_INTERPOLATE_BIT;
-			fragmentBuffer.getWorldNormal()[VECTOR_X] = nx >> FP_MINUS_INTERPOLATE_BIT;
-			fragmentBuffer.getWorldNormal()[VECTOR_Y] = ny >> FP_MINUS_INTERPOLATE_BIT;
-            fragmentBuffer.getWorldNormal()[VECTOR_Z] = nz >> FP_MINUS_INTERPOLATE_BIT;
-			shader.fragment(fragmentBuffer);
+			fragment.getLocation()[VECTOR_X] = x1;
+			fragment.getLocation()[VECTOR_Y] = y;
+			fragment.getLocation()[VECTOR_Z] = z >> FP_BIT;
+			fragment.getWorldLocation()[VECTOR_X] = wx >> FP_MINUS_INTERPOLATE_BIT;
+            fragment.getWorldLocation()[VECTOR_Y] = wy >> FP_MINUS_INTERPOLATE_BIT;
+            fragment.getWorldLocation()[VECTOR_Z] = wz >> FP_MINUS_INTERPOLATE_BIT;
+			fragment.getWorldNormal()[VECTOR_X] = nx >> FP_MINUS_INTERPOLATE_BIT;
+			fragment.getWorldNormal()[VECTOR_Y] = ny >> FP_MINUS_INTERPOLATE_BIT;
+            fragment.getWorldNormal()[VECTOR_Z] = nz >> FP_MINUS_INTERPOLATE_BIT;
+			shader.fragment(fragment);
 			z += dz;
 			wx += dwx;
 			wy += dwy;

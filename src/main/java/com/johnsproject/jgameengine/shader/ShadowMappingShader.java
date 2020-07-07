@@ -8,6 +8,7 @@ import com.johnsproject.jgameengine.math.FixedPointMath;
 import com.johnsproject.jgameengine.math.TransformationMath;
 import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Face;
+import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterizer.FlatRasterizer;
@@ -68,10 +69,10 @@ public class ShadowMappingShader implements Shader {
 		}
 	}
 
-	public void fragment(FragmentBuffer fragmentBuffer) {
-		int x = fragmentBuffer.getLocation()[VECTOR_X];
-		int y = fragmentBuffer.getLocation()[VECTOR_Y];
-		int z = fragmentBuffer.getLocation()[VECTOR_Z] + shadowBias;
+	public void fragment(Fragment fragment) {
+		final int x = fragment.getLocation()[VECTOR_X];
+		final int y = fragment.getLocation()[VECTOR_Y];
+		final int z = fragment.getLocation()[VECTOR_Z] + shadowBias;
 		if (currentShadowMap.getPixel(x, y) > z) {
 			currentShadowMap.setPixel(x, y, z);
 			// debug shadow maps

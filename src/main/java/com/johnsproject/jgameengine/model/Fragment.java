@@ -1,8 +1,8 @@
-package com.johnsproject.jgameengine.shader;
+package com.johnsproject.jgameengine.model;
 
 import com.johnsproject.jgameengine.math.VectorMath;
 
-public class FragmentBuffer {
+public class Fragment {
 
 	private final int[] location;
 	private final int[] worldLocation;
@@ -10,7 +10,7 @@ public class FragmentBuffer {
 	private final int[] uv;
 	private int color;
 	
-	public FragmentBuffer() {
+	public Fragment() {
 		this.location = VectorMath.emptyVector();
 		this.worldLocation = VectorMath.emptyVector();
 		this.worldNormal = VectorMath.emptyVector();

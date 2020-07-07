@@ -204,13 +204,13 @@ public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
 		x2 >>= FP_BIT;
 		int oneByZ;
 		for (; x1 <= x2; x1++) {
-			fragmentBuffer.getLocation()[VECTOR_X] = x1;
-			fragmentBuffer.getLocation()[VECTOR_Y] = y;
+			fragment.getLocation()[VECTOR_X] = x1;
+			fragment.getLocation()[VECTOR_Y] = y;
 			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
-			fragmentBuffer.getLocation()[VECTOR_Z] = oneByZ;
-			fragmentBuffer.getUV()[VECTOR_X] = FixedPointMath.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
-			fragmentBuffer.getUV()[VECTOR_Y] = FixedPointMath.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
-			shader.fragment(fragmentBuffer);
+			fragment.getLocation()[VECTOR_Z] = oneByZ;
+			fragment.getUV()[VECTOR_X] = FixedPointMath.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
+			fragment.getUV()[VECTOR_Y] = FixedPointMath.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
+			shader.fragment(fragment);
 			z += dz;
 			u += du;
 			v += dv;

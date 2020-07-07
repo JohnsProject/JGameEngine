@@ -281,17 +281,17 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		x2 >>= FP_BIT;
 		int oneByZ, cr, cg, cb;
 		for (; x1 <= x2; x1++) {
-			fragmentBuffer.getLocation()[VECTOR_X] = x1;
-			fragmentBuffer.getLocation()[VECTOR_Y] = y;
+			fragment.getLocation()[VECTOR_X] = x1;
+			fragment.getLocation()[VECTOR_Y] = y;
 			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
-			fragmentBuffer.getLocation()[VECTOR_Z] = oneByZ;
-			fragmentBuffer.getUV()[VECTOR_X] = FixedPointMath.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
-			fragmentBuffer.getUV()[VECTOR_Y] = FixedPointMath.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
+			fragment.getLocation()[VECTOR_Z] = oneByZ;
+			fragment.getUV()[VECTOR_X] = FixedPointMath.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
+			fragment.getUV()[VECTOR_Y] = FixedPointMath.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
 			cr = FixedPointMath.multiply(r, oneByZ) >> INTERPOLATE_BIT_2;
 			cg = FixedPointMath.multiply(g, oneByZ) >> INTERPOLATE_BIT_2;
 			cb = FixedPointMath.multiply(b, oneByZ) >> INTERPOLATE_BIT_2;
-			fragmentBuffer.setColor(ColorMath.toColor(cr, cg, cb));
-			shader.fragment(fragmentBuffer);
+			fragment.setColor(ColorMath.toColor(cr, cg, cb));
+			shader.fragment(fragment);
 			z += dz;
 			u += du;
 			v += dv;

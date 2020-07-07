@@ -224,12 +224,12 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {
-			fragmentBuffer.getLocation()[VECTOR_X] = x1;
-			fragmentBuffer.getLocation()[VECTOR_Y] = y;
-			fragmentBuffer.getLocation()[VECTOR_Z] = z >> FP_BIT;
-			fragmentBuffer.getUV()[VECTOR_X] = u >> FP_PLUS_INTERPOLATE_BIT;
-			fragmentBuffer.getUV()[VECTOR_Y] = v >> FP_PLUS_INTERPOLATE_BIT;
-			shader.fragment(fragmentBuffer);
+			fragment.getLocation()[VECTOR_X] = x1;
+			fragment.getLocation()[VECTOR_Y] = y;
+			fragment.getLocation()[VECTOR_Z] = z >> FP_BIT;
+			fragment.getUV()[VECTOR_X] = u >> FP_PLUS_INTERPOLATE_BIT;
+			fragment.getUV()[VECTOR_Y] = v >> FP_PLUS_INTERPOLATE_BIT;
+			shader.fragment(fragment);
 			z += dz;
 			u += du;
 			v += dv;
