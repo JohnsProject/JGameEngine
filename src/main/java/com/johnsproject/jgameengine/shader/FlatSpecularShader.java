@@ -13,6 +13,7 @@ import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.model.Light;
+import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterizer.PerspectiveFlatRasterizer;
@@ -23,7 +24,6 @@ public class FlatSpecularShader  implements Shader {
 	private static final int LINEAR_ATTENUATION = FixedPointMath.toFixedPoint(0.045);
 	private static final int QUADRATIC_ATTENUATION = FixedPointMath.toFixedPoint(0.0075);
 	
-	private SpecularProperties shaderProperties;
 	private ForwardShaderBuffer shaderBuffer;
 	private final PerspectiveFlatRasterizer rasterizer;
 
@@ -34,10 +34,10 @@ public class FlatSpecularShader  implements Shader {
 	private final int[] lightSpaceLocation;
 	
 	private int lightColor;
+	private Material material;
 	
 	public FlatSpecularShader() {
 		this.rasterizer = new PerspectiveFlatRasterizer(this);
-		this.shaderProperties = new SpecularProperties();
 		this.lightLocation = VectorMath.emptyVector();
 		this.lightDirection = VectorMath.emptyVector();
 		this.viewDirection = VectorMath.emptyVector();
@@ -54,6 +54,7 @@ public class FlatSpecularShader  implements Shader {
 	}
 
 	public void geometry(Face face) {
+		material = face.getMaterial();
 		int[] normal = face.getWorldNormal();
 		int[] location1 = face.getVertex(0).getWorldLocation();
 		int[] location2 = face.getVertex(1).getWorldLocation();
@@ -147,7 +148,7 @@ public class FlatSpecularShader  implements Shader {
 			}
 			lightIndex++;
 		}
-		Texture texture = shaderProperties.getTexture();
+		Texture texture = material.getTexture();
 		if (texture == null) {
 			rasterizer.draw(face);
 		} else {
@@ -162,8 +163,8 @@ public class FlatSpecularShader  implements Shader {
 		final int y = fragment.getLocation()[VECTOR_Y];
 		final int z = fragment.getLocation()[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
-			Texture texture = shaderProperties.getTexture();
-			int color = shaderProperties.getDiffuseColor();
+			Texture texture = material.getTexture();
+			int color = material.getDiffuseColor();
 			if (texture != null) {
 				int[] uv = fragment.getUV();
 				int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
@@ -182,14 +183,14 @@ public class FlatSpecularShader  implements Shader {
 		// diffuse
 		int dotProduct = (int)VectorMath.dotProduct(normal, lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);
-		diffuseFactor = FixedPointMath.multiply(diffuseFactor, shaderProperties.getDiffuseIntensity());
+		diffuseFactor = FixedPointMath.multiply(diffuseFactor, material.getDiffuseIntensity());
 		// specular
 		VectorMath.invert(lightDirection);
 		TransformationMath.reflect(lightDirection, normal);
 		dotProduct = (int)VectorMath.dotProduct(viewDirection, lightDirection);
 		int specularFactor = Math.max(dotProduct, 0);
-		specularFactor = FixedPointMath.pow(specularFactor, shaderProperties.getShininess());
-		specularFactor = FixedPointMath.multiply(specularFactor, shaderProperties.getSpecularIntensity());
+		specularFactor = FixedPointMath.pow(specularFactor, material.getShininess());
+		specularFactor = FixedPointMath.multiply(specularFactor, material.getSpecularIntensity());
 		// putting it all together...
 		return diffuseFactor + specularFactor;
 	}
@@ -219,13 +220,5 @@ public class FlatSpecularShader  implements Shader {
 
 	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
 		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
-	}
-
-	public void setProperties(ShaderProperties shaderProperties) {
-		this.shaderProperties = (SpecularProperties) shaderProperties;
-	}
-
-	public ShaderProperties getProperties() {
-		return shaderProperties;
 	}
 }

@@ -15,8 +15,4 @@ public interface Shader {
 	public ShaderBuffer getShaderBuffer();
 
 	public void setShaderBuffer(ShaderBuffer shaderBuffer);
-
-	public void setProperties(ShaderProperties shaderProperties);
-	
-	public ShaderProperties getProperties();
 }

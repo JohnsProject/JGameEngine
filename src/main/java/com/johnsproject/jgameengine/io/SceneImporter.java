@@ -25,8 +25,6 @@ import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.model.VertexGroup;
-import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
-import com.johnsproject.jgameengine.shader.SpecularProperties;
 
 /**
  * The SceneImporter class imports .scene files exported 
@@ -257,13 +255,12 @@ public final class SceneImporter {
 			int diffuse = FixedPointMath.toFixedPoint(Float.parseFloat(materialData[5]));
 			int specular = FixedPointMath.toFixedPoint(Float.parseFloat(materialData[6]));
 			int shininess = FixedPointMath.toFixedPoint(Float.parseFloat(materialData[7]) / 10);
-			GouraudSpecularShader shader = new GouraudSpecularShader();
-			SpecularProperties properties = (SpecularProperties) shader.getProperties();
-			properties.setDiffuseColor(ColorMath.toColor(alpha, red, green, blue));
-			properties.setDiffuseIntensity(diffuse);
-			properties.setSpecularIntensity(specular);
-			properties.setShininess(shininess);
-			materials[i] = new Material(i, name, shader);
+			Material material = new Material(i, name);
+			material.setDiffuseColor(ColorMath.toColor(alpha, red, green, blue));
+			material.setDiffuseIntensity(diffuse);
+			material.setSpecularIntensity(specular);
+			material.setShininess(shininess);
+			materials[i] = material;
 		}
 		return materials;
 	}

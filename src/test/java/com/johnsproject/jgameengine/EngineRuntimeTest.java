@@ -34,7 +34,6 @@ import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.shader.FlatSpecularShader;
 import com.johnsproject.jgameengine.shader.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shader.PhongSpecularShader;
-import com.johnsproject.jgameengine.shader.SpecularProperties;
 
 public class EngineRuntimeTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
@@ -154,10 +153,8 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 				}
 				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
 					Material material = model.getMesh().getMaterial(j);
-					SpecularProperties properties = (SpecularProperties)material.getShader().getProperties();
 					//material.setShader(new FlatSpecularShader());
 					//material.setShader(new PhongSpecularShader());
-					material.getShader().setProperties(properties);
 					//properties.setTexture(texture);
 				}
 				model.getArmature().playAnimation("Walk", true);

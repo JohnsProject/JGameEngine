@@ -12,6 +12,7 @@ import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.model.Light;
+import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterizer.PerspectivePhongRasterizer;
@@ -22,7 +23,6 @@ public class PhongSpecularShader  implements Shader {
 	private static final int LINEAR_ATTENUATION = FixedPointMath.toFixedPoint(0.045);
 	private static final int QUADRATIC_ATTENUATION = FixedPointMath.toFixedPoint(0.0075);
 
-	private SpecularProperties shaderProperties;
 	private ForwardShaderBuffer shaderBuffer;
 	private final PerspectivePhongRasterizer rasterizer;
 	
@@ -34,10 +34,10 @@ public class PhongSpecularShader  implements Shader {
 	private int color;
 	private int modelColor;
 	private Texture texture;
+	private Material material;
 
 	public PhongSpecularShader() {
 		this.rasterizer = new PerspectivePhongRasterizer(this);
-		this.shaderProperties = new SpecularProperties();
 		this.lightDirection = VectorMath.emptyVector();
 		this.lightLocation = VectorMath.emptyVector();
 		this.viewDirection = VectorMath.emptyVector();
@@ -55,8 +55,9 @@ public class PhongSpecularShader  implements Shader {
 	}
 
 	public void geometry(Face face) {
-		color = shaderProperties.getDiffuseColor();
-		texture = shaderProperties.getTexture();
+		material = face.getMaterial();
+		color = material.getDiffuseColor();
+		texture = material.getTexture();
 		if (texture == null) {
 			rasterizer.draw(face);
 		} else {
@@ -166,14 +167,14 @@ public class PhongSpecularShader  implements Shader {
 		// diffuse
 		int dotProduct = (int)VectorMath.dotProduct(normal, lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);
-		diffuseFactor = FixedPointMath.multiply(diffuseFactor, shaderProperties.getDiffuseIntensity());
+		diffuseFactor = FixedPointMath.multiply(diffuseFactor, material.getDiffuseIntensity());
 		// specular
 		VectorMath.invert(lightDirection);
 		TransformationMath.reflect(lightDirection, normal);
 		dotProduct = (int)VectorMath.dotProduct(viewDirection, lightDirection);
 		int specularFactor = Math.max(dotProduct, 0);
-		specularFactor = FixedPointMath.pow(specularFactor, shaderProperties.getShininess());
-		specularFactor = FixedPointMath.multiply(specularFactor, shaderProperties.getSpecularIntensity());
+		specularFactor = FixedPointMath.pow(specularFactor, material.getShininess());
+		specularFactor = FixedPointMath.multiply(specularFactor, material.getSpecularIntensity());
 		// putting it all together...
 		return diffuseFactor + specularFactor;
 	}
@@ -203,14 +204,6 @@ public class PhongSpecularShader  implements Shader {
 
 	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
 		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
-	}
-
-	public void setProperties(ShaderProperties shaderProperties) {
-		this.shaderProperties = (SpecularProperties) shaderProperties;
-	}
-	
-	public ShaderProperties getProperties() {
-		return shaderProperties;
 	}
 }
 

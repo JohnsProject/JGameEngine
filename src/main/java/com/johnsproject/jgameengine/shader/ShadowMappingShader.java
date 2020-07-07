@@ -21,35 +21,40 @@ public class ShadowMappingShader implements Shader {
 	
 	private int shadowBias = 0;
 	
-	private ShadowMappingProperties shaderProperties;
 	private ForwardShaderBuffer shaderBuffer;
 	private final FlatRasterizer rasterizer;
 	
 	private Texture currentShadowMap;
+	
+	private boolean directionalShadows;
+	private boolean spotShadows;
+	private boolean pointShadows;
 
 	public ShadowMappingShader() {
+		this.directionalShadows = true;
+		this.spotShadows = true;
+		this.pointShadows = true;
 		this.rasterizer = new FlatRasterizer(this);
-		this.shaderProperties = new ShadowMappingProperties();
 	}
 	
 	public void vertex(Vertex vertex) { }
 
 	public void geometry(Face face) {
-		if(shaderProperties.directionalShadows() && (shaderBuffer.getDirectionalLightIndex() != -1)) {
+		if(directionalShadows && (shaderBuffer.getDirectionalLightIndex() != -1)) {
 			shadowBias = DIRECTIONAL_BIAS;
 			currentShadowMap = shaderBuffer.getDirectionalShadowMap();
 			transformVertices(face, shaderBuffer.getDirectionalLightMatrix(), shaderBuffer.getDirectionalLightFrustum());
 			rasterizer.setFrustumCull(false);
 			rasterizer.draw(face);
 		}
-		if(shaderProperties.spotShadows() && (shaderBuffer.getSpotLightIndex() != -1)) {
+		if(spotShadows && (shaderBuffer.getSpotLightIndex() != -1)) {
 			shadowBias = SPOT_BIAS;
 			currentShadowMap = shaderBuffer.getSpotShadowMap();
 			transformVertices(face, shaderBuffer.getSpotLightMatrix(), shaderBuffer.getSpotLightFrustum());
 			rasterizer.setFrustumCull(true);
 			rasterizer.draw(face);
 		}
-		if(shaderProperties.pointShadows() && (shaderBuffer.getPointLightIndex() != -1)) {
+		if(pointShadows && (shaderBuffer.getPointLightIndex() != -1)) {
 			shadowBias = POINT_BIAS;
 			for (int i = 0; i < shaderBuffer.getPointLightMatrices().length; i++) {
 				currentShadowMap = shaderBuffer.getPointShadowMaps()[i];
@@ -112,12 +117,28 @@ public class ShadowMappingShader implements Shader {
 	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
 		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
 	}
-	
-	public void setProperties(ShaderProperties shaderProperties) {
-		this.shaderProperties = (ShadowMappingProperties) shaderProperties;
+
+	public boolean directionalShadows() {
+		return directionalShadows;
 	}
 
-	public ShaderProperties getProperties() {
-		return shaderProperties;
+	public void directionalShadows(boolean directionalShadows) {
+		this.directionalShadows = directionalShadows;
+	}
+
+	public boolean spotShadows() {
+		return spotShadows;
+	}
+
+	public void spotShadows(boolean spotShadows) {
+		this.spotShadows = spotShadows;
+	}
+
+	public boolean pointShadows() {
+		return pointShadows;
+	}
+
+	public void pointShadows(boolean pointShadows) {
+		this.pointShadows = pointShadows;
 	}
 }

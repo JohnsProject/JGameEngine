@@ -2,8 +2,6 @@ package com.johnsproject.jgameengine.model;
 
 import com.johnsproject.jgameengine.math.ColorMath;
 import com.johnsproject.jgameengine.math.VectorMath;
-import com.johnsproject.jgameengine.shader.FlatSpecularShader;
-import com.johnsproject.jgameengine.shader.SpecularProperties;
 
 public class Mesh {
 
@@ -20,11 +18,11 @@ public class Mesh {
 	public Mesh(int[][] vertices, int[][] faces, int[][] materials) {
 		this.materials = new Material[materials.length];
 		for (int i = 0; i < materials.length; i++) {
-			int[] material = materials[i];
-			FlatSpecularShader shader = new FlatSpecularShader();
-			int color = ColorMath.toColor(material[0], material[1], material[2], material[3]);
-			((SpecularProperties)shader.getProperties()).setDiffuseColor(color);
-			this.materials[i] = new Material(i, "Material", shader);
+			int[] materialData = materials[i];
+			int color = ColorMath.toColor(materialData[0], materialData[1], materialData[2], materialData[3]);
+			Material material = new Material(i, "Material");
+			material.setDiffuseColor(color);
+			this.materials[i] = material;
 		}
 		this.vertices = new Vertex[vertices.length];
 		for (int i = 0; i < vertices.length; i++) {

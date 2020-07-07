@@ -12,6 +12,7 @@ import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.model.Light;
+import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterizer.PerspectiveGouraudRasterizer;
@@ -22,7 +23,6 @@ public class GouraudSpecularShader  implements Shader {
 	private static final int LINEAR_ATTENUATION = FixedPointMath.toFixedPoint(0.045);
 	private static final int QUADRATIC_ATTENUATION = FixedPointMath.toFixedPoint(0.0075);
 	
-	private SpecularProperties shaderProperties;
 	private ForwardShaderBuffer shaderBuffer;
 	private final PerspectiveGouraudRasterizer rasterizer;
 
@@ -30,10 +30,11 @@ public class GouraudSpecularShader  implements Shader {
 	private final int[] lightLocation;
 	private final int[] viewDirection;
 	private final int[] lightSpaceLocation;
+	
+	private Material material;
 
 	public GouraudSpecularShader() {
 		this.rasterizer = new PerspectiveGouraudRasterizer(this);
-		this.shaderProperties = new SpecularProperties();
 		this.lightDirection = VectorMath.emptyVector();
 		this.lightLocation = VectorMath.emptyVector();
 		this.viewDirection = VectorMath.emptyVector();
@@ -41,6 +42,7 @@ public class GouraudSpecularShader  implements Shader {
 	}
 
 	public void vertex(Vertex vertex) {
+		material = vertex.getMaterial();
 		int[] location = vertex.getLocation();
 		int[] normal = vertex.getWorldNormal();
 		int lightColor = ColorMath.BLACK;
@@ -128,7 +130,8 @@ public class GouraudSpecularShader  implements Shader {
 	}
 
 	public void geometry(Face face) {
-		Texture texture = shaderProperties.getTexture();
+		material = face.getMaterial();
+		Texture texture = material.getTexture();
 		if (texture == null) {
 			rasterizer.draw(face);
 		} else {
@@ -143,8 +146,8 @@ public class GouraudSpecularShader  implements Shader {
 		final int y = fragment.getLocation()[VECTOR_Y];
 		final int z = fragment.getLocation()[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
-			int color = shaderProperties.getDiffuseColor();
-			Texture texture = shaderProperties.getTexture();
+			int color = material.getDiffuseColor();
+			Texture texture = material.getTexture();
 			int lightColor = fragment.getColor();
 			if (texture != null) {
 				int[] uv = fragment.getUV();
@@ -163,14 +166,14 @@ public class GouraudSpecularShader  implements Shader {
 		// diffuse
 		int dotProduct = (int)VectorMath.dotProduct(normal, lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);
-		diffuseFactor = FixedPointMath.multiply(diffuseFactor, shaderProperties.getDiffuseIntensity());
+		diffuseFactor = FixedPointMath.multiply(diffuseFactor, material.getDiffuseIntensity());
 		// specular
 		VectorMath.invert(lightDirection);
 		TransformationMath.reflect(lightDirection, normal);
 		dotProduct = (int)VectorMath.dotProduct(viewDirection, lightDirection);
 		int specularFactor = Math.max(dotProduct, 0);
-		specularFactor = FixedPointMath.pow(specularFactor, shaderProperties.getShininess());
-		specularFactor = FixedPointMath.multiply(specularFactor, shaderProperties.getSpecularIntensity());
+		specularFactor = FixedPointMath.pow(specularFactor, material.getShininess());
+		specularFactor = FixedPointMath.multiply(specularFactor, material.getSpecularIntensity());
 		// putting it all together...
 		return diffuseFactor + specularFactor;
 	}
@@ -200,13 +203,5 @@ public class GouraudSpecularShader  implements Shader {
 
 	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
 		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
-	}
-
-	public void setProperties(ShaderProperties shaderProperties) {
-		this.shaderProperties = (SpecularProperties) shaderProperties;
-	}
-
-	public ShaderProperties getProperties() {
-		return shaderProperties;
 	}
 }
