@@ -94,6 +94,8 @@ public class FlatRasterizer {
 		if(cull()) {
 			return;
 		}
+		fragment.setLightColor(face.getLightColor());
+		fragment.setMaterial(face.getMaterial());
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			VectorUtils.swap(location0, location1);
 		}

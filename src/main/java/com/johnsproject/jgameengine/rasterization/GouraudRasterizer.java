@@ -59,9 +59,10 @@ public class GouraudRasterizer extends FlatRasterizer {
 		if(cull()) {
 			return;
 		}
-		setColor0(face.getVertex(0).getShadedColor());
-		setColor1(face.getVertex(1).getShadedColor());
-		setColor2(face.getVertex(2).getShadedColor());
+		fragment.setMaterial(face.getMaterial());
+		setColor0(face.getVertex(0).getLightColor());
+		setColor1(face.getVertex(1).getLightColor());
+		setColor2(face.getVertex(2).getLightColor());
 		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
 			VectorUtils.swap(location0, location1);
 			swapVector(red, green, blue, 0, 1);
@@ -252,7 +253,7 @@ public class GouraudRasterizer extends FlatRasterizer {
 			cr = r >> FP_PLUS_INTERPOLATE_BIT;
 			cg = g >> FP_PLUS_INTERPOLATE_BIT;
 			cb = b >> FP_PLUS_INTERPOLATE_BIT;
-			fragment.setColor(ColorUtils.toColor(cr, cg, cb));
+			fragment.setLightColor(ColorUtils.toColor(cr, cg, cb));
 			shader.fragment(fragment);
 			z += dz;
 			r += dr;

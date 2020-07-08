@@ -9,7 +9,7 @@ public class Vertex {
 	private final int[] worldNormal;
 	private final int[] location;
 	private final Material material;
-	private int shadedColor;
+	private int lightColor;
 	
 	public Vertex(int index, int[] location, int[] normal, Material material) {
 		this.index = index;
@@ -49,11 +49,25 @@ public class Vertex {
 		return material;
 	}
 
-	public int getShadedColor() {
-		return shadedColor;
+	/**
+	 * Returns the light color of this {@link Vertex}.
+	 * The light color is the color of all lights that reach and affect the illumination of
+	 * this Vertex put together.
+	 * 
+	 * @return The light color of this Vertex.
+	 */
+	public int getLightColor() {
+		return lightColor;
 	}
 
-	public void setShadedColor(int shadedColor) {
-		this.shadedColor = shadedColor;
+	/**
+	 * Sets the light color of this {@link Vertex}.
+	 * The light color is the color of all lights that reach and affect the illumination of 
+	 * this Vertex put together.
+	 * 
+	 * @param lightColor to set.
+	 */
+	public void setLightColor(int lightColor) {
+		this.lightColor = lightColor;
 	}
 }

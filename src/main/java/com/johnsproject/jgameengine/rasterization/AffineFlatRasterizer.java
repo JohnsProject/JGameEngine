@@ -55,9 +55,11 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		VectorUtils.copy(location0, face.getVertex(0).getLocation());
 		VectorUtils.copy(location1, face.getVertex(1).getLocation());
 		VectorUtils.copy(location2, face.getVertex(2).getLocation());
+		fragment.setLightColor(face.getLightColor());
 		if(cull()) {
 			return;
 		}
+		fragment.setMaterial(face.getMaterial());
 		setUV0(face.getUV(0), texture);
 		setUV1(face.getUV(1), texture);
 		setUV2(face.getUV(2), texture);

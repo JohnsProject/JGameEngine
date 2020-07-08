@@ -32,6 +32,8 @@ public class PerspectiveFlatRasterizer extends AffineFlatRasterizer {
 		if(cull()) {
 			return;
 		}
+		fragment.setMaterial(face.getMaterial());
+		fragment.setLightColor(face.getLightColor());
 		setUV0(face.getUV(0), texture);
 		setUV1(face.getUV(1), texture);
 		setUV2(face.getUV(2), texture);

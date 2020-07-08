@@ -58,6 +58,7 @@ public class AffinePhongRasterizer extends PhongRasterizer {
 		if(cull()) {
 			return;
 		}
+		fragment.setMaterial(face.getMaterial());
 		setWorldLocation0(face.getVertex(0).getWorldLocation());
 		setWorldLocation1(face.getVertex(1).getWorldLocation());
 		setWorldLocation2(face.getVertex(2).getWorldLocation());

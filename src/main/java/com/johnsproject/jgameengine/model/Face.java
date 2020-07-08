@@ -8,6 +8,7 @@ public class Face {
 	private final int[] worldNormal;
 	private final int[][] uvs;
 	private final Material material;
+	private int lightColor;
 	
 	public Face(int index, Vertex[] vertices, int[] normal, int[][] uvs, Material material) {
 		this.index = index;
@@ -48,5 +49,27 @@ public class Face {
 
 	public Material getMaterial() {
 		return material;
+	}
+	
+	/**
+	 * Returns the light color of this {@link Face}.
+	 * The light color is the color of all lights that reach and affect the illumination of
+	 * this Face put together.
+	 * 
+	 * @return The light color of this Face.
+	 */
+	public int getLightColor() {
+		return lightColor;
+	}
+
+	/**
+	 * Sets the light color of this {@link Face}.
+	 * The light color is the color of all lights that reach and affect the illumination of 
+	 * this Vertex put together.
+	 * 
+	 * @param lightColor to set.
+	 */
+	public void setLightColor(int lightColor) {
+		this.lightColor = lightColor;
 	}
 }

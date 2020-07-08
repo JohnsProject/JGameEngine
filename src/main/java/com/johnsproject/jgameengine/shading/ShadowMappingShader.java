@@ -72,7 +72,7 @@ public class ShadowMappingShader implements Shader {
 			int[] location = face.getVertex(i).getLocation();
 			VectorUtils.copy(location, face.getVertex(i).getWorldLocation());
 			VectorUtils.multiply(location, lightMatrix);
-			TransformationUtils.viewportVector(location, lightFrustum);
+			TransformationUtils.screenportVector(location, lightFrustum);
 		}
 	}
 

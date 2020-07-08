@@ -34,9 +34,6 @@ public class FlatSpecularShader  implements Shader {
 	private final int[] faceLocation;
 	private final int[] lightSpaceLocation;
 	
-	private int lightColor;
-	private Material material;
-	
 	public FlatSpecularShader() {
 		this.rasterizer = new PerspectiveFlatRasterizer(this);
 		this.lightLocation = VectorUtils.emptyVector();
@@ -51,11 +48,11 @@ public class FlatSpecularShader  implements Shader {
 		VectorUtils.copy(location, vertex.getWorldLocation());
 		VectorUtils.multiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
 		VectorUtils.multiply(location, shaderBuffer.getCamera().getFrustum().getProjectionMatrix());
-		TransformationUtils.viewportVector(location, shaderBuffer.getCamera().getFrustum());
+		TransformationUtils.screenportVector(location, shaderBuffer.getCamera().getFrustum());
 	}
 
 	public void geometry(Face face) {
-		material = face.getMaterial();
+		final Material material = face.getMaterial();
 		int[] normal = face.getWorldNormal();
 		int[] location1 = face.getVertex(0).getWorldLocation();
 		int[] location2 = face.getVertex(1).getWorldLocation();
@@ -64,7 +61,7 @@ public class FlatSpecularShader  implements Shader {
 		VectorUtils.add(faceLocation, location2);
 		VectorUtils.add(faceLocation, location3);
 		VectorUtils.divide(faceLocation, 3 << FP_BIT);	
-		lightColor = ColorUtils.BLACK;		
+		int lightColor = ColorUtils.BLACK;		
 		int[] cameraLocation = shaderBuffer.getCamera().getTransform().getLocation();		
 		VectorUtils.normalize(normal);
 		VectorUtils.copy(viewDirection, cameraLocation);
@@ -83,7 +80,7 @@ public class FlatSpecularShader  implements Shader {
 			case DIRECTIONAL:
 				VectorUtils.copy(lightDirection, light.getDirection());
 				VectorUtils.invert(lightDirection);
-				currentFactor = getLightFactor(normal, lightDirection, viewDirection);
+				currentFactor = getLightFactor(material, normal, lightDirection, viewDirection);
 				if (lightIndex == shaderBuffer.getDirectionalLightIndex()) {
 					final Frustum lightFrustum = shaderBuffer.getDirectionalLightFrustum();
 					final int[][] lightMatrix = lightFrustum.getProjectionMatrix();
@@ -100,7 +97,7 @@ public class FlatSpecularShader  implements Shader {
 				attenuation = getAttenuation(lightLocation);
 				// other light values
 				VectorUtils.normalize(lightLocation);
-				currentFactor = getLightFactor(normal, lightLocation, viewDirection);
+				currentFactor = getLightFactor(material, normal, lightLocation, viewDirection);
 				currentFactor = FixedPointUtils.divide(currentFactor, attenuation);
 				if ((lightIndex == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
 					final Frustum lightFrustum = shaderBuffer.getPointLightFrustum();
@@ -126,7 +123,7 @@ public class FlatSpecularShader  implements Shader {
 				if(theta > phi) {
 					int intensity = -FixedPointUtils.divide(phi - theta, light.getSpotSoftness() + 1);
 					intensity = FixedPointUtils.clamp(intensity, 1, FP_ONE);
-					currentFactor = getLightFactor(normal, lightDirection, viewDirection);
+					currentFactor = getLightFactor(material, normal, lightDirection, viewDirection);
 					currentFactor = FixedPointUtils.multiply(currentFactor, intensity * 2);
 					currentFactor = FixedPointUtils.divide(currentFactor, attenuation);
 					if ((lightIndex == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
@@ -149,6 +146,7 @@ public class FlatSpecularShader  implements Shader {
 			}
 			lightIndex++;
 		}
+		face.setLightColor(lightColor);
 		Texture texture = material.getTexture();
 		if (texture == null) {
 			rasterizer.draw(face);
@@ -160,6 +158,7 @@ public class FlatSpecularShader  implements Shader {
 	public void fragment(Fragment fragment) {
 		Texture depthBuffer = shaderBuffer.getCamera().getRenderTarget().getDepthBuffer();
 		Texture colorBuffer = shaderBuffer.getCamera().getRenderTarget().getColorBuffer();
+		final Material material = fragment.getMaterial();
 		final int x = fragment.getLocation()[VECTOR_X];
 		final int y = fragment.getLocation()[VECTOR_Y];
 		final int z = fragment.getLocation()[VECTOR_Z];
@@ -173,14 +172,14 @@ public class FlatSpecularShader  implements Shader {
 					return;
 				color = texel;
 			}
-			color = ColorUtils.multiplyColor(color, lightColor);
+			color = ColorUtils.multiplyColor(color, fragment.getLightColor());
 			depthBuffer.setPixel(x, y, z);
 			colorBuffer.setPixel(x, y, color);
 		}
 	}
 
 	
-	private int getLightFactor(int[] normal, int[] lightDirection, int[] viewDirection) {
+	private int getLightFactor(Material material, int[] normal, int[] lightDirection, int[] viewDirection) {
 		// diffuse
 		int dotProduct = (int)VectorUtils.dotProduct(normal, lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);
@@ -208,7 +207,7 @@ public class FlatSpecularShader  implements Shader {
 	private boolean inShadow(int[] location, int[][] lightMatrix, Frustum lightFrustum, Texture shadowMap) {
 		VectorUtils.copy(lightSpaceLocation, location);
 		VectorUtils.multiply(lightSpaceLocation, lightMatrix);
-		TransformationUtils.viewportVector(lightSpaceLocation, lightFrustum);
+		TransformationUtils.screenportVector(lightSpaceLocation, lightFrustum);
 		int x = lightSpaceLocation[VECTOR_X];
 		int y = lightSpaceLocation[VECTOR_Y];
 		int depth = shadowMap.getPixel(x, y);

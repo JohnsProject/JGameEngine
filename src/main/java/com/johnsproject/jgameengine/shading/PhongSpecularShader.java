@@ -18,7 +18,7 @@ import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
-public class PhongSpecularShader  implements Shader {
+public class PhongSpecularShader implements Shader {
 
 	private static final int INITIAL_ATTENUATION = FP_ONE;
 	private static final int LINEAR_ATTENUATION = FixedPointUtils.toFixedPoint(0.045);
@@ -31,11 +31,6 @@ public class PhongSpecularShader  implements Shader {
 	private final int[] lightLocation;
 	private final int[] viewDirection;
 	private final int[] lightSpaceLocation;
-	
-	private int color;
-	private int modelColor;
-	private Texture texture;
-	private Material material;
 
 	public PhongSpecularShader() {
 		this.rasterizer = new PerspectivePhongRasterizer(this);
@@ -52,13 +47,12 @@ public class PhongSpecularShader  implements Shader {
 		VectorUtils.copy(location, vertex.getWorldLocation());
 		VectorUtils.multiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
 		VectorUtils.multiply(location, shaderBuffer.getCamera().getFrustum().getProjectionMatrix());
-		TransformationUtils.viewportVector(location, shaderBuffer.getCamera().getFrustum());
+		TransformationUtils.screenportVector(location, shaderBuffer.getCamera().getFrustum());
 	}
 
 	public void geometry(Face face) {
-		material = face.getMaterial();
-		color = material.getDiffuseColor();
-		texture = material.getTexture();
+		final Material material = face.getMaterial();
+		final Texture texture = material.getTexture();
 		if (texture == null) {
 			rasterizer.draw(face);
 		} else {
@@ -67,6 +61,7 @@ public class PhongSpecularShader  implements Shader {
 	}
 
 	public void fragment(Fragment fragment) {
+		final Material material = fragment.getMaterial();
 		final int x = fragment.getLocation()[VECTOR_X];
 		final int y = fragment.getLocation()[VECTOR_Y];
 		final int z = fragment.getLocation()[VECTOR_Z];
@@ -92,7 +87,7 @@ public class PhongSpecularShader  implements Shader {
 				case DIRECTIONAL:
 					VectorUtils.copy(lightDirection, light.getDirection());
 					VectorUtils.invert(lightDirection);
-					currentFactor = getLightFactor(normal, lightDirection, viewDirection);
+					currentFactor = getLightFactor(material, normal, lightDirection, viewDirection);
 					if (lightIndex == shaderBuffer.getDirectionalLightIndex()) {
 						final Frustum lightFrustum = shaderBuffer.getDirectionalLightFrustum();
 						final int[][] lightMatrix = lightFrustum.getProjectionMatrix();
@@ -107,7 +102,7 @@ public class PhongSpecularShader  implements Shader {
 					VectorUtils.subtract(lightLocation, worldLocation);
 					attenuation = getAttenuation(lightLocation);
 					VectorUtils.normalize(lightLocation);
-					currentFactor = getLightFactor(normal, lightLocation, viewDirection);
+					currentFactor = getLightFactor(material, normal, lightLocation, viewDirection);
 					currentFactor = FixedPointUtils.divide(currentFactor, attenuation);
 					if ((lightIndex == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
 						final Frustum lightFrustum = shaderBuffer.getPointLightFrustum();
@@ -132,7 +127,7 @@ public class PhongSpecularShader  implements Shader {
 					if(theta > phi) {
 						int intensity = -FixedPointUtils.divide(phi - theta, light.getSpotSoftness() + 1);
 						intensity = FixedPointUtils.clamp(intensity, 1, FP_ONE);
-						currentFactor = getLightFactor(normal, lightDirection, viewDirection);
+						currentFactor = getLightFactor(material, normal, lightDirection, viewDirection);
 						currentFactor = FixedPointUtils.multiply(currentFactor, intensity * 2);
 						currentFactor = FixedPointUtils.divide(currentFactor, attenuation);
 						if ((lightIndex == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
@@ -151,6 +146,8 @@ public class PhongSpecularShader  implements Shader {
 				lightColor = ColorUtils.lerp(lightColor, light.getColor(), currentFactor);
 				lightIndex++;
 			}
+			final Texture texture = material.getTexture();
+			int color = material.getDiffuseColor();
 			if (texture != null) {
 				int[] uv = fragment.getUV();
 				int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
@@ -158,13 +155,13 @@ public class PhongSpecularShader  implements Shader {
 					return;
 				color = texel;
 			}
-			modelColor = ColorUtils.multiplyColor(color, lightColor);
+			color = ColorUtils.multiplyColor(color, lightColor);
 			depthBuffer.setPixel(x, y, z);
-			colorBuffer.setPixel(x, y, modelColor);
+			colorBuffer.setPixel(x, y, color);
 		}
 	}
 
-	private int getLightFactor(int[] normal, int[] lightDirection, int[] viewDirection) {
+	private int getLightFactor(Material material, int[] normal, int[] lightDirection, int[] viewDirection) {
 		// diffuse
 		int dotProduct = (int)VectorUtils.dotProduct(normal, lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);
@@ -192,7 +189,7 @@ public class PhongSpecularShader  implements Shader {
 	private boolean inShadow(int[] location, int[][] lightMatrix, Frustum lightFrustum, Texture shadowMap) {
 		VectorUtils.copy(lightSpaceLocation, location);
 		VectorUtils.multiply(lightSpaceLocation, lightMatrix);
-		TransformationUtils.viewportVector(lightSpaceLocation, lightFrustum);
+		TransformationUtils.screenportVector(lightSpaceLocation, lightFrustum);
 		int x = lightSpaceLocation[VECTOR_X];
 		int y = lightSpaceLocation[VECTOR_Y];
 		int depth = shadowMap.getPixel(x, y);

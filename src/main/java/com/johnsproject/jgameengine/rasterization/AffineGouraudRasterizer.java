@@ -59,9 +59,10 @@ public class AffineGouraudRasterizer extends GouraudRasterizer {
 		if(cull()) {
 			return;
 		}
-		setColor0(face.getVertex(0).getShadedColor());
-		setColor1(face.getVertex(1).getShadedColor());
-		setColor2(face.getVertex(2).getShadedColor());
+		fragment.setMaterial(face.getMaterial());
+		setColor0(face.getVertex(0).getLightColor());
+		setColor1(face.getVertex(1).getLightColor());
+		setColor2(face.getVertex(2).getLightColor());
 		setUV0(face.getUV(0), texture);
 		setUV1(face.getUV(1), texture);
 		setUV2(face.getUV(2), texture);
@@ -304,7 +305,7 @@ public class AffineGouraudRasterizer extends GouraudRasterizer {
 			cr = r >> FP_PLUS_INTERPOLATE_BIT;
 			cg = g >> FP_PLUS_INTERPOLATE_BIT;
 			cb = b >> FP_PLUS_INTERPOLATE_BIT;
-			fragment.setColor(ColorUtils.toColor(cr, cg, cb));
+			fragment.setLightColor(ColorUtils.toColor(cr, cg, cb));
 			shader.fragment(fragment);
 			z += dz;
 			u += du;

@@ -43,7 +43,7 @@ public final class TransformationUtils {
 		return projectionMatrix;
 	}
 
-	public static int[] viewportVector(int[] location, Frustum frustum) {
+	public static int[] screenportVector(int[] location, Frustum frustum) {
 		int top = frustum.getRenderTargetTop();
 		int bottom = frustum.getRenderTargetBottom();
 		int left = frustum.getRenderTargetLeft();

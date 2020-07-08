@@ -31,8 +31,6 @@ public class GouraudSpecularShader  implements Shader {
 	private final int[] lightLocation;
 	private final int[] viewDirection;
 	private final int[] lightSpaceLocation;
-	
-	private Material material;
 
 	public GouraudSpecularShader() {
 		this.rasterizer = new PerspectiveGouraudRasterizer(this);
@@ -43,7 +41,7 @@ public class GouraudSpecularShader  implements Shader {
 	}
 
 	public void vertex(Vertex vertex) {
-		material = vertex.getMaterial();
+		final Material material = vertex.getMaterial();
 		int[] location = vertex.getLocation();
 		int[] normal = vertex.getWorldNormal();
 		int lightColor = ColorUtils.BLACK;
@@ -65,7 +63,7 @@ public class GouraudSpecularShader  implements Shader {
 			case DIRECTIONAL:
 				VectorUtils.copy(lightDirection, light.getDirection());
 				VectorUtils.invert(lightDirection);
-				currentFactor = getLightFactor(normal, lightDirection, viewDirection);
+				currentFactor = getLightFactor(material, normal, lightDirection, viewDirection);
 				if (lightIndex == shaderBuffer.getDirectionalLightIndex()) {
 					final Frustum lightFrustum = shaderBuffer.getDirectionalLightFrustum();
 					final int[][] lightMatrix = lightFrustum.getProjectionMatrix();
@@ -80,7 +78,7 @@ public class GouraudSpecularShader  implements Shader {
 				VectorUtils.subtract(lightLocation, location);
 				attenuation = getAttenuation(lightLocation);
 				VectorUtils.normalize(lightLocation);
-				currentFactor = getLightFactor(normal, lightLocation, viewDirection);
+				currentFactor = getLightFactor(material, normal, lightLocation, viewDirection);
 				currentFactor = FixedPointUtils.divide(currentFactor, attenuation);
 				if ((lightIndex == shaderBuffer.getPointLightIndex()) && (currentFactor > 150)) {
 					final Frustum lightFrustum = shaderBuffer.getPointLightFrustum();
@@ -105,7 +103,7 @@ public class GouraudSpecularShader  implements Shader {
 				if(theta > phi) {
 					int intensity = -FixedPointUtils.divide(phi - theta, light.getSpotSoftness() + 1);
 					intensity = FixedPointUtils.clamp(intensity, 1, FP_ONE);
-					currentFactor = getLightFactor(normal, lightDirection, viewDirection);
+					currentFactor = getLightFactor(material, normal, lightDirection, viewDirection);
 					currentFactor = FixedPointUtils.multiply(currentFactor, intensity * 2);
 					currentFactor = FixedPointUtils.divide(currentFactor, attenuation);
 					if ((lightIndex == shaderBuffer.getSpotLightIndex()) && (currentFactor > 10)) {
@@ -124,14 +122,14 @@ public class GouraudSpecularShader  implements Shader {
 			lightColor = ColorUtils.lerp(lightColor, light.getColor(), currentFactor);
 			lightIndex++;
 		}
-		vertex.setShadedColor(lightColor);
+		vertex.setLightColor(lightColor);
 		VectorUtils.multiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
 		VectorUtils.multiply(location, shaderBuffer.getCamera().getFrustum().getProjectionMatrix());
-		TransformationUtils.viewportVector(location, shaderBuffer.getCamera().getFrustum());
+		TransformationUtils.screenportVector(location, shaderBuffer.getCamera().getFrustum());
 	}
 
 	public void geometry(Face face) {
-		material = face.getMaterial();
+		final Material material = face.getMaterial();
 		Texture texture = material.getTexture();
 		if (texture == null) {
 			rasterizer.draw(face);
@@ -143,13 +141,14 @@ public class GouraudSpecularShader  implements Shader {
 	public void fragment(Fragment fragment) {
 		Texture depthBuffer = shaderBuffer.getCamera().getRenderTarget().getDepthBuffer();
 		Texture colorBuffer = shaderBuffer.getCamera().getRenderTarget().getColorBuffer();
+		final Material material = fragment.getMaterial();
 		final int x = fragment.getLocation()[VECTOR_X];
 		final int y = fragment.getLocation()[VECTOR_Y];
 		final int z = fragment.getLocation()[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
 			int color = material.getDiffuseColor();
 			Texture texture = material.getTexture();
-			int lightColor = fragment.getColor();
+			int lightColor = fragment.getLightColor();
 			if (texture != null) {
 				int[] uv = fragment.getUV();
 				int texel = texture.getPixel(uv[VECTOR_X], uv[VECTOR_Y]);
@@ -163,7 +162,7 @@ public class GouraudSpecularShader  implements Shader {
 		}
 	}
 
-	private int getLightFactor(int[] normal, int[] lightDirection, int[] viewDirection) {
+	private int getLightFactor(Material material, int[] normal, int[] lightDirection, int[] viewDirection) {
 		// diffuse
 		int dotProduct = (int)VectorUtils.dotProduct(normal, lightDirection);
 		int diffuseFactor = Math.max(dotProduct, 0);
@@ -191,7 +190,7 @@ public class GouraudSpecularShader  implements Shader {
 	private boolean inShadow(int[] location, int[][] lightMatrix, Frustum lightFrustum, Texture shadowMap) {
 		VectorUtils.copy(lightSpaceLocation, location);
 		VectorUtils.multiply(lightSpaceLocation, lightMatrix);
-		TransformationUtils.viewportVector(lightSpaceLocation, lightFrustum);
+		TransformationUtils.screenportVector(lightSpaceLocation, lightFrustum);
 		int x = lightSpaceLocation[VECTOR_X];
 		int y = lightSpaceLocation[VECTOR_Y];
 		int depth = shadowMap.getPixel(x, y);

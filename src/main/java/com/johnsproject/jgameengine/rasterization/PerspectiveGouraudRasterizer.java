@@ -36,9 +36,10 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		if(cull()) {
 			return;
 		}
-		setColor0(face.getVertex(0).getShadedColor());
-		setColor1(face.getVertex(1).getShadedColor());
-		setColor2(face.getVertex(2).getShadedColor());
+		fragment.setMaterial(face.getMaterial());
+		setColor0(face.getVertex(0).getLightColor());
+		setColor1(face.getVertex(1).getLightColor());
+		setColor2(face.getVertex(2).getLightColor());
 		setUV0(face.getUV(0), texture);
 		setUV1(face.getUV(1), texture);
 		setUV2(face.getUV(2), texture);
@@ -290,7 +291,7 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 			cr = FixedPointUtils.multiply(r, oneByZ) >> INTERPOLATE_BIT_2;
 			cg = FixedPointUtils.multiply(g, oneByZ) >> INTERPOLATE_BIT_2;
 			cb = FixedPointUtils.multiply(b, oneByZ) >> INTERPOLATE_BIT_2;
-			fragment.setColor(ColorUtils.toColor(cr, cg, cb));
+			fragment.setLightColor(ColorUtils.toColor(cr, cg, cb));
 			shader.fragment(fragment);
 			z += dz;
 			u += du;
