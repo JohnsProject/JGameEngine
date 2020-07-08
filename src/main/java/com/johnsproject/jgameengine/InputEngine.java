@@ -111,7 +111,7 @@ public class InputEngine implements EngineListener {
 			KeyEvent keyEvent = keyEvents[i];
 			if (keyEvent != null) {
 				for (int j = 0; j < keyListeners.size(); j++) {
-					keyListeners.get(j).keyDown(keyEvent);
+					keyListeners.get(j).keyHold(keyEvent);
 				}
 			}
 		}
@@ -119,7 +119,7 @@ public class InputEngine implements EngineListener {
 			MouseEvent mouseEvent = mouseEvents[i];
 			if (mouseEvent != null) {
 				for (int j = 0; j < mouseListeners.size(); j++) {
-					mouseListeners.get(j).mouseDown(mouseEvent);
+					mouseListeners.get(j).mouseHold(mouseEvent);
 				}
 			}
 		}

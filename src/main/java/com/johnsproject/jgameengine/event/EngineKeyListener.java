@@ -5,6 +5,6 @@ import java.awt.event.KeyListener;
 
 public interface EngineKeyListener extends KeyListener {
 
-	public void keyDown(KeyEvent e);
+	public void keyHold(KeyEvent e);
 	
 }

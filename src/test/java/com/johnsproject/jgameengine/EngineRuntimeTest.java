@@ -261,7 +261,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		}
 	}
 	
-	public void keyDown(KeyEvent e) {
+	public void keyHold(KeyEvent e) {
 		VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_ZERO);
 		if(e.getKeyCode() == KeyEvent.VK_W) {
 			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_FORWARD);
