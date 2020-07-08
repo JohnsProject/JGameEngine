@@ -51,6 +51,7 @@ public class ShadowMappingShader implements Shader {
 		}
 		if(spotShadows && (shaderBuffer.getSpotLightIndex() != -1)) {
 			shadowBias = SPOT_BIAS;
+			currentShadowMap = shaderBuffer.getSpotShadowMap();
 			final Frustum frustum = shaderBuffer.getSpotLightFrustum();
 			transformVertices(face, frustum.getProjectionMatrix(), frustum);
 			rasterizer.setFrustumCull(true);
@@ -58,9 +59,10 @@ public class ShadowMappingShader implements Shader {
 		}
 		if(pointShadows && (shaderBuffer.getPointLightIndex() != -1)) {
 			shadowBias = POINT_BIAS;
+			final Frustum frustum = shaderBuffer.getPointLightFrustum();
 			for (int i = 0; i < shaderBuffer.getPointLightMatrices().length; i++) {
 				currentShadowMap = shaderBuffer.getPointShadowMaps()[i];
-				transformVertices(face, shaderBuffer.getPointLightMatrices()[i], shaderBuffer.getPointLightFrustum());
+				transformVertices(face, shaderBuffer.getPointLightMatrices()[i], frustum);
 				rasterizer.setFrustumCull(true);
 				rasterizer.draw(face);
 			}
@@ -82,33 +84,6 @@ public class ShadowMappingShader implements Shader {
 		final int z = fragment.getLocation()[VECTOR_Z] + shadowBias;
 		if (currentShadowMap.getPixel(x, y) > z) {
 			currentShadowMap.setPixel(x, y, z);
-			// debug shadow maps
-			/*if(shadowBias == DIRECTIONAL_BIAS) {
-				int depth = z >> 1;
-				int color = ColorLibrary.generate(depth, depth, depth);
-				shaderBuffer.getFrameBuffer().getColorBuffer().setPixel(x, y, color);				
-			}*/
-			/*if(shadowBias == SPOT_BIAS) {
-				int depth = z >> 1;
-				int color = ColorLibrary.generate(depth, depth, depth);
-				shaderBuffer.getFrameBuffer().getColorBuffer().setPixel(x, y, color);				
-			}*/
-			// fix rasterizer culling to fix point shadows
-			/*if(shadowBias == POINT_BIAS) {
-				for (int i = 0; i < shaderBuffer.getPointShadowMaps().length; i++) {
-					if(shaderBuffer.getPointShadowMaps()[i] == currentShadowMap) {
-						int frameBufferX = x + (currentShadowMap.getWidth() * (i + 1));
-						int frameBufferY = y;
-						if(i >= 3) {
-							frameBufferX = x + (currentShadowMap.getWidth() * ((i - 5) + 1));
-							frameBufferY += currentShadowMap.getHeight();
-						}
-						int depth = z >> 1;
-						int color = ColorLibrary.generate(depth, depth, depth);
-						shaderBuffer.getFrameBuffer().getColorBuffer().setPixel(frameBufferX, frameBufferY, color);	
-					}
-				}	
-			}*/
 		}
 	}
 

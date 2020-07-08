@@ -131,7 +131,7 @@ public class Transform {
 	}
 	
 	private void rotateZ(int[][] matrix, int angle) {
-		TransformationUtils.yRotationMatrix(matrixCache1, angle);
+		TransformationUtils.zRotationMatrix(matrixCache1, angle);
 		MatrixUtils.copy(matrixCache2, matrix);
 		MatrixUtils.multiply(matrixCache1, matrixCache2, matrix);
 	}

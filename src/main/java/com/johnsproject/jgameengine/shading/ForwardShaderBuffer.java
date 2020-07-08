@@ -52,8 +52,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.spotShadowMap = new Texture(256, 256);
 		
 		this.pointLightIndex = -1;
-		this.pointLightFrustum = new Frustum(0, FP_ONE, 0, FP_ONE, 0, FP_ONE * 1000);
-		this.pointLightFrustum.setFocalLength(FP_ONE >> 5);
+		this.pointLightFrustum = new Frustum(0, FP_ONE, 0, FP_ONE, FP_HALF, FP_ONE * 1000);
+		this.pointLightFrustum.setFocalLength(FP_HALF >> 2);
 		this.pointLightMatrices = new int[6][MatrixUtils.MATRIX_SIZE][MatrixUtils.MATRIX_SIZE];
 		this.pointShadowMaps = new Texture[6];
 		for (int i = 0; i < 6; i++) {
@@ -170,20 +170,33 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 			for (int i = 0; i < pointShadowMaps.length; i++) {
 				pointShadowMaps[i].fill(Integer.MAX_VALUE);
 			}
-			MatrixUtils.copy(projectionMatrix, pointLightFrustum.getProjectionMatrix());
-			final int fixedPoint90 = FixedPointUtils.toFixedPoint(90f);
+			final int[][] frustumProjectionMatrix = pointLightFrustum.getProjectionMatrix();
+			final int[][] lightSpaceMatrix = lightTransform.getSpaceEnterMatrix();
+			final int fixedPoint90 = 90 << FP_BIT;
+			
 			lightTransform.setRotation(0, 0, 0);
-			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), pointLightMatrices[0]);
-			lightTransform.rotate(fixedPoint90, 0, 0);
-			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), pointLightMatrices[1]);
-			lightTransform.rotate(fixedPoint90, 0, 0);
-			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), pointLightMatrices[2]);
-			lightTransform.rotate(fixedPoint90, 0, 0);
-			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), pointLightMatrices[3]);
-			lightTransform.setRotation(0, fixedPoint90, 0);
-			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), pointLightMatrices[4]);
-			lightTransform.setRotation(0, -fixedPoint90, 0);
-			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), pointLightMatrices[5]);
+			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
+			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[0]);
+			
+			lightTransform.rotate(0, fixedPoint90, 0);
+			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
+			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[1]);
+			
+			lightTransform.rotate(0, fixedPoint90, 0);
+			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
+			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[2]);
+			
+			lightTransform.rotate(0, fixedPoint90, 0);
+			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
+			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[3]);
+			
+			lightTransform.setRotation(0, 0, fixedPoint90);
+			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
+			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[4]);
+			
+			lightTransform.setRotation(0, 0, -fixedPoint90);
+			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
+			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[5]);
 			lightTransform.setRotation(0, 0, 0);
 		}
 	}

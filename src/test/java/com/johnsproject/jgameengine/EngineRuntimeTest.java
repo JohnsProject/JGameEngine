@@ -27,6 +27,7 @@ import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.shading.FlatSpecularShader;
+import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
 import com.johnsproject.jgameengine.shading.GouraudSpecularShader;
 import com.johnsproject.jgameengine.shading.PhongSpecularShader;
 import com.johnsproject.jgameengine.util.FileUtils;
@@ -35,59 +36,63 @@ import com.johnsproject.jgameengine.util.MatrixUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
+@SuppressWarnings("unused")
 public class EngineRuntimeTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
-	private int WINDOW_W;
-	private int WINDOW_H;
-	private int RENDER_W;
-	private int RENDER_H;
+	private static final boolean SHOW_ENGINE_STATISTICS = true;
+	private static final boolean SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP = false;
+	private static final boolean SHOW_SPOT_LIGHT_SHADOW_MAP = false;
+	private static final boolean SHOW_POINT_LIGHT_SHADOW_MAP = false;
 	
-	private final int[] cache;
-	private Transform cameraTransform;
+	private static final int WINDOW_W = 1024;
+	private static final int WINDOW_H = 768;
+	private static final int RENDER_W = (WINDOW_W * 100) / 100;
+	private static final int RENDER_H = (WINDOW_H * 100) / 100;
 
-	private GraphicsEngine graphicsEngine;
-	private InputEngine inputEngine;
-	private PhysicsEngine physicsEngine;
+	private final FrameBuffer frameBuffer;
+	private final EngineWindow window;
+	private final GraphicsEngine graphicsEngine;
+	private final InputEngine inputEngine;
+	private final PhysicsEngine physicsEngine;
+	private final Scene scene;
+	
+	private int[] cache;
+	private Transform cameraTransform;
+	private int startTranslateSpeed = FP_ONE / 10;
+	private int translateSpeed = startTranslateSpeed;
 	
 	public static void main(String[] args) {
 		new EngineRuntimeTest();
 	}
 	
 	EngineRuntimeTest() {
-		Engine.getInstance().setScene(loadScene());
-//		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-//		WINDOW_W = gd.getDisplayMode().getWidth();
-//		WINDOW_H = gd.getDisplayMode().getHeight();
-		WINDOW_W = 1024;
-		WINDOW_H = 768;
-		RENDER_W = (WINDOW_W * 100) / 100;
-		RENDER_H = (WINDOW_H * 100) / 100;
-		cache = VectorUtils.emptyVector();
-		FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
-		EngineWindow window = new EngineWindow(frameBuffer);
-		EngineStatistics stats = new EngineStatistics(window);
+		frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
+		window = new EngineWindow(frameBuffer);
 		graphicsEngine = new GraphicsEngine(frameBuffer);
 		inputEngine = new InputEngine();
 		physicsEngine = new PhysicsEngine();
-		window.setSize(WINDOW_W, WINDOW_H);
-//		window.setFullscreen(true);
-//		window.setBorders(false);
-		inputEngine.addMouseMotionListener(this);
-		inputEngine.addEngineKeyListener(this);
-		cameraTransform = Engine.getInstance().getScene().getMainCamera().getTransform();
-//		graphicsEngine.getPreprocessingShaders().clear();
-//		Engine.getInstance().limitUpdateRate(true);
+		scene = loadScene();
 		Engine.getInstance().addEngineListener(this);
 		Engine.getInstance().addEngineListener(graphicsEngine);
 		Engine.getInstance().addEngineListener(inputEngine);
 //		Engine.getInstance().addEngineListener(physicsEngine);
 		Engine.getInstance().addEngineListener(window);
-		Engine.getInstance().addEngineListener(stats);
-		Engine.getInstance().start();
+		if(SHOW_ENGINE_STATISTICS) {
+			final EngineStatistics stats = new EngineStatistics(window);
+			Engine.getInstance().addEngineListener(stats);
+		}
+		Engine.getInstance().start();	
 	}
 	
 	public void start(EngineEvent e) {
-		
+		window.setSize(WINDOW_W, WINDOW_H);
+		inputEngine.addMouseMotionListener(this);
+		inputEngine.addEngineKeyListener(this);
+		cache = VectorUtils.emptyVector();
+		Engine.getInstance().setScene(scene);
+		cameraTransform = scene.getMainCamera().getTransform();
+//		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
+//		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
 	}
 	
 	private Scene loadScene() {
@@ -139,8 +144,6 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		
 		try {
 			Scene scene = SceneImporter.load("C:/Development/JGameEngineTests/Test.scene");
-			//scene.getMainCamera().getTransform().setLocation(0, 0, FP_ONE * 10);
-			//scene.getMainCamera().getTransform().setRotation(0, 0, 0);
 			Texture texture = new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/JohnsProject.png"));
 			for (int m = 0; m < scene.getModels().size(); m++) {
 				Model model = scene.getModels().get(m);
@@ -166,10 +169,43 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		return new Scene();
 	}
 
-	public void update(EngineEvent e) {
-		Model model = e.getScene().getModel("MyModel");
-		if(model != null) {
-			//model.getTransform().rotate(e.getDeltaTime(), 0, 0);
+	public void update(EngineEvent e) {		
+		final ForwardShaderBuffer shaderBuffer = (ForwardShaderBuffer) graphicsEngine.getShaderBuffer();
+		if(SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP || SHOW_SPOT_LIGHT_SHADOW_MAP) {
+			Texture shadowMap = null;
+			if(SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP) {
+				shadowMap = shaderBuffer.getDirectionalShadowMap();
+			}
+			else if(SHOW_SPOT_LIGHT_SHADOW_MAP) {
+				shadowMap = shaderBuffer.getSpotShadowMap();
+			}
+			for (int y = 0; y < shadowMap.getHeight(); y++) {
+				for (int x = 0; x < shadowMap.getWidth(); x++) {
+					int depth = shadowMap.getPixel(x, y) >> 1;
+					int color = com.johnsproject.jgameengine.util.ColorUtils.toColor(depth, depth, depth);
+					if(shaderBuffer.getCamera() != null)
+						shaderBuffer.getCamera().getRenderTarget().getColorBuffer().setPixel(x, y, color);		
+				}
+			}
+		}
+		else if(SHOW_POINT_LIGHT_SHADOW_MAP) {
+			final Texture[] shadowMaps = shaderBuffer.getPointShadowMaps();
+			for (int i = 0; i < shadowMaps.length; i++) {
+				final Texture shadowMap = shadowMaps[i];
+				for (int y = 0; y < shadowMap.getHeight(); y++) {
+					for (int x = 0; x < shadowMap.getWidth(); x++) {
+						int frameBufferX = x + (shadowMap.getWidth() * i);
+						int frameBufferY = y;
+						if(i >= 3) {
+							frameBufferX = x + (shadowMap.getWidth() * (i - 3));
+							frameBufferY += shadowMap.getHeight();
+						}
+						int depth = shadowMap.getPixel(x, y) >> 1;
+						int color = com.johnsproject.jgameengine.util.ColorUtils.toColor(depth, depth, depth);
+						shaderBuffer.getCamera().getRenderTarget().getColorBuffer().setPixel(frameBufferX, frameBufferY, color);		
+					}
+				}
+			}
 		}
 	}
 	
@@ -185,6 +221,9 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	}
 
 	public int getLayer() {
+		if(SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP || SHOW_SPOT_LIGHT_SHADOW_MAP || SHOW_POINT_LIGHT_SHADOW_MAP) {
+			return GRAPHICS_ENGINE_LAYER + 1;
+		}
 		return DEFAULT_LAYER;
 	}
 
@@ -205,7 +244,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	
 	public void keyPressed(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-			speed = FP_ONE / 4;
+			translateSpeed = FP_ONE / 4;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_P) {
 			Engine.getInstance().stop();
@@ -214,14 +253,12 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 
 	public void keyReleased(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-			speed = startSpeed;
+			translateSpeed = startTranslateSpeed;
 		}if(e.getKeyCode() == KeyEvent.VK_P) {
 			Engine.getInstance().start();
 		}
 	}
-
-	int startSpeed = FP_ONE / 10;
-	int speed = startSpeed;
+	
 	public void keyDown(KeyEvent e) {
 		VectorUtils.copy(cache, VectorUtils.VECTOR_ZERO);
 		if(e.getKeyCode() == KeyEvent.VK_W) {
@@ -246,7 +283,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			TransformationUtils.rotateX(cache, cameraTransform.getRotation()[VectorUtils.VECTOR_X]);
 			TransformationUtils.rotateY(cache, cameraTransform.getRotation()[VectorUtils.VECTOR_Y]);
 			TransformationUtils.rotateZ(cache, cameraTransform.getRotation()[VectorUtils.VECTOR_Z]);
-			VectorUtils.multiply(cache, speed);
+			VectorUtils.multiply(cache, translateSpeed);
 			cameraTransform.translate(cache);
 		}
 	}
