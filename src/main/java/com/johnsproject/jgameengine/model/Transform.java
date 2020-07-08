@@ -157,28 +157,64 @@ public class Transform {
 		recalculateMatrices();
 	}
 	
-	public void translate(int x, int y, int z) {
+	public void translateWorld(int x, int y, int z) {
 		setLocation(location[VECTOR_X] + x, location[VECTOR_Y] + y, location[VECTOR_Z] + z);
 	}
-
-	public void rotate(int x, int y, int z) {
-		setRotation(rotation[VECTOR_X] + x, rotation[VECTOR_Y] + y, rotation[VECTOR_Z] + z);
+	
+	public void translateWorld(int[] vector) {
+		translateWorld(vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
 	}
 	
-	public void scale(int x, int y, int z) {
+	public void translateLocal(int x, int y, int z) {
+		translateWorld(localToWorld(x, y, z));
+	}
+	
+	public void translateLocal(int[] vector) {
+		translateLocal(vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
+	}
+
+	public void rotateWorld(int x, int y, int z) {
+		setRotation(rotation[VECTOR_X] + x, rotation[VECTOR_Y] + y, rotation[VECTOR_Z] + z);
+	}
+
+	public void rotateWorld(int[] angles) {
+		rotateWorld(angles[VECTOR_X], angles[VECTOR_Y], angles[VECTOR_Z]);
+	}
+	
+	public void rotateLocal(int x, int y, int z) {
+		rotateWorld(localToWorld(x, y, z));
+	}
+	
+	public void rotateLocal(int[] angles) {
+		rotateLocal(angles[VECTOR_X], angles[VECTOR_Y], angles[VECTOR_Z]);
+	}
+	
+	public void scaleWorld(int x, int y, int z) {
 		setScale(scale[VECTOR_X] + x, scale[VECTOR_Y] + y, scale[VECTOR_Z] + z);
 	}
 	
-	public void translate(int[] vector) {
-		translate(vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
-	}
-
-	public void rotate(int[] angles) {
-		rotate(angles[VECTOR_X], angles[VECTOR_Y], angles[VECTOR_Z]);
+	public void scaleWorld(int[] vector) {
+		scaleWorld(vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
 	}
 	
-	public void scale(int[] vector) {
-		scale(vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
+	public void scaleLocal(int x, int y, int z) {
+		scaleWorld(localToWorld(x, y, z));
+	}
+	
+	public void scaleLocal(int[] vector) {
+		scaleLocal(vector[VECTOR_X], vector[VECTOR_Y], vector[VECTOR_Z]);
+	}
+	
+	private int[] localToWorld(int x, int y, int z) {
+		final int[] vector = matrixCache1[0];
+		VectorUtils.copy(vector, VectorUtils.VECTOR_ZERO);
+		vector[VECTOR_X] = x;
+		vector[VECTOR_Y] = y;
+		vector[VECTOR_Z] = z;
+		TransformationUtils.rotateX(vector, rotation[VectorUtils.VECTOR_X]);
+		TransformationUtils.rotateY(vector, rotation[VectorUtils.VECTOR_Y]);
+		TransformationUtils.rotateZ(vector, rotation[VectorUtils.VECTOR_Z]);
+		return vector;
 	}
 
 	public int[] getLocation() {

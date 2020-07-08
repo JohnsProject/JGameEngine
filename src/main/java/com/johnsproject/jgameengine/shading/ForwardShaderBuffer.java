@@ -178,15 +178,15 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[0]);
 			
-			lightTransform.rotate(0, fixedPoint90, 0);
+			lightTransform.rotateWorld(0, fixedPoint90, 0);
 			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[1]);
 			
-			lightTransform.rotate(0, fixedPoint90, 0);
+			lightTransform.rotateWorld(0, fixedPoint90, 0);
 			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[2]);
 			
-			lightTransform.rotate(0, fixedPoint90, 0);
+			lightTransform.rotateWorld(0, fixedPoint90, 0);
 			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[3]);
 			

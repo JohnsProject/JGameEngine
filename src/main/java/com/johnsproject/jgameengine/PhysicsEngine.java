@@ -67,7 +67,7 @@ public class PhysicsEngine implements EngineListener {
 			rigidBody.addLinearVelocity(linearAcceleration);
 			int[] linearVelocity = VectorUtils.copy(vectorCache1, rigidBody.getLinearVelocity());
 			VectorUtils.multiply(linearVelocity, e.getDeltaTime());
-			transform.translate(linearVelocity);
+			transform.translateWorld(linearVelocity);
 			int[] angularAcceleration = VectorUtils.copy(vectorCache1, rigidBody.getTorque());
 			VectorUtils.divide(angularAcceleration, rigidBody.getMass());
 			VectorUtils.multiply(angularAcceleration, e.getDeltaTime());
@@ -75,7 +75,7 @@ public class PhysicsEngine implements EngineListener {
 			int[] angularVelocity = VectorUtils.copy(vectorCache1, rigidBody.getAngularVelocity());
 			VectorUtils.multiply(angularVelocity, e.getDeltaTime());
 			VectorUtils.multiply(angularVelocity, FixedPointUtils.FP_RAD_DEGREE);
-			transform.rotate(angularVelocity);
+			transform.rotateWorld(angularVelocity);
 		}
 	}
 

@@ -48,6 +48,8 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	private static final int WINDOW_H = 768;
 	private static final int RENDER_W = (WINDOW_W * 100) / 100;
 	private static final int RENDER_H = (WINDOW_H * 100) / 100;
+	
+	private static final int CAMERA_TRANSLATION_SPEED = FP_ONE / 10;
 
 	private final FrameBuffer frameBuffer;
 	private final EngineWindow window;
@@ -56,10 +58,9 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	private final PhysicsEngine physicsEngine;
 	private final Scene scene;
 	
-	private int[] cache;
 	private Transform cameraTransform;
-	private int startTranslateSpeed = FP_ONE / 10;
-	private int translateSpeed = startTranslateSpeed;
+	private int[] cameraTranslation;
+	private int cameraTranslationSpeed;
 	
 	public static void main(String[] args) {
 		new EngineRuntimeTest();
@@ -88,9 +89,10 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		window.setSize(WINDOW_W, WINDOW_H);
 		inputEngine.addMouseMotionListener(this);
 		inputEngine.addEngineKeyListener(this);
-		cache = VectorUtils.emptyVector();
 		Engine.getInstance().setScene(scene);
 		cameraTransform = scene.getMainCamera().getTransform();
+		cameraTranslation = VectorUtils.emptyVector();
+		cameraTranslationSpeed = CAMERA_TRANSLATION_SPEED;
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
 	}
@@ -241,10 +243,9 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		
 	}
 
-	
 	public void keyPressed(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-			translateSpeed = FP_ONE / 4;
+			cameraTranslationSpeed = CAMERA_TRANSLATION_SPEED * 2;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_P) {
 			Engine.getInstance().stop();
@@ -253,38 +254,36 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 
 	public void keyReleased(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-			translateSpeed = startTranslateSpeed;
-		}if(e.getKeyCode() == KeyEvent.VK_P) {
+			cameraTranslationSpeed = CAMERA_TRANSLATION_SPEED / 2;
+		}
+		if(e.getKeyCode() == KeyEvent.VK_P) {
 			Engine.getInstance().start();
 		}
 	}
 	
 	public void keyDown(KeyEvent e) {
-		VectorUtils.copy(cache, VectorUtils.VECTOR_ZERO);
+		VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_ZERO);
 		if(e.getKeyCode() == KeyEvent.VK_W) {
-			VectorUtils.copy(cache, VectorUtils.VECTOR_FORWARD);
+			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_FORWARD);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_A) {
-			VectorUtils.copy(cache, VectorUtils.VECTOR_LEFT);
+			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_LEFT);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_D) {
-			VectorUtils.copy(cache, VectorUtils.VECTOR_RIGHT);
+			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_RIGHT);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_S) {
-			VectorUtils.copy(cache, VectorUtils.VECTOR_BACK);
+			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_BACK);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_E) {
-			VectorUtils.copy(cache, VectorUtils.VECTOR_UP);
+			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_UP);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_Y) {
-			VectorUtils.copy(cache, VectorUtils.VECTOR_DOWN);
+			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_DOWN);
 		}
-		if(!VectorUtils.equals(cache, VectorUtils.VECTOR_ZERO)) {
-			TransformationUtils.rotateX(cache, cameraTransform.getRotation()[VectorUtils.VECTOR_X]);
-			TransformationUtils.rotateY(cache, cameraTransform.getRotation()[VectorUtils.VECTOR_Y]);
-			TransformationUtils.rotateZ(cache, cameraTransform.getRotation()[VectorUtils.VECTOR_Z]);
-			VectorUtils.multiply(cache, translateSpeed);
-			cameraTransform.translate(cache);
+		if(!VectorUtils.equals(cameraTranslation, VectorUtils.VECTOR_ZERO)) {
+			VectorUtils.multiply(cameraTranslation, cameraTranslationSpeed);
+			cameraTransform.translateLocal(cameraTranslation);
 		}
 	}
 }
