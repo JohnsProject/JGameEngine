@@ -85,7 +85,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		Engine.getInstance().start();	
 	}
 	
-	public void start(EngineEvent e) {
+	public void initialize(EngineEvent e) {
 		window.setSize(WINDOW_W, WINDOW_H);
 		inputEngine.addMouseMotionListener(this);
 		inputEngine.addEngineKeyListener(this);
@@ -171,7 +171,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		return new Scene();
 	}
 
-	public void update(EngineEvent e) {		
+	public void dynamicUpdate(EngineEvent e) {		
 		final ForwardShaderBuffer shaderBuffer = (ForwardShaderBuffer) graphicsEngine.getShaderBuffer();
 		if(SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP || SHOW_SPOT_LIGHT_SHADOW_MAP) {
 			Texture shadowMap = null;

@@ -87,7 +87,7 @@ public final class Engine {
 	private void callDynamicUpdate(int deltaTime) {
 		EngineEvent event = new EngineEvent(scene, (int) elapsedTime, 0, deltaTime);
 		for (int i = 0; i < engineListeners.size(); i++) {
-			engineListeners.get(i).update(event);
+			engineListeners.get(i).dynamicUpdate(event);
 		}
 	}
 	
@@ -116,7 +116,7 @@ public final class Engine {
 	}
 
 	public void addEngineListener(EngineListener listener) {
-		listener.start(new EngineEvent(scene, 0, 0, 0));
+		listener.initialize(new EngineEvent(scene, 0, 0, 0));
 		engineListeners.add(listener);
 		sortListeners();
 	}

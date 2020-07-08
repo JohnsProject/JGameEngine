@@ -19,7 +19,7 @@ public class PhysicsEngine implements EngineListener {
 		this.vectorCache1 = VectorUtils.emptyVector();
 	}
 	
-	public void start(EngineEvent e) {
+	public void initialize(EngineEvent e) {
 		
 	}
 	
@@ -52,7 +52,7 @@ public class PhysicsEngine implements EngineListener {
 		}
 	}
 
-	public void update(EngineEvent e) {
+	public void dynamicUpdate(EngineEvent e) {
 		final Scene scene = e.getScene();
 		for (int i = 0; i < scene.getSceneObjects().size(); i++) {
 			SceneObject sceneObject = scene.getSceneObjects().get(i);

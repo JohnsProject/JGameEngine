@@ -35,7 +35,7 @@ public class EngineStatistics implements EngineListener {
 	}
 	
 	
-	public void start(EngineEvent e) {
+	public void initialize(EngineEvent e) {
 		
 	}
 	
@@ -49,7 +49,7 @@ public class EngineStatistics implements EngineListener {
 		}
 	}
 
-	public void update(EngineEvent e) {
+	public void dynamicUpdate(EngineEvent e) {
 		
 	}
 

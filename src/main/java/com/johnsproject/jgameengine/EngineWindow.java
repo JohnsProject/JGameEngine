@@ -35,11 +35,11 @@ public class EngineWindow extends Frame implements EngineListener {
 		panel.setup();
 	}
 
-	public void start(EngineEvent e) {}
+	public void initialize(EngineEvent e) {}
 	
 	public void fixedUpdate(EngineEvent e) {}
 	
-	public void update(EngineEvent e) {
+	public void dynamicUpdate(EngineEvent e) {
 		panel.drawBuffer();
 		if (this.getWidth() != width || this.getHeight() != height) {
 			width = this.getWidth();

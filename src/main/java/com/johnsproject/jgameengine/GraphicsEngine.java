@@ -50,7 +50,7 @@ public class GraphicsEngine implements EngineListener {
 		addShader(new PhongSpecularShader());
 	}
 
-	public void start(EngineEvent e) { }
+	public void initialize(EngineEvent e) { }
 	
 	public void fixedUpdate(EngineEvent e) { 
 		Scene scene = e.getScene();
@@ -63,7 +63,7 @@ public class GraphicsEngine implements EngineListener {
 		}		
 	}
 	
-	public void update(EngineEvent e) {
+	public void dynamicUpdate(EngineEvent e) {
 		Scene scene = e.getScene();
 		frameBuffer.getColorBuffer().fill(0);
 		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);

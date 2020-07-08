@@ -83,7 +83,7 @@ public class InputEngine implements EngineListener {
 		motionListeners.remove(listener);
 	}
 	
-	public void start(EngineEvent e) {
+	public void initialize(EngineEvent e) {
 		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
 			public void eventDispatched(AWTEvent event) {
 				if (event instanceof KeyEvent) {
@@ -125,7 +125,7 @@ public class InputEngine implements EngineListener {
 		}
 	}
 	
-	public void update(EngineEvent e) {
+	public void dynamicUpdate(EngineEvent e) {
 		
 	}
 	
