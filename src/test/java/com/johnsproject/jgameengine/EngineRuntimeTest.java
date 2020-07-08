@@ -230,8 +230,10 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		int y = -((e.getX() - (WINDOW_W >> 1)) >> 1) << FP_BIT;
-		int x = -((e.getY() - (WINDOW_H >> 1)) >> 1) << FP_BIT;
+		final int mouseX = (int)inputEngine.getMouseLocation().getX();
+		final int mouseY = (int)inputEngine.getMouseLocation().getY();
+		final int x = -((mouseY - (WINDOW_H >> 1)) >> 1) << FP_BIT;
+		final int y = -((mouseX - (WINDOW_W >> 1)) >> 1) << FP_BIT;
 		cameraTransform.setRotation(x, y, 0);
 	}
 
