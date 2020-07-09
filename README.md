@@ -1,19 +1,43 @@
 # JGameEngine
 
-JGameEngine is a tiny 3D game engine written in Java. 
-It only uses Java AWT, as the 3D part is done by software rendering.
+is a lightweight 3D game engine written in Java.
 
-## Features 
-* Pure Java and Java 1.5+ compatibility
-* Pure fixed point (no floats)
-* [Blender](https://www.blender.org/) exporter and importer
-* Scanline triangle rasterization (flat, gouraud and phong + texture mapping)
-* Shaders (flat, gouraud and phong shaders)
-* Point, directional and spot lights + shadow mapping shaders (experimental)
-* Skeletal animation
+## TODO
+* [x] No dependencies
+* [x] Java 1.5+ compatibility
+* [x] Fixed point math only
+* [ ] Multithreating
+* [x] Graphics engine
+* [ ] Physics engine
+* [ ] Audio engine
+* [ ] Networking engine
+* [x] Input engine
+
+Graphics engine
+* [x] Scanline triangle rasterization (flat, gouraud and phong + texture mapping)
+* [x] Shaders (flat, gouraud and phong shaders)
+* [x] Point, directional and spot lights
+* [x] Shadow mapping for all light types (experimental)
+* [x] Skeletal animation (experimental)
+* [ ] Skybox
+* [x] Custom [Blender 2.7x](https://www.blender.org/) exporter and importer
+* [ ] Importers for `.obj`, `.fbx`, etc.
+
+Input engine
+* [x] Keyboard
+* [x] Mouse
+* [ ] Gamepad
+* [ ] Touch
 
 ## Screenshots
+Flat shading
+
 ![Screenshot](Images/Example1.PNG "Example1")
+
+Gouraud shading
+
 ![Screenshot](Images/Example2.PNG "Example2")
+
+Phong shading
+
 ![Screenshot](Images/Example3.PNG "Example3")
-![Screenshot](Images/Example4.PNG "Example4")

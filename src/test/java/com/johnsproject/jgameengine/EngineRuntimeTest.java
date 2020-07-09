@@ -44,6 +44,8 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	private static final boolean SHOW_SPOT_LIGHT_SHADOW_MAP = false;
 	private static final boolean SHOW_POINT_LIGHT_SHADOW_MAP = false;
 	
+	private static final boolean ENABLE_SHADOW_MAPPING = true;
+	
 	private static final int WINDOW_W = 1024;
 	private static final int WINDOW_H = 768;
 	private static final int RENDER_W = (WINDOW_W * 100) / 100;
@@ -93,8 +95,22 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		cameraTransform = scene.getMainCamera().getTransform();
 		cameraTranslation = VectorUtils.emptyVector();
 		cameraTranslationSpeed = CAMERA_TRANSLATION_SPEED;
+		if(!ENABLE_SHADOW_MAPPING) {
+			graphicsEngine.getShaders().clear();
+			GouraudSpecularShader gouraudShader = new GouraudSpecularShader();
+			graphicsEngine.addShader(new FlatSpecularShader());
+			graphicsEngine.addShader(gouraudShader);
+			graphicsEngine.addShader(new PhongSpecularShader());
+			graphicsEngine.setDefaultShader(gouraudShader);
+		}
+		try {
+			scene.getModel("Water").getMesh().getMaterial(0).setTexture(new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/JohnsProject.png")));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
-//		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
+		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
+		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
 	}
 	
 	private Scene loadScene() {
@@ -146,24 +162,24 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		
 		try {
 			Scene scene = SceneImporter.load("C:/Development/JGameEngineTests/Test.scene");
-			Texture texture = new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/JohnsProject.png"));
-			for (int m = 0; m < scene.getModels().size(); m++) {
-				Model model = scene.getModels().get(m);
-//				model.getRigidBody().setKinematic(true);
-				if(model.getName().equals("Ground")) {
-//					model.getRigidBody().setKinematic(true);
-//					model.getRigidBody().setTorque(0, 0, 10); 
-//					model.getRigidBody().addLinearVelocity(1024, 0, 0);
-//					model.getRigidBody().setAngularVelocity(0, 0, 1024);
-				}
-				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
-					Material material = model.getMesh().getMaterial(j);
-					//material.setShader(graphicsEngine.getShader(1)); // FlatSpecularShader
-					//material.setShader(graphicsEngine.getShader(3)); // PhongSpecularShader
-					//properties.setTexture(texture);
-				}
-				model.getArmature().playAnimation("Walk", true);
-			}
+//			Texture texture = new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/JohnsProject.png"));
+//			for (int m = 0; m < scene.getModels().size(); m++) {
+//				Model model = scene.getModels().get(m);
+////				model.getRigidBody().setKinematic(true);
+//				if(model.getName().equals("Ground")) {
+////					model.getRigidBody().setKinematic(true);
+////					model.getRigidBody().setTorque(0, 0, 10); 
+////					model.getRigidBody().addLinearVelocity(1024, 0, 0);
+////					model.getRigidBody().setAngularVelocity(0, 0, 1024);
+//				}
+//				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
+//					Material material = model.getMesh().getMaterial(j);
+//					//material.setShader(graphicsEngine.getShader(1)); // FlatSpecularShader
+//					//material.setShader(graphicsEngine.getShader(3)); // PhongSpecularShader
+//					//material.setTexture(texture);
+//				}
+//				model.getArmature().playAnimation("Walk", true);
+//			}
 			return scene;
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -212,6 +212,8 @@ public class InputEngine implements EngineListener {
 	public void fixedUpdate(EngineEvent e) {
 		for (int i = 0; i < inputEvents.size(); i++) {
 			final InputEvent event = inputEvents.get(i);
+			if(event == null)
+				continue;
 			switch (event.getType()) {
 			case KeyEvent.KEY_PRESSED:
 				for (int l = 0; l < keyListeners.size(); l++) {
