@@ -16,23 +16,27 @@ public class EngineWindow extends Frame implements EngineListener {
 	private static final long serialVersionUID = 1L;
 
 	private final EnginePanel panel;
+	private FrameBuffer frameBuffer;
 	private int width;
 	private int height;
-	private FrameBuffer frameBuffer;
 	
 	public EngineWindow(FrameBuffer frameBuffer) {
+		panel = new EnginePanel();
 		setFrameBuffer(frameBuffer);
-		this.setVisible(true);
-		this.setTitle("JGameEngine");
-		this.addWindowListener(new WindowAdapter() {
+		setVisible(true);
+		setTitle("JGameEngine");
+		addWindowListener(handleWindowClose());
+		createBufferStrategy(2);
+		add(panel);
+		panel.setup();
+	}
+	
+	private WindowAdapter handleWindowClose() {
+		return new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
 				System.exit(0);
 			}
-		});
-		this.createBufferStrategy(2);
-		panel = new EnginePanel();
-		this.add(panel);
-		panel.setup();
+		};
 	}
 
 	public void initialize(EngineEvent e) {}
@@ -41,9 +45,9 @@ public class EngineWindow extends Frame implements EngineListener {
 	
 	public void dynamicUpdate(EngineEvent e) {
 		panel.drawBuffer();
-		if (this.getWidth() != width || this.getHeight() != height) {
-			width = this.getWidth();
-			height = this.getHeight();
+		if (getWidth() != width || getHeight() != height) {
+			width = getWidth();
+			height = getHeight();
 			panel.setSize(width, height);
 		}
 	}
@@ -71,7 +75,7 @@ public class EngineWindow extends Frame implements EngineListener {
 		setVisible(true);
 	}
 	
-	public boolean usingBorders() {
+	public boolean hasBorders() {
 		return !isUndecorated();
 	}
 	
