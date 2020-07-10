@@ -4,6 +4,7 @@ import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
+import static com.johnsproject.jgameengine.rasterization.RasterizerUtils.*;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Texture;
@@ -26,21 +27,6 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		uvCache = VectorUtils.emptyVector();
 	}
 	
-	protected final void setUV0(int[] uv, Texture texture) {
-		u[0] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
-		v[0] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
-	}
-	
-	protected final void setUV1(int[] uv, Texture texture) {
-		u[1] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
-		v[1] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
-	}
-	
-	protected final void setUV2(int[] uv, Texture texture) {
-		u[2] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
-		v[2] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
-	}
-	
 	/**
 	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
 	 * This rasterizer draws a triangle using the x, y coordinates of each vertex of the geometryBuffer. 
@@ -51,65 +37,76 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 	 * @param geometryBuffer
 	 */
 	public void affineDraw(Face face, Texture texture) {
-		copyFrustum(shader.getShaderBuffer().getCamera().getFrustum());
-		VectorUtils.copy(location0, face.getVertex(0).getLocation());
-		VectorUtils.copy(location1, face.getVertex(1).getLocation());
-		VectorUtils.copy(location2, face.getVertex(2).getLocation());
-		fragment.setLightColor(face.getLightColor());
-		if(cull()) {
+		copyLocations(face);
+		copyFrustum();
+		if(isCulled())
 			return;
-		}
+		fragment.setLightColor(face.getLightColor());
 		fragment.setMaterial(face.getMaterial());
-		setUV0(face.getUV(0), texture);
-		setUV1(face.getUV(1), texture);
-		setUV2(face.getUV(2), texture);
-		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorUtils.swap(location0, location1);
-			swapVector(u, v, 0, 1);
-		}
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			VectorUtils.swap(location1, location2);
-			swapVector(u, v, 2, 1);
-		}
-		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorUtils.swap(location0, location1);
-			swapVector(u, v, 0, 1);
-		}
+		copyUV(face, texture);
+		sortY();
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
         	drawBottomTriangle();
         } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
             drawTopTriangle();
         } else {
-            int x = location0[VECTOR_X];
-            int y = location1[VECTOR_Y];
-            int z = location0[VECTOR_Z];
-            int uvx = u[0];
-            int uvy = v[0];
-            int dy = FixedPointUtils.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
-            int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
-            x += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
-            z += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = u[2] - u[0];
-            uvx += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = v[2] - v[0];
-            uvy += FixedPointUtils.multiply(dy, multiplier);
-            vectorCache[VECTOR_X] = x;
-            vectorCache[VECTOR_Y] = y;
-            vectorCache[VECTOR_Z] = z;
-            uvCache[VECTOR_X] = uvx;
-            uvCache[VECTOR_Y] = uvy;
-            VectorUtils.swap(vectorCache, location2);
-            swapCache(u, v, uvCache, 2);
-            drawBottomTriangle();
-            VectorUtils.swap(vectorCache, location2);
-            VectorUtils.swap(location0, location1);
-            VectorUtils.swap(location1, vectorCache);
-            swapCache(u, v, uvCache, 2);
-            swapVector(u, v, 0, 1);
-            swapCache(u, v, uvCache, 1);
-            drawTopTriangle();
+            splitTriangle();
+            drawSplitedTriangle();
         }
+	}
+	
+	protected void copyUV(Face face, Texture texture) {
+		int[] uv = face.getUV(0);
+		u[0] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[0] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+		uv = face.getUV(1);
+		u[1] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[1] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+		uv = face.getUV(2);
+		u[2] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
+		v[2] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+	}
+	
+	protected void sortY() {
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			VectorUtils.swap(location0, location1);
+			RasterizerUtils.swapVector(u, 0, 1);
+			RasterizerUtils.swapVector(v, 0, 1);
+		}
+		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
+			VectorUtils.swap(location1, location2);
+			RasterizerUtils.swapVector(u, 2, 1);
+			RasterizerUtils.swapVector(v, 2, 1);
+		}
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			VectorUtils.swap(location0, location1);
+			RasterizerUtils.swapVector(u, 0, 1);
+			RasterizerUtils.swapVector(v, 0, 1);
+		}
+	}
+	
+	protected int splitTriangle() {
+		int dy = super.splitTriangle();
+        uvCache[VECTOR_X] = u[0] + FixedPointUtils.multiply(dy, u[2] - u[0]);
+        uvCache[VECTOR_Y] = v[0] + FixedPointUtils.multiply(dy, v[2] - v[0]);
+        return dy;
+	}
+	
+	private void drawSplitedTriangle() {
+		VectorUtils.swap(vectorCache, location2);
+		RasterizerUtils.swapCache(u, uvCache, 0, 2);
+		RasterizerUtils.swapCache(v, uvCache, 1, 2);
+        drawBottomTriangle();
+        VectorUtils.swap(vectorCache, location2);
+        VectorUtils.swap(location0, location1);
+        VectorUtils.swap(location1, vectorCache);
+        RasterizerUtils.swapCache(u, uvCache, 0, 2);
+        RasterizerUtils.swapCache(v, uvCache, 1, 2);
+        RasterizerUtils.swapVector(u, 0, 1);
+        RasterizerUtils.swapVector(v, 0, 1);
+        RasterizerUtils.swapCache(u, uvCache, 0, 1);
+        RasterizerUtils.swapCache(v, uvCache, 1, 1);
+        drawTopTriangle();
 	}
 	
 	private void drawBottomTriangle() {
@@ -157,7 +154,7 @@ public class AffineFlatRasterizer extends FlatRasterizer {
             int u = this.u[0] << FP_BIT;
             int v = this.v[0] << FP_BIT;
         	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
-        		drawScanline(x1, x2, y, z, u, v, dz, du, dv);
+	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
@@ -222,7 +219,7 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		}
     }
 	
-	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int dz, int du, int dv) {
+	private void drawScanline(int x1, int x2, int y, int z, int u, int v,int dz, int du, int dv) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {

@@ -1,7 +1,10 @@
 package com.johnsproject.jgameengine.rasterization;
 
-import static com.johnsproject.jgameengine.util.FixedPointUtils.*;
-import static com.johnsproject.jgameengine.util.VectorUtils.*;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
+import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
+import static com.johnsproject.jgameengine.rasterization.RasterizerUtils.*;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.shading.Shader;
@@ -24,24 +27,6 @@ public class GouraudRasterizer extends FlatRasterizer {
 		this.colorCache = VectorUtils.emptyVector();
 	}
 	
-	protected final void setColor0(int color) {
-		red[0] = ColorUtils.getRed(color) << INTERPOLATE_BIT;
-		green[0] = ColorUtils.getGreen(color) << INTERPOLATE_BIT;
-		blue[0] = ColorUtils.getBlue(color) << INTERPOLATE_BIT;
-	}
-	
-	protected final void setColor1(int color) {
-		red[1] = ColorUtils.getRed(color) << INTERPOLATE_BIT;
-		green[1] = ColorUtils.getGreen(color) << INTERPOLATE_BIT;
-		blue[1] = ColorUtils.getBlue(color) << INTERPOLATE_BIT;
-	}
-	
-	protected final void setColor2(int color) {
-		red[2] = ColorUtils.getRed(color) << INTERPOLATE_BIT;
-		green[2] = ColorUtils.getGreen(color) << INTERPOLATE_BIT;
-		blue[2] = ColorUtils.getBlue(color) << INTERPOLATE_BIT;
-	}
-	
 	/**
 	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
 	 * This rasterizer draws a triangle using the x, y coordinates of each vertex of the geometryBuffer. 
@@ -52,76 +37,96 @@ public class GouraudRasterizer extends FlatRasterizer {
 	 * @param geometryBuffer
 	 */
 	public void draw(Face face) {
-		copyFrustum(shader.getShaderBuffer().getCamera().getFrustum());
-		VectorUtils.copy(location0, face.getVertex(0).getLocation());
-		VectorUtils.copy(location1, face.getVertex(1).getLocation());
-		VectorUtils.copy(location2, face.getVertex(2).getLocation());
-		if(cull()) {
+		copyLocations(face);
+		copyFrustum();
+		if(isCulled())
 			return;
-		}
 		fragment.setMaterial(face.getMaterial());
-		setColor0(face.getVertex(0).getLightColor());
-		setColor1(face.getVertex(1).getLightColor());
-		setColor2(face.getVertex(2).getLightColor());
-		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorUtils.swap(location0, location1);
-			swapVector(red, green, blue, 0, 1);
-		}
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			VectorUtils.swap(location1, location2);
-			swapVector(red, green, blue, 2, 1);
-		}
-		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorUtils.swap(location0, location1);
-			swapVector(red, green, blue, 0, 1);
-		}
+		copyColors(face);
+		sortY();
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
         	drawBottomTriangle();
         } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
         	drawTopTriangle();
         } else {
-            int x = location0[VECTOR_X];
-            int y = location1[VECTOR_Y];
-            int z = location0[VECTOR_Z];
-            int r = red[0];
-            int g = green[0];
-            int b = blue[0];
-            int dy = FixedPointUtils.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
-            int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
-            x += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
-            z += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = red[2] - red[0];
-            r += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = green[2] - green[0];
-            g += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = blue[2] - blue[0];
-            b += FixedPointUtils.multiply(dy, multiplier);
-            vectorCache[VECTOR_X] = x;
-            vectorCache[VECTOR_Y] = y;
-            vectorCache[VECTOR_Z] = z;
-            colorCache[0] = r;
-            colorCache[1] = g;
-            colorCache[2] = b;
-            VectorUtils.swap(vectorCache, location2);
-            swapCache(red, green, blue, colorCache, 2);
-            drawBottomTriangle();
-            VectorUtils.swap(vectorCache, location2);
-            VectorUtils.swap(location0, location1);
-            VectorUtils.swap(location1, vectorCache);
-            swapCache(red, green, blue, colorCache, 2);
-            swapVector(red, green, blue, 0, 1);
-            swapCache(red, green, blue, colorCache, 1);
-            drawTopTriangle();
+            splitTriangle();
+            drawSplitedTriangle();
         }
+	}
+	
+	protected void copyColors(Face face) {
+		int color = face.getVertex(0).getLightColor();
+		red[0] = ColorUtils.getRed(color) << INTERPOLATE_BIT;
+		green[0] = ColorUtils.getGreen(color) << INTERPOLATE_BIT;
+		blue[0] = ColorUtils.getBlue(color) << INTERPOLATE_BIT;
+		
+		color = face.getVertex(1).getLightColor();
+		red[1] = ColorUtils.getRed(color) << INTERPOLATE_BIT;
+		green[1] = ColorUtils.getGreen(color) << INTERPOLATE_BIT;
+		blue[1] = ColorUtils.getBlue(color) << INTERPOLATE_BIT;
+		
+		color = face.getVertex(2).getLightColor();
+		red[2] = ColorUtils.getRed(color) << INTERPOLATE_BIT;
+		green[2] = ColorUtils.getGreen(color) << INTERPOLATE_BIT;
+		blue[2] = ColorUtils.getBlue(color) << INTERPOLATE_BIT;
+	}
+	
+	private void sortY() {
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			VectorUtils.swap(location0, location1);
+			RasterizerUtils.swapVector(red, 0, 1);
+			RasterizerUtils.swapVector(green, 0, 1);
+			RasterizerUtils.swapVector(blue, 0, 1);
+		}
+		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
+			VectorUtils.swap(location1, location2);
+			RasterizerUtils.swapVector(red, 2, 1);
+			RasterizerUtils.swapVector(green, 2, 1);
+			RasterizerUtils.swapVector(blue, 2, 1);
+		}
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			VectorUtils.swap(location0, location1);
+			RasterizerUtils.swapVector(red, 0, 1);
+			RasterizerUtils.swapVector(green, 0, 1);
+			RasterizerUtils.swapVector(blue, 0, 1);
+		}
+	}
+	
+	protected int splitTriangle() {
+        int dy = super.splitTriangle();
+        colorCache[0] = red[0] + FixedPointUtils.multiply(dy, red[2] - red[0]);
+        colorCache[1] = green[0] + FixedPointUtils.multiply(dy, green[2] - green[0]);
+        colorCache[2] = blue[0] + FixedPointUtils.multiply(dy, blue[2] - blue[0]);
+        return dy;
+	}
+	
+	private void drawSplitedTriangle() {
+		VectorUtils.swap(vectorCache, location2);
+		RasterizerUtils.swapCache(red, colorCache, 0, 2);
+		RasterizerUtils.swapCache(green, colorCache, 1, 2);
+		RasterizerUtils.swapCache(blue, colorCache, 2, 2);
+        drawBottomTriangle();
+        VectorUtils.swap(vectorCache, location2);
+        VectorUtils.swap(location0, location1);
+        VectorUtils.swap(location1, vectorCache);
+		RasterizerUtils.swapCache(red, colorCache, 0, 2);
+		RasterizerUtils.swapCache(green, colorCache, 1, 2);
+		RasterizerUtils.swapCache(blue, colorCache, 2, 2);
+        RasterizerUtils.swapVector(red, 0, 1);
+        RasterizerUtils.swapVector(green, 0, 1);
+        RasterizerUtils.swapVector(blue, 0, 1);
+		RasterizerUtils.swapCache(red, colorCache, 0, 1);
+		RasterizerUtils.swapCache(green, colorCache, 1, 1);
+		RasterizerUtils.swapCache(blue, colorCache, 2, 1);
+        drawTopTriangle();
 	}
 	
 	private void drawBottomTriangle() {
 		int xShifted = location0[VECTOR_X] << FP_BIT;
 		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
-		y2y1 = y2y1 == 0 ? 1 : y2y1;
-		y3y1 = y3y1 == 0 ? 1 : y3y1;
+//		y2y1 = y2y1 == 0 ? 1 : y2y1;
+//		y3y1 = y3y1 == 0 ? 1 : y3y1;
         int dx1 = FixedPointUtils.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
         int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
         int dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);

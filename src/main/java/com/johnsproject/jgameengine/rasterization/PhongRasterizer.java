@@ -4,6 +4,7 @@ import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
+import static com.johnsproject.jgameengine.rasterization.RasterizerUtils.*;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.shading.Shader;
@@ -39,42 +40,6 @@ public class PhongRasterizer extends FlatRasterizer {
 		normal = VectorUtils.emptyVector();
 		normalCache = VectorUtils.emptyVector();
 	}
-	
-	protected void setWorldLocation0(int[] location) {
-		worldX[0] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		worldY[0] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		worldZ[0] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
-	
-	protected void setWorldLocation1(int[] location) {
-		worldX[1] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		worldY[1] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		worldZ[1] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
-	
-	protected void setWorldLocation2(int[] location) {
-		worldX[2] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		worldY[2] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		worldZ[2] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
-	
-	protected void setNormal0(int[] location) {
-		normalX[0] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		normalY[0] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		normalZ[0] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
-	
-	protected void setNormal1(int[] location) {
-		normalX[1] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		normalY[1] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		normalZ[1] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
-	
-	protected void setNormal2(int[] location) {
-		normalX[2] = location[VECTOR_X] >> INTERPOLATE_BIT;
-		normalY[2] = location[VECTOR_Y] >> INTERPOLATE_BIT;
-		normalZ[2] = location[VECTOR_Z] >> INTERPOLATE_BIT;
-	}
 
 	/**
 	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
@@ -86,90 +51,122 @@ public class PhongRasterizer extends FlatRasterizer {
 	 * @param geometryBuffer
 	 */
 	public void draw(Face face) {
-		copyFrustum(shader.getShaderBuffer().getCamera().getFrustum());
-		VectorUtils.copy(location0, face.getVertex(0).getLocation());
-		VectorUtils.copy(location1, face.getVertex(1).getLocation());
-		VectorUtils.copy(location2, face.getVertex(2).getLocation());
-		if(cull()) {
+		copyLocations(face);
+		copyFrustum();
+		if(isCulled())
 			return;
-		}
 		fragment.setMaterial(face.getMaterial());
-		setWorldLocation0(face.getVertex(0).getWorldLocation());
-		setWorldLocation1(face.getVertex(1).getWorldLocation());
-		setWorldLocation2(face.getVertex(2).getWorldLocation());
-		setNormal0(face.getVertex(0).getWorldNormal());
-		setNormal1(face.getVertex(1).getWorldNormal());
-		setNormal2(face.getVertex(2).getWorldNormal());
-		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorUtils.swap(location0, location1);
-			swapVector(worldX, worldY, worldZ, 0, 1);
-			swapVector(normalX, normalY, normalZ, 0, 1);
-		}
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			VectorUtils.swap(location1, location2);
-			swapVector(worldX, worldY, worldZ, 2, 1);
-			swapVector(normalX, normalY, normalZ, 2, 1);
-		}
-		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorUtils.swap(location0, location1);
-			swapVector(worldX, worldY, worldZ, 0, 1);
-			swapVector(normalX, normalY, normalZ, 0, 1);
-		}
+		copyWorldLocation(face);
+		copyWorldNormal(face);
+		sortY();
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
         	drawBottomTriangle();
         } else if (location0[VECTOR_Y] == location1[VECTOR_Y]) {
         	drawTopTriangle();
         } else {
-            int x = location0[VECTOR_X];
-            int y = location1[VECTOR_Y];
-            int z = location0[VECTOR_Z];
-            int wx = worldX[0];
-            int wy = worldY[0];
-            int wz = worldZ[0];
-            int nx = normalX[0];
-            int ny = normalY[0];
-            int nz = normalZ[0];
-            int dy = FixedPointUtils.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
-            int multiplier = location2[VECTOR_X] - location0[VECTOR_X];
-            x += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = location2[VECTOR_Z] - location0[VECTOR_Z];
-            z += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = worldX[2] - worldX[0];
-            wx += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = worldY[2] - worldY[0];
-            wy += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = worldZ[2] - worldZ[0];
-            wz += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = normalX[2] - normalX[0];
-            nx += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = normalY[2] - normalY[0];
-            ny += FixedPointUtils.multiply(dy, multiplier);
-            multiplier = normalZ[2] - normalZ[0];
-            nz += FixedPointUtils.multiply(dy, multiplier);
-            vectorCache[VECTOR_X] = x;
-            vectorCache[VECTOR_Y] = y;
-            vectorCache[VECTOR_Z] = z;
-            worldCache[VECTOR_X] = wx;
-            worldCache[VECTOR_Y] = wy;
-            worldCache[VECTOR_Z] = wz;
-            normalCache[VECTOR_X] = nx;
-            normalCache[VECTOR_Y] = ny;
-            normalCache[VECTOR_Z] = nz;
-            VectorUtils.swap(vectorCache, location2);
-            swapCache(worldX, worldY, worldZ, worldCache, 2);
-            swapCache(normalX, normalY, normalZ, normalCache, 2);
-            drawBottomTriangle();
-            VectorUtils.swap(vectorCache, location2);
-            VectorUtils.swap(location0, location1);
-            VectorUtils.swap(location1, vectorCache);
-            swapCache(worldX, worldY, worldZ, worldCache, 2);
-            swapVector(worldX, worldY, worldZ, 0, 1);
-            swapCache(worldX, worldY, worldZ, worldCache, 1);
-            swapCache(normalX, normalY, normalZ, normalCache, 2);
-            swapVector(normalX, normalY, normalZ, 0, 1);
-            swapCache(normalX, normalY, normalZ, normalCache, 1);
-            drawTopTriangle();
+            splitTriangle();
+            drawSplitedTriangle();
         }
+	}
+	
+	protected void copyWorldLocation(Face face) {
+		copyWorldLocation(face, 0);
+		copyWorldLocation(face, 1);
+		copyWorldLocation(face, 2);
+	}
+	
+	private void copyWorldLocation(Face face, int index) {
+		int[] location = face.getVertex(index).getWorldLocation();
+		worldX[index] = location[VECTOR_X] >> INTERPOLATE_BIT;
+		worldY[index] = location[VECTOR_Y] >> INTERPOLATE_BIT;
+		worldZ[index] = location[VECTOR_Z] >> INTERPOLATE_BIT;
+	}
+	
+	protected void copyWorldNormal(Face face) {
+		copyWorldNormal(face, 0);
+		copyWorldNormal(face, 1);
+		copyWorldNormal(face, 2);
+	}
+	
+	private void copyWorldNormal(Face face, int index) {
+		int[] normal = face.getVertex(index).getWorldNormal();
+		normalX[index] = normal[VECTOR_X] >> INTERPOLATE_BIT;
+		normalY[index] = normal[VECTOR_Y] >> INTERPOLATE_BIT;
+		normalZ[index] = normal[VECTOR_Z] >> INTERPOLATE_BIT;
+	}
+	
+	private void sortY() {
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			VectorUtils.swap(location0, location1);
+			RasterizerUtils.swapVector(worldX, 0, 1);
+			RasterizerUtils.swapVector(worldY, 0, 1);
+			RasterizerUtils.swapVector(worldZ, 0, 1);
+			RasterizerUtils.swapVector(normalX, 0, 1);
+			RasterizerUtils.swapVector(normalY, 0, 1);
+			RasterizerUtils.swapVector(normalZ, 0, 1);
+		}
+		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
+			VectorUtils.swap(location1, location2);
+			RasterizerUtils.swapVector(worldX, 2, 1);
+			RasterizerUtils.swapVector(worldY, 2, 1);
+			RasterizerUtils.swapVector(worldZ, 2, 1);
+			RasterizerUtils.swapVector(normalX, 2, 1);
+			RasterizerUtils.swapVector(normalY, 2, 1);
+			RasterizerUtils.swapVector(normalZ, 2, 1);
+		}
+		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
+			VectorUtils.swap(location0, location1);
+			RasterizerUtils.swapVector(worldX, 0, 1);
+			RasterizerUtils.swapVector(worldY, 0, 1);
+			RasterizerUtils.swapVector(worldZ, 0, 1);
+			RasterizerUtils.swapVector(normalX, 0, 1);
+			RasterizerUtils.swapVector(normalY, 0, 1);
+			RasterizerUtils.swapVector(normalZ, 0, 1);
+		}
+	}
+	
+	protected int splitTriangle() {
+        int dy = super.splitTriangle();
+        worldCache[VECTOR_X] = worldX[0] + FixedPointUtils.multiply(dy, worldX[2] - worldX[0]);
+        worldCache[VECTOR_Y] = worldY[0] + FixedPointUtils.multiply(dy, worldY[2] - worldY[0]);
+        worldCache[VECTOR_Z] = worldZ[0] + FixedPointUtils.multiply(dy, worldZ[2] - worldZ[0]);
+        normalCache[VECTOR_X] = normalX[0] + FixedPointUtils.multiply(dy, normalX[2] - normalX[0]);
+        normalCache[VECTOR_Y] = normalY[0] + FixedPointUtils.multiply(dy, normalY[2] - normalY[0]);
+        normalCache[VECTOR_Z] = normalZ[0] + FixedPointUtils.multiply(dy, normalZ[2] - normalZ[0]);
+        return dy;
+	}
+	
+	private void drawSplitedTriangle() {
+		VectorUtils.swap(vectorCache, location2);
+        RasterizerUtils.swapCache(worldX, worldCache, 0, 2);
+        RasterizerUtils.swapCache(worldY, worldCache, 1, 2);
+        RasterizerUtils.swapCache(worldZ, worldCache, 2, 2);
+        RasterizerUtils.swapCache(normalX, normalCache, 0, 2);
+        RasterizerUtils.swapCache(normalY, normalCache, 1, 2);
+        RasterizerUtils.swapCache(normalZ, normalCache, 2, 2);
+        drawBottomTriangle();
+        VectorUtils.swap(vectorCache, location2);
+        VectorUtils.swap(location0, location1);
+        VectorUtils.swap(location1, vectorCache);
+        RasterizerUtils.swapCache(worldX, worldCache, 0, 2);
+        RasterizerUtils.swapCache(worldY, worldCache, 1, 2);
+        RasterizerUtils.swapCache(worldZ, worldCache, 2, 2);
+        RasterizerUtils.swapVector(worldX, 0, 1);
+        RasterizerUtils.swapVector(worldY, 0, 1);
+        RasterizerUtils.swapVector(worldZ, 0, 1);
+        RasterizerUtils.swapCache(worldX, worldCache, 0, 1);
+        RasterizerUtils.swapCache(worldY, worldCache, 1, 1);
+        RasterizerUtils.swapCache(worldZ, worldCache, 2, 1);
+        RasterizerUtils.swapCache(normalX, normalCache, 0, 2);
+        RasterizerUtils.swapCache(normalY, normalCache, 1, 2);
+        RasterizerUtils.swapCache(normalZ, normalCache, 2, 2);
+        RasterizerUtils.swapVector(normalX, 0, 1);
+        RasterizerUtils.swapVector(normalY, 0, 1);
+        RasterizerUtils.swapVector(normalZ, 0, 1);
+        RasterizerUtils.swapCache(normalX, normalCache, 0, 1);
+        RasterizerUtils.swapCache(normalY, normalCache, 1, 1);
+        RasterizerUtils.swapCache(normalZ, normalCache, 2, 1);
+        drawTopTriangle();
 	}
 	
 	private void drawBottomTriangle() {
