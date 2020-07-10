@@ -173,6 +173,8 @@ public class InputEngine implements EngineListener {
 	private int getKeyEventIndex(KeyEvent e, int eventType) {
 		for (int i = 0; i < inputEvents.size(); i++) {
 			final InputEvent event = inputEvents.get(i);
+			if(event == null)
+				continue;
 			if((event.getType() == eventType) && (event.getKeyEvent().getKeyCode() == e.getKeyCode())) {
 				return i;
 			}
@@ -191,6 +193,8 @@ public class InputEngine implements EngineListener {
 		case MouseEvent.MOUSE_RELEASED:
 			for (int i = 0; i < inputEvents.size(); i++) {
 				final InputEvent event = inputEvents.get(i);
+				if(event == null)
+					continue;
 				if((event.getType() == MOUSE_HOLD) && (event.getMouseEvent().getButton() == e.getButton())) {
 					inputEvents.remove(i);
 				}

@@ -103,63 +103,20 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			graphicsEngine.addShader(new PhongSpecularShader());
 			graphicsEngine.setDefaultShader(gouraudShader);
 		}
-		try {
-			scene.getModel("Water").getMesh().getMaterial(0).setTexture(new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/JohnsProject.png")));
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-//		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
+//		try {
+//			scene.getModel("Water").getMesh().getMaterial(0).setTexture(new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/JohnsProject.png")));
+//		} catch (IOException e1) {
+//			e1.printStackTrace();
+//		}
+		
+//		scene.getModel("Cube").getArmature().playAnimation("Action", true);
+		
+		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
 		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
 	}
 	
-	private Scene loadScene() {
-		/*
-		Scene scene = new Scene();
-		// Create camera
-		Camera camera = new Camera("MyCamera", new Transform());
-		camera.getTransform().translate(0, 0, FP_ONE * 10);
-		// Create light
-		Light light = new Light("MyLight", new Transform());
-		light.getTransform().translate(0, FP_ONE * 5, FP_ONE * 5);
-		// Create mesh components
-		int[][] materials = new int[][] {
-			// a, r, g, b
-			{255, 150, 150, 150},
-		};
-		int[][] vertices = new int[][] {
-			// x, y, z, w, material
-			{FP_ONE, FP_ONE, FP_ONE, FP_ONE, 0},
-			{-FP_ONE, FP_ONE, FP_ONE, FP_ONE, 0},
-			{FP_ONE, -FP_ONE, FP_ONE, FP_ONE, 0},
-			{-FP_ONE, -FP_ONE, FP_ONE, FP_ONE, 0},
-			{FP_ONE, FP_ONE, -FP_ONE, FP_ONE, 0},
-			{-FP_ONE, FP_ONE, -FP_ONE, FP_ONE, 0},
-			{FP_ONE, -FP_ONE, -FP_ONE, FP_ONE, 0},
-			{-FP_ONE, -FP_ONE, -FP_ONE, FP_ONE, 0},
-		};
-		int[][] faces = new int[][] {
-			// vertex1, vertex2, vertex3, material
-			{0, 1, 2, 0},
-			{1, 3, 2, 0},
-			{6, 4, 0, 0},
-			{0, 2, 6, 0},
-			{7, 3, 1, 0},
-			{1, 5, 7, 0},
-			{5, 4, 6, 0},
-			{6, 7, 5, 0},
-		};
-		// Create mesh
-		Mesh mesh = new Mesh(vertices, faces, materials);
-		// Create model
-		Model model = new Model("MyModel", new Transform(), mesh);
-		// Add scene objects
-		scene.addCamera(camera);
-		scene.addLight(light);
-		scene.addModel(model);
-		return scene;
-		*/
-		
+	private Scene loadScene() {		
 		try {
 			Scene scene = SceneImporter.load("C:/Development/JGameEngineTests/Test.scene");
 //			Texture texture = new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/JohnsProject.png"));
