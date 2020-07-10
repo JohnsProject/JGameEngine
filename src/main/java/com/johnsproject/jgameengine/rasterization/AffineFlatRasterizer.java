@@ -4,7 +4,6 @@ import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
-import static com.johnsproject.jgameengine.rasterization.RasterizerUtils.*;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Texture;
@@ -57,14 +56,14 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 	
 	protected void copyUV(Face face, Texture texture) {
 		int[] uv = face.getUV(0);
-		u[0] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
-		v[0] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+		u[0] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth());
+		v[0] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight());
 		uv = face.getUV(1);
-		u[1] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
-		v[1] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+		u[1] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth());
+		v[1] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight());
 		uv = face.getUV(2);
-		u[2] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth() << INTERPOLATE_BIT);
-		v[2] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight() << INTERPOLATE_BIT);
+		u[2] = FixedPointUtils.multiply(uv[VECTOR_X], texture.getWidth());
+		v[2] = FixedPointUtils.multiply(uv[VECTOR_Y], texture.getHeight());
 	}
 	
 	protected void sortY() {
@@ -123,17 +122,17 @@ public class AffineFlatRasterizer extends FlatRasterizer {
         int du2 = FixedPointUtils.divide(u[2] - u[0], y3y1);
         int dv1 = FixedPointUtils.divide(v[1] - v[0], y2y1);
         int dv2 = FixedPointUtils.divide(v[2] - v[0], y3y1);
+    	int x1 = xShifted;
+        int x2 = xShifted;
+        int z = location0[VECTOR_Z] << FP_BIT;
+        int u = this.u[0] << FP_BIT;
+        int v = this.v[0] << FP_BIT;
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
         	int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
         	int du = FixedPointUtils.divide(du2 - du1, dxdx);
         	int dv = FixedPointUtils.divide(dv2 - dv1, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location0[VECTOR_Z] << FP_BIT;
-            int u = this.u[0] << FP_BIT;
-            int v = this.v[0] << FP_BIT;
 	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
 	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv);
 	            x1 += dx1;
@@ -148,11 +147,6 @@ public class AffineFlatRasterizer extends FlatRasterizer {
         	int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
         	int du = FixedPointUtils.divide(du1 - du2, dxdx);
         	int dv = FixedPointUtils.divide(dv1 - dv2, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location0[VECTOR_Z] << FP_BIT;
-            int u = this.u[0] << FP_BIT;
-            int v = this.v[0] << FP_BIT;
         	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
 	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv);
 	            x1 += dx2;
@@ -178,17 +172,17 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 		int du2 = FixedPointUtils.divide(u[2] - u[1], y3y2);
 		int dv1 = FixedPointUtils.divide(v[2] - v[0], y3y1);
 		int dv2 = FixedPointUtils.divide(v[2] - v[1], y3y2);
+		int x1 = xShifted;
+		int x2 = xShifted;
+		int z = location2[VECTOR_Z] << FP_BIT;
+		int u = this.u[2] << FP_BIT;
+		int v = this.v[2] << FP_BIT;
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
 			int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
 			int du = FixedPointUtils.divide(du1 - du2, dxdx);
 			int dv = FixedPointUtils.divide(dv1 - dv2, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location2[VECTOR_Z] << FP_BIT;
-			int u = this.u[2] << FP_BIT;
-			int v = this.v[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv);
 	            x1 -= dx1;
@@ -203,11 +197,6 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 			int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
 			int du = FixedPointUtils.divide(du2 - du1, dxdx);
 			int dv = FixedPointUtils.divide(dv2 - dv1, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location2[VECTOR_Z] << FP_BIT;
-			int u = this.u[2] << FP_BIT;
-			int v = this.v[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, u, v, dz, du, dv);
 	            x1 -= dx2;
@@ -226,8 +215,8 @@ public class AffineFlatRasterizer extends FlatRasterizer {
 			fragment.getLocation()[VECTOR_X] = x1;
 			fragment.getLocation()[VECTOR_Y] = y;
 			fragment.getLocation()[VECTOR_Z] = z >> FP_BIT;
-			fragment.getUV()[VECTOR_X] = u >> FP_PLUS_INTERPOLATE_BIT;
-			fragment.getUV()[VECTOR_Y] = v >> FP_PLUS_INTERPOLATE_BIT;
+			fragment.getUV()[VECTOR_X] = u >> FP_BIT;
+			fragment.getUV()[VECTOR_Y] = v >> FP_BIT;
 			shader.fragment(fragment);
 			z += dz;
 			u += du;

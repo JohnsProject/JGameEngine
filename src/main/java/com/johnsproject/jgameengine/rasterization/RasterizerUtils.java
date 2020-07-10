@@ -1,22 +1,18 @@
 package com.johnsproject.jgameengine.rasterization;
 
-import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 
 final class RasterizerUtils {
-
-	public static final byte INTERPOLATE_BIT = 5;
-	public static final byte INTERPOLATE_ONE = 1 << INTERPOLATE_BIT;
-	public static final byte FP_PLUS_INTERPOLATE_BIT = FP_BIT + INTERPOLATE_BIT;
 	
 	private RasterizerUtils() {}
 	
 	public static void divideOneByZ(int[] location0, int[] location1, int[] location2) {
-		location0[VECTOR_Z] = FixedPointUtils.divide(INTERPOLATE_ONE, location0[VECTOR_Z]);
-		location1[VECTOR_Z] = FixedPointUtils.divide(INTERPOLATE_ONE, location1[VECTOR_Z]);
-		location2[VECTOR_Z] = FixedPointUtils.divide(INTERPOLATE_ONE, location2[VECTOR_Z]);
+		location0[VECTOR_Z] = FixedPointUtils.divide(FP_ONE, location0[VECTOR_Z]);
+		location1[VECTOR_Z] = FixedPointUtils.divide(FP_ONE, location1[VECTOR_Z]);
+		location2[VECTOR_Z] = FixedPointUtils.divide(FP_ONE, location2[VECTOR_Z]);
 	}
 	
 	public static void zMultiply(int[] vector, int[] location0, int[] location1, int[] location2) {

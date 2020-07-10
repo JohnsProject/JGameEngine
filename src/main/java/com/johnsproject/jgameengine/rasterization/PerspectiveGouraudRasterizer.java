@@ -5,7 +5,6 @@ import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
-import static com.johnsproject.jgameengine.rasterization.RasterizerUtils.*;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Texture;
@@ -89,20 +88,30 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
+		final int y2y1Shifted = y2y1 << FP_BIT;
+		final int y3y1Shifted = y3y1 << FP_BIT;
         int dx1 = FixedPointUtils.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
         int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-        int dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
-        int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-        int du1 = FixedPointUtils.divide(this.u[1] - this.u[0], y2y1);
-        int du2 = FixedPointUtils.divide(this.u[2] - this.u[0], y3y1);
-        int dv1 = FixedPointUtils.divide(this.v[1] - this.v[0], y2y1);
-        int dv2 = FixedPointUtils.divide(this.v[2] - this.v[0], y3y1);
-        int dr1 = FixedPointUtils.divide(red[1] - red[0], y2y1);
-        int dr2 = FixedPointUtils.divide(red[2] - red[0], y3y1);
-        int dg1 = FixedPointUtils.divide(green[1] - green[0], y2y1);
-        int dg2 = FixedPointUtils.divide(green[2] - green[0], y3y1);
-        int db1 = FixedPointUtils.divide(blue[1] - blue[0], y2y1);
-        int db2 = FixedPointUtils.divide(blue[2] - blue[0], y3y1);
+        int dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1Shifted);
+        int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1Shifted);
+        int du1 = FixedPointUtils.divide(this.u[1] - this.u[0], y2y1Shifted);
+        int du2 = FixedPointUtils.divide(this.u[2] - this.u[0], y3y1Shifted);
+        int dv1 = FixedPointUtils.divide(this.v[1] - this.v[0], y2y1Shifted);
+        int dv2 = FixedPointUtils.divide(this.v[2] - this.v[0], y3y1Shifted);
+        int dr1 = FixedPointUtils.divide(red[1] - red[0], y2y1Shifted);
+        int dr2 = FixedPointUtils.divide(red[2] - red[0], y3y1Shifted);
+        int dg1 = FixedPointUtils.divide(green[1] - green[0], y2y1Shifted);
+        int dg2 = FixedPointUtils.divide(green[2] - green[0], y3y1Shifted);
+        int db1 = FixedPointUtils.divide(blue[1] - blue[0], y2y1Shifted);
+        int db2 = FixedPointUtils.divide(blue[2] - blue[0], y3y1Shifted);
+    	int x1 = xShifted;
+        int x2 = xShifted;
+        int z = location0[VECTOR_Z];
+        int u = this.u[0];
+        int v = this.v[0];
+        int r = red[0];
+        int g = green[0];
+        int b = blue[0];
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
@@ -112,14 +121,6 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
         	int dr = FixedPointUtils.divide(dr2 - dr1, dxdx);
         	int dg = FixedPointUtils.divide(dg2 - dg1, dxdx);
         	int db = FixedPointUtils.divide(db2 - db1, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location0[VECTOR_Z] << FP_BIT;
-            int u = this.u[0] << FP_BIT;
-            int v = this.v[0] << FP_BIT;
-            int r = red[0] << FP_BIT;
-            int g = green[0] << FP_BIT;
-            int b = blue[0] << FP_BIT;
 	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
 	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db);
 	            x1 += dx1;
@@ -140,14 +141,6 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
         	int dr = FixedPointUtils.divide(dr1 - dr2, dxdx);
         	int dg = FixedPointUtils.divide(dg1 - dg2, dxdx);
         	int db = FixedPointUtils.divide(db1 - db2, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location0[VECTOR_Z] << FP_BIT;
-            int u = this.u[0] << FP_BIT;
-            int v = this.v[0] << FP_BIT;
-            int r = red[0] << FP_BIT;
-            int g = green[0] << FP_BIT;
-            int b = blue[0] << FP_BIT;
         	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
         		drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db);
 	            x1 += dx2;
@@ -168,20 +161,30 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
+		final int y3y1Shifted = y3y1 << FP_BIT;
+		final int y3y2Shifted = y3y2 << FP_BIT;
 		int dx1 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
 		int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
-		int dz1 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-		int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
-		int du1 = FixedPointUtils.divide(this.u[2] - this.u[0], y3y1);
-		int du2 = FixedPointUtils.divide(this.u[2] - this.u[1], y3y2);
-		int dv1 = FixedPointUtils.divide(this.v[2] - this.v[0], y3y1);
-		int dv2 = FixedPointUtils.divide(this.v[2] - this.v[1], y3y2);
-		int dr1 = FixedPointUtils.divide(red[2] - red[0], y3y1);
-		int dr2 = FixedPointUtils.divide(red[2] - red[1], y3y2);
-		int dg1 = FixedPointUtils.divide(green[2] - green[0], y3y1);
-		int dg2 = FixedPointUtils.divide(green[2] - green[1], y3y2);
-		int db1 = FixedPointUtils.divide(blue[2] - blue[0], y3y1);
-		int db2 = FixedPointUtils.divide(blue[2] - blue[1], y3y2);
+		int dz1 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1Shifted);
+		int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2Shifted);
+		int du1 = FixedPointUtils.divide(this.u[2] - this.u[0], y3y1Shifted);
+		int du2 = FixedPointUtils.divide(this.u[2] - this.u[1], y3y2Shifted);
+		int dv1 = FixedPointUtils.divide(this.v[2] - this.v[0], y3y1Shifted);
+		int dv2 = FixedPointUtils.divide(this.v[2] - this.v[1], y3y2Shifted);
+		int dr1 = FixedPointUtils.divide(red[2] - red[0], y3y1Shifted);
+		int dr2 = FixedPointUtils.divide(red[2] - red[1], y3y2Shifted);
+		int dg1 = FixedPointUtils.divide(green[2] - green[0], y3y1Shifted);
+		int dg2 = FixedPointUtils.divide(green[2] - green[1], y3y2Shifted);
+		int db1 = FixedPointUtils.divide(blue[2] - blue[0], y3y1Shifted);
+		int db2 = FixedPointUtils.divide(blue[2] - blue[1], y3y2Shifted);
+		int x1 = xShifted;
+		int x2 = xShifted;
+		int z = location2[VECTOR_Z];
+		int u = this.u[2];
+		int v = this.v[2];
+		int r = red[2];
+		int g = green[2];
+		int b = blue[2];
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
@@ -191,14 +194,6 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 			int dr = FixedPointUtils.divide(dr1 - dr2, dxdx);
 			int dg = FixedPointUtils.divide(dg1 - dg2, dxdx);
 			int db = FixedPointUtils.divide(db1 - db2, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location2[VECTOR_Z] << FP_BIT;
-			int u = this.u[2] << FP_BIT;
-			int v = this.v[2] << FP_BIT;
-			int r = red[2] << FP_BIT;
-			int g = green[2] << FP_BIT;
-			int b = blue[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db);
 	            x1 -= dx1;
@@ -219,14 +214,6 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 			int dr = FixedPointUtils.divide(dr2 - dr1, dxdx);
 			int dg = FixedPointUtils.divide(dg2 - dg1, dxdx);
 			int db = FixedPointUtils.divide(db2 - db1, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location2[VECTOR_Z] << FP_BIT;
-			int u = this.u[2] << FP_BIT;
-			int v = this.v[2] << FP_BIT;
-			int r = red[2] << FP_BIT;
-			int g = green[2] << FP_BIT;
-			int b = blue[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, u, v, r, g, b, dz, du, dv, dr, dg, db);
 	            x1 -= dx2;
@@ -241,8 +228,6 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		}
     }
 	
-	private static final int DIVISION_ONE = FP_ONE << FP_BIT;
-	private static final int INTERPOLATE_BIT_2 = INTERPOLATE_BIT * 2;
 	private void drawScanline(int x1, int x2, int y, int z, int u, int v, int r, int g, int b, int dz, int du, int dv, int dr, int dg, int db) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
@@ -250,13 +235,13 @@ public class PerspectiveGouraudRasterizer extends AffineGouraudRasterizer {
 		for (; x1 <= x2; x1++) {
 			fragment.getLocation()[VECTOR_X] = x1;
 			fragment.getLocation()[VECTOR_Y] = y;
-			oneByZ = DIVISION_ONE / (z >> INTERPOLATE_BIT);
-			fragment.getLocation()[VECTOR_Z] = oneByZ;
-			fragment.getUV()[VECTOR_X] = FixedPointUtils.multiply(u, oneByZ) >> INTERPOLATE_BIT_2;
-			fragment.getUV()[VECTOR_Y] = FixedPointUtils.multiply(v, oneByZ) >> INTERPOLATE_BIT_2;
-			cr = FixedPointUtils.multiply(r, oneByZ) >> INTERPOLATE_BIT_2;
-			cg = FixedPointUtils.multiply(g, oneByZ) >> INTERPOLATE_BIT_2;
-			cb = FixedPointUtils.multiply(b, oneByZ) >> INTERPOLATE_BIT_2;
+			oneByZ = FixedPointUtils.divide(FP_ONE << 10, z);
+			fragment.getLocation()[VECTOR_Z] = oneByZ >> 10;
+			fragment.getUV()[VECTOR_X] = FixedPointUtils.multiply(u, oneByZ) >> 10;
+			fragment.getUV()[VECTOR_Y] = FixedPointUtils.multiply(v, oneByZ) >> 10;
+			cr = FixedPointUtils.multiply(r, oneByZ) >> 10;
+			cg = FixedPointUtils.multiply(g, oneByZ) >> 10;
+			cb = FixedPointUtils.multiply(b, oneByZ) >> 10;
 			fragment.setLightColor(ColorUtils.toColor(cr, cg, cb));
 			shader.fragment(fragment);
 			z += dz;

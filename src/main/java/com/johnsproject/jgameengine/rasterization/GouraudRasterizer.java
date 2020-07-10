@@ -4,7 +4,6 @@ import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
-import static com.johnsproject.jgameengine.rasterization.RasterizerUtils.*;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.shading.Shader;
@@ -56,19 +55,19 @@ public class GouraudRasterizer extends FlatRasterizer {
 	
 	protected void copyColors(Face face) {
 		int color = face.getVertex(0).getLightColor();
-		red[0] = ColorUtils.getRed(color) << INTERPOLATE_BIT;
-		green[0] = ColorUtils.getGreen(color) << INTERPOLATE_BIT;
-		blue[0] = ColorUtils.getBlue(color) << INTERPOLATE_BIT;
+		red[0] = ColorUtils.getRed(color);
+		green[0] = ColorUtils.getGreen(color);
+		blue[0] = ColorUtils.getBlue(color);
 		
 		color = face.getVertex(1).getLightColor();
-		red[1] = ColorUtils.getRed(color) << INTERPOLATE_BIT;
-		green[1] = ColorUtils.getGreen(color) << INTERPOLATE_BIT;
-		blue[1] = ColorUtils.getBlue(color) << INTERPOLATE_BIT;
+		red[1] = ColorUtils.getRed(color);
+		green[1] = ColorUtils.getGreen(color);
+		blue[1] = ColorUtils.getBlue(color);
 		
 		color = face.getVertex(2).getLightColor();
-		red[2] = ColorUtils.getRed(color) << INTERPOLATE_BIT;
-		green[2] = ColorUtils.getGreen(color) << INTERPOLATE_BIT;
-		blue[2] = ColorUtils.getBlue(color) << INTERPOLATE_BIT;
+		red[2] = ColorUtils.getRed(color);
+		green[2] = ColorUtils.getGreen(color);
+		blue[2] = ColorUtils.getBlue(color);
 	}
 	
 	private void sortY() {
@@ -125,8 +124,8 @@ public class GouraudRasterizer extends FlatRasterizer {
 		int xShifted = location0[VECTOR_X] << FP_BIT;
 		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		int y3y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
-//		y2y1 = y2y1 == 0 ? 1 : y2y1;
-//		y3y1 = y3y1 == 0 ? 1 : y3y1;
+		y2y1 = y2y1 == 0 ? 1 : y2y1;
+		y3y1 = y3y1 == 0 ? 1 : y3y1;
         int dx1 = FixedPointUtils.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
         int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
         int dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
@@ -137,6 +136,12 @@ public class GouraudRasterizer extends FlatRasterizer {
         int dg2 = FixedPointUtils.divide(green[2] - green[0], y3y1);
         int db1 = FixedPointUtils.divide(blue[1] - blue[0], y2y1);
         int db2 = FixedPointUtils.divide(blue[2] - blue[0], y3y1);
+    	int x1 = xShifted;
+        int x2 = xShifted;
+        int z = location0[VECTOR_Z] << FP_BIT;
+        int r = red[0] << FP_BIT;
+        int g = green[0] << FP_BIT;
+        int b = blue[0] << FP_BIT;
         if(dx1 < dx2) {
         	int dxdx = dx2 - dx1;
         	dxdx = dxdx == 0 ? 1 : dxdx;
@@ -144,12 +149,6 @@ public class GouraudRasterizer extends FlatRasterizer {
         	int dr = FixedPointUtils.divide(dr2 - dr1, dxdx);
         	int dg = FixedPointUtils.divide(dg2 - dg1, dxdx);
         	int db = FixedPointUtils.divide(db2 - db1, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location0[VECTOR_Z] << FP_BIT;
-            int r = red[0] << FP_BIT;
-            int g = green[0] << FP_BIT;
-            int b = blue[0] << FP_BIT;
 	        for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
 	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db);
 	            x1 += dx1;
@@ -166,12 +165,6 @@ public class GouraudRasterizer extends FlatRasterizer {
         	int dr = FixedPointUtils.divide(dr1 - dr2, dxdx);
         	int dg = FixedPointUtils.divide(dg1 - dg2, dxdx);
         	int db = FixedPointUtils.divide(db1 - db2, dxdx);
-        	int x1 = xShifted;
-            int x2 = xShifted;
-            int z = location0[VECTOR_Z] << FP_BIT;
-            int r = red[0] << FP_BIT;
-            int g = green[0] << FP_BIT;
-            int b = blue[0] << FP_BIT;
         	for (int y = location0[VECTOR_Y]; y <= location1[VECTOR_Y]; y++) {
         		drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db);
 	            x1 += dx2;
@@ -200,6 +193,12 @@ public class GouraudRasterizer extends FlatRasterizer {
 		int dg2 = FixedPointUtils.divide(green[2] - green[1], y3y2);
 		int db1 = FixedPointUtils.divide(blue[2] - blue[0], y3y1);
 		int db2 = FixedPointUtils.divide(blue[2] - blue[1], y3y2);
+		int x1 = xShifted;
+		int x2 = xShifted;
+		int z = location2[VECTOR_Z] << FP_BIT;
+		int r = red[2] << FP_BIT;
+		int g = green[2] << FP_BIT;
+		int b = blue[2] << FP_BIT;
 		if (dx1 > dx2) {
 			int dxdx = dx1 - dx2;
 			dxdx = dxdx == 0 ? 1 : dxdx;
@@ -207,12 +206,6 @@ public class GouraudRasterizer extends FlatRasterizer {
 			int dr = FixedPointUtils.divide(dr1 - dr2, dxdx);
 			int dg = FixedPointUtils.divide(dg1 - dg2, dxdx);
 			int db = FixedPointUtils.divide(db1 - db2, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location2[VECTOR_Z] << FP_BIT;
-			int r = red[2] << FP_BIT;
-			int g = green[2] << FP_BIT;
-			int b = blue[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db);
 	            x1 -= dx1;
@@ -229,12 +222,6 @@ public class GouraudRasterizer extends FlatRasterizer {
 			int dr = FixedPointUtils.divide(dr2 - dr1, dxdx);
 			int dg = FixedPointUtils.divide(dg2 - dg1, dxdx);
 			int db = FixedPointUtils.divide(db2 - db1, dxdx);
-			int x1 = xShifted;
-			int x2 = xShifted;
-			int z = location2[VECTOR_Z] << FP_BIT;
-			int r = red[2] << FP_BIT;
-			int g = green[2] << FP_BIT;
-			int b = blue[2] << FP_BIT;
 	        for (int y = location2[VECTOR_Y]; y > location0[VECTOR_Y]; y--) {
 	        	drawScanline(x1, x2, y, z, r, g, b, dz, dr, dg, db);
 	            x1 -= dx2;
@@ -255,9 +242,9 @@ public class GouraudRasterizer extends FlatRasterizer {
 			fragment.getLocation()[VECTOR_X] = x1;
 			fragment.getLocation()[VECTOR_Y] = y;
 			fragment.getLocation()[VECTOR_Z] = z >> FP_BIT;
-			cr = r >> FP_PLUS_INTERPOLATE_BIT;
-			cg = g >> FP_PLUS_INTERPOLATE_BIT;
-			cb = b >> FP_PLUS_INTERPOLATE_BIT;
+			cr = r >> FP_BIT;
+			cg = g >> FP_BIT;
+			cb = b >> FP_BIT;
 			fragment.setLightColor(ColorUtils.toColor(cr, cg, cb));
 			shader.fragment(fragment);
 			z += dz;

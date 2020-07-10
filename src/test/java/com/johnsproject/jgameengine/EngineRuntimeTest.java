@@ -108,7 +108,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
+//		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
 		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
 	}
