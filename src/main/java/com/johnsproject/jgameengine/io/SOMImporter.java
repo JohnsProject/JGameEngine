@@ -88,12 +88,8 @@ public final class SOMImporter {
 			location[VECTOR_X] = -FixedPointUtils.toFixedPoint(getFloat(vLocationData[i + VECTOR_X]));
 			location[VECTOR_Y] = -FixedPointUtils.toFixedPoint(getFloat(vLocationData[i + VECTOR_Y]));
 			location[VECTOR_Z] = -FixedPointUtils.toFixedPoint(getFloat(vLocationData[i + VECTOR_Z]));
-			int[] normal = VectorUtils.emptyVector();
-			normal[VECTOR_X] = FixedPointUtils.toFixedPoint(getFloat(vNormalData[i + VECTOR_X]));
-			normal[VECTOR_Y] = FixedPointUtils.toFixedPoint(getFloat(vNormalData[i + VECTOR_Y]));
-			normal[VECTOR_Z] = FixedPointUtils.toFixedPoint(getFloat(vNormalData[i + VECTOR_Z]));
 			int material = getint(vMaterialData[i / 3]);
-			vertices[i / 3] = new Vertex(i / 3, location, normal, materials[material]);
+			vertices[i / 3] = new Vertex(i / 3, location, materials[material]);
 		}
 		return vertices;
 	}

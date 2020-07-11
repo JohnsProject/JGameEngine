@@ -85,6 +85,18 @@ public class GraphicsEngine implements EngineListener {
 		}
 	}
 	
+	private void transformFaces(Mesh mesh, Transform transform) {
+		for (int f = 0; f < mesh.getFaces().length; f++) {
+			final Face face = mesh.getFace(f);
+			VectorUtils.copy(face.getWorldNormal(), face.getLocalNormal());
+			VectorUtils.multiply(face.getWorldNormal(), transform.getSpaceExitNormalMatrix());
+			// calculate vertex normals, just add the face the normals of the faces this vertex is a part of
+			VectorUtils.add(face.getVertex(0).getWorldNormal(), face.getWorldNormal());
+			VectorUtils.add(face.getVertex(1).getWorldNormal(), face.getWorldNormal());
+			VectorUtils.add(face.getVertex(2).getWorldNormal(), face.getWorldNormal());			
+		}
+	}
+	
 	private void transformVertices(Mesh mesh, Transform transform, Armature armature) {
 		AnimationFrame animationFrame = null;
 		if(armature != null) {
@@ -93,10 +105,8 @@ public class GraphicsEngine implements EngineListener {
 		for (int v = 0; v < mesh.getVertices().length; v++) {
 			final Vertex vertex = mesh.getVertex(v);
 			VectorUtils.copy(vertex.getWorldLocation(), vertex.getLocalLocation());
-			VectorUtils.copy(vertex.getWorldNormal(), vertex.getLocalNormal());
 			animateVertex(armature, animationFrame, vertex);
 			VectorUtils.multiply(vertex.getWorldLocation(), transform.getSpaceExitMatrix());
-			VectorUtils.multiply(vertex.getWorldNormal(), transform.getSpaceExitNormalMatrix());
 		}
 	}
 	
@@ -126,14 +136,6 @@ public class GraphicsEngine implements EngineListener {
 		VectorUtils.multiply(multiplyVector, boneMatrix);
 		VectorUtils.multiply(multiplyVector, boneWeight);
 		VectorUtils.add(normalVector, multiplyVector);
-	}
-	
-	private void transformFaces(Mesh mesh, Transform transform) {
-		for (int f = 0; f < mesh.getFaces().length; f++) {
-			final Face face = mesh.getFace(f);
-			VectorUtils.copy(face.getWorldNormal(), face.getLocalNormal());
-			VectorUtils.multiply(face.getWorldNormal(), transform.getSpaceExitNormalMatrix());
-		}
 	}
 	
 	private void renderForEachCamera(Scene scene) {

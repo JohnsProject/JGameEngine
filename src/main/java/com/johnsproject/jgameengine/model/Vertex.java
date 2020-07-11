@@ -1,23 +1,23 @@
 package com.johnsproject.jgameengine.model;
 
+import com.johnsproject.jgameengine.util.VectorUtils;
+
 public class Vertex {
 	
 	private final int index;
 	private final int[] localLocation;
-	private final int[] localNormal;
 	private final int[] worldLocation;
 	private final int[] worldNormal;
 	private final int[] location;
 	private final Material material;
 	private int lightColor;
 	
-	public Vertex(int index, int[] location, int[] normal, Material material) {
+	public Vertex(int index, int[] location, Material material) {
 		this.index = index;
 		this.localLocation = location;
-		this.localNormal = normal;
-		this.worldLocation = location.clone();
-		this.worldNormal = normal.clone();
-		this.location = location.clone();
+		this.worldLocation = VectorUtils.emptyVector();
+		this.worldNormal = VectorUtils.emptyVector();
+		this.location = VectorUtils.emptyVector();
 		this.material = material;
 	}
 
@@ -27,10 +27,6 @@ public class Vertex {
 	
 	public int[] getLocalLocation() {
 		return localLocation;
-	}
-
-	public int[] getLocalNormal() {
-		return localNormal;
 	}
 
 	public int[] getWorldLocation() {

@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 
@@ -24,17 +25,18 @@ public final class FileUtils {
 	private FileUtils() {}
 	
 	/**
-	 * Reads the content of the file at the given path and returns it.
+	 * Reads the content of the file at the specified path and returns it.
 	 * 
-	 * @param fileName file path.
-	 * @return content of given file.
-	 * @throws IOException
+	 * @param path of the file
+	 * @return String representation of the data in the specified file.
+	 * @throws IOException If the file does not exist, is a directory rather than a regular file,
+	 * or for some other reason cannot be opened for reading.
 	 */
-	public static String readFile(String fileName) throws IOException {
+	public static String readFile(String path) throws IOException {
 		String content = null;
 		FileInputStream fileInputStream = null;
 		try {
-			fileInputStream = new FileInputStream(fileName);
+			fileInputStream = new FileInputStream(path);
 			content = readStream(fileInputStream);
 		} finally {
 			if (fileInputStream != null) {
@@ -45,11 +47,12 @@ public final class FileUtils {
 	}
 
 	/**
-	 * Writes the object to the file at the given path using serialization.
+	 * Writes the object to the file at the specified path using serialization.
+	 * Only objects that implement the {@link Serializable} interface can be written.
 	 * 
 	 * @param path file path.
-	 * @param obj object to write. Needs to be serializable.
-	 * @throws IOException
+	 * @param obj object to write. Has to implement Serializable interface.
+	 * @throws IOException If an I/O error occurs while writing stream header. 
 	 */
 	public static void writeObjectToFile(String path, Object obj) throws IOException {
 		FileOutputStream fileOutputStream = null;
@@ -65,10 +68,13 @@ public final class FileUtils {
 	}
 	
 	/**
-	 * Reads the object from the file at the given path using serialization.
+	 * Reads the object from the file at the specified path using serialization.
+	 * Only objects written using {@link #writeObjectToFile}
+	 *  or {@link ObjectOutputStream} can be parsed.
 	 * 
 	 * @param path file path.
-	 * @throws IOException
+	 * @return The object in the specified file.
+	 * @throws IOException If an I/O error occurs while reading stream header.
 	 */
 	public static Object readObjectFromFile(String path) throws IOException {
 		Object result = null;
@@ -88,11 +94,11 @@ public final class FileUtils {
 	}
 	
 	/**
-	 * Reads the content of the given {@link InputStream} and returns it.
+	 * Reads the content of the specified {@link InputStream} and returns it.
 	 * 
-	 * @param stream {@link InputStream} to read from.
-	 * @return content of the given {@link InputStream}.
-	 * @throws IOException
+	 * @param stream InputStream to read from.
+	 * @return String representation of the data in the specified InputStream.
+	 * @throws IOException If an I/O error occurs.
 	 */
 	public static String readStream(InputStream stream) throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(stream));
@@ -108,11 +114,11 @@ public final class FileUtils {
 	}
 
 	/**
-	 * Loads the image at the given path and returns it as a {@link BufferedImage}.
+	 * Loads the image at the specified path and returns it as a {@link BufferedImage}.
 	 * 
 	 * @param path image path.
-	 * @return loaded image as a {@link BufferedImage}.
-	 * @throws IOException
+	 * @return Loaded image as a BufferedImage.
+	 * @throws IOException If an error occurs while loading the image.
 	 */
 	public static BufferedImage loadImage(String path) throws IOException {
 		BufferedImage image = null;
@@ -133,11 +139,11 @@ public final class FileUtils {
 	}
 	
 	/**
-	 * Loads an image from the given {@link InputStream} and returns it as a {@link BufferedImage}.
+	 * Loads an image from the specified {@link InputStream} and returns it as a {@link BufferedImage}.
 	 * 
-	 * @param stream {@link InputStream} to read from.
-	 * @return loaded image as a {@link BufferedImage}.
-	 * @throws IOException
+	 * @param stream InputStream to read from.
+	 * @return Loaded image as a BufferedImage.
+	 * @throws IOException If an error occurs while loading the image.
 	 */
 	public static BufferedImage loadImage(InputStream stream) throws IOException {
 		BufferedImage image = null;
@@ -152,14 +158,14 @@ public final class FileUtils {
 	}
 	
 	/**
-	 * Loads the image at the given path and returns it as a {@link BufferedImage} 
-	 * with the given size.
+	 * Loads the image at the specified path and returns it as a {@link BufferedImage} 
+	 * with the specified size.
 	 * 
 	 * @param path image path.
 	 * @param width destination width.
 	 * @param height destination height.
-	 * @return loaded image as a {@link BufferedImage}.
-	 * @throws IOException
+	 * @return Loaded image as a BufferedImage.
+	 * @throws IOException If an error occurs while loading the image.
 	 */
 	public static BufferedImage loadImage(String path, int width, int height) throws IOException {
 		BufferedImage image = null;
@@ -180,14 +186,14 @@ public final class FileUtils {
 	}
 	
 	/**
-	 * Loads an image from the given {@link InputStream} and returns it as a {@link BufferedImage} 
-	 * with the given size.
+	 * Loads an image from the specified {@link InputStream} and returns it as a {@link BufferedImage} 
+	 * with the specified size.
 	 * 
-	 * @param stream {@link InputStream} to read from.
+	 * @param stream InputStream to read from.
 	 * @param width destination width.
 	 * @param height destination height.
-	 * @return loaded image as a {@link BufferedImage}.
-	 * @throws IOException
+	 * @return Loaded image as a BufferedImage.
+	 * @throws IOException If an error occurs while loading the image.
 	 */
 	public static BufferedImage loadImage(InputStream stream, int width, int height) throws IOException {
 		BufferedImage image = new BufferedImage(1, 1, 1);

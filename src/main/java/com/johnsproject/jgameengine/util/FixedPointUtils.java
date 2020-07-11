@@ -47,6 +47,16 @@ public final class FixedPointUtils {
 	 * @param value
 	 * @return
 	 */
+	public static int toFixedPoint(String value) {
+		return toFixedPoint(Float.parseFloat(value));
+	}
+	
+	/**
+	 * Returns the fixed point representation of value.
+	 * 
+	 * @param value
+	 * @return
+	 */
 	public static int toFixedPoint(double value) {
 		return (int)Math.round(value * FP_ONE);
 	}

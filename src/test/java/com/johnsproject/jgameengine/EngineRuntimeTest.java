@@ -44,7 +44,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	private static final boolean SHOW_SPOT_LIGHT_SHADOW_MAP = false;
 	private static final boolean SHOW_POINT_LIGHT_SHADOW_MAP = false;
 	
-	private static final boolean ENABLE_SHADOW_MAPPING = true;
+	private static final boolean ENABLE_SHADOW_MAPPING = false;
 	
 	private static final int WINDOW_W = 1024;
 	private static final int WINDOW_H = 768;
@@ -111,7 +111,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		
 //		scene.getModel("Cube").getArmature().playAnimation("Action", true);
 		
-		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
+//		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
 		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
 	}
@@ -185,6 +185,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
+		e.getScene().getModel("Cube").getTransform().rotateWorld(100000, 0, 0);
 		Model model = e.getScene().getModel("Ground");
 		if(model != null) {
 			model.getRigidBody().setTorque(0, 0, 10);

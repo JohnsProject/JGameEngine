@@ -206,12 +206,8 @@ public final class SceneImporter {
 			int y = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexData[VECTOR_Z]));
 			int z = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexData[VECTOR_Y]));
 			int[] location = VectorUtils.toVector(x, y, -z);
-			x = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexData[3 + VECTOR_X]));
-			y = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexData[3 + VECTOR_Z]));
-			z = FixedPointUtils.toFixedPoint(Float.parseFloat(vertexData[3 + VECTOR_Y]));
-			int[] normal = VectorUtils.toVector(x, y, -z);
 			int material = Integer.parseInt(vertexData[6]);
-			vertices[i] = new Vertex(i, location, normal, materials[material]);
+			vertices[i] = new Vertex(i, location, materials[material]);
 		}
 		return vertices;
 	}
