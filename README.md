@@ -20,8 +20,7 @@ Graphics engine
 * [x] Shadow mapping for all light types (experimental)
 * [x] Skeletal animation (experimental)
 * [ ] Skybox
-* [x] Custom [Blender 2.7x](https://www.blender.org/) exporter and importer
-* [ ] Importers for `.obj`, `.fbx`, etc.
+* [x] Custom Wavefront OBJ `.obj` importer
 
 Input engine
 * [x] Keyboard

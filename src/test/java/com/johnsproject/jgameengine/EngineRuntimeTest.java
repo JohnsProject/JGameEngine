@@ -15,7 +15,7 @@ import com.johnsproject.jgameengine.InputEngine;
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineKeyListener;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.io.SceneImporter;
+import com.johnsproject.jgameengine.io.OBJImporter;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.Light;
@@ -103,14 +103,6 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			graphicsEngine.addShader(new PhongSpecularShader());
 			graphicsEngine.setDefaultShader(gouraudShader);
 		}
-//		try {
-//			scene.getModel("Water").getMesh().getMaterial(0).setTexture(new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/JohnsProject.png")));
-//		} catch (IOException e1) {
-//			e1.printStackTrace();
-//		}
-		
-//		scene.getModel("Cube").getArmature().playAnimation("Action", true);
-		
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
 		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
@@ -118,25 +110,19 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	
 	private Scene loadScene() {		
 		try {
-			Scene scene = SceneImporter.load("C:/Development/JGameEngineTests/Test.scene");
-//			Texture texture = new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/JohnsProject.png"));
-//			for (int m = 0; m < scene.getModels().size(); m++) {
-//				Model model = scene.getModels().get(m);
-////				model.getRigidBody().setKinematic(true);
-//				if(model.getName().equals("Ground")) {
-////					model.getRigidBody().setKinematic(true);
-////					model.getRigidBody().setTorque(0, 0, 10); 
-////					model.getRigidBody().addLinearVelocity(1024, 0, 0);
-////					model.getRigidBody().setAngularVelocity(0, 0, 1024);
-//				}
-//				for (int j = 0; j < model.getMesh().getMaterials().length; j++) {
-//					Material material = model.getMesh().getMaterial(j);
-//					//material.setShader(graphicsEngine.getShader(1)); // FlatSpecularShader
-//					//material.setShader(graphicsEngine.getShader(3)); // PhongSpecularShader
-//					//material.setTexture(texture);
-//				}
-//				model.getArmature().playAnimation("Walk", true);
-//			}
+			Scene scene = new Scene();
+			Mesh mesh = OBJImporter.parse("C:/Development/JGameEngineTests/12140_Skull_v3_L2.obj");
+			Model model = new Model("Model", new Transform(), mesh);
+			scene.addModel(model);
+			
+			Camera camera = new Camera("Camera", new Transform());
+			camera.getTransform().translateWorld(0, 0, FP_ONE * 10);
+			scene.addCamera(camera);
+			
+			Light light = new Light("Light", new Transform());
+			light.getTransform().translateWorld(FP_ONE * 10, 0, 0);
+			scene.addLight(light);
+			System.gc();
 			return scene;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -185,7 +171,6 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
-		e.getScene().getModel("Cube").getTransform().rotateWorld(100000, 0, 0);
 		Model model = e.getScene().getModel("Ground");
 		if(model != null) {
 			model.getRigidBody().setTorque(0, 0, 10);
