@@ -132,37 +132,33 @@ public final class ColorUtils {
 	
 	/**
 	 * Returns the result of the multiplication of color and factor. 
-	 * The factor should be in the range 0-{@value #COLOR_ONE}.
 	 * This method only changes the RGB values of the color.
 	 * 
 	 * @param color
-	 * @param factor
+	 * @param factor a fixed point value between 0 and {@link FixedPointUtils#FP_ONE}
 	 * @return
 	 */
 	public static int multiply(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
-		factor += 1;
-		r = (r * factor) >> COLOR_BITS;
-		g = (g * factor) >> COLOR_BITS;
-		b = (b * factor) >> COLOR_BITS;
+		r = FixedPointUtils.multiply(r, factor);
+		g = FixedPointUtils.multiply(g, factor);
+		b = FixedPointUtils.multiply(b, factor);
 		return toColor(a, r, g, b);
 	}
 	
 	/**
-	 * Returns the result of the multiplication of color and factor. 
-	 * The factor should be in the range 0-{@value #COLOR_ONE}.
+	 * Returns the result of the multiplication of color and factor.
 	 * 
 	 * @param color
-	 * @param factor
+	 * @param factor a fixed point value between 0 and {@link FixedPointUtils#FP_ONE}
 	 * @return
 	 */
 	public static int multiplyARGB(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
-		factor += 1;
-		r = (r * factor) >> COLOR_BITS;
-		g = (g * factor) >> COLOR_BITS;
-		b = (b * factor) >> COLOR_BITS;
-		a = (a * factor) >> COLOR_BITS;
+		r = FixedPointUtils.multiply(r, factor);
+		g = FixedPointUtils.multiply(g, factor);
+		b = FixedPointUtils.multiply(b, factor);
+		a = FixedPointUtils.multiply(a, factor);
 		return toColor(a, r, g, b);
 	}
 	
