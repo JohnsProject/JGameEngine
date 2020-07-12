@@ -105,6 +105,7 @@ public class GraphicsEngine implements EngineListener {
 		for (int v = 0; v < mesh.getVertices().length; v++) {
 			final Vertex vertex = mesh.getVertex(v);
 			VectorUtils.copy(vertex.getWorldLocation(), vertex.getLocalLocation());
+			VectorUtils.copy(vertex.getWorldNormal(), VectorUtils.VECTOR_ZERO);
 			animateVertex(armature, animationFrame, vertex);
 			VectorUtils.multiply(vertex.getWorldLocation(), transform.getSpaceExitMatrix());
 		}
