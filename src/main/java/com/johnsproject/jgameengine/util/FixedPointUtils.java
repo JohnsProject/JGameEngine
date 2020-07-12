@@ -164,9 +164,18 @@ public final class FixedPointUtils {
 	 */
 	public static int asin(int sine) {
 		final int absSine = Math.abs(sine);
-		for (int i = 0; i < sinLUT.length; i++) {
-			if(absSine == sinLUT[i]) {
-				final int degrees = i << FP_BIT;
+		for (int i = 1; i < sinLUT.length; i++) {
+			final int lut0 = sinLUT[i - 1];
+			final int lut1 = sinLUT[i];
+			if((absSine > lut0) && (absSine <= lut1)) {
+				int degrees = i;
+				// if the sine is more like lut1 than lut0 the angle is i
+				// else it's i - 1
+				final int half = (lut1 - lut0) >> 1;
+				if(absSine < lut0 + half) {
+					degrees--;
+				}
+				degrees <<= FP_BIT;
 				if(sine > 0)
 					return degrees;
 				else
@@ -185,12 +194,19 @@ public final class FixedPointUtils {
 	 */
 	public static int acos(int cosine) {
 		final int absCosine = Math.abs(cosine);
-		for (int i = 0; i < sinLUT.length; i++) {
-			if(absCosine == sinLUT[i]) {
+		for (int i = 1; i < sinLUT.length; i++) {
+			final int lut0 = sinLUT[i - 1];
+			final int lut1 = sinLUT[i];
+			if((absCosine >= lut0) && (absCosine <= lut1)) {
+				int degrees = i;
+				final int half = (lut1 - lut0) >> 1;
+				if(absCosine < lut0 + half) {
+					degrees--;
+				}
 				if(cosine < 0)
-					return (i + 90) << FP_BIT;
+					return (degrees + 90) << FP_BIT;
 				else
-					return (90 - i) << FP_BIT;
+					return (90 - degrees) << FP_BIT;
 			}
 		}
 		return 0;
