@@ -29,14 +29,14 @@ public final class FixedPointUtils {
 	public static final int FP_DEGREE_RAD = toFixedPoint(Math.PI / 180.0f);
 	public static final int FP_RAD_DEGREE = toFixedPoint(180.0f / Math.PI);
 	
-	private static final int[] sinLUT = new int[] {
+	private static final short[] sinLUT = new short[] {
 			0, 572, 1144, 1715, 2286, 2856, 3425, 3993, 4560, 5126, 5690, 6252, 6813, 7371, 7927, 8481,
 			9032, 9580, 10126, 10668, 11207, 11743, 12275, 12803, 13328, 13848, 14365, 14876, 15384,
 			15886, 16384, 16877, 17364, 17847, 18324, 18795, 19261, 19720, 20174, 20622, 21063, 21498,
 			21926, 22348, 22763, 23170, 23571, 23965, 24351, 24730, 25102, 25466, 25822, 26170, 26510,
 			26842, 27166, 27482, 27789, 28088, 28378, 28660, 28932, 29197, 29452, 29698, 29935, 30163,
 			30382, 30592, 30792, 30983, 31164, 31336, 31499, 31651, 31795, 31928, 32052, 32166, 32270,
-			32365, 32449, 32524, 32588, 32643, 32688, 32723, 32748, 32763, 32768
+			32365, 32449, 32524, 32588, 32643, 32688, 32723, 32748, 32763, 32767
 	};
 	
 	private FixedPointUtils() { }
@@ -93,82 +93,109 @@ public final class FixedPointUtils {
 	}
 	
 	/**
-	 * Returns the fixed point sine of the given angle.
+	 * Returns the fixed point sine of the specified angle.
 	 * 
-	 * @param angle in fixed point degrees.
-	 * @return
+	 * @param degrees
+	 * @return The sine of the specified angle.
 	 */
-	public static int sin(int angle) {
-		angle >>= FP_BIT;
-		angle = ((angle % 360) + 360) % 360;
-		int quadrant = (angle / 90) + 1;
-		angle %= 90;
-		if (angle >= 0) {
-			if (quadrant == 1) {
-				return sinLUT[angle];
-			}
-			if (quadrant == 2) {
-				return sinLUT[90 - angle];
-			}
-			if (quadrant == 3) {
-				return -sinLUT[angle];
-			}
-			if (quadrant == 4) {
-				return -sinLUT[90 - angle];
-			}
-		} else {
-			if (quadrant == 1) {
-				return -sinLUT[angle];
-			}
-			if (quadrant == 2) {
-				return -sinLUT[90 - angle];
-			}
-			if (quadrant == 3) {
-				return sinLUT[angle];
-			}
-			if (quadrant == 4) {
-				return sinLUT[90 - angle];
+	public static int sin(int degrees) {
+		degrees >>= FP_BIT;
+		degrees = ((degrees % 360) + 360) % 360;
+		final int quadrant = degrees;
+		degrees %= 90;
+		if (quadrant < 90) {
+			return sinLUT[degrees];
+		}
+		if (quadrant < 180) {
+			return sinLUT[90 - degrees];
+		}
+		if (quadrant < 270) {
+			return -sinLUT[degrees];
+		}
+		if (quadrant < 360) {
+			return -sinLUT[90 - degrees];
+		}
+		return 0;
+	}
+
+	/**
+	 * Returns the fixed point cosine of the specified angle.
+	 * 
+	 * @param degrees
+	 * @return The cosine of the specified angle.
+	 */
+	public static int cos(int degrees) {
+		degrees >>= FP_BIT;
+		degrees = ((degrees % 360) + 360) % 360;
+		final int quadrant = degrees;
+		degrees %= 90;
+		if (quadrant < 90) {
+			return sinLUT[90 - degrees];
+		}
+		if (quadrant < 180) {
+			return -sinLUT[degrees];
+		}
+		if (quadrant < 270) {
+			return -sinLUT[90 - degrees];
+		}
+		if (quadrant < 360) {
+			return sinLUT[degrees];
+		}
+		return 0;
+	}
+
+	/**
+	 * Returns the fixed point tangent of the specified angle.
+	 * 
+	 * @param degrees
+	 * @return The tangent of the specified angle.
+	 */
+	public static int tan(int degrees) {
+		// no need to convert to long, the range of sine is 0 - 1
+		return (sin(degrees) << FP_BIT) / cos(degrees);
+	}
+	
+	/**
+	 * Returns the fixed point angle in degrees of the specified fixed point sine.
+	 * The angle is in the range -90 - 90.
+ 	 * 
+	 * @param sine
+	 * @return The angle of the specified sine.
+	 */
+	public static int asin(int sine) {
+		final int absSine = Math.abs(sine);
+		for (int i = 0; i < sinLUT.length; i++) {
+			if(absSine == sinLUT[i]) {
+				final int degrees = i << FP_BIT;
+				if(sine > 0)
+					return degrees;
+				else
+					return -degrees;
 			}
 		}
 		return 0;
 	}
 
 	/**
-	 * Returns the fixed point cosine of the given angle.
-	 * 
-	 * @param angle in fixed point degrees.
-	 * @return
+	 * Returns the fixed point angle in degrees of the specified fixed point cosine.
+	 * The angle is in the range 0 - 180.
+ 	 * 
+	 * @param cosine
+	 * @return The angle of the specified cosine.
 	 */
-	public static int cos(int angle) {
-		angle >>= FP_BIT;
-		angle = ((angle % 360) + 360) % 360;
-		int quadrant = (angle / 90) + 1;
-		angle %= 90;
-		if (quadrant == 1) {
-			return sinLUT[90 - angle];
-		}
-		if (quadrant == 2) {
-			return -sinLUT[angle];
-		}
-		if (quadrant == 3) {
-			return -sinLUT[90 - angle];
-		}
-		if (quadrant == 4) {
-			return sinLUT[angle];
+	public static int acos(int cosine) {
+		final int absCosine = Math.abs(cosine);
+		for (int i = 0; i < sinLUT.length; i++) {
+			if(absCosine == sinLUT[i]) {
+				if(cosine < 0)
+					return (i + 90) << FP_BIT;
+				else
+					return (90 - i) << FP_BIT;
+			}
 		}
 		return 0;
 	}
-
-	/**
-	 * Returns the fixed point tangent of the given angle.
-	 * 
-	 * @param angle in fixed point degrees.
-	 * @return
-	 */
-	public static int tan(int angle) {
-		return (sin(angle) << FP_BIT) / cos(angle);
-	}
-
+	
 	/**
 	 * Returns the given value in the range min-max.
 	 * 

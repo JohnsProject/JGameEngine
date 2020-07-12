@@ -13,6 +13,13 @@ public class FixedPointUtilsTest {
 //		}
 //	}
 	
+//	@Test
+//	public void genLookupTableTest() throws Exception {
+//		for (int angle = 0; angle < 361; angle++) {
+//			System.out.print((int)Math.round(Math.cos(Math.toRadians(angle)) * FixedPointUtils.FP_ONE) + ", ");
+//		}
+//	}
+	
 	@Test
 	public void toDegreeTest() throws Exception {
 		for (int i = 1; i < 360; i++) {
@@ -39,7 +46,15 @@ public class FixedPointUtilsTest {
 
 	@Test
 	public void sinTest() throws Exception {
-		for (int i = 0; i < 360; i++) {
+		for (int i = 0; i < 361; i++) {
+			double precision = 0.0001;
+			int fpAngle = FixedPointUtils.toFixedPoint(i);
+			double fpSin = FixedPointUtils.sin(fpAngle);
+			fpSin = FixedPointUtils.toDouble((int)fpSin);
+			double sin = Math.sin(Math.toRadians(i));
+			assert ((fpSin >= sin - precision) && (fpSin <= sin + precision));
+		}
+		for (int i = 0; i > -361; i--) {
 			double precision = 0.0001;
 			int fpAngle = FixedPointUtils.toFixedPoint(i);
 			double fpSin = FixedPointUtils.sin(fpAngle);
@@ -51,7 +66,15 @@ public class FixedPointUtilsTest {
 
 	@Test
 	public void cosTest() throws Exception {
-		for (int i = 0; i < 360; i++) {
+		for (int i = 0; i < 361; i++) {
+			double precision = 0.0001;
+			int fpAngle = FixedPointUtils.toFixedPoint(i);
+			double fpCos = FixedPointUtils.cos(fpAngle);
+			fpCos = FixedPointUtils.toDouble((int)fpCos);
+			double cos = Math.cos(Math.toRadians(i));
+			assert ((fpCos >= cos - precision) && (fpCos <= cos + precision));
+		}
+		for (int i = 0; i > -361; i--) {
 			double precision = 0.0001;
 			int fpAngle = FixedPointUtils.toFixedPoint(i);
 			double fpCos = FixedPointUtils.cos(fpAngle);
@@ -70,6 +93,54 @@ public class FixedPointUtilsTest {
 			fpTan = FixedPointUtils.toDouble((int)fpTan);
 			double tan = Math.tan(Math.toRadians(i));
 			assert ((fpTan >= tan - precision) && (fpTan <= tan + precision));
+		}
+	}
+	
+	@Test
+	public void asinTest() throws Exception {
+		for (int i = 0; i < 361; i++) {
+			double precision = 0.0001;
+			double fpAngle = FixedPointUtils.toFixedPoint(i);
+			int fpSin = FixedPointUtils.sin((int)fpAngle);
+			fpAngle = FixedPointUtils.asin(fpSin);
+			fpAngle = FixedPointUtils.toDouble((int)fpAngle);
+			double sin = Math.sin(Math.toRadians(i));		
+			double angle = Math.toDegrees(Math.asin(sin));
+			assert ((fpAngle >= angle - precision) && (fpAngle <= angle + precision));
+		}
+		for (int i = 0; i > -361; i--) {
+			double precision = 0.0001;
+			double fpAngle = FixedPointUtils.toFixedPoint(i);
+			int fpSin = FixedPointUtils.sin((int)fpAngle);
+			fpAngle = FixedPointUtils.asin(fpSin);
+			fpAngle = FixedPointUtils.toDouble((int)fpAngle);
+			double sin = Math.sin(Math.toRadians(i));		
+			double angle = Math.toDegrees(Math.asin(sin));
+			assert ((fpAngle >= angle - precision) && (fpAngle <= angle + precision));
+		}
+	}
+	
+	@Test
+	public void acosTest() throws Exception {
+		for (int i = 0; i < 361; i++) {
+			double precision = 0.0001;
+			double fpAngle = FixedPointUtils.toFixedPoint(i);
+			int fpCos = FixedPointUtils.cos((int)fpAngle);
+			fpAngle = FixedPointUtils.acos(fpCos);
+			fpAngle = FixedPointUtils.toDouble((int)fpAngle);
+			double cos = Math.cos(Math.toRadians(i));
+			double angle = Math.toDegrees(Math.acos(cos));
+			assert ((fpAngle >= angle - precision) && (fpAngle <= angle + precision));
+		}
+		for (int i = 0; i > -361; i--) {
+			double precision = 0.0001;
+			double fpAngle = FixedPointUtils.toFixedPoint(i);
+			int fpCos = FixedPointUtils.cos((int)fpAngle);
+			fpAngle = FixedPointUtils.acos(fpCos);
+			fpAngle = FixedPointUtils.toDouble((int)fpAngle);
+			double cos = Math.cos(Math.toRadians(i));
+			double angle = Math.toDegrees(Math.acos(cos));
+			assert ((fpAngle >= angle - precision) && (fpAngle <= angle + precision));
 		}
 	}
 	
