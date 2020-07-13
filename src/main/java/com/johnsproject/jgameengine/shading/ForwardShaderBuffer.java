@@ -20,16 +20,16 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 	private List<Light> lights;
 	
 	private final int[][] projectionMatrix;
-	
-	private int directionalLightIndex;
+
+	private Light shadowDirectionalLight;
 	private final Frustum directionalLightFrustum;
 	private final Texture directionalShadowMap;
-	
-	private int spotLightIndex;
+
+	private Light shadowSpotLight;
 	private final Frustum spotLightFrustum;
 	private final Texture spotShadowMap;
-	
-	private int pointLightIndex;
+
+	private Light shadowPointLight;
 	private final Frustum pointLightFrustum;
 	private final int[][][] pointLightMatrices;
 	private final Texture[] pointShadowMaps;
@@ -37,25 +37,19 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 	private boolean foundMainDirectionalLight;
 	private long spotLightDistance;
 	private long pointLightDistance;
-	private Light shadowDirectionalLight;
-	private Light shadowSpotLight;
-	private Light shadowPointLight;
 	
 	public ForwardShaderBuffer() {
 		this.projectionMatrix = MatrixUtils.indentityMatrix();
 		
-		this.directionalLightIndex = -1;
 		this.directionalLightFrustum = new Frustum(0, FP_ONE, 0, FP_ONE, FP_ONE, FP_ONE * 10000);
 		this.directionalLightFrustum.setType(FrustumType.ORTHOGRAPHIC);
 		this.directionalLightFrustum.setFocalLength(FP_ONE >> 3);
 		this.directionalShadowMap = new Texture(512, 512);
 		
-		this.spotLightIndex = -1;
 		this.spotLightFrustum = new Frustum(0, FP_ONE, 0, FP_ONE, FP_HALF, FP_ONE * 1000);
 		this.spotLightFrustum.setFocalLength(FP_HALF);
 		this.spotShadowMap = new Texture(256, 256);
 		
-		this.pointLightIndex = -1;
 		this.pointLightFrustum = new Frustum(0, FP_ONE, 0, FP_ONE, FP_HALF, FP_ONE * 1000);
 		this.pointLightFrustum.setFocalLength(FP_HALF >> 2);
 		this.pointLightMatrices = new int[6][MatrixUtils.MATRIX_SIZE][MatrixUtils.MATRIX_SIZE];
@@ -83,37 +77,36 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 			light.setCulled(lightDistance > maxLightDistance);
 			if(light.isCulled())
 				continue;
-			searchNearestLights(light, i, lightDistance);
+			searchNearestLights(light, lightDistance);
 		}
 		initializeLightMatrices();
 	}
 	
 	private void resetLightIndices() {
-		directionalLightIndex = -1;
-		spotLightIndex = -1;
-		pointLightIndex = -1;
+		shadowDirectionalLight = null;
+		shadowSpotLight = null;
+		shadowPointLight = null;
 		foundMainDirectionalLight = false;
 		spotLightDistance = Integer.MAX_VALUE;
 		pointLightDistance = Integer.MAX_VALUE;
 	}
 	
-	private void searchNearestLights(Light light, int lightIndex, long lightDistance) {
+	private void searchNearestLights(Light light, long lightDistance) {
 		switch (light.getType()) {
 		case DIRECTIONAL:
-			searchNearestDirectionalLight(light, lightIndex, lightDistance);
+			searchNearestDirectionalLight(light, lightDistance);
 			break;
 		case SPOT:
-			searchNearestSpotLight(light, lightIndex, lightDistance);
+			searchNearestSpotLight(light, lightDistance);
 			break;
 		case POINT:
-			searchNearestPointLight(light, lightIndex, lightDistance);
+			searchNearestPointLight(light, lightDistance);
 			break;
 		}
 	}
 	
-	private void searchNearestDirectionalLight(Light light, int lightIndex, long lightDistance) {
+	private void searchNearestDirectionalLight(Light light, long lightDistance) {
 		if(!foundMainDirectionalLight) {
-			directionalLightIndex = lightIndex;
 			shadowDirectionalLight = light;
 			if(light.isMain()) {
 				foundMainDirectionalLight = true;
@@ -121,12 +114,11 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		}
 	}
 	
-	private void searchNearestSpotLight(Light light, int lightIndex, long lightDistance) {
+	private void searchNearestSpotLight(Light light, long lightDistance) {
 		if(spotLightDistance == Integer.MIN_VALUE)
 			return;
 		if(lightDistance < spotLightDistance) {
 			spotLightDistance = lightDistance;
-			spotLightIndex = lightIndex;
 			shadowSpotLight = light;
 			if(light.isMain()) {
 				spotLightDistance = Integer.MIN_VALUE;
@@ -134,12 +126,11 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		}
 	}
 	
-	private void searchNearestPointLight(Light light, int lightIndex, long lightDistance) {
+	private void searchNearestPointLight(Light light, long lightDistance) {
 		if(pointLightDistance == Integer.MIN_VALUE)
 			return;
 		if(lightDistance < pointLightDistance) {
 			pointLightDistance = lightDistance;
-			pointLightIndex = lightIndex;
 			shadowPointLight = light;
 			if(light.isMain()) {
 				pointLightDistance = Integer.MIN_VALUE;
@@ -156,7 +147,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 	}
 	
 	private void initializeDirectionalLightMatrix() {
-		if (directionalLightIndex != -1) {
+		if (shadowDirectionalLight != null) {
 			final int portWidth = directionalShadowMap.getWidth();
 			final int portHeight = directionalShadowMap.getHeight();
 			directionalLightFrustum.setRenderTargetSize(portWidth, portHeight);
@@ -169,7 +160,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 	}
 	
 	private void initializeSpotLightMatrix() {
-		if (spotLightIndex != -1) {
+		if (shadowSpotLight != null) {
 			final int portWidth = spotShadowMap.getWidth();
 			final int portHeight = spotShadowMap.getHeight();
 			spotLightFrustum.setRenderTargetSize(portWidth, portHeight);
@@ -182,7 +173,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 	}
 	
 	private void initializePointLightMatrix() {
-		if (pointLightIndex != -1) {
+		if (shadowPointLight != null) {
 			final int portWidth = pointShadowMaps[0].getWidth();
 			final int portHeight = pointShadowMaps[0].getHeight();
 			pointLightFrustum.setRenderTargetSize(portWidth, portHeight);
@@ -228,8 +219,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		return lights;
 	}
 
-	public int getDirectionalLightIndex() {
-		return directionalLightIndex;
+	public Light getShadowDirectionalLight() {
+		return shadowDirectionalLight;
 	}
 
 	public Texture getDirectionalShadowMap() {
@@ -240,8 +231,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		return directionalLightFrustum;
 	}
 	
-	public int getSpotLightIndex() {
-		return spotLightIndex;
+	public Light getShadowSpotLight() {
+		return shadowSpotLight;
 	}
 
 	public Texture getSpotShadowMap() {
@@ -252,8 +243,8 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		return spotLightFrustum;
 	}
 
-	public int getPointLightIndex() {
-		return pointLightIndex;
+	public Light getShadowPointLight() {
+		return shadowPointLight;
 	}
 
 	public int[][][] getPointLightMatrices() {

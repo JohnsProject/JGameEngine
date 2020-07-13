@@ -47,7 +47,7 @@ public class ShadowMappingShader implements Shader {
 	}
 	
 	private void renderForDirectionalLight(Face face) {
-		if(directionalShadows && (shaderBuffer.getDirectionalLightIndex() != -1)) {
+		if(directionalShadows && (shaderBuffer.getShadowDirectionalLight() != null)) {
 			shadowBias = DIRECTIONAL_BIAS;
 			currentShadowMap = shaderBuffer.getDirectionalShadowMap();
 			final Frustum frustum = shaderBuffer.getDirectionalLightFrustum();
@@ -58,7 +58,7 @@ public class ShadowMappingShader implements Shader {
 	}
 	
 	private void renderForSpotLight(Face face) {
-		if(spotShadows && (shaderBuffer.getSpotLightIndex() != -1)) {
+		if(spotShadows && (shaderBuffer.getShadowSpotLight() != null)) {
 			shadowBias = SPOT_BIAS;
 			currentShadowMap = shaderBuffer.getSpotShadowMap();
 			final Frustum frustum = shaderBuffer.getSpotLightFrustum();
@@ -69,7 +69,7 @@ public class ShadowMappingShader implements Shader {
 	}
 	
 	private void renderForPointLight(Face face) {
-		if(pointShadows && (shaderBuffer.getPointLightIndex() != -1)) {
+		if(pointShadows && (shaderBuffer.getShadowPointLight() != null)) {
 			shadowBias = POINT_BIAS;
 			final Frustum frustum = shaderBuffer.getPointLightFrustum();
 			for (int i = 0; i < shaderBuffer.getPointLightMatrices().length; i++) {

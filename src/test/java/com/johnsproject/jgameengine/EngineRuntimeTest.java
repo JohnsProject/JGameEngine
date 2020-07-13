@@ -133,6 +133,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			light1.getTransform().rotateWorld(0, FP_ONE * 90, 0);
 //			light1.setType(LightType.POINT);
 			scene.addLight(light1);
+			scene.setMainDirectionalLight(light1);
 			
 //			Light light2 = new Light("Light2", new Transform());
 //			light2.getTransform().translateWorld(0, 0, FP_ONE * 5);
