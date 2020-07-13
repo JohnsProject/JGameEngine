@@ -6,12 +6,11 @@ import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Face;
-import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
-import com.johnsproject.jgameengine.rasterization.PerspectivePhongRasterizer;
+import com.johnsproject.jgameengine.rasterization.AffineRasterizer2;
 import com.johnsproject.jgameengine.util.ColorUtils;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
@@ -20,13 +19,15 @@ import com.johnsproject.jgameengine.util.VectorUtils;
 public class PhongShader implements Shader {
 
 	private ForwardShaderBuffer shaderBuffer;
-	private final PerspectivePhongRasterizer rasterizer;
+	private final AffineRasterizer2 rasterizer;
 	
 	private int[] lightDirection;
 	private int[] viewDirection;
 	
+	private Material material;
+	
 	public PhongShader() {
-		this.rasterizer = new PerspectivePhongRasterizer(this);
+		this.rasterizer = new AffineRasterizer2(this);
 		this.lightDirection = VectorUtils.emptyVector();
 		this.viewDirection = VectorUtils.emptyVector();
 	}
@@ -40,21 +41,27 @@ public class PhongShader implements Shader {
 	}
 
 	public void geometry(Face face) {
-		rasterizer.draw(face);
+		material = face.getMaterial();
+		rasterizer.setVector00(face.getVertex(0).getWorldLocation());
+		rasterizer.setVector01(face.getVertex(1).getWorldLocation());
+		rasterizer.setVector02(face.getVertex(2).getWorldLocation());
+		rasterizer.setVector10(face.getVertex(0).getWorldNormal());
+		rasterizer.setVector11(face.getVertex(1).getWorldNormal());
+		rasterizer.setVector12(face.getVertex(2).getWorldNormal());
+		rasterizer.drawAffine2(face);
 	}
 
-	public void fragment(Fragment fragment) {
+	public void fragment() {
 		final Camera camera = shaderBuffer.getCamera();
 		final Texture depthBuffer = camera.getRenderTarget().getDepthBuffer();
 		final Texture colorBuffer = camera.getRenderTarget().getColorBuffer();
-		final Material material = fragment.getMaterial();		
-		final int x = fragment.getLocation()[VECTOR_X];
-		final int y = fragment.getLocation()[VECTOR_Y];
-		final int z = fragment.getLocation()[VECTOR_Z];
+		final int x = rasterizer.getLocation()[VECTOR_X];
+		final int y = rasterizer.getLocation()[VECTOR_Y];
+		final int z = rasterizer.getLocation()[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
 			
-			final int[] location = fragment.getWorldLocation();
-			final int[] normal = fragment.getWorldNormal();
+			final int[] location = rasterizer.getVector0();
+			final int[] normal = rasterizer.getVector1();
 			VectorUtils.normalize(normal);
 			
 			final int color = calculateLights(location, normal, material);

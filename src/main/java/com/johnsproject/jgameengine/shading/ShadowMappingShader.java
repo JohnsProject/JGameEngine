@@ -5,11 +5,10 @@ import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
 import com.johnsproject.jgameengine.model.Face;
-import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.model.Frustum;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
-import com.johnsproject.jgameengine.rasterization.FlatRasterizer;
+import com.johnsproject.jgameengine.rasterization.Rasterizer;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
@@ -23,7 +22,7 @@ public class ShadowMappingShader implements Shader {
 	private int shadowBias = 0;
 	
 	private ForwardShaderBuffer shaderBuffer;
-	private final FlatRasterizer rasterizer;
+	private final Rasterizer rasterizer;
 	
 	private Texture currentShadowMap;
 	
@@ -35,7 +34,7 @@ public class ShadowMappingShader implements Shader {
 		this.directionalShadows = true;
 		this.spotShadows = true;
 		this.pointShadows = true;
-		this.rasterizer = new FlatRasterizer(this);
+		this.rasterizer = new Rasterizer(this);
 	}
 	
 	public void vertex(Vertex vertex) { }
@@ -90,10 +89,10 @@ public class ShadowMappingShader implements Shader {
 		}
 	}
 
-	public void fragment(Fragment fragment) {
-		final int x = fragment.getLocation()[VECTOR_X];
-		final int y = fragment.getLocation()[VECTOR_Y];
-		final int z = fragment.getLocation()[VECTOR_Z] + shadowBias;
+	public void fragment() {
+		final int x = rasterizer.getLocation()[VECTOR_X];
+		final int y = rasterizer.getLocation()[VECTOR_Y];
+		final int z = rasterizer.getLocation()[VECTOR_Z] + shadowBias;
 		if (currentShadowMap.getPixel(x, y) > z) {
 			currentShadowMap.setPixel(x, y, z);
 		}

@@ -40,7 +40,7 @@ import com.johnsproject.jgameengine.util.VectorUtils;
 @SuppressWarnings("unused")
 public class EngineRuntimeTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
-	private static final boolean SHOW_ENGINE_STATISTICS = false;
+	private static final boolean SHOW_ENGINE_STATISTICS = true;
 	private static final boolean SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP = false;
 	private static final boolean SHOW_SPOT_LIGHT_SHADOW_MAP = false;
 	private static final boolean SHOW_POINT_LIGHT_SHADOW_MAP = false;
@@ -106,9 +106,9 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
 //		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
 		graphicsEngine.getShaders().clear();
-		graphicsEngine.addShader(new ShadowMappingShader());
+//		graphicsEngine.addShader(new ShadowMappingShader());
 		graphicsEngine.addShader(new PhongShader());
-		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1));
+		graphicsEngine.setDefaultShader(graphicsEngine.getShader(0));
 	}
 	
 	private Scene loadScene() {		

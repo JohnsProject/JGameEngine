@@ -7,35 +7,48 @@ import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
 import com.johnsproject.jgameengine.model.Face;
-import com.johnsproject.jgameengine.model.Fragment;
 import com.johnsproject.jgameengine.model.Frustum;
 import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
-
-public class FlatRasterizer {
+public class Rasterizer {
 
 	protected final Shader shader;
-	protected final Fragment fragment;
+	protected final int[] location;
 	protected final int[] location0;
 	protected final int[] location1;
 	protected final int[] location2;
-	protected final int[] vectorCache;
-	protected int renderTargetLeft;
-	protected int renderTargetRight;
-	protected int renderTargetTop;
-	protected int renderTargetBottom;
-	protected boolean frustumCull;
-	protected int faceCull;
+	protected final int[] location3;
 	
-	public FlatRasterizer(Shader shader) {
+	protected int sortY00, sortY01;
+	protected int sortY10, sortY11;
+	protected int sortY20, sortY21;
+	
+	protected int y2y1, y3y1, y3y2;
+	protected int dx1, dx2;
+	protected int dz1, dz2;
+	protected int x1, x2;
+	protected int y1, y2;
+	protected int z;
+	protected int dxdx;
+	protected int dz;
+	
+	private int renderTargetLeft;
+	private int renderTargetRight;
+	private int renderTargetTop;
+	private int renderTargetBottom;
+	private boolean frustumCull;
+	private int faceCull;
+	
+	
+	public Rasterizer(Shader shader) {
 		this.shader = shader;
-		this.fragment = new Fragment();
-		this.vectorCache = VectorUtils.emptyVector();
+		this.location = VectorUtils.emptyVector();
 		this.location0 = VectorUtils.emptyVector();
 		this.location1 = VectorUtils.emptyVector();
 		this.location2 = VectorUtils.emptyVector();
+		this.location3 = VectorUtils.emptyVector();
 		this.frustumCull = true;
 		this.faceCull = -1;
 	}
@@ -75,8 +88,6 @@ public class FlatRasterizer {
 		copyFrustum();
 		if(isCulled())
 			return;
-		fragment.setLightColor(face.getLightColor());
-		fragment.setMaterial(face.getMaterial());
 		sortY();
         if (location1[VECTOR_Y] == location2[VECTOR_Y]) {
         	drawBottomTriangle();
@@ -84,7 +95,10 @@ public class FlatRasterizer {
         	drawTopTriangle();
         } else {
             splitTriangle();
-            drawSplitedTriangle();
+            swapSplitedBottomTriangle();
+            drawBottomTriangle();
+            swapSplitedTopTriangle();
+            drawTopTriangle();
         }
 	}
 	
@@ -100,18 +114,6 @@ public class FlatRasterizer {
 		renderTargetRight = frustum.getRenderTargetRight();
 		renderTargetTop = frustum.getRenderTargetTop();
 		renderTargetBottom = frustum.getRenderTargetBottom();
-	}
-	
-	private void sortY() {
-		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorUtils.swap(location0, location1);
-		}
-		if (location1[VECTOR_Y] > location2[VECTOR_Y]) {
-			VectorUtils.swap(location1, location2);
-		}
-		if (location0[VECTOR_Y] > location1[VECTOR_Y]) {
-			VectorUtils.swap(location0, location1);
-		}
 	}
 	
 	protected boolean isCulled() {
@@ -175,41 +177,46 @@ public class FlatRasterizer {
 		return triangleSize * faceCull < 0;
 	}
 	
+	protected void sortY() {
+		sortY00 = location0[VECTOR_Y];
+		sortY01 = location1[VECTOR_Y];
+		if (sortY00 > sortY01) {
+			VectorUtils.swap(location0, location1);
+		}
+		sortY10 = location1[VECTOR_Y];
+		sortY11 = location2[VECTOR_Y];
+		if (sortY10 > sortY11) {
+			VectorUtils.swap(location1, location2);
+		}
+		sortY20 = location0[VECTOR_Y];
+		sortY21 = location1[VECTOR_Y];
+		if (sortY20 > sortY21) {
+			VectorUtils.swap(location0, location1);
+		}
+	}
+	
 	protected int splitTriangle() {
         int dy = FixedPointUtils.divide(location1[VECTOR_Y] - location0[VECTOR_Y], location2[VECTOR_Y] - location0[VECTOR_Y]);
-        vectorCache[VECTOR_X] = location0[VECTOR_X] + FixedPointUtils.multiply(dy, location2[VECTOR_X] - location0[VECTOR_X]);
-        vectorCache[VECTOR_Y] = location1[VECTOR_Y];
-        vectorCache[VECTOR_Z] = location0[VECTOR_Z] + FixedPointUtils.multiply(dy, location2[VECTOR_Z] - location0[VECTOR_Z]);
+        location3[VECTOR_X] = location0[VECTOR_X] + FixedPointUtils.multiply(dy, location2[VECTOR_X] - location0[VECTOR_X]);
+        location3[VECTOR_Y] = location1[VECTOR_Y];
+        location3[VECTOR_Z] = location0[VECTOR_Z] + FixedPointUtils.multiply(dy, location2[VECTOR_Z] - location0[VECTOR_Z]);
         return dy;
 	}
 	
-	private void drawSplitedTriangle() {
-        VectorUtils.swap(vectorCache, location2);
-        drawBottomTriangle();
-        VectorUtils.swap(vectorCache, location2);
+	protected void swapSplitedBottomTriangle() {
+        VectorUtils.swap(location3, location2);
+	}
+	
+	protected void swapSplitedTopTriangle() {
+        VectorUtils.swap(location3, location2);
         VectorUtils.swap(location0, location1);
-        VectorUtils.swap(location1, vectorCache);
-        drawTopTriangle();
+        VectorUtils.swap(location1, location3);		
 	}
 	
 	private void drawBottomTriangle() {
-		final int xShifted = location0[VECTOR_X] << FP_BIT;
-		int y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
-		y2y1 = y2y1 == 0 ? 1 : y2y1;
-		final int y3y1 = y2y1;
-		final int dx1 = FixedPointUtils.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
-		final int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-		final int dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
-		final int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-        int x1 = xShifted;
-        int x2 = xShifted;
-        int z = location0[VECTOR_Z] << FP_BIT;
-        int y1 = location0[VECTOR_Y];
-        int y2 = location1[VECTOR_Y];
+		initializeBottomTriangle();
         if(dx1 < dx2) {
-        	int dxdx = dx2 - dx1;
-        	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
+        	initializeDx2GreaterDx1();
 	        for (; y1 <= y2; y1++) {
 	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 += dx1;
@@ -217,9 +224,7 @@ public class FlatRasterizer {
 	            z += dz1;
 	        }
         } else {
-        	int dxdx = dx1 - dx2;
-        	dxdx = dxdx == 0 ? 1 : dxdx;
-        	int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
+        	initializeDx1GreaterDx2();
         	for (; y1 <= y2; y1++) {
         		drawScanline(x1, x2, y1, z, dz);
 	            x1 += dx2;
@@ -228,26 +233,27 @@ public class FlatRasterizer {
 	        }
         }
     }
+	
+	protected void initializeBottomTriangle() {
+		final int xShifted = location0[VECTOR_X] << FP_BIT;
+		y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
+		y2y1 = y2y1 == 0 ? 1 : y2y1;
+		y3y1 = y2y1;
+		dx1 = FixedPointUtils.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+		dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+		dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+        x1 = xShifted;
+        x2 = xShifted;
+        y1 = location0[VECTOR_Y];
+        y2 = location1[VECTOR_Y];
+        z = location0[VECTOR_Z] << FP_BIT;
+	}
     
 	private void drawTopTriangle() {
-		final int xShifted = location2[VECTOR_X] << FP_BIT;
-		int y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
-		int y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
-		y3y1 = y3y1 == 0 ? 1 : y3y1;
-		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		final int dx1 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-		final int dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
-		final int dz1 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-		final int dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
-		int x1 = xShifted;
-		int x2 = xShifted;
-		int z = location2[VECTOR_Z] << FP_BIT;
-		int y1 = location2[VECTOR_Y];
-        int y2 = location0[VECTOR_Y];
+		initializeTopTriangle();
 		if (dx1 > dx2) {
-			int dxdx = dx1 - dx2;
-			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
+			initializeDx1GreaterDx2();
 	        for (; y1 > y2; y1--) {
 	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 -= dx1;
@@ -255,9 +261,7 @@ public class FlatRasterizer {
 	            z -= dz1;
 	        }
 		} else {
-			int dxdx = dx2 - dx1;
-			dxdx = dxdx == 0 ? 1 : dxdx;
-			int dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
+			initializeDx2GreaterDx1();
 	        for (; y1 > y2; y1--) {
 	        	drawScanline(x1, x2, y1, z, dz);
 	            x1 -= dx2;
@@ -267,15 +271,48 @@ public class FlatRasterizer {
 		}
     }
 	
+	protected void initializeTopTriangle() {
+		final int xShifted = location2[VECTOR_X] << FP_BIT;
+		y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
+		y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
+		y3y1 = y3y1 == 0 ? 1 : y3y1;
+		y3y2 = y3y2 == 0 ? 1 : y3y2;
+		dx1 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		dz1 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
+		x1 = xShifted;
+		x2 = xShifted;
+		y1 = location2[VECTOR_Y];
+        y2 = location0[VECTOR_Y];
+		z = location2[VECTOR_Z] << FP_BIT;
+	}
+	
+	protected void initializeDx2GreaterDx1() {
+		dxdx = dx2 - dx1;
+		dxdx = dxdx == 0 ? 1 : dxdx;
+		dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
+	}
+	
+	protected void initializeDx1GreaterDx2() {
+		dxdx = dx1 - dx2;
+		dxdx = dxdx == 0 ? 1 : dxdx;
+		dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
+	}
+	
 	private void drawScanline(int x1, int x2, int y, int z, int dz) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {
-			fragment.getLocation()[VECTOR_X] = x1;
-			fragment.getLocation()[VECTOR_Y] = y;
-			fragment.getLocation()[VECTOR_Z] = z >> FP_BIT;
-			shader.fragment(fragment);
+			location[VECTOR_X] = x1;
+			location[VECTOR_Y] = y;
+			location[VECTOR_Z] = z >> FP_BIT;
+			shader.fragment();
 			z += dz;
 		}
+	}
+
+	public int[] getLocation() {
+		return location;
 	}
 }
