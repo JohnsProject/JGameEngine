@@ -121,15 +121,13 @@ public final class OBJImporter {
 		if(lineData[0].equals(KEYWORD_MATERIAL_SHININESS)) {
 			material.setShininess(FixedPointUtils.toFixedPoint(lineData[1]));
 		} 
-		else if(lineData[0].equals(KEYWORD_MATERIAL_AMBIENT)) {
-			material.setAmbientColor(parseColor(lineData));
-		}
 		else if(lineData[0].equals(KEYWORD_MATERIAL_DIFFUSE)) {
 			material.setDiffuseColor(parseColor(lineData));
 		}
 		else if(lineData[0].equals(KEYWORD_MATERIAL_SPECULAR)) {
 			material.setSpecularColor(parseColor(lineData));
-		} else {
+		}
+		else if(!lineData[0].equals(KEYWORD_MATERIAL_AMBIENT)) {
 			return true;
 		}
 		return false;

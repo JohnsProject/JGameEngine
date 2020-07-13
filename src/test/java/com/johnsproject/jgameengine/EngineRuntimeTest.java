@@ -19,6 +19,7 @@ import com.johnsproject.jgameengine.io.OBJImporter;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.Light;
+import com.johnsproject.jgameengine.model.LightType;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Mesh;
 import com.johnsproject.jgameengine.model.Model;
@@ -26,10 +27,10 @@ import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
-import com.johnsproject.jgameengine.shading.FlatSpecularShader;
 import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
-import com.johnsproject.jgameengine.shading.GouraudSpecularShader;
-import com.johnsproject.jgameengine.shading.PhongSpecularShader;
+import com.johnsproject.jgameengine.shading.PhongShader;
+import com.johnsproject.jgameengine.shading.ShadowMappingShader;
+import com.johnsproject.jgameengine.util.ColorUtils;
 import com.johnsproject.jgameengine.util.FileUtils;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.MatrixUtils;
@@ -39,7 +40,7 @@ import com.johnsproject.jgameengine.util.VectorUtils;
 @SuppressWarnings("unused")
 public class EngineRuntimeTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
-	private static final boolean SHOW_ENGINE_STATISTICS = true;
+	private static final boolean SHOW_ENGINE_STATISTICS = false;
 	private static final boolean SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP = false;
 	private static final boolean SHOW_SPOT_LIGHT_SHADOW_MAP = false;
 	private static final boolean SHOW_POINT_LIGHT_SHADOW_MAP = false;
@@ -97,21 +98,23 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		cameraTranslationSpeed = CAMERA_TRANSLATION_SPEED;
 		if(!ENABLE_SHADOW_MAPPING) {
 			graphicsEngine.getShaders().clear();
-			GouraudSpecularShader gouraudShader = new GouraudSpecularShader();
-			graphicsEngine.addShader(new FlatSpecularShader());
-			graphicsEngine.addShader(gouraudShader);
-			graphicsEngine.addShader(new PhongSpecularShader());
-			graphicsEngine.setDefaultShader(gouraudShader);
+			final PhongShader defaultShader = new PhongShader();
+			graphicsEngine.addShader(defaultShader);
+			graphicsEngine.setDefaultShader(defaultShader);
 		}
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
-		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
+//		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
+		graphicsEngine.getShaders().clear();
+		graphicsEngine.addShader(new ShadowMappingShader());
+		graphicsEngine.addShader(new PhongShader());
+		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1));
 	}
 	
 	private Scene loadScene() {		
 		try {
 			Scene scene = new Scene();
-			Mesh mesh = OBJImporter.parse("C:/Development/JGameEngineTests/12140_Skull_v3_L2.obj");
+			Mesh mesh = OBJImporter.parse("C:/Development/JGameEngineTests/test.obj");
 			Model model = new Model("Model", new Transform(), mesh);
 			scene.addModel(model);
 			
@@ -119,9 +122,22 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			camera.getTransform().translateWorld(0, 0, FP_ONE * 10);
 			scene.addCamera(camera);
 			
-			Light light = new Light("Light", new Transform());
-			light.getTransform().translateWorld(FP_ONE * 10, 0, 0);
-			scene.addLight(light);
+//			Light light0 = new Light("Light0", new Transform());
+//			light0.getTransform().translateWorld(-FP_ONE * 2, 0, 0);
+//			light0.setType(LightType.POINT);
+//			scene.addLight(light0);
+			
+			Light light1 = new Light("Light1", new Transform());
+			light1.getTransform().translateWorld(FP_ONE * 5, 0, 0);
+			light1.setDirection(VectorUtils.VECTOR_LEFT);
+			light1.getTransform().rotateWorld(0, FP_ONE * 90, 0);
+//			light1.setType(LightType.POINT);
+			scene.addLight(light1);
+			
+//			Light light2 = new Light("Light2", new Transform());
+//			light2.getTransform().translateWorld(0, 0, FP_ONE * 5);
+//			light2.setType(LightType.POINT);
+//			scene.addLight(light2);
 			System.gc();
 			return scene;
 		} catch (IOException e) {

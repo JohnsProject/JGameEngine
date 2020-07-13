@@ -33,16 +33,10 @@ public class OBJImporterTest {
 		int shininess = FixedPointUtils.toFixedPoint(17.647059);
 		assert(material.getShininess() == shininess);
 		
-		int r = Math.round(1f * ColorUtils.COLOR_ONE);
-		int g = Math.round(1f * ColorUtils.COLOR_ONE);
-		int b = Math.round(1f * ColorUtils.COLOR_ONE);
+		int r = Math.round(0.8f * ColorUtils.COLOR_ONE);
+		int g = Math.round(0.8f * ColorUtils.COLOR_ONE);
+		int b = Math.round(0.8f * ColorUtils.COLOR_ONE);
 		int color = ColorUtils.toColor(r, g, b);
-		assert(material.getAmbientColor() == color);
-		
-		r = Math.round(0.8f * ColorUtils.COLOR_ONE);
-		g = Math.round(0.8f * ColorUtils.COLOR_ONE);
-		b = Math.round(0.8f * ColorUtils.COLOR_ONE);
-		color = ColorUtils.toColor(r, g, b);
 		assert(material.getDiffuseColor() == color);
 		
 		r = Math.round(0.5f * ColorUtils.COLOR_ONE);
@@ -57,12 +51,6 @@ public class OBJImporterTest {
 		
 		shininess = FixedPointUtils.toFixedPoint(96.078431);
 		assert(material.getShininess() == shininess);
-		
-		r = Math.round(1f * ColorUtils.COLOR_ONE);
-		g = Math.round(1f * ColorUtils.COLOR_ONE);
-		b = Math.round(1f * ColorUtils.COLOR_ONE);
-		color = ColorUtils.toColor(r, g, b);
-		assert(material.getAmbientColor() == color);
 		
 		r = Math.round(0.64f * ColorUtils.COLOR_ONE);
 		g = Math.round(0.64f * ColorUtils.COLOR_ONE);

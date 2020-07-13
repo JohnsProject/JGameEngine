@@ -11,13 +11,10 @@ import com.johnsproject.jgameengine.model.FrustumType;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
-import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.MatrixUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class ForwardShaderBuffer implements ShaderBuffer {
-	
-	private static final int LIGHT_RANGE = FixedPointUtils.toFixedPoint(50000f);
 	
 	private Camera camera;
 	private List<Light> lights;
@@ -36,6 +33,13 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 	private final Frustum pointLightFrustum;
 	private final int[][][] pointLightMatrices;
 	private final Texture[] pointShadowMaps;
+	
+	private boolean foundMainDirectionalLight;
+	private long spotLightDistance;
+	private long pointLightDistance;
+	private Light shadowDirectionalLight;
+	private Light shadowSpotLight;
+	private Light shadowPointLight;
 	
 	public ForwardShaderBuffer() {
 		this.projectionMatrix = MatrixUtils.indentityMatrix();
@@ -65,139 +69,154 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 	public void setup(Camera camera, List<Light> lights) {
 		this.camera = camera;
 		this.lights = lights;
-		shadowLightsSetup(camera, lights);
-		renderSetup(camera, lights);
-	}
-	
-	private void renderSetup(Camera camera, List<Light> lights) {
+		final int[] cameraLocation = camera.getTransform().getLocation();
+		long maxLightDistance = camera.getMaxLightDistance();
+		// square the far distance because square distance calculation is used to save performance
+		maxLightDistance = (maxLightDistance * maxLightDistance) >> FP_BIT;
+		resetLightIndices();
 		for(int i = 0; i < lights.size(); i++) {
-			Light light = lights.get(i);
-			Transform lightTransform = light.getTransform();
-			int[] lightPosition = lightTransform.getLocation();
-			long dist = VectorUtils.squaredDistance(camera.getTransform().getLocation(), lightPosition);
-			light.setCulled(dist > LIGHT_RANGE);
+			final Light light = lights.get(i);
+			if(!light.isActive())
+				continue;
+			final int[] lightLocation = light.getTransform().getLocation();
+			final long lightDistance = VectorUtils.squaredDistance(lightLocation, cameraLocation);
+			light.setCulled(lightDistance > maxLightDistance);
+			if(light.isCulled())
+				continue;
+			searchNearestLights(light, i, lightDistance);
 		}
+		initializeLightMatrices();
 	}
 	
-	private void shadowLightsSetup(Camera camera, List<Light> lights) {
+	private void resetLightIndices() {
 		directionalLightIndex = -1;
 		spotLightIndex = -1;
 		pointLightIndex = -1;
-		boolean foundMainDirectionalLight = false;
-		long spotDistance = Integer.MAX_VALUE;
-		long pointDistance = Integer.MAX_VALUE;
-		Transform directionalLightTransform = null;
-		Transform spotLightTransform = null;
-		Transform pointLightTransform = null;
-		int[] cameraLocation = camera.getTransform().getLocation();
-		int lightIndex = 0;
-		for(int i = 0; i < lights.size(); i++) {
-			Light light = lights.get(i);
-			if(light.isActive()) {
-				Transform lightTransform = light.getTransform();
-				int[] lightLocation = lightTransform.getLocation();
-				long dist = VectorUtils.squaredDistance(cameraLocation, lightLocation);
-				if(dist < LIGHT_RANGE) {
-					switch (light.getType()) {
-					case DIRECTIONAL:
-						if(!foundMainDirectionalLight) {
-							directionalLightIndex = lightIndex;
-							directionalLightTransform = lightTransform;
-							if(light.isMain()) {
-								foundMainDirectionalLight = true;
-							}
-						}
-						break;
-					case SPOT:
-						if((spotDistance != Integer.MIN_VALUE) && (dist < spotDistance)) {
-							spotDistance = dist;
-							spotLightIndex = lightIndex;
-							spotLightTransform = lightTransform;
-							if(light.isMain()) {
-								spotDistance = Integer.MIN_VALUE;
-							}
-						}
-						break;
-					case POINT:
-						if((pointDistance != Integer.MIN_VALUE) && (dist < pointDistance)) {
-							pointDistance = dist;
-							pointLightIndex = lightIndex;
-							pointLightTransform = lightTransform;
-							if(light.isMain()) {
-								pointDistance = Integer.MIN_VALUE;
-							}
-						}
-						break;					
-					}
-				}
-				lightIndex++;
+		foundMainDirectionalLight = false;
+		spotLightDistance = Integer.MAX_VALUE;
+		pointLightDistance = Integer.MAX_VALUE;
+	}
+	
+	private void searchNearestLights(Light light, int lightIndex, long lightDistance) {
+		switch (light.getType()) {
+		case DIRECTIONAL:
+			searchNearestDirectionalLight(light, lightIndex, lightDistance);
+			break;
+		case SPOT:
+			searchNearestSpotLight(light, lightIndex, lightDistance);
+			break;
+		case POINT:
+			searchNearestPointLight(light, lightIndex, lightDistance);
+			break;
+		}
+	}
+	
+	private void searchNearestDirectionalLight(Light light, int lightIndex, long lightDistance) {
+		if(!foundMainDirectionalLight) {
+			directionalLightIndex = lightIndex;
+			shadowDirectionalLight = light;
+			if(light.isMain()) {
+				foundMainDirectionalLight = true;
 			}
 		}
-		if(camera.isMain()) {
-			directionalSetup(camera, directionalLightTransform);
-			spotSetup(camera, spotLightTransform);
-			pointSetup(camera, pointLightTransform);
+	}
+	
+	private void searchNearestSpotLight(Light light, int lightIndex, long lightDistance) {
+		if(spotLightDistance == Integer.MIN_VALUE)
+			return;
+		if(lightDistance < spotLightDistance) {
+			spotLightDistance = lightDistance;
+			spotLightIndex = lightIndex;
+			shadowSpotLight = light;
+			if(light.isMain()) {
+				spotLightDistance = Integer.MIN_VALUE;
+			}
 		}
 	}
 	
-	private void directionalSetup(Camera camera, Transform lightTransform) {
+	private void searchNearestPointLight(Light light, int lightIndex, long lightDistance) {
+		if(pointLightDistance == Integer.MIN_VALUE)
+			return;
+		if(lightDistance < pointLightDistance) {
+			pointLightDistance = lightDistance;
+			pointLightIndex = lightIndex;
+			shadowPointLight = light;
+			if(light.isMain()) {
+				pointLightDistance = Integer.MIN_VALUE;
+			}
+		}
+	}
+	
+	private void initializeLightMatrices() {
+		if(camera.isMain()) {
+			initializeDirectionalLightMatrix();
+			initializeSpotLightMatrix();
+			initializePointLightMatrix();
+		}
+	}
+	
+	private void initializeDirectionalLightMatrix() {
 		if (directionalLightIndex != -1) {
-			int portWidth = directionalShadowMap.getWidth();
-			int portHeight = directionalShadowMap.getHeight();
+			final int portWidth = directionalShadowMap.getWidth();
+			final int portHeight = directionalShadowMap.getHeight();
 			directionalLightFrustum.setRenderTargetSize(portWidth, portHeight);
 			directionalShadowMap.fill(Integer.MAX_VALUE);
+			final int[][] lightSpaceMatrix = shadowDirectionalLight.getTransform().getSpaceEnterMatrix();
+			final int[][] frustumProjectionMatrix = directionalLightFrustum.getProjectionMatrix();
 			MatrixUtils.copy(projectionMatrix, directionalLightFrustum.getProjectionMatrix());
-			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), directionalLightFrustum.getProjectionMatrix());
+			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, frustumProjectionMatrix);
 		}
 	}
 	
-	private void spotSetup(Camera camera, Transform lightTransform) {
+	private void initializeSpotLightMatrix() {
 		if (spotLightIndex != -1) {
-			int portWidth = spotShadowMap.getWidth();
-			int portHeight = spotShadowMap.getHeight();
+			final int portWidth = spotShadowMap.getWidth();
+			final int portHeight = spotShadowMap.getHeight();
 			spotLightFrustum.setRenderTargetSize(portWidth, portHeight);
 			spotShadowMap.fill(Integer.MAX_VALUE);
+			final int[][] lightSpaceMatrix = shadowSpotLight.getTransform().getSpaceEnterMatrix();
+			final int[][] frustumProjectionMatrix = spotLightFrustum.getProjectionMatrix();
 			MatrixUtils.copy(projectionMatrix, spotLightFrustum.getProjectionMatrix());
-			MatrixUtils.multiply(projectionMatrix, lightTransform.getSpaceEnterMatrix(), spotLightFrustum.getProjectionMatrix());
+			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, frustumProjectionMatrix);
 		}
 	}
 	
-	private void pointSetup(Camera camera, Transform lightTransform) {
+	private void initializePointLightMatrix() {
 		if (pointLightIndex != -1) {
-			int portWidth = pointShadowMaps[0].getWidth();
-			int portHeight = pointShadowMaps[0].getHeight();
+			final int portWidth = pointShadowMaps[0].getWidth();
+			final int portHeight = pointShadowMaps[0].getHeight();
 			pointLightFrustum.setRenderTargetSize(portWidth, portHeight);
 			for (int i = 0; i < pointShadowMaps.length; i++) {
 				pointShadowMaps[i].fill(Integer.MAX_VALUE);
-			}
+			}		
+			final Transform transform = shadowPointLight.getTransform();
+			final int[][] lightSpaceMatrix = transform.getSpaceEnterMatrix();
 			final int[][] frustumProjectionMatrix = pointLightFrustum.getProjectionMatrix();
-			final int[][] lightSpaceMatrix = lightTransform.getSpaceEnterMatrix();
-			final int fixedPoint90 = 90 << FP_BIT;
-			
-			lightTransform.setRotation(0, 0, 0);
+			final int fixedPoint90 = 90 << FP_BIT;	
+			transform.setRotation(0, 0, 0);
 			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[0]);
 			
-			lightTransform.rotateWorld(0, fixedPoint90, 0);
+			transform.rotateWorld(0, fixedPoint90, 0);
 			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[1]);
 			
-			lightTransform.rotateWorld(0, fixedPoint90, 0);
+			transform.rotateWorld(0, fixedPoint90, 0);
 			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[2]);
 			
-			lightTransform.rotateWorld(0, fixedPoint90, 0);
+			transform.rotateWorld(0, fixedPoint90, 0);
 			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[3]);
 			
-			lightTransform.setRotation(0, 0, fixedPoint90);
+			transform.setRotation(0, 0, fixedPoint90);
 			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[4]);
 			
-			lightTransform.setRotation(0, 0, -fixedPoint90);
+			transform.setRotation(0, 0, -fixedPoint90);
 			MatrixUtils.multiply(frustumProjectionMatrix, lightSpaceMatrix, projectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, pointLightMatrices[5]);
-			lightTransform.setRotation(0, 0, 0);
+			transform.setRotation(0, 0, 0);
 		}
 	}
 	

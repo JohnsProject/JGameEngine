@@ -17,10 +17,8 @@ import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.model.VertexGroup;
-import com.johnsproject.jgameengine.shading.FlatSpecularShader;
 import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
-import com.johnsproject.jgameengine.shading.GouraudSpecularShader;
-import com.johnsproject.jgameengine.shading.PhongSpecularShader;
+import com.johnsproject.jgameengine.shading.PhongShader;
 import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.shading.ShaderBuffer;
 import com.johnsproject.jgameengine.shading.ShadowMappingShader;
@@ -43,11 +41,9 @@ public class GraphicsEngine implements EngineListener {
 		this.locationVector = VectorUtils.emptyVector();
 		this.normalVector = VectorUtils.emptyVector();
 		this.multiplyVector = VectorUtils.emptyVector();
-		defaultShader = new GouraudSpecularShader();
+		defaultShader = new PhongShader();
 		addShader(new ShadowMappingShader());
-		addShader(new FlatSpecularShader());
 		addShader(defaultShader);
-		addShader(new PhongSpecularShader());
 	}
 
 	public void initialize(EngineEvent e) { }
@@ -82,18 +78,6 @@ public class GraphicsEngine implements EngineListener {
 			final Transform transform = model.getTransform();
 			transformVertices(mesh, transform, armature);
 			transformFaces(mesh, transform);
-		}
-	}
-	
-	private void transformFaces(Mesh mesh, Transform transform) {
-		for (int f = 0; f < mesh.getFaces().length; f++) {
-			final Face face = mesh.getFace(f);
-			VectorUtils.copy(face.getWorldNormal(), face.getLocalNormal());
-			VectorUtils.multiply(face.getWorldNormal(), transform.getSpaceExitNormalMatrix());
-			// calculate vertex normals, just add the face the normals of the faces this vertex is a part of
-			VectorUtils.add(face.getVertex(0).getWorldNormal(), face.getWorldNormal());
-			VectorUtils.add(face.getVertex(1).getWorldNormal(), face.getWorldNormal());
-			VectorUtils.add(face.getVertex(2).getWorldNormal(), face.getWorldNormal());			
 		}
 	}
 	
@@ -139,14 +123,24 @@ public class GraphicsEngine implements EngineListener {
 		VectorUtils.add(normalVector, multiplyVector);
 	}
 	
+	private void transformFaces(Mesh mesh, Transform transform) {
+		for (int f = 0; f < mesh.getFaces().length; f++) {
+			final Face face = mesh.getFace(f);
+			VectorUtils.copy(face.getWorldNormal(), face.getLocalNormal());
+			VectorUtils.multiply(face.getWorldNormal(), transform.getSpaceExitNormalMatrix());
+			// calculate vertex normals, just add the face the normals of the faces this vertex is a part of
+			VectorUtils.add(face.getVertex(0).getWorldNormal(), face.getWorldNormal());
+			VectorUtils.add(face.getVertex(1).getWorldNormal(), face.getWorldNormal());
+			VectorUtils.add(face.getVertex(2).getWorldNormal(), face.getWorldNormal());			
+		}
+	}
+	
 	private void renderForEachCamera(Scene scene) {
 		for (int c = 0; c < scene.getCameras().size(); c++) {
 			Camera camera = scene.getCameras().get(c);
 			if(!camera.isActive())
 				continue;
-			if(camera.getRenderTarget() == null) {
-				camera.setRenderTarget(frameBuffer);
-			}
+			camera.setRenderTarget(frameBuffer);
 			shaderBuffer.setup(camera, scene.getLights());
 			renderModels(scene);
 		}
@@ -158,11 +152,11 @@ public class GraphicsEngine implements EngineListener {
 			shader.setShaderBuffer(shaderBuffer);
 			for (int m = 0; m < scene.getModels().size(); m++) {
 				Model model = scene.getModels().get(m);
-				if(!model.isActive())
+				if(!model.isActive() || model.isCulled())
 					continue;
 				final Mesh mesh = model.getMesh();
 				shadeVertices(mesh, shader);
-				shaderFaces(mesh, shader);
+				shadeFaces(mesh, shader);
 			}
 		}
 	}
@@ -177,7 +171,7 @@ public class GraphicsEngine implements EngineListener {
 		}
 	}
 	
-	private void shaderFaces(Mesh mesh, Shader shader) {
+	private void shadeFaces(Mesh mesh, Shader shader) {
 		for (int f = 0; f < mesh.getFaces().length; f++) {
 			final Face face = mesh.getFace(f);
 			final Material material = face.getMaterial();
