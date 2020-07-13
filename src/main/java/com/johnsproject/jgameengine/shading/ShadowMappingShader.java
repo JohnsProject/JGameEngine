@@ -41,6 +41,12 @@ public class ShadowMappingShader implements Shader {
 	public void vertex(Vertex vertex) { }
 
 	public void geometry(Face face) {
+		renderForDirectionalLight(face);
+		renderForSpotLight(face);
+		renderForPointLight(face);
+	}
+	
+	private void renderForDirectionalLight(Face face) {
 		if(directionalShadows && (shaderBuffer.getDirectionalLightIndex() != -1)) {
 			shadowBias = DIRECTIONAL_BIAS;
 			currentShadowMap = shaderBuffer.getDirectionalShadowMap();
@@ -49,6 +55,9 @@ public class ShadowMappingShader implements Shader {
 			rasterizer.setFrustumCull(false);
 			rasterizer.draw(face);
 		}
+	}
+	
+	private void renderForSpotLight(Face face) {
 		if(spotShadows && (shaderBuffer.getSpotLightIndex() != -1)) {
 			shadowBias = SPOT_BIAS;
 			currentShadowMap = shaderBuffer.getSpotShadowMap();
@@ -57,6 +66,9 @@ public class ShadowMappingShader implements Shader {
 			rasterizer.setFrustumCull(true);
 			rasterizer.draw(face);
 		}
+	}
+	
+	private void renderForPointLight(Face face) {
 		if(pointShadows && (shaderBuffer.getPointLightIndex() != -1)) {
 			shadowBias = POINT_BIAS;
 			final Frustum frustum = shaderBuffer.getPointLightFrustum();
