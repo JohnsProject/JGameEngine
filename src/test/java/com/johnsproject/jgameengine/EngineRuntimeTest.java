@@ -43,7 +43,6 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	private static final boolean SHOW_ENGINE_STATISTICS = true;
 	private static final boolean SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP = false;
 	private static final boolean SHOW_SPOT_LIGHT_SHADOW_MAP = false;
-	private static final boolean SHOW_POINT_LIGHT_SHADOW_MAP = false;
 	
 	private static final boolean ENABLE_SHADOW_MAPPING = false;
 	
@@ -124,25 +123,26 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			camera.getTransform().rotateWorld(FP_ONE * -35, 0, 0);
 			scene.addCamera(camera);
 			
-//			Light light0 = new Light("Light0", new Transform());
-//			light0.getTransform().translateWorld(-FP_ONE * 2, 0, 0);
-//			light0.setType(LightType.POINT);
-//			scene.addLight(light0);
+			Light directionalLight = new Light("DirectionalLight", new Transform());
+			directionalLight.setDirection(VectorUtils.VECTOR_DOWN);
+			directionalLight.getTransform().rotateWorld(FP_ONE * -90, 0, 0);
+			scene.addLight(directionalLight);
+			scene.setMainDirectionalLight(directionalLight);
 			
-			Light light1 = new Light("Light1", new Transform());
-			light1.setDirection(VectorUtils.VECTOR_DOWN);
-			light1.getTransform().rotateWorld(FP_ONE * -90, 0, 0);
-			scene.addLight(light1);
-			scene.setMainDirectionalLight(light1);
+			Light spotLight = new Light("SpotLight", new Transform());
+			spotLight.getTransform().translateWorld(0, FP_ONE, FP_ONE * 8);
+			spotLight.setDirection(VectorUtils.VECTOR_FORWARD);
+			spotLight.setType(LightType.SPOT);
+			spotLight.setSpotSize(FP_ONE * 90);
+			spotLight.setInnerSpotSize(FP_ONE * 80);
+//			spotLight.setStrength(FP_ONE * 2);
+			scene.addLight(spotLight);
 			
-//			Light light2 = new Light("Light2", new Transform());
-//			light2.getTransform().translateWorld(0, FP_ONE, FP_ONE * 8);
-//			light2.setDirection(VectorUtils.VECTOR_FORWARD);
-//			light2.setType(LightType.SPOT);
-//			light2.setSpotSize(FP_ONE * 90);
-//			light2.setInnerSpotSize(FP_ONE * 80);
-//			light2.setStrength(FP_ONE * 2);
-//			scene.addLight(light2);
+//			Light pointLight = new Light("PointLight", new Transform());
+//			pointLight.getTransform().translateWorld(-FP_ONE * 2, 0, 0);
+//			pointLight.setType(LightType.POINT);
+//			scene.addLight(pointLight);
+			
 			System.gc();
 			return scene;
 		} catch (IOException e) {
@@ -170,25 +170,6 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 				}
 			}
 		}
-		else if(SHOW_POINT_LIGHT_SHADOW_MAP) {
-			final Texture[] shadowMaps = shaderBuffer.getPointShadowMaps();
-			for (int i = 0; i < shadowMaps.length; i++) {
-				final Texture shadowMap = shadowMaps[i];
-				for (int y = 0; y < shadowMap.getHeight(); y++) {
-					for (int x = 0; x < shadowMap.getWidth(); x++) {
-						int frameBufferX = x + (shadowMap.getWidth() * i);
-						int frameBufferY = y;
-						if(i >= 3) {
-							frameBufferX = x + (shadowMap.getWidth() * (i - 3));
-							frameBufferY += shadowMap.getHeight();
-						}
-						int depth = shadowMap.getPixel(x, y) >> 1;
-						int color = com.johnsproject.jgameengine.util.ColorUtils.toColor(depth, depth, depth);
-						shaderBuffer.getCamera().getRenderTarget().getColorBuffer().setPixel(frameBufferX, frameBufferY, color);		
-					}
-				}
-			}
-		}
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
@@ -203,7 +184,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	}
 
 	public int getLayer() {
-		if(SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP || SHOW_SPOT_LIGHT_SHADOW_MAP || SHOW_POINT_LIGHT_SHADOW_MAP) {
+		if(SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP || SHOW_SPOT_LIGHT_SHADOW_MAP) {
 			return GRAPHICS_ENGINE_LAYER + 1;
 		}
 		return DEFAULT_LAYER;

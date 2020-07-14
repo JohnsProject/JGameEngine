@@ -32,6 +32,7 @@ public class PhongShader implements Shader {
 	private boolean isInShadow;
 	
 	private Texture directionalLightShadowMap;
+	private Texture spotLightShadowMap;
 	
 	public PhongShader() {
 		this.rasterizer = new LinearRasterizer6(this);
@@ -56,9 +57,15 @@ public class PhongShader implements Shader {
 		} else {
 			directionalLightShadowMap = shaderBuffer.getDirectionalShadowMap();
 		}
+		if(shaderBuffer.getShadowSpotLight() == null) {
+			spotLightShadowMap = null;
+		} else {
+			spotLightShadowMap = shaderBuffer.getSpotShadowMap();
+		}
 		setUVs(face);
 		setWorldSpaceVetors(face);
 		setDirectionalLightSpaceVectors(face);
+		setSpotLightSpaceVectors(face);
 		rasterizer.linearDraw6(face);
 	}
 	
@@ -102,6 +109,22 @@ public class PhongShader implements Shader {
 		}
 	}
 	
+	private void setSpotLightSpaceVectors(Face face) {
+		if(spotLightShadowMap != null) {
+			final Frustum lightFrustum = shaderBuffer.getSpotLightFrustum();
+			final int[][] lightMatrix = lightFrustum.getProjectionMatrix();
+			
+			int[] worldLocation = face.getVertex(0).getWorldLocation();
+			rasterizer.setVector40(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+			
+			worldLocation = face.getVertex(1).getWorldLocation();
+			rasterizer.setVector41(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+			
+			worldLocation = face.getVertex(2).getWorldLocation();
+			rasterizer.setVector42(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+		}
+	}
+	
 	private int[] transformToLightSpace(int[] worldLocation, int[][] lightMatrix, Frustum lightFrustum) {
 		VectorUtils.copy(lightSpaceLocation, worldLocation);
 		VectorUtils.multiply(lightSpaceLocation, lightMatrix);
@@ -123,8 +146,12 @@ public class PhongShader implements Shader {
 			final int[] uv = rasterizer.getVector0();
 			texelColor = getFragmentTexelColor(uv);
 			
-			final int[] lightSpaceLocation = rasterizer.getVector3();
-			isInShadow = isFragmentInShadow(lightSpaceLocation, directionalLightShadowMap);
+			final int[] directionalLightSpaceLocation = rasterizer.getVector3();
+			isInShadow = isFragmentInShadow(directionalLightSpaceLocation, directionalLightShadowMap);
+			if(!isInShadow) {
+				final int[] spotLightSpaceLocation = rasterizer.getVector4();
+				isInShadow = isFragmentInShadow(spotLightSpaceLocation, spotLightShadowMap);
+			}
 			
 			final int[] location = rasterizer.getVector1();
 			final int[] normal = rasterizer.getVector2();

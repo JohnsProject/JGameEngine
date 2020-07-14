@@ -30,7 +30,6 @@ public class ShadowMappingShader implements Shader {
 	public void geometry(Face face) {
 		renderForDirectionalLight(face);
 		renderForSpotLight(face);
-		renderForPointLight(face);
 	}
 	
 	private void renderForDirectionalLight(Face face) {
@@ -54,20 +53,6 @@ public class ShadowMappingShader implements Shader {
 			transformVertices(face, frustum.getProjectionMatrix(), frustum);
 			rasterizer.setFrustumCull(true);
 			rasterizer.draw(face);
-		}
-	}
-	
-	private void renderForPointLight(Face face) {
-		final Light pointLight = shaderBuffer.getShadowPointLight();
-		if(pointLight != null) {
-			shadowBias = pointLight.getShadowBias();
-			final Frustum frustum = shaderBuffer.getPointLightFrustum();
-			for (int i = 0; i < shaderBuffer.getPointLightMatrices().length; i++) {
-				shadowMap = shaderBuffer.getPointShadowMaps()[i];
-				transformVertices(face, shaderBuffer.getPointLightMatrices()[i], frustum);
-				rasterizer.setFrustumCull(true);
-				rasterizer.draw(face);
-			}
 		}
 	}
 	
