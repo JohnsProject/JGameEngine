@@ -40,7 +40,7 @@ import com.johnsproject.jgameengine.util.VectorUtils;
 @SuppressWarnings("unused")
 public class EngineRuntimeTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
-	private static final boolean SHOW_ENGINE_STATISTICS = true;
+	private static final boolean SHOW_ENGINE_STATISTICS = false;
 	private static final boolean SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP = false;
 	private static final boolean SHOW_SPOT_LIGHT_SHADOW_MAP = false;
 	private static final boolean SHOW_POINT_LIGHT_SHADOW_MAP = false;
@@ -106,9 +106,9 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
 //		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
 		graphicsEngine.getShaders().clear();
-//		graphicsEngine.addShader(new ShadowMappingShader());
+		graphicsEngine.addShader(new ShadowMappingShader());
 		graphicsEngine.addShader(new PhongShader());
-		graphicsEngine.setDefaultShader(graphicsEngine.getShader(0));
+		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1));
 	}
 	
 	private Scene loadScene() {		
@@ -120,7 +120,8 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			scene.addModel(model);
 			
 			Camera camera = new Camera("Camera", new Transform());
-			camera.getTransform().translateWorld(0, 0, FP_ONE * 10);
+			camera.getTransform().translateWorld(0, FP_ONE * 10, FP_ONE * 15);
+			camera.getTransform().rotateWorld(FP_ONE * -35, 0, 0);
 			scene.addCamera(camera);
 			
 //			Light light0 = new Light("Light0", new Transform());
@@ -129,10 +130,8 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 //			scene.addLight(light0);
 			
 			Light light1 = new Light("Light1", new Transform());
-			light1.getTransform().translateWorld(FP_ONE * 5, 0, 0);
-			light1.setDirection(VectorUtils.VECTOR_LEFT);
-			light1.getTransform().rotateWorld(0, FP_ONE * 90, 0);
-//			light1.setType(LightType.POINT);
+			light1.setDirection(VectorUtils.VECTOR_DOWN);
+			light1.getTransform().rotateWorld(FP_ONE * -90, 0, 0);
 			scene.addLight(light1);
 			scene.setMainDirectionalLight(light1);
 			

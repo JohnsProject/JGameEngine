@@ -6,6 +6,7 @@ import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Face;
+import com.johnsproject.jgameengine.model.Frustum;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Texture;
@@ -23,15 +24,20 @@ public class PhongShader implements Shader {
 	
 	private int[] lightDirection;
 	private int[] viewDirection;
+	private int[] lightSpaceLocation;
 	
 	private Material material;
 	private Texture texture;
 	private int texelColor;
+	private boolean isInShadow;
+	
+	private Texture directionalLightShadowMap;
 	
 	public PhongShader() {
 		this.rasterizer = new LinearRasterizer6(this);
 		this.lightDirection = VectorUtils.emptyVector();
 		this.viewDirection = VectorUtils.emptyVector();
+		this.lightSpaceLocation = VectorUtils.emptyVector();
 	}
 	
 	public void vertex(Vertex vertex) {
@@ -45,8 +51,10 @@ public class PhongShader implements Shader {
 	public void geometry(Face face) {
 		material = face.getMaterial();
 		texture = material.getTexture();
+		directionalLightShadowMap = shaderBuffer.getDirectionalShadowMap();
 		setUVs(face);
 		setWorldSpaceVetors(face);
+		setDirectionalLightSpaceVectors(face);
 		rasterizer.linearDraw6(face);
 	}
 	
@@ -74,6 +82,29 @@ public class PhongShader implements Shader {
 		rasterizer.setVector22(face.getVertex(2).getWorldNormal());
 	}
 	
+	private void setDirectionalLightSpaceVectors(Face face) {
+		final Frustum lightFrustum = shaderBuffer.getDirectionalLightFrustum();
+		final int[][] lightMatrix = lightFrustum.getProjectionMatrix();
+		
+		int[] worldLocation = face.getVertex(0).getWorldLocation();
+		rasterizer.setVector30(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+		
+		worldLocation = face.getVertex(1).getWorldLocation();
+		rasterizer.setVector31(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+		
+		worldLocation = face.getVertex(2).getWorldLocation();
+		rasterizer.setVector32(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+	}
+	
+	private int[] transformToLightSpace(int[] worldLocation, int[][] lightMatrix, Frustum lightFrustum) {
+		VectorUtils.copy(lightSpaceLocation, worldLocation);
+		VectorUtils.multiply(lightSpaceLocation, lightMatrix);
+		TransformationUtils.screenportVector(lightSpaceLocation, lightFrustum);
+		// The rasterizer will interpolate fixed point vectors but screen space vectors are not fixed point
+		VectorUtils.multiply(lightSpaceLocation, FixedPointUtils.FP_ONE << FixedPointUtils.FP_BIT);
+		return lightSpaceLocation;
+	}
+	
 	public void fragment() {
 		final Camera camera = shaderBuffer.getCamera();
 		final Texture depthBuffer = camera.getRenderTarget().getDepthBuffer();
@@ -83,54 +114,73 @@ public class PhongShader implements Shader {
 		final int z = rasterizer.getLocation()[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
 			
-			if(texture == null) {
-				texelColor = ColorUtils.WHITE;
-			} else {
-				// The result will be, but pixels are not accessed with fixed point
-				final int u = rasterizer.getVector0()[VECTOR_X] >> FixedPointUtils.FP_BIT;
-				final int v = rasterizer.getVector0()[VECTOR_Y] >> FixedPointUtils.FP_BIT;
-				texelColor = texture.getPixel(u, v);
-			}
+			final int[] uv = rasterizer.getVector0();
+			texelColor = getFragmentTexelColor(uv);
+			
+			final int[] lightSpaceLocation = rasterizer.getVector3();
+			isInShadow = isFragmentInShadow(lightSpaceLocation, directionalLightShadowMap);
 			
 			final int[] location = rasterizer.getVector1();
 			final int[] normal = rasterizer.getVector2();
-			VectorUtils.normalize(normal);
-			
-			final int color = calculateLights(location, normal, material);
+			final int color = calculateLights(location, normal, material);			
 			colorBuffer.setPixel(x, y, color);
 			depthBuffer.setPixel(x, y, z);
 		}
+	}
+	
+	private int getFragmentTexelColor(int[] uv) {
+		if(texture == null) {
+			return ColorUtils.WHITE;
+		} else {
+			// The result will be, but pixels are not accessed with fixed point
+			final int u = uv[VECTOR_X] >> FixedPointUtils.FP_BIT;
+			final int v = uv[VECTOR_Y] >> FixedPointUtils.FP_BIT;
+			return texture.getPixel(u, v);
+		}
+	}
+	
+	private boolean isFragmentInShadow(int[] lightSpaceLocation, Texture shadowMap) {
+		// The result will be, but pixels are not accessed with fixed point
+		final int x = lightSpaceLocation[VECTOR_X] >> FixedPointUtils.FP_BIT;
+		final int y = lightSpaceLocation[VECTOR_Y] >> FixedPointUtils.FP_BIT;
+		final int depth = shadowMap.getPixel(x, y);
+		return depth < lightSpaceLocation[VECTOR_Z] >> FixedPointUtils.FP_BIT;
 	}
 	
 	private int calculateLights(int[] location, int[] normal, Material material) {
 		VectorUtils.copy(viewDirection, shaderBuffer.getCamera().getTransform().getLocation());
 		VectorUtils.subtract(viewDirection, location);
 		VectorUtils.normalize(viewDirection);
+		VectorUtils.normalize(normal);
 		int color = ColorUtils.BLACK;
 		for (int i = 0; i < shaderBuffer.getLights().size(); i++) {
 			final Light light = shaderBuffer.getLights().get(i);
 			if(!light.isActive() || light.isCulled())
 				continue;
-			switch (light.getType()) {
-			case DIRECTIONAL:
-				final int directional = calculateDirectionalLight(location, normal, material, light);
-				color = ColorUtils.add(color, directional);
-				break;
-				
-			case POINT:
-				final int point = calculatePointLight(location, normal, material, light);
-				color = ColorUtils.add(color, point);
-				break;
-				
-			case SPOT:
-				final int spot = calculateSpotLight(location, normal, material, light);
-				color = ColorUtils.add(color, spot);
-				break;
-			}
+			final int lighting = calculateLight(location, normal, material, light);
+			final int ambient = ColorUtils.multiplyColor(texelColor, light.getAmbientColor());
+			color = ColorUtils.add(color, lighting);
+			color = ColorUtils.add(color, ambient);
 			color = ColorUtils.multiply(color, light.getStrength());
-			color = ColorUtils.add(color, light.getAmbientColor());
 		}
 		return color;
+	}
+	
+	private int calculateLight(int[] location, int[] normal, Material material, Light light) {
+		// if this pixel is in shadow the light with the shadow doesn't affect it
+		if(!light.isMain() || (light.isMain() && !isInShadow)) {
+			switch (light.getType()) {
+			case DIRECTIONAL:
+				return calculateDirectionalLight(location, normal, material, light);
+				
+			case POINT:
+				return calculatePointLight(location, normal, material, light);
+				
+			case SPOT:
+				return calculateSpotLight(location, normal, material, light);
+			}
+		}
+		return ColorUtils.BLACK;
 	}
 	
 	private int calculateDirectionalLight(int[] location, int[] normal, Material material, Light light) {
