@@ -53,36 +53,14 @@ public class Rasterizer {
 		this.faceCull = -1;
 	}
 
-	/**
-	 * Sets if the rasterizer should cull the triangles that are outside of the view frustum. 
-	 * Note that this method only sets if the rasterizer culls the whole triangle before even 
-	 * beginning the rasterization process, a per pixel culling will still happen even if 
-	 * frustumCull is set to false. 
-	 * 
-	 * @param frustumCull
-	 */
 	public void setFrustumCull(boolean frustumCull) {
 		this.frustumCull = frustumCull;
 	}
 	
-	/**
-	 * Sets if the rasterizer should cull the triangle based on it's facing direction.
-	 * 
-	 * @param faceCull -1 = backface culling, 0 = no culling and 1 = frontface culling.
-	 */
 	public void setFaceCull(int faceCull) {
 		this.faceCull = faceCull;
 	}
 	
-	/**
-	 * This method tells the rasterizer to draw the given {@link GeometryBuffer geometryBuffer}.
-	 * This rasterizer draws a triangle using the x, y coordinates of each vertex of the geometryBuffer. 
-	 * It uses linear interpolation to find out the z coordinate for each pixel.
-	 * While rasterizing the geometryBuffer, for each pixel/fragment the {@link Shader#fragment} 
-	 * method of this rasterizer's {@link Shader} will be called.
-	 * 
-	 * @param geometryBuffer
-	 */
 	public void draw(Face face) {
 		copyLocations(face);
 		copyFrustum();

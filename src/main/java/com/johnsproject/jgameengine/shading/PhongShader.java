@@ -10,7 +10,7 @@ import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
-import com.johnsproject.jgameengine.rasterization.AffineRasterizer6;
+import com.johnsproject.jgameengine.rasterization.LinearRasterizer6;
 import com.johnsproject.jgameengine.util.ColorUtils;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
@@ -19,7 +19,7 @@ import com.johnsproject.jgameengine.util.VectorUtils;
 public class PhongShader implements Shader {
 
 	private ForwardShaderBuffer shaderBuffer;
-	private final AffineRasterizer6 rasterizer;
+	private final LinearRasterizer6 rasterizer;
 	
 	private int[] lightDirection;
 	private int[] viewDirection;
@@ -29,7 +29,7 @@ public class PhongShader implements Shader {
 	private int texelColor;
 	
 	public PhongShader() {
-		this.rasterizer = new AffineRasterizer6(this);
+		this.rasterizer = new LinearRasterizer6(this);
 		this.lightDirection = VectorUtils.emptyVector();
 		this.viewDirection = VectorUtils.emptyVector();
 	}
@@ -47,7 +47,7 @@ public class PhongShader implements Shader {
 		texture = material.getTexture();
 		setUVs(face);
 		setWorldSpaceVetors(face);
-		rasterizer.drawAffine6(face);
+		rasterizer.linearDraw6(face);
 	}
 	
 	private void setUVs(Face face) {

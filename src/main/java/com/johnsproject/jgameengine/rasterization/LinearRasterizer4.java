@@ -10,7 +10,7 @@ import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
-public class AffineRasterizer4 extends AffineRasterizer2 {
+public class LinearRasterizer4 extends LinearRasterizer2 {
 
 	protected final int[] vector2;
 	protected final int[] vector20;
@@ -34,7 +34,7 @@ public class AffineRasterizer4 extends AffineRasterizer2 {
 	protected int dv2x, dv2y, dv2z;
 	protected int dv3x, dv3y, dv3z;
 	
-	public AffineRasterizer4(Shader shader) {
+	public LinearRasterizer4(Shader shader) {
 		super(shader);
 		this.vector2 = VectorUtils.emptyVector();
 		this.vector20 = VectorUtils.emptyVector();
@@ -48,7 +48,7 @@ public class AffineRasterizer4 extends AffineRasterizer2 {
 		this.vector33 = VectorUtils.emptyVector();
 	}
 	
-	public void drawAffine4(Face face) {
+	public void linearDraw4(Face face) {
 		copyLocations(face);
 		copyFrustum();
 		if(isCulled())
