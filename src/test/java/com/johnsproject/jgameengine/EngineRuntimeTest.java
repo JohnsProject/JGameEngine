@@ -119,18 +119,18 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			scene.addModel(model);
 			
 			Camera camera = new Camera("Camera", new Transform());
-			camera.getTransform().translateWorld(0, FP_ONE * 10, FP_ONE * 15);
-			camera.getTransform().rotateWorld(FP_ONE * -35, 0, 0);
+			camera.getTransform().worldTranslate(0, FP_ONE * 10, FP_ONE * 15);
+			camera.getTransform().worldRotate(FP_ONE * -35, 0, 0);
 			scene.addCamera(camera);
 			
 			Light directionalLight = new Light("DirectionalLight", new Transform());
 			directionalLight.setDirection(VectorUtils.VECTOR_DOWN);
-			directionalLight.getTransform().rotateWorld(FP_ONE * -90, 0, 0);
+			directionalLight.getTransform().worldRotate(FP_ONE * -90, 0, 0);
 			scene.addLight(directionalLight);
 			scene.setMainDirectionalLight(directionalLight);
 			
 			Light spotLight = new Light("SpotLight", new Transform());
-			spotLight.getTransform().translateWorld(0, FP_ONE, FP_ONE * 8);
+			spotLight.getTransform().worldTranslate(0, FP_ONE, FP_ONE * 8);
 			spotLight.setDirection(VectorUtils.VECTOR_FORWARD);
 			spotLight.setType(LightType.SPOT);
 			spotLight.setSpotSize(FP_ONE * 90);
@@ -246,7 +246,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		}
 		if(!VectorUtils.equals(cameraTranslation, VectorUtils.VECTOR_ZERO)) {
 			VectorUtils.multiply(cameraTranslation, cameraTranslationSpeed);
-			cameraTransform.translateLocal(cameraTranslation);
+			cameraTransform.localTranslate(cameraTranslation);
 		}
 	}
 }
