@@ -75,7 +75,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 			final int[] lightLocation = light.getTransform().getLocation();
 			final long lightDistance = VectorUtils.squaredDistance(lightLocation, cameraLocation);
 			light.setCulled(lightDistance > maxLightDistance);
-			if(light.isCulled())
+			if(light.isCulled() || !light.hasShadow())
 				continue;
 			searchNearestLights(light, lightDistance);
 		}

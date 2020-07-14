@@ -40,7 +40,7 @@ import com.johnsproject.jgameengine.util.VectorUtils;
 @SuppressWarnings("unused")
 public class EngineRuntimeTest implements EngineListener, EngineKeyListener, MouseMotionListener {
 
-	private static final boolean SHOW_ENGINE_STATISTICS = false;
+	private static final boolean SHOW_ENGINE_STATISTICS = true;
 	private static final boolean SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP = false;
 	private static final boolean SHOW_SPOT_LIGHT_SHADOW_MAP = false;
 	private static final boolean SHOW_POINT_LIGHT_SHADOW_MAP = false;
@@ -136,8 +136,12 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			scene.setMainDirectionalLight(light1);
 			
 //			Light light2 = new Light("Light2", new Transform());
-//			light2.getTransform().translateWorld(0, 0, FP_ONE * 5);
-//			light2.setType(LightType.POINT);
+//			light2.getTransform().translateWorld(0, FP_ONE, FP_ONE * 8);
+//			light2.setDirection(VectorUtils.VECTOR_FORWARD);
+//			light2.setType(LightType.SPOT);
+//			light2.setSpotSize(FP_ONE * 90);
+//			light2.setInnerSpotSize(FP_ONE * 80);
+//			light2.setStrength(FP_ONE * 2);
 //			scene.addLight(light2);
 			System.gc();
 			return scene;

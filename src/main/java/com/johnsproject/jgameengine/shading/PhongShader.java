@@ -51,7 +51,11 @@ public class PhongShader implements Shader {
 	public void geometry(Face face) {
 		material = face.getMaterial();
 		texture = material.getTexture();
-		directionalLightShadowMap = shaderBuffer.getDirectionalShadowMap();
+		if(shaderBuffer.getShadowDirectionalLight() == null) {
+			directionalLightShadowMap = null;
+		} else {
+			directionalLightShadowMap = shaderBuffer.getDirectionalShadowMap();
+		}
 		setUVs(face);
 		setWorldSpaceVetors(face);
 		setDirectionalLightSpaceVectors(face);
@@ -83,17 +87,19 @@ public class PhongShader implements Shader {
 	}
 	
 	private void setDirectionalLightSpaceVectors(Face face) {
-		final Frustum lightFrustum = shaderBuffer.getDirectionalLightFrustum();
-		final int[][] lightMatrix = lightFrustum.getProjectionMatrix();
-		
-		int[] worldLocation = face.getVertex(0).getWorldLocation();
-		rasterizer.setVector30(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
-		
-		worldLocation = face.getVertex(1).getWorldLocation();
-		rasterizer.setVector31(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
-		
-		worldLocation = face.getVertex(2).getWorldLocation();
-		rasterizer.setVector32(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+		if(directionalLightShadowMap != null) {
+			final Frustum lightFrustum = shaderBuffer.getDirectionalLightFrustum();
+			final int[][] lightMatrix = lightFrustum.getProjectionMatrix();
+			
+			int[] worldLocation = face.getVertex(0).getWorldLocation();
+			rasterizer.setVector30(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+			
+			worldLocation = face.getVertex(1).getWorldLocation();
+			rasterizer.setVector31(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+			
+			worldLocation = face.getVertex(2).getWorldLocation();
+			rasterizer.setVector32(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+		}
 	}
 	
 	private int[] transformToLightSpace(int[] worldLocation, int[][] lightMatrix, Frustum lightFrustum) {
@@ -140,11 +146,15 @@ public class PhongShader implements Shader {
 	}
 	
 	private boolean isFragmentInShadow(int[] lightSpaceLocation, Texture shadowMap) {
-		// The result will be, but pixels are not accessed with fixed point
-		final int x = lightSpaceLocation[VECTOR_X] >> FixedPointUtils.FP_BIT;
-		final int y = lightSpaceLocation[VECTOR_Y] >> FixedPointUtils.FP_BIT;
-		final int depth = shadowMap.getPixel(x, y);
-		return depth < lightSpaceLocation[VECTOR_Z] >> FixedPointUtils.FP_BIT;
+		if(shadowMap == null) {
+			return false;
+		} else {
+			// The result will be, but pixels are not accessed with fixed point
+			final int x = lightSpaceLocation[VECTOR_X] >> FixedPointUtils.FP_BIT;
+			final int y = lightSpaceLocation[VECTOR_Y] >> FixedPointUtils.FP_BIT;
+			final int depth = shadowMap.getPixel(x, y);
+			return depth < lightSpaceLocation[VECTOR_Z] >> FixedPointUtils.FP_BIT;
+		}
 	}
 	
 	private int calculateLights(int[] location, int[] normal, Material material) {

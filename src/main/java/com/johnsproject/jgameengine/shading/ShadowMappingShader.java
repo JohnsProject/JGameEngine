@@ -6,34 +6,22 @@ import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Frustum;
+import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterization.Rasterizer;
-import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class ShadowMappingShader implements Shader {
 	
-	private static final int DIRECTIONAL_BIAS = FixedPointUtils.toFixedPoint(0.00005f);
-	private static final int SPOT_BIAS = FixedPointUtils.toFixedPoint(0.00025f);
-	private static final int POINT_BIAS = FixedPointUtils.toFixedPoint(0.00035f);
-	
-	private int shadowBias = 0;
-	
 	private ForwardShaderBuffer shaderBuffer;
 	private final Rasterizer rasterizer;
-	
-	private Texture currentShadowMap;
-	
-	private boolean directionalShadows;
-	private boolean spotShadows;
-	private boolean pointShadows;
+
+	private int shadowBias;
+	private Texture shadowMap;
 
 	public ShadowMappingShader() {
-		this.directionalShadows = true;
-		this.spotShadows = true;
-		this.pointShadows = true;
 		this.rasterizer = new Rasterizer(this);
 	}
 	
@@ -46,9 +34,10 @@ public class ShadowMappingShader implements Shader {
 	}
 	
 	private void renderForDirectionalLight(Face face) {
-		if(directionalShadows && (shaderBuffer.getShadowDirectionalLight() != null)) {
-			shadowBias = DIRECTIONAL_BIAS;
-			currentShadowMap = shaderBuffer.getDirectionalShadowMap();
+		final Light directionalLight = shaderBuffer.getShadowDirectionalLight();
+		if(directionalLight != null) {
+			shadowBias = directionalLight.getShadowBias();
+			shadowMap = shaderBuffer.getDirectionalShadowMap();
 			final Frustum frustum = shaderBuffer.getDirectionalLightFrustum();
 			transformVertices(face, frustum.getProjectionMatrix(), frustum);
 			rasterizer.setFrustumCull(false);
@@ -57,9 +46,10 @@ public class ShadowMappingShader implements Shader {
 	}
 	
 	private void renderForSpotLight(Face face) {
-		if(spotShadows && (shaderBuffer.getShadowSpotLight() != null)) {
-			shadowBias = SPOT_BIAS;
-			currentShadowMap = shaderBuffer.getSpotShadowMap();
+		final Light spotLight = shaderBuffer.getShadowSpotLight();
+		if(spotLight != null) {
+			shadowBias = spotLight.getShadowBias();
+			shadowMap = shaderBuffer.getSpotShadowMap();
 			final Frustum frustum = shaderBuffer.getSpotLightFrustum();
 			transformVertices(face, frustum.getProjectionMatrix(), frustum);
 			rasterizer.setFrustumCull(true);
@@ -68,11 +58,12 @@ public class ShadowMappingShader implements Shader {
 	}
 	
 	private void renderForPointLight(Face face) {
-		if(pointShadows && (shaderBuffer.getShadowPointLight() != null)) {
-			shadowBias = POINT_BIAS;
+		final Light pointLight = shaderBuffer.getShadowPointLight();
+		if(pointLight != null) {
+			shadowBias = pointLight.getShadowBias();
 			final Frustum frustum = shaderBuffer.getPointLightFrustum();
 			for (int i = 0; i < shaderBuffer.getPointLightMatrices().length; i++) {
-				currentShadowMap = shaderBuffer.getPointShadowMaps()[i];
+				shadowMap = shaderBuffer.getPointShadowMaps()[i];
 				transformVertices(face, shaderBuffer.getPointLightMatrices()[i], frustum);
 				rasterizer.setFrustumCull(true);
 				rasterizer.draw(face);
@@ -93,8 +84,8 @@ public class ShadowMappingShader implements Shader {
 		final int x = rasterizer.getLocation()[VECTOR_X];
 		final int y = rasterizer.getLocation()[VECTOR_Y];
 		final int z = rasterizer.getLocation()[VECTOR_Z] + shadowBias;
-		if (currentShadowMap.getPixel(x, y) > z) {
-			currentShadowMap.setPixel(x, y, z);
+		if (shadowMap.getPixel(x, y) > z) {
+			shadowMap.setPixel(x, y, z);
 		}
 	}
 
@@ -108,29 +99,5 @@ public class ShadowMappingShader implements Shader {
 	
 	public boolean isGlobal() {
 		return true;
-	}
-
-	public boolean directionalShadows() {
-		return directionalShadows;
-	}
-
-	public void directionalShadows(boolean directionalShadows) {
-		this.directionalShadows = directionalShadows;
-	}
-
-	public boolean spotShadows() {
-		return spotShadows;
-	}
-
-	public void spotShadows(boolean spotShadows) {
-		this.spotShadows = spotShadows;
-	}
-
-	public boolean pointShadows() {
-		return pointShadows;
-	}
-
-	public void pointShadows(boolean pointShadows) {
-		this.pointShadows = pointShadows;
 	}
 }

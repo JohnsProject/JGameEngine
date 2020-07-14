@@ -8,6 +8,10 @@ public class Light extends SceneObject {
 	
 	public static final String LIGHT_TAG = "Light";
 	
+	private static final int DIRECTIONAL_BIAS = FixedPointUtils.toFixedPoint(0.00005f);
+	private static final int SPOT_BIAS = FixedPointUtils.toFixedPoint(0.00025f);
+	private static final int POINT_BIAS = FixedPointUtils.toFixedPoint(0.00035f);
+	
 	private LightType type;
 	private int strength;
 	private int color;
@@ -21,6 +25,8 @@ public class Light extends SceneObject {
 	private int constantAttenuation;
 	private int linearAttenuation;
 	private int quadraticAttenuation;
+	private int shadowBias;
+	private boolean hasShadow;
 	private boolean isMain;
 	
 	public Light(String name, Transform transform) {
@@ -35,6 +41,8 @@ public class Light extends SceneObject {
 		this.constantAttenuation = FixedPointUtils.toFixedPoint(1);
 		this.linearAttenuation = FixedPointUtils.toFixedPoint(0.09);
 		this.quadraticAttenuation = FixedPointUtils.toFixedPoint(0.032);
+		this.shadowBias = DIRECTIONAL_BIAS;
+		this.hasShadow = true;
 		this.isMain = false;
 		setSpotSize(FixedPointUtils.toFixedPoint(45));
 		setInnerSpotSize(FixedPointUtils.toFixedPoint(35));
@@ -46,6 +54,25 @@ public class Light extends SceneObject {
 
 	public void setType(LightType type) {
 		this.type = type;
+		if(hasShadowBiasDefaultValue()) {
+			switch (type) {
+			case DIRECTIONAL:
+				shadowBias = DIRECTIONAL_BIAS;
+				break;
+			case SPOT:
+				shadowBias = SPOT_BIAS;
+				break;
+			case POINT:
+				shadowBias = POINT_BIAS;
+				break;
+			}
+		}
+	}
+	
+	private boolean hasShadowBiasDefaultValue() {
+		return (shadowBias == DIRECTIONAL_BIAS)
+				|| (shadowBias == SPOT_BIAS)
+				|| (shadowBias == POINT_BIAS);
 	}
 
 	public int getStrength() {
@@ -158,6 +185,22 @@ public class Light extends SceneObject {
 
 	public void setQuadraticAttenuation(int quadraticAttenuation) {
 		this.quadraticAttenuation = quadraticAttenuation;
+	}
+
+	public int getShadowBias() {
+		return shadowBias;
+	}
+
+	public void setShadowBias(int shadowBias) {
+		this.shadowBias = shadowBias;
+	}
+
+	public boolean hasShadow() {
+		return hasShadow;
+	}
+
+	public void setShadow(boolean hasShadow) {
+		this.hasShadow = hasShadow;
 	}
 
 	public boolean isMain() {
