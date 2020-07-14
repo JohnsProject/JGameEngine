@@ -116,6 +116,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			Scene scene = new Scene();
 			Mesh mesh = OBJImporter.parse("C:/Development/JGameEngineTests/test.obj");
 			Model model = new Model("Model", new Transform(), mesh);
+			mesh.getMaterial("Material.006").setTexture(new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/johns-project-logo.png")));
 			scene.addModel(model);
 			
 			Camera camera = new Camera("Camera", new Transform());

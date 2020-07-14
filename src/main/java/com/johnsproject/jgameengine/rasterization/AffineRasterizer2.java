@@ -117,7 +117,9 @@ public class AffineRasterizer2 extends Rasterizer {
         if(dx1 < dx2) {
         	initializeDx2GreaterDx1();
 	        for (; y1 <= y2; y1++) {
-	        	drawScanline(x1, x2, y1, z, dz, v0x, dv0x, v0y, dv0y, v0z, dv0z, v1x, dv1x, v1y, dv1y, v1z, dv1z);
+	        	drawScanline(x1, x2, y1, z, dz,
+	        			v0x, dv0x, v0y, dv0y, v0z, dv0z,
+	        			v1x, dv1x, v1y, dv1y, v1z, dv1z);
 	            x1 += dx1;
 	            x2 += dx2;
 	            z += dz1;
@@ -131,7 +133,9 @@ public class AffineRasterizer2 extends Rasterizer {
         } else {
         	initializeDx1GreaterDx2();
         	for (; y1 <= y2; y1++) {
-	        	drawScanline(x1, x2, y1, z, dz, v0x, dv0x, v0y, dv0y, v0z, dv0z, v1x, dv1x, v1y, dv1y, v1z, dv1z);
+        		drawScanline(x1, x2, y1, z, dz,
+	        			v0x, dv0x, v0y, dv0y, v0z, dv0z,
+	        			v1x, dv1x, v1y, dv1y, v1z, dv1z);
 	            x1 += dx2;
 	            x2 += dx1;
 	            z += dz2;
@@ -174,7 +178,9 @@ public class AffineRasterizer2 extends Rasterizer {
 		if (dx1 > dx2) {
 			initializeDx1GreaterDx2();
 	        for (; y1 > y2; y1--) {
-	        	drawScanline(x1, x2, y1, z, dz, v0x, dv0x, v0y, dv0y, v0z, dv0z, v1x, dv1x, v1y, dv1y, v1z, dv1z);
+	        	drawScanline(x1, x2, y1, z, dz,
+	        			v0x, dv0x, v0y, dv0y, v0z, dv0z,
+	        			v1x, dv1x, v1y, dv1y, v1z, dv1z);
 	            x1 -= dx1;
 	            x2 -= dx2;
 	            z -= dz1;
@@ -188,7 +194,9 @@ public class AffineRasterizer2 extends Rasterizer {
 		} else {
 			initializeDx2GreaterDx1();
 	        for (; y1 > y2; y1--) {
-	        	drawScanline(x1, x2, y1, z, dz, v0x, dv0x, v0y, dv0y, v0z, dv0z, v1x, dv1x, v1y, dv1y, v1z, dv1z);
+	        	drawScanline(x1, x2, y1, z, dz,
+	        			v0x, dv0x, v0y, dv0y, v0z, dv0z,
+	        			v1x, dv1x, v1y, dv1y, v1z, dv1z);
 	            x1 -= dx2;
 	            x2 -= dx1;
 	            z -= dz2;
@@ -246,8 +254,9 @@ public class AffineRasterizer2 extends Rasterizer {
     	dv1z = FixedPointUtils.divide(dv1z2 - dv1z1, dxdx);
 	}
 	
-	private void drawScanline(int x1, int x2, int y, int z, int dz, int v0x, int dv0x,
-			int v0y, int dv0y, int v0z, int dv0z, int v1x, int dv1x, int v1y, int dv1y, int v1z, int dv1z) {
+	private void drawScanline(int x1, int x2, int y, int z, int dz,
+			int v0x, int dv0x, int v0y, int dv0y, int v0z, int dv0z,
+			int v1x, int dv1x, int v1y, int dv1y, int v1z, int dv1z) {
 		x1 >>= FP_BIT;
 		x2 >>= FP_BIT;
 		for (; x1 <= x2; x1++) {
