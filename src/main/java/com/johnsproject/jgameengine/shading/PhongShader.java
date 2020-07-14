@@ -10,7 +10,7 @@ import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
-import com.johnsproject.jgameengine.rasterization.AffineRasterizer2;
+import com.johnsproject.jgameengine.rasterization.AffineRasterizer6;
 import com.johnsproject.jgameengine.util.ColorUtils;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
@@ -19,15 +19,17 @@ import com.johnsproject.jgameengine.util.VectorUtils;
 public class PhongShader implements Shader {
 
 	private ForwardShaderBuffer shaderBuffer;
-	private final AffineRasterizer2 rasterizer;
+	private final AffineRasterizer6 rasterizer;
 	
 	private int[] lightDirection;
 	private int[] viewDirection;
 	
 	private Material material;
+	private Texture texture;
+	private int texelColor;
 	
 	public PhongShader() {
-		this.rasterizer = new AffineRasterizer2(this);
+		this.rasterizer = new AffineRasterizer6(this);
 		this.lightDirection = VectorUtils.emptyVector();
 		this.viewDirection = VectorUtils.emptyVector();
 	}
@@ -42,15 +44,36 @@ public class PhongShader implements Shader {
 
 	public void geometry(Face face) {
 		material = face.getMaterial();
-		rasterizer.setVector00(face.getVertex(0).getWorldLocation());
-		rasterizer.setVector01(face.getVertex(1).getWorldLocation());
-		rasterizer.setVector02(face.getVertex(2).getWorldLocation());
-		rasterizer.setVector10(face.getVertex(0).getWorldNormal());
-		rasterizer.setVector11(face.getVertex(1).getWorldNormal());
-		rasterizer.setVector12(face.getVertex(2).getWorldNormal());
-		rasterizer.drawAffine2(face);
+		texture = material.getTexture();
+		setUVs(face);
+		setWorldSpaceVetors(face);
+		rasterizer.drawAffine6(face);
+	}
+	
+	private void setUVs(Face face) {
+		if(texture != null) {
+			// port uvs to texture space
+			int u = face.getUV(0)[VECTOR_X] * texture.getWidth();
+			int v = face.getUV(0)[VECTOR_Y] * texture.getHeight();
+			rasterizer.setVector00(u, v, 0);
+			u = face.getUV(1)[VECTOR_X] * texture.getWidth();
+			v = face.getUV(1)[VECTOR_Y] * texture.getHeight();
+			rasterizer.setVector01(u, v, 0);
+			u = face.getUV(2)[VECTOR_X] * texture.getWidth();
+			v = face.getUV(2)[VECTOR_Y] * texture.getHeight();
+			rasterizer.setVector02(u, v, 0);
+		}
 	}
 
+	private void setWorldSpaceVetors(Face face) {
+		rasterizer.setVector10(face.getVertex(0).getWorldLocation());
+		rasterizer.setVector11(face.getVertex(1).getWorldLocation());
+		rasterizer.setVector12(face.getVertex(2).getWorldLocation());
+		rasterizer.setVector20(face.getVertex(0).getWorldNormal());
+		rasterizer.setVector21(face.getVertex(1).getWorldNormal());
+		rasterizer.setVector22(face.getVertex(2).getWorldNormal());
+	}
+	
 	public void fragment() {
 		final Camera camera = shaderBuffer.getCamera();
 		final Texture depthBuffer = camera.getRenderTarget().getDepthBuffer();
@@ -60,8 +83,17 @@ public class PhongShader implements Shader {
 		final int z = rasterizer.getLocation()[VECTOR_Z];
 		if (depthBuffer.getPixel(x, y) > z) {
 			
-			final int[] location = rasterizer.getVector0();
-			final int[] normal = rasterizer.getVector1();
+			if(texture == null) {
+				texelColor = ColorUtils.WHITE;
+			} else {
+				// The result will be, but pixels are not accessed with fixed point
+				final int u = rasterizer.getVector0()[VECTOR_X] >> FixedPointUtils.FP_BIT;
+				final int v = rasterizer.getVector0()[VECTOR_Y] >> FixedPointUtils.FP_BIT;
+				texelColor = texture.getPixel(u, v);
+			}
+			
+			final int[] location = rasterizer.getVector1();
+			final int[] normal = rasterizer.getVector2();
 			VectorUtils.normalize(normal);
 			
 			final int color = calculateLights(location, normal, material);
@@ -159,7 +191,8 @@ public class PhongShader implements Shader {
 	private int calculateDiffuseColor(int[] normal, Material material, Light light) {
 		int diffuseIntesity = (int)VectorUtils.dotProduct(normal, lightDirection);
 		diffuseIntesity = Math.max(diffuseIntesity, 0);
-		int diffuse = ColorUtils.multiply(material.getDiffuseColor(), diffuseIntesity);
+		int diffuse = ColorUtils.multiplyColor(material.getDiffuseColor(), texelColor);
+		diffuse = ColorUtils.multiply(diffuse, diffuseIntesity);
 		diffuse = ColorUtils.multiplyColor(diffuse, light.getColor());
 		return diffuse;
 	}
@@ -170,7 +203,8 @@ public class PhongShader implements Shader {
 		int specularIntensity = (int)VectorUtils.dotProduct(viewDirection, lightDirection);
 		specularIntensity = Math.max(specularIntensity, 0);
 		specularIntensity = FixedPointUtils.pow(specularIntensity, material.getShininess());
-		int specular = ColorUtils.multiply(material.getSpecularColor(), specularIntensity);
+		int specular = ColorUtils.multiplyColor(material.getSpecularColor(), texelColor);
+		specular = ColorUtils.multiply(specular, specularIntensity);
 		specular = ColorUtils.multiplyColor(specular, light.getColor());
 		return specular;
 	}
@@ -209,5 +243,4 @@ public class PhongShader implements Shader {
 	public boolean isGlobal() {
 		return false;
 	}
-
 }
