@@ -198,7 +198,7 @@ public class PhongShader implements Shader {
 			final int ambient = ColorUtils.multiplyColor(texelColor, light.getAmbientColor());
 			color = ColorUtils.add(color, lighting);
 			color = ColorUtils.add(color, ambient);
-			color = ColorUtils.multiply(color, light.getStrength());
+			color = ColorUtils.multiply(color, light.getIntensity());
 		}
 		return color;
 	}

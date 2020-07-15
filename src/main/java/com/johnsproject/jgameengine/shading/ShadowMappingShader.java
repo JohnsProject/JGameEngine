@@ -10,6 +10,7 @@ import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterization.Rasterizer;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
@@ -35,10 +36,10 @@ public class ShadowMappingShader implements Shader {
 	private void renderForDirectionalLight(Face face) {
 		final Light directionalLight = shaderBuffer.getShadowDirectionalLight();
 		if(directionalLight != null) {
-			shadowBias = directionalLight.getShadowBias();
-			shadowMap = shaderBuffer.getDirectionalShadowMap();
 			final Frustum frustum = shaderBuffer.getDirectionalLightFrustum();
 			transformVertices(face, frustum.getProjectionMatrix(), frustum);
+			shadowBias = directionalLight.getShadowBias();
+			shadowMap = shaderBuffer.getDirectionalShadowMap();
 			rasterizer.setFrustumCull(false);
 			rasterizer.draw(face);
 		}
@@ -47,13 +48,18 @@ public class ShadowMappingShader implements Shader {
 	private void renderForSpotLight(Face face) {
 		final Light spotLight = shaderBuffer.getShadowSpotLight();
 		if(spotLight != null) {
-			shadowBias = spotLight.getShadowBias();
-			shadowMap = shaderBuffer.getSpotShadowMap();
 			final Frustum frustum = shaderBuffer.getSpotLightFrustum();
 			transformVertices(face, frustum.getProjectionMatrix(), frustum);
+			shadowBias = spotLight.getShadowBias();
+			shadowMap = shaderBuffer.getSpotShadowMap();
 			rasterizer.setFrustumCull(true);
 			rasterizer.draw(face);
 		}
+	}
+	
+	private int calculateBias(Face face, Light light) {
+		
+		return 0;
 	}
 	
 	private void transformVertices(Face face, int[][] lightMatrix, Frustum lightFrustum) {

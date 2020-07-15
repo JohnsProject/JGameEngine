@@ -124,18 +124,17 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			scene.addCamera(camera);
 			
 			Light directionalLight = new Light("DirectionalLight", new Transform());
-			directionalLight.setDirection(VectorUtils.VECTOR_DOWN);
 			directionalLight.getTransform().worldRotate(FP_ONE * -90, 0, 0);
+//			directionalLight.setIntensity(FP_ONE / 5);
 			scene.addLight(directionalLight);
 			scene.setMainDirectionalLight(directionalLight);
 			
 			Light spotLight = new Light("SpotLight", new Transform());
 			spotLight.getTransform().worldTranslate(0, FP_ONE, FP_ONE * 8);
-			spotLight.setDirection(VectorUtils.VECTOR_FORWARD);
 			spotLight.setType(LightType.SPOT);
 			spotLight.setSpotSize(FP_ONE * 90);
 			spotLight.setInnerSpotSize(FP_ONE * 80);
-//			spotLight.setStrength(FP_ONE * 2);
+//			spotLight.setIntensity(FP_ONE * 2);
 			scene.addLight(spotLight);
 			
 //			Light pointLight = new Light("PointLight", new Transform());

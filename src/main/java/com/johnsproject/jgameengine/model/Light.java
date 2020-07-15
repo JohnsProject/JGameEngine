@@ -2,6 +2,7 @@ package com.johnsproject.jgameengine.model;
 
 import com.johnsproject.jgameengine.util.ColorUtils;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class Light extends SceneObject {
@@ -13,10 +14,11 @@ public class Light extends SceneObject {
 	private static final int POINT_BIAS = FixedPointUtils.toFixedPoint(0.00035f);
 	
 	private LightType type;
-	private int strength;
+	private int intensity;
 	private int color;
 	private int ambientColor;
-	private int[] direction;
+	private final int[] directionRotation;
+	private final int[] direction;
 	private int spotSize;
 	private int spotSizeCos;
 	private int innerSpotSize;
@@ -34,10 +36,11 @@ public class Light extends SceneObject {
 		super.tag = LIGHT_TAG;
 		super.rigidBody.setKinematic(true);
 		this.type = LightType.DIRECTIONAL;
-		this.strength = FixedPointUtils.FP_ONE;
+		this.intensity = FixedPointUtils.FP_ONE;
 		this.color = ColorUtils.WHITE;
 		this.ambientColor = ColorUtils.toColor(30, 30, 30);
-		this.direction = VectorUtils.VECTOR_DOWN;
+		this.directionRotation = VectorUtils.emptyVector();
+		this.direction = VectorUtils.VECTOR_FORWARD.clone();
 		this.constantAttenuation = FixedPointUtils.toFixedPoint(1);
 		this.linearAttenuation = FixedPointUtils.toFixedPoint(0.09);
 		this.quadraticAttenuation = FixedPointUtils.toFixedPoint(0.032);
@@ -75,12 +78,12 @@ public class Light extends SceneObject {
 				|| (shadowBias == POINT_BIAS);
 	}
 
-	public int getStrength() {
-		return strength;
+	public int getIntensity() {
+		return intensity;
 	}
 
-	public void setStrength(int strength) {
-		this.strength = strength;
+	public void setIntensity(int strength) {
+		this.intensity = strength;
 	}
 
 	public int getColor() {
@@ -99,12 +102,21 @@ public class Light extends SceneObject {
 		this.ambientColor = ambientColor;
 	}
 
+	/**
+	 * Returns the direction of this {@link Light}.
+	 * The direction is calculated based on the light's rotation.
+	 * 
+	 * @return The direction of this Light.
+	 */
 	public int[] getDirection() {
+		if(!VectorUtils.equals(directionRotation, transform.getRotation())) {
+			VectorUtils.copy(directionRotation, transform.getRotation());
+			VectorUtils.copy(direction, VectorUtils.VECTOR_FORWARD);
+			TransformationUtils.rotateX(direction, directionRotation[VectorUtils.VECTOR_X]);
+			TransformationUtils.rotateY(direction, directionRotation[VectorUtils.VECTOR_Y]);
+			TransformationUtils.rotateZ(direction, directionRotation[VectorUtils.VECTOR_Z]);
+		}
 		return direction;
-	}
-
-	public void setDirection(int[] direction) {
-		this.direction = direction;
 	}
 	
 	/**
