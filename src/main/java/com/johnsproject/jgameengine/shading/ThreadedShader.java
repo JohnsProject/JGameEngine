@@ -1,10 +1,7 @@
 package com.johnsproject.jgameengine.shading;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Vertex;
@@ -13,31 +10,36 @@ public abstract class ThreadedShader implements Shader {
 
 	protected static final int THREAD_COUNT = 16;
 	private final ExecutorService executor;
-	private final BlockingQueue<GeometryWorker> queue;
+	private VertexWorker[] vertexWorkers;
+	private GeometryWorker[] geometryWorkers;
 	
 	public ThreadedShader() {
 		executor = Executors.newFixedThreadPool(THREAD_COUNT);
-		queue = new ArrayBlockingQueue<GeometryWorker>(THREAD_COUNT * 2);
-		
-		final GeometryWorker[] geometryWorkers = createGeometryWorkers(THREAD_COUNT * 2);
-		for (int i = 0; i < geometryWorkers.length; i++)
-			queue.add(geometryWorkers[i]);
+		vertexWorkers = createVertexWorkers(THREAD_COUNT);
+		geometryWorkers = createGeometryWorkers(THREAD_COUNT);
 	}
 	
 	public void vertex(Vertex vertex) {
-		threadedVertex(vertex);
+		VertexWorker worker = null;
+		while(worker == null) {
+			for (int i = 0; i < vertexWorkers.length; i++)
+				if(vertexWorkers[i].isWaiting())
+					worker = vertexWorkers[i];
+		}
+		worker.setShaderBuffer(getShaderBuffer());
+		worker.setVertex(vertex);	
+		executor.execute(worker);
 	}
 
 	public void geometry(Face face) {
 		GeometryWorker worker = null;
-		try {
-			worker = queue.poll(10, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		while(worker == null) {
+			for (int i = 0; i < geometryWorkers.length; i++)
+				if(geometryWorkers[i].isWaiting())
+					worker = geometryWorkers[i];
 		}
-		worker.setQueue(queue);
 		worker.setShaderBuffer(getShaderBuffer());
-		worker.setFace(face);
+		worker.setFace(face);	
 		executor.execute(worker);
 	}
 
@@ -45,27 +47,62 @@ public abstract class ThreadedShader implements Shader {
 		
 	}
 	
-	public abstract void threadedVertex(Vertex vertex);
+	public abstract VertexWorker[] createVertexWorkers(int count);
 	public abstract GeometryWorker[] createGeometryWorkers(int count);
 	
-	protected static abstract class GeometryWorker implements Runnable, Shader {
+	private static interface ShaderWorker extends Runnable, Shader {
 
-		private BlockingQueue<GeometryWorker> queue;
+		boolean isWaiting();
+		
+	}
+	
+	protected static abstract class VertexWorker implements ShaderWorker {
+
+		private Vertex vertex;
+		
+		public void geometry(Face face) { }
+		
+		public void fragment() { }
+		
+		public void run() {
+			vertex(vertex);
+			vertex = null;
+		}
+
+		public void setVertex(Vertex vertex) {
+			this.vertex = vertex;
+		}
+		
+		public boolean isWaiting() {
+			return vertex == null;
+		}
+		
+		public boolean isGlobal() {
+			return false;
+		}
+	}
+	
+	protected static abstract class GeometryWorker implements ShaderWorker {
+
 		private Face face;
 		
 		public void vertex(Vertex vertex) { }
 		
 		public void run() {
 			geometry(face);
-			queue.add(this);
-		}
-
-		public void setQueue(BlockingQueue<GeometryWorker> queue) {
-			this.queue = queue;
+			face = null;
 		}
 
 		public void setFace(Face face) {
 			this.face = face;
+		}
+		
+		public boolean isWaiting() {
+			return face == null;
+		}
+		
+		public boolean isGlobal() {
+			return false;
 		}
 	}
 }

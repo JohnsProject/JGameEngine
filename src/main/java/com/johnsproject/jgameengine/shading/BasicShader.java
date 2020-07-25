@@ -16,19 +16,18 @@ public class BasicShader extends ThreadedShader {
 	private ForwardShaderBuffer shaderBuffer;
 	
 	@Override
-	public void threadedVertex(Vertex vertex) {
-		final int[] location = vertex.getLocation();
-		VectorUtils.copy(location, vertex.getWorldLocation());
-		VectorUtils.multiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
-		VectorUtils.multiply(location, shaderBuffer.getCamera().getFrustum().getProjectionMatrix());
-		TransformationUtils.screenportVector(location, shaderBuffer.getCamera().getFrustum());
+	public VertexWorker[] createVertexWorkers(int count) {
+		final VertexWorker[] workers = new VertexWorker[count];
+		for (int i = 0; i < workers.length; i++)
+			workers[i] = new VertexShader();
+		return workers;
 	}
 
 	@Override
 	public GeometryWorker[] createGeometryWorkers(int count) {
 		final GeometryWorker[] workers = new GeometryWorker[count];
 		for (int i = 0; i < workers.length; i++)
-			workers[i] = new Geometry();
+			workers[i] = new GeometryShader();
 		return workers;
 	}
 
@@ -44,7 +43,28 @@ public class BasicShader extends ThreadedShader {
 		return false;
 	}	
 
-	private static class Geometry extends GeometryWorker {
+	private static class VertexShader extends VertexWorker {
+		
+		private ForwardShaderBuffer shaderBuffer;
+
+		public void vertex(Vertex vertex) {
+			final int[] location = vertex.getLocation();
+			VectorUtils.copy(location, vertex.getWorldLocation());
+			VectorUtils.multiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
+			VectorUtils.multiply(location, shaderBuffer.getCamera().getFrustum().getProjectionMatrix());
+			TransformationUtils.screenportVector(location, shaderBuffer.getCamera().getFrustum());
+		}
+
+		public ShaderBuffer getShaderBuffer() {
+			return shaderBuffer;
+		}
+
+		public void setShaderBuffer(ShaderBuffer shaderBuffer) {
+			this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
+		}
+	}
+	
+	private static class GeometryShader extends GeometryWorker {
 
 		private ForwardShaderBuffer shaderBuffer;
 		private final Rasterizer rasterizer = new Rasterizer(this);
@@ -73,10 +93,6 @@ public class BasicShader extends ThreadedShader {
 
 		public void setShaderBuffer(ShaderBuffer shaderBuffer) {
 			this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
-		}
-
-		public boolean isGlobal() {
-			return false;
 		}
 	}
 }
