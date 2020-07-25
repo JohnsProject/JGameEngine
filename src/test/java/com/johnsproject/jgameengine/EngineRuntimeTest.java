@@ -1,17 +1,13 @@
 package com.johnsproject.jgameengine;
 
-import static com.johnsproject.jgameengine.util.FixedPointUtils.*;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 
-import com.johnsproject.jgameengine.Engine;
-import com.johnsproject.jgameengine.EngineStatistics;
-import com.johnsproject.jgameengine.EngineWindow;
-import com.johnsproject.jgameengine.GraphicsEngine;
-import com.johnsproject.jgameengine.InputEngine;
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineKeyListener;
 import com.johnsproject.jgameengine.event.EngineListener;
@@ -20,21 +16,17 @@ import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.LightType;
-import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Mesh;
 import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
-import com.johnsproject.jgameengine.model.Vertex;
+import com.johnsproject.jgameengine.shading.BasicShader;
 import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
 import com.johnsproject.jgameengine.shading.PhongShader;
+import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.shading.ShadowMappingShader;
-import com.johnsproject.jgameengine.util.ColorUtils;
 import com.johnsproject.jgameengine.util.FileUtils;
-import com.johnsproject.jgameengine.util.FixedPointUtils;
-import com.johnsproject.jgameengine.util.MatrixUtils;
-import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
 @SuppressWarnings("unused")
@@ -104,10 +96,13 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1)); // FlatSpecularShader
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(3)); // PhongSpecularShader
 //		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
+		
 		graphicsEngine.getShaders().clear();
-		graphicsEngine.addShader(new ShadowMappingShader());
-		graphicsEngine.addShader(new PhongShader());
-		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1));
+//		graphicsEngine.addShader(new ShadowMappingShader());
+//		graphicsEngine.addShader(new PhongShader());
+//		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1));
+		graphicsEngine.addShader(new BasicShader());
+		graphicsEngine.setDefaultShader(graphicsEngine.getShader(0));
 	}
 	
 	private Scene loadScene() {		

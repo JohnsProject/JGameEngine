@@ -58,7 +58,7 @@ public class ShadowMappingShader implements Shader {
 	}
 	
 	private int calculateBias(Face face, Light light) {
-		
+		// TODO change the amount of bias based on the surface angle towards the light
 		return 0;
 	}
 	

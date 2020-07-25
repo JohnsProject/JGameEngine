@@ -19,6 +19,9 @@ import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class PhongShader implements Shader {
 
+	// TODO implement gouraud and flat shaders
+	// TODO use inverse depth map for higher precision
+	
 	private ForwardShaderBuffer shaderBuffer;
 	private final LinearRasterizer6 rasterizer;
 	
