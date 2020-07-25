@@ -1,7 +1,7 @@
 package com.johnsproject.jgameengine.shading;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Vertex;
@@ -10,14 +10,26 @@ public abstract class ThreadedShader implements Shader {
 
 	protected static final int THREAD_COUNT = 16;
 	
-	private final ExecutorService executor;
+	private final BlockingQueue<Vertex> vertexQueue;
+	private final BlockingQueue<Face> geometryQueue;
 	private ThreadedVertexShader[] vertexShaders;
 	private ThreadedGeometryShader[] geometryShaders;
 	
 	public ThreadedShader() {
-		executor = Executors.newFixedThreadPool(THREAD_COUNT);
+		vertexQueue = new ArrayBlockingQueue<Vertex>(1024);
+		geometryQueue = new ArrayBlockingQueue<Face>(1024);
+		
 		vertexShaders = createVertexShaders(THREAD_COUNT);
+		for (int i = 0; i < vertexShaders.length; i++) {
+			vertexShaders[i].setQueue(vertexQueue);
+			vertexShaders[i].start();
+		}
+		
 		geometryShaders = createGeometryShaders(THREAD_COUNT);
+		for (int i = 0; i < geometryShaders.length; i++) {
+			geometryShaders[i].setQueue(geometryQueue);
+			geometryShaders[i].start();
+		}
 	}
 
 	public abstract ThreadedVertexShader[] createVertexShaders(int count);
@@ -25,25 +37,19 @@ public abstract class ThreadedShader implements Shader {
 	public abstract ThreadedGeometryShader[] createGeometryShaders(int count);
 	
 	public void vertex(Vertex vertex) {
-		ThreadedVertexShader shader = null;
-		while(shader == null) {
-			for (int i = 0; i < vertexShaders.length; i++)
-				if(vertexShaders[i].isWaiting())
-					shader = vertexShaders[i];
+		try {
+			vertexQueue.put(vertex);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		shader.setVertex(vertex);	
-		executor.execute(shader);
 	}
 
 	public void geometry(Face face) {
-		ThreadedGeometryShader shader = null;
-		while(shader == null) {
-			for (int i = 0; i < geometryShaders.length; i++)
-				if(geometryShaders[i].isWaiting())
-					shader = geometryShaders[i];
+		try {
+			geometryQueue.put(face);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		shader.setFace(face);	
-		executor.execute(shader);
 	}
 
 	public void fragment() {
@@ -61,32 +67,27 @@ public abstract class ThreadedShader implements Shader {
 		for (int i = 0; i < geometryShaders.length; i++)
 			geometryShaders[i].setShaderBuffer(shaderBuffer);
 	}
-
-	private static interface ThreadedShaderStage extends Runnable, Shader {
-
-		boolean isWaiting();
-		
-	}
 	
-	protected static abstract class ThreadedVertexShader implements ThreadedShaderStage {
+	protected static abstract class ThreadedVertexShader extends Thread implements Shader {
 
-		private Vertex vertex;
+		private BlockingQueue<Vertex> queue;
 		
 		public void geometry(Face face) { }
 		
 		public void fragment() { }
 		
 		public void run() {
-			vertex(vertex);
-			vertex = null;
+			while(true) {
+				try {
+					vertex(queue.take());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
-		public void setVertex(Vertex vertex) {
-			this.vertex = vertex;
-		}
-		
-		public boolean isWaiting() {
-			return vertex == null;
+		public void setQueue(BlockingQueue<Vertex> queue) {
+			this.queue = queue;
 		}
 		
 		public boolean isGlobal() {
@@ -94,23 +95,24 @@ public abstract class ThreadedShader implements Shader {
 		}
 	}
 	
-	protected static abstract class ThreadedGeometryShader implements ThreadedShaderStage {
+	protected static abstract class ThreadedGeometryShader extends Thread implements Shader {
 
-		private Face face;
+		private BlockingQueue<Face> queue;
 		
 		public void vertex(Vertex vertex) { }
 		
 		public void run() {
-			geometry(face);
-			face = null;
+			while(true) {
+				try {
+					geometry(queue.take());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
-		public void setFace(Face face) {
-			this.face = face;
-		}
-		
-		public boolean isWaiting() {
-			return face == null;
+		public void setQueue(BlockingQueue<Face> queue) {
+			this.queue = queue;
 		}
 		
 		public boolean isGlobal() {
