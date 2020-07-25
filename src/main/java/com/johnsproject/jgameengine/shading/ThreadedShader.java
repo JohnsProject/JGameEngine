@@ -9,54 +9,66 @@ import com.johnsproject.jgameengine.model.Vertex;
 public abstract class ThreadedShader implements Shader {
 
 	protected static final int THREAD_COUNT = 16;
+	
 	private final ExecutorService executor;
-	private VertexWorker[] vertexWorkers;
-	private GeometryWorker[] geometryWorkers;
+	private ThreadedVertexShader[] vertexShaders;
+	private ThreadedGeometryShader[] geometryShaders;
 	
 	public ThreadedShader() {
 		executor = Executors.newFixedThreadPool(THREAD_COUNT);
-		vertexWorkers = createVertexWorkers(THREAD_COUNT);
-		geometryWorkers = createGeometryWorkers(THREAD_COUNT);
+		vertexShaders = createVertexShaders(THREAD_COUNT);
+		geometryShaders = createGeometryShaders(THREAD_COUNT);
 	}
+
+	public abstract ThreadedVertexShader[] createVertexShaders(int count);
+	
+	public abstract ThreadedGeometryShader[] createGeometryShaders(int count);
 	
 	public void vertex(Vertex vertex) {
-		VertexWorker worker = null;
-		while(worker == null) {
-			for (int i = 0; i < vertexWorkers.length; i++)
-				if(vertexWorkers[i].isWaiting())
-					worker = vertexWorkers[i];
+		ThreadedVertexShader shader = null;
+		while(shader == null) {
+			for (int i = 0; i < vertexShaders.length; i++)
+				if(vertexShaders[i].isWaiting())
+					shader = vertexShaders[i];
 		}
-		worker.setShaderBuffer(getShaderBuffer());
-		worker.setVertex(vertex);	
-		executor.execute(worker);
+		shader.setVertex(vertex);	
+		executor.execute(shader);
 	}
 
 	public void geometry(Face face) {
-		GeometryWorker worker = null;
-		while(worker == null) {
-			for (int i = 0; i < geometryWorkers.length; i++)
-				if(geometryWorkers[i].isWaiting())
-					worker = geometryWorkers[i];
+		ThreadedGeometryShader shader = null;
+		while(shader == null) {
+			for (int i = 0; i < geometryShaders.length; i++)
+				if(geometryShaders[i].isWaiting())
+					shader = geometryShaders[i];
 		}
-		worker.setShaderBuffer(getShaderBuffer());
-		worker.setFace(face);	
-		executor.execute(worker);
+		shader.setFace(face);	
+		executor.execute(shader);
 	}
 
 	public void fragment() {
 		
 	}
 	
-	public abstract VertexWorker[] createVertexWorkers(int count);
-	public abstract GeometryWorker[] createGeometryWorkers(int count);
-	
-	private static interface ShaderWorker extends Runnable, Shader {
+	public ShaderBuffer getShaderBuffer() {
+		return vertexShaders[0].getShaderBuffer();
+	}
+
+	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
+		for (int i = 0; i < vertexShaders.length; i++)
+			vertexShaders[i].setShaderBuffer(shaderBuffer);
+		
+		for (int i = 0; i < geometryShaders.length; i++)
+			geometryShaders[i].setShaderBuffer(shaderBuffer);
+	}
+
+	private static interface ThreadedShaderStage extends Runnable, Shader {
 
 		boolean isWaiting();
 		
 	}
 	
-	protected static abstract class VertexWorker implements ShaderWorker {
+	protected static abstract class ThreadedVertexShader implements ThreadedShaderStage {
 
 		private Vertex vertex;
 		
@@ -82,7 +94,7 @@ public abstract class ThreadedShader implements Shader {
 		}
 	}
 	
-	protected static abstract class GeometryWorker implements ShaderWorker {
+	protected static abstract class ThreadedGeometryShader implements ThreadedShaderStage {
 
 		private Face face;
 		

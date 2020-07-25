@@ -12,38 +12,28 @@ import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class BasicShader extends ThreadedShader {
-
-	private ForwardShaderBuffer shaderBuffer;
 	
 	@Override
-	public VertexWorker[] createVertexWorkers(int count) {
-		final VertexWorker[] workers = new VertexWorker[count];
-		for (int i = 0; i < workers.length; i++)
-			workers[i] = new VertexShader();
-		return workers;
+	public ThreadedVertexShader[] createVertexShaders(int count) {
+		final ThreadedVertexShader[] shaders = new ThreadedVertexShader[count];
+		for (int i = 0; i < shaders.length; i++)
+			shaders[i] = new VertexShader();
+		return shaders;
 	}
 
 	@Override
-	public GeometryWorker[] createGeometryWorkers(int count) {
-		final GeometryWorker[] workers = new GeometryWorker[count];
-		for (int i = 0; i < workers.length; i++)
-			workers[i] = new GeometryShader();
-		return workers;
+	public ThreadedGeometryShader[] createGeometryShaders(int count) {
+		final ThreadedGeometryShader[] shaders = new ThreadedGeometryShader[count];
+		for (int i = 0; i < shaders.length; i++)
+			shaders[i] = new GeometryShader();
+		return shaders;
 	}
-
-	public ShaderBuffer getShaderBuffer() {
-		return shaderBuffer;
-	}
-
-	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
-		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
-	}
-
+	
 	public boolean isGlobal() {
 		return false;
 	}	
 
-	private static class VertexShader extends VertexWorker {
+	private static class VertexShader extends ThreadedVertexShader {
 		
 		private ForwardShaderBuffer shaderBuffer;
 
@@ -64,7 +54,7 @@ public class BasicShader extends ThreadedShader {
 		}
 	}
 	
-	private static class GeometryShader extends GeometryWorker {
+	private static class GeometryShader extends ThreadedGeometryShader {
 
 		private ForwardShaderBuffer shaderBuffer;
 		private final Rasterizer rasterizer = new Rasterizer(this);
