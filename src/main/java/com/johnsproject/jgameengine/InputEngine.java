@@ -145,38 +145,42 @@ public class InputEngine implements EngineListener {
 	private void handleKeyEvent(KeyEvent e) {
 		final int eventType = e.getID();
 		int eventIndex;
-		switch (eventType) {
-		case KeyEvent.KEY_TYPED:
-			eventIndex = getKeyEventIndex(e, KeyEvent.KEY_TYPED);
-			if(eventIndex < 0)
+		synchronized (inputEvents) {
+			switch (eventType) {
+			case KeyEvent.KEY_TYPED:
+				eventIndex = getKeyEventIndex(e, KeyEvent.KEY_TYPED);
+				if(eventIndex < 0)
+					inputEvents.add(new InputEvent(eventType, e, null, null));
+				break;
+				
+			case KeyEvent.KEY_PRESSED:
+				eventIndex = getKeyEventIndex(e, KEY_HOLD);
+				if(eventIndex < 0) {
+					inputEvents.add(new InputEvent(eventType, e, null, null));
+					inputEvents.add(new InputEvent(KEY_HOLD, e, null, null));
+				}
+				break;
+	
+			case KeyEvent.KEY_RELEASED:
+				eventIndex = getKeyEventIndex(e, KEY_HOLD);
+				if(eventIndex >= 0) {
+					inputEvents.remove(eventIndex);
+				}
 				inputEvents.add(new InputEvent(eventType, e, null, null));
-			break;
-			
-		case KeyEvent.KEY_PRESSED:
-			eventIndex = getKeyEventIndex(e, KEY_HOLD);
-			if(eventIndex < 0) {
-				inputEvents.add(new InputEvent(eventType, e, null, null));
-				inputEvents.add(new InputEvent(KEY_HOLD, e, null, null));
+				break;
 			}
-			break;
-
-		case KeyEvent.KEY_RELEASED:
-			eventIndex = getKeyEventIndex(e, KEY_HOLD);
-			if(eventIndex >= 0) {
-				inputEvents.remove(eventIndex);
-			}
-			inputEvents.add(new InputEvent(eventType, e, null, null));
-			break;
 		}
 	}
 	
 	private int getKeyEventIndex(KeyEvent e, int eventType) {
-		for (int i = 0; i < inputEvents.size(); i++) {
-			final InputEvent event = inputEvents.get(i);
-			if(event == null)
-				continue;
-			if((event.getType() == eventType) && (event.getKeyEvent().getKeyCode() == e.getKeyCode())) {
-				return i;
+		synchronized (inputEvents) {
+			for (int i = 0; i < inputEvents.size(); i++) {
+				final InputEvent event = inputEvents.get(i);
+				if(event == null)
+					continue;
+				if((event.getType() == eventType) && (event.getKeyEvent().getKeyCode() == e.getKeyCode())) {
+					return i;
+				}
 			}
 		}
 		return -1;
@@ -184,126 +188,134 @@ public class InputEngine implements EngineListener {
 
 	private void handleMouseEvent(MouseEvent e) {
 		final int eventType = e.getID();
-		inputEvents.add(new InputEvent(eventType, null, e, null));
-		switch (eventType) {
-		case MouseEvent.MOUSE_PRESSED:
-			inputEvents.add(new InputEvent(MOUSE_HOLD, null, e, null));
-			break;
-
-		case MouseEvent.MOUSE_RELEASED:
-			for (int i = 0; i < inputEvents.size(); i++) {
-				final InputEvent event = inputEvents.get(i);
-				if(event == null)
-					continue;
-				if((event.getType() == MOUSE_HOLD) && (event.getMouseEvent().getButton() == e.getButton())) {
-					inputEvents.remove(i);
+		synchronized (inputEvents) {
+			inputEvents.add(new InputEvent(eventType, null, e, null));
+			switch (eventType) {
+			case MouseEvent.MOUSE_PRESSED:
+				inputEvents.add(new InputEvent(MOUSE_HOLD, null, e, null));
+				break;
+	
+			case MouseEvent.MOUSE_RELEASED:
+				for (int i = 0; i < inputEvents.size(); i++) {
+					final InputEvent event = inputEvents.get(i);
+					if(event == null)
+						continue;
+					if((event.getType() == MOUSE_HOLD) && (event.getMouseEvent().getButton() == e.getButton())) {
+						inputEvents.remove(i);
+					}
 				}
+				break;
 			}
-			break;
 		}
 	}
 
 	private void handleMouseMotionEvent(MouseEvent e) {
 		final int eventType = e.getID();
-		inputEvents.add(new InputEvent(eventType, null, e, null));
+		synchronized (inputEvents) {
+			inputEvents.add(new InputEvent(eventType, null, e, null));
+		}
 	}
 
 	private void handleMouseWheelEvent(MouseWheelEvent e) {
 		final int eventType = e.getID();
-		inputEvents.add(new InputEvent(eventType, null, null, e));
+		synchronized (inputEvents) {
+			inputEvents.add(new InputEvent(eventType, null, null, e));
+		}
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
-		for (int i = 0; i < inputEvents.size(); i++) {
-			final InputEvent event = inputEvents.get(i);
-			if(event == null)
-				continue;
-			switch (event.getType()) {
-			case KeyEvent.KEY_PRESSED:
-				for (int l = 0; l < keyListeners.size(); l++) {
-					keyListeners.get(l).keyPressed(event.getKeyEvent());
+		synchronized (inputEvents) {
+			for (int i = 0; i < inputEvents.size(); i++) {
+				final InputEvent event = inputEvents.get(i);
+				if(event == null)
+					continue;
+				switch (event.getType()) {
+				case KeyEvent.KEY_PRESSED:
+					for (int l = 0; l < keyListeners.size(); l++) {
+						keyListeners.get(l).keyPressed(event.getKeyEvent());
+					}
+					break;
+	
+				case KeyEvent.KEY_RELEASED:
+					for (int l = 0; l < keyListeners.size(); l++) {
+						keyListeners.get(l).keyReleased(event.getKeyEvent());
+					}
+					break;
+	
+				case KeyEvent.KEY_TYPED:
+					for (int l = 0; l < keyListeners.size(); l++) {
+						keyListeners.get(l).keyTyped(event.getKeyEvent());
+					}
+					break;
+					
+				case KEY_HOLD:
+					for (int l = 0; l < keyListeners.size(); l++) {
+						keyListeners.get(l).keyHold(event.getKeyEvent());
+					}
+					break;
+					
+				case MouseEvent.MOUSE_PRESSED:
+					for (int l = 0; l < mouseListeners.size(); l++) {
+						mouseListeners.get(l).mousePressed(event.getMouseEvent());
+					}
+					break;
+	
+				case MouseEvent.MOUSE_RELEASED:
+					for (int l = 0; l < mouseListeners.size(); l++) {
+						mouseListeners.get(l).mouseReleased(event.getMouseEvent());
+					}
+					break;
+	
+				case MouseEvent.MOUSE_CLICKED:
+					for (int l = 0; l < mouseListeners.size(); l++) {
+						mouseListeners.get(l).mouseClicked(event.getMouseEvent());
+					}
+					break;
+					
+				case MOUSE_HOLD:
+					for (int l = 0; l < mouseListeners.size(); l++) {
+						mouseListeners.get(l).mouseHold(event.getMouseEvent());
+					}
+					break;
+	
+				case MouseEvent.MOUSE_EXITED:
+					for (int l = 0; l < mouseListeners.size(); l++) {
+						mouseListeners.get(l).mouseExited(event.getMouseEvent());
+					}
+					break;
+	
+				case MouseEvent.MOUSE_ENTERED:
+					for (int l = 0; l < mouseListeners.size(); l++) {
+						mouseListeners.get(l).mouseEntered(event.getMouseEvent());
+					}
+					break;
+				case MouseEvent.MOUSE_MOVED:
+					for (int l = 0; l < motionListeners.size(); l++) {
+						motionListeners.get(l).mouseMoved(event.getMouseEvent());
+					}
+					break;
+	
+				case MouseEvent.MOUSE_DRAGGED:
+					for (int l = 0; l < motionListeners.size(); l++) {
+						motionListeners.get(l).mouseDragged(event.getMouseEvent());
+					}
+					break;
+					
+				case MouseWheelEvent.WHEEL_UNIT_SCROLL:
+					for (int l = 0; l < wheelListeners.size(); l++) {
+						wheelListeners.get(l).mouseWheelMoved(event.getMouseWheelEvent());
+					}
+					break;
+					
+				case MouseWheelEvent.WHEEL_BLOCK_SCROLL:
+					for (int l = 0; l < wheelListeners.size(); l++) {
+						wheelListeners.get(l).mouseWheelMoved(event.getMouseWheelEvent());
+					}
+					break;
 				}
-				break;
-
-			case KeyEvent.KEY_RELEASED:
-				for (int l = 0; l < keyListeners.size(); l++) {
-					keyListeners.get(l).keyReleased(event.getKeyEvent());
+				if((event.getType() != KEY_HOLD) && (event.getType() != MOUSE_HOLD)) {
+					inputEvents.remove(i);
 				}
-				break;
-
-			case KeyEvent.KEY_TYPED:
-				for (int l = 0; l < keyListeners.size(); l++) {
-					keyListeners.get(l).keyTyped(event.getKeyEvent());
-				}
-				break;
-				
-			case KEY_HOLD:
-				for (int l = 0; l < keyListeners.size(); l++) {
-					keyListeners.get(l).keyHold(event.getKeyEvent());
-				}
-				break;
-				
-			case MouseEvent.MOUSE_PRESSED:
-				for (int l = 0; l < mouseListeners.size(); l++) {
-					mouseListeners.get(l).mousePressed(event.getMouseEvent());
-				}
-				break;
-
-			case MouseEvent.MOUSE_RELEASED:
-				for (int l = 0; l < mouseListeners.size(); l++) {
-					mouseListeners.get(l).mouseReleased(event.getMouseEvent());
-				}
-				break;
-
-			case MouseEvent.MOUSE_CLICKED:
-				for (int l = 0; l < mouseListeners.size(); l++) {
-					mouseListeners.get(l).mouseClicked(event.getMouseEvent());
-				}
-				break;
-				
-			case MOUSE_HOLD:
-				for (int l = 0; l < mouseListeners.size(); l++) {
-					mouseListeners.get(l).mouseHold(event.getMouseEvent());
-				}
-				break;
-
-			case MouseEvent.MOUSE_EXITED:
-				for (int l = 0; l < mouseListeners.size(); l++) {
-					mouseListeners.get(l).mouseExited(event.getMouseEvent());
-				}
-				break;
-
-			case MouseEvent.MOUSE_ENTERED:
-				for (int l = 0; l < mouseListeners.size(); l++) {
-					mouseListeners.get(l).mouseEntered(event.getMouseEvent());
-				}
-				break;
-			case MouseEvent.MOUSE_MOVED:
-				for (int l = 0; l < motionListeners.size(); l++) {
-					motionListeners.get(l).mouseMoved(event.getMouseEvent());
-				}
-				break;
-
-			case MouseEvent.MOUSE_DRAGGED:
-				for (int l = 0; l < motionListeners.size(); l++) {
-					motionListeners.get(l).mouseDragged(event.getMouseEvent());
-				}
-				break;
-				
-			case MouseWheelEvent.WHEEL_UNIT_SCROLL:
-				for (int l = 0; l < wheelListeners.size(); l++) {
-					wheelListeners.get(l).mouseWheelMoved(event.getMouseWheelEvent());
-				}
-				break;
-				
-			case MouseWheelEvent.WHEEL_BLOCK_SCROLL:
-				for (int l = 0; l < wheelListeners.size(); l++) {
-					wheelListeners.get(l).mouseWheelMoved(event.getMouseWheelEvent());
-				}
-				break;
-			}
-			if((event.getType() != KEY_HOLD) && (event.getType() != MOUSE_HOLD)) {
-				inputEvents.remove(i);
 			}
 		}
 	}
