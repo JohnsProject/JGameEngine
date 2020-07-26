@@ -110,11 +110,13 @@ public class Light extends SceneObject {
 	 */
 	public int[] getDirection() {
 		if(!VectorUtils.equals(directionRotation, transform.getRotation())) {
-			VectorUtils.copy(directionRotation, transform.getRotation());
-			VectorUtils.copy(direction, VectorUtils.VECTOR_FORWARD);
-			TransformationUtils.rotateX(direction, directionRotation[VectorUtils.VECTOR_X]);
-			TransformationUtils.rotateY(direction, directionRotation[VectorUtils.VECTOR_Y]);
-			TransformationUtils.rotateZ(direction, directionRotation[VectorUtils.VECTOR_Z]);
+			synchronized (directionRotation) {
+				VectorUtils.copy(directionRotation, transform.getRotation());
+				VectorUtils.copy(direction, VectorUtils.VECTOR_FORWARD);
+				TransformationUtils.rotateX(direction, directionRotation[VectorUtils.VECTOR_X]);
+				TransformationUtils.rotateY(direction, directionRotation[VectorUtils.VECTOR_Y]);
+				TransformationUtils.rotateZ(direction, directionRotation[VectorUtils.VECTOR_Z]);
+			}
 		}
 		return direction;
 	}
