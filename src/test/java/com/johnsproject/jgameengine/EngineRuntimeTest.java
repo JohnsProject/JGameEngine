@@ -38,8 +38,8 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 	
 	private static final boolean ENABLE_SHADOW_MAPPING = false;
 	
-	private static final int WINDOW_W = 1024;
-	private static final int WINDOW_H = 768;
+	private static final int WINDOW_W = 1920;
+	private static final int WINDOW_H = 1080;
 	private static final int RENDER_W = (WINDOW_W * 100) / 100;
 	private static final int RENDER_H = (WINDOW_H * 100) / 100;
 	
@@ -98,11 +98,10 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 //		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
 		
 		graphicsEngine.getShaders().clear();
-//		graphicsEngine.addShader(new ShadowMappingShader());
+		graphicsEngine.addShader(new ShadowMappingShader());
 //		graphicsEngine.addShader(new PhongShader());
-//		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1));
 		graphicsEngine.addShader(new GouraudShader());
-		graphicsEngine.setDefaultShader(graphicsEngine.getShader(0));
+		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1));
 	}
 	
 	private Scene loadScene() {		
@@ -110,7 +109,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			Scene scene = new Scene();
 			Mesh mesh = OBJImporter.parse("C:/Development/JGameEngineTests/test.obj");
 			Model model = new Model("Model", new Transform(), mesh);
-			mesh.getMaterial("Material.002").setTexture(new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/johns-project-logo.png")));
+			mesh.getMaterial("Material.006").setTexture(new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/johns-project-logo.png")));
 			scene.addModel(model);
 			
 			Camera camera = new Camera("Camera", new Transform());
@@ -129,7 +128,6 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			spotLight.setType(LightType.SPOT);
 			spotLight.setSpotSize(FP_ONE * 90);
 			spotLight.setInnerSpotSize(FP_ONE * 80);
-			spotLight.setShadow(false);
 //			spotLight.setIntensity(FP_ONE * 2);
 			scene.addLight(spotLight);
 			

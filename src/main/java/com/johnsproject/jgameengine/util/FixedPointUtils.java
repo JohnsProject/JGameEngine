@@ -274,14 +274,7 @@ public final class FixedPointUtils {
 		}
 		int c = 1 << 15;
 		int g = c;
-		if (g * g > num) {
-			g ^= c;
-		}
-		c >>= 1;
-		if (c != 0) {
-			g |= c;
-		}
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < 16; i++) {
 			if (g * g > num) {
 				g ^= c;
 			}

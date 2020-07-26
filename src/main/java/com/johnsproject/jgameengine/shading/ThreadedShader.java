@@ -7,25 +7,24 @@ import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Vertex;
 
 public abstract class ThreadedShader implements Shader {
-
-	protected static final int THREAD_COUNT = 16;
 	
 	private final BlockingQueue<Vertex> vertexQueue;
 	private final BlockingQueue<Face> geometryQueue;
-	private ThreadedVertexShader[] vertexShaders;
-	private ThreadedGeometryShader[] geometryShaders;
+	private final ThreadedVertexShader[] vertexShaders;
+	private final ThreadedGeometryShader[] geometryShaders;
 	
 	public ThreadedShader() {
-		vertexQueue = new ArrayBlockingQueue<Vertex>(THREAD_COUNT * THREAD_COUNT);
-		geometryQueue = new ArrayBlockingQueue<Face>(THREAD_COUNT * THREAD_COUNT);
+		final int coreCount = Runtime.getRuntime().availableProcessors();
+		vertexQueue = new ArrayBlockingQueue<Vertex>(coreCount * 32);
+		geometryQueue = new ArrayBlockingQueue<Face>(coreCount * 32);
 		
-		vertexShaders = createVertexShaders(THREAD_COUNT);
+		vertexShaders = createVertexShaders(coreCount);
 		for (int i = 0; i < vertexShaders.length; i++) {
 			vertexShaders[i].setQueue(vertexQueue);
 			vertexShaders[i].start();
 		}
 		
-		geometryShaders = createGeometryShaders(THREAD_COUNT);
+		geometryShaders = createGeometryShaders(coreCount);
 		for (int i = 0; i < geometryShaders.length; i++) {
 			geometryShaders[i].setQueue(geometryQueue);
 			geometryShaders[i].start();
@@ -68,13 +67,13 @@ public abstract class ThreadedShader implements Shader {
 	
 	public void waitForVertexQueue() {
 		for (int i = 0; i < vertexShaders.length; i++)
-			if(vertexShaders[i].getState() != Thread.State.WAITING)
+			if((!vertexQueue.isEmpty()) || (vertexShaders[i].getState() != Thread.State.WAITING))
 				i = 0;
 	}
 	
 	public void waitForGeometryQueue() {
 		for (int i = 0; i < geometryShaders.length; i++)
-			if(geometryShaders[i].getState() != Thread.State.WAITING)
+			if((!geometryQueue.isEmpty()) || (geometryShaders[i].getState() != Thread.State.WAITING))
 				i = 0;
 	}
 	
@@ -104,7 +103,7 @@ public abstract class ThreadedShader implements Shader {
 			}
 		}
 
-		public void setQueue(BlockingQueue<Vertex> queue) {
+		private void setQueue(BlockingQueue<Vertex> queue) {
 			this.queue = queue;
 		}
 		
@@ -137,7 +136,7 @@ public abstract class ThreadedShader implements Shader {
 			}
 		}
 
-		public void setQueue(BlockingQueue<Face> queue) {
+		private void setQueue(BlockingQueue<Face> queue) {
 			this.queue = queue;
 		}
 		
