@@ -52,9 +52,7 @@ public abstract class ThreadedShader implements Shader {
 		}
 	}
 
-	public void fragment() {
-		
-	}
+	public void fragment() {}
 	
 	public ShaderBuffer getShaderBuffer() {
 		return vertexShaders[0].getShaderBuffer();
@@ -68,11 +66,27 @@ public abstract class ThreadedShader implements Shader {
 			geometryShaders[i].setShaderBuffer(shaderBuffer);
 	}
 	
+	public void waitForVertexQueue() {
+		for (int i = 0; i < vertexShaders.length; i++)
+			if(vertexShaders[i].getState() != Thread.State.WAITING)
+				i = 0;
+	}
+	
+	public void waitForGeometryQueue() {
+		for (int i = 0; i < geometryShaders.length; i++)
+			if(geometryShaders[i].getState() != Thread.State.WAITING)
+				i = 0;
+	}
+	
 	protected static abstract class ThreadedVertexShader extends Thread implements Shader {
 
 		private BlockingQueue<Vertex> queue;
 		
+		public void waitForVertexQueue() { }
+		
 		public void geometry(Face face) { }
+		
+		public void waitForGeometryQueue() { }
 		
 		public void fragment() { }
 		
@@ -100,6 +114,10 @@ public abstract class ThreadedShader implements Shader {
 		private BlockingQueue<Face> queue;
 		
 		public void vertex(Vertex vertex) { }
+		
+		public void waitForVertexQueue() { }
+
+		public void waitForGeometryQueue() { }
 		
 		public void run() {
 			while(true) {

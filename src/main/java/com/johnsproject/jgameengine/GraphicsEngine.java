@@ -156,7 +156,10 @@ public class GraphicsEngine implements EngineListener {
 					continue;
 				final Mesh mesh = model.getMesh();
 				shadeVertices(mesh, shader);
+				shader.waitForVertexQueue();
+				
 				shadeFaces(mesh, shader);
+				shader.waitForGeometryQueue();
 			}
 		}
 	}

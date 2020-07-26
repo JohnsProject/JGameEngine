@@ -7,7 +7,19 @@ public interface Shader {
 	
 	void vertex(Vertex vertex);
 	
+	/**
+	 * Used to notify the {@link ThreadedShader} that all vertices have been shaded
+	 * and it should wait until the queue is empty. No implementation is required.
+	 */
+	void waitForVertexQueue();
+	
 	void geometry(Face face);
+	
+	/**
+	 * Used to notify the {@link ThreadedShader} that all faces have been shaded
+	 * and it should wait until the queue is empty. No implementation is required.
+	 */
+	void waitForGeometryQueue();
 	
 	void fragment();
 
