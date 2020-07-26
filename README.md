@@ -6,7 +6,7 @@ is a lightweight 3D game engine written in Java.
 * [x] No dependencies
 * [x] Java 1.5+ compatibility
 * [x] Fixed point math only
-* [ ] Multithreating
+* [ ] Multithreading
 * [x] Graphics engine
 * [ ] Physics engine
 * [ ] Audio engine
@@ -16,6 +16,7 @@ is a lightweight 3D game engine written in Java.
 Graphics engine
 * [x] Scanline triangle rasterization (flat, gouraud and phong + texture mapping)
 * [x] Shaders (flat, gouraud and phong shaders)
+* [x] Multithreaded shaders
 * [x] Point, directional and spot lights
 * [x] Shadow mapping for all light types (experimental)
 * [x] Skeletal animation (experimental)
