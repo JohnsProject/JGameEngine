@@ -16,8 +16,8 @@ public abstract class ThreadedShader implements Shader {
 	private ThreadedGeometryShader[] geometryShaders;
 	
 	public ThreadedShader() {
-		vertexQueue = new ArrayBlockingQueue<Vertex>(1024);
-		geometryQueue = new ArrayBlockingQueue<Face>(1024);
+		vertexQueue = new ArrayBlockingQueue<Vertex>(THREAD_COUNT * THREAD_COUNT);
+		geometryQueue = new ArrayBlockingQueue<Face>(THREAD_COUNT * THREAD_COUNT);
 		
 		vertexShaders = createVertexShaders(THREAD_COUNT);
 		for (int i = 0; i < vertexShaders.length; i++) {
@@ -60,7 +60,7 @@ public abstract class ThreadedShader implements Shader {
 		return vertexShaders[0].getShaderBuffer();
 	}
 
-	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
+	public void setShaderBuffer(ShaderBuffer shaderBuffer) {		
 		for (int i = 0; i < vertexShaders.length; i++)
 			vertexShaders[i].setShaderBuffer(shaderBuffer);
 		
