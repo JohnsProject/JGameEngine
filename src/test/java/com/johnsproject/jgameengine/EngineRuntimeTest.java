@@ -21,7 +21,7 @@ import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
-import com.johnsproject.jgameengine.shading.BasicShader;
+import com.johnsproject.jgameengine.shading.GouraudShader;
 import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
 import com.johnsproject.jgameengine.shading.PhongShader;
 import com.johnsproject.jgameengine.shading.Shader;
@@ -101,7 +101,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 //		graphicsEngine.addShader(new ShadowMappingShader());
 //		graphicsEngine.addShader(new PhongShader());
 //		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1));
-		graphicsEngine.addShader(new PhongShader());
+		graphicsEngine.addShader(new GouraudShader());
 		graphicsEngine.setDefaultShader(graphicsEngine.getShader(0));
 	}
 	
@@ -110,7 +110,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			Scene scene = new Scene();
 			Mesh mesh = OBJImporter.parse("C:/Development/JGameEngineTests/test.obj");
 			Model model = new Model("Model", new Transform(), mesh);
-			mesh.getMaterial("Material.006").setTexture(new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/johns-project-logo.png")));
+			mesh.getMaterial("Material.002").setTexture(new Texture(FileUtils.loadImage("C:/Development/JGameEngineTests/johns-project-logo.png")));
 			scene.addModel(model);
 			
 			Camera camera = new Camera("Camera", new Transform());
@@ -129,6 +129,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			spotLight.setType(LightType.SPOT);
 			spotLight.setSpotSize(FP_ONE * 90);
 			spotLight.setInnerSpotSize(FP_ONE * 80);
+			spotLight.setShadow(false);
 //			spotLight.setIntensity(FP_ONE * 2);
 			scene.addLight(spotLight);
 			

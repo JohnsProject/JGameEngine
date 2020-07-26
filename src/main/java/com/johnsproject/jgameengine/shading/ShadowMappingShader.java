@@ -26,12 +26,16 @@ public class ShadowMappingShader implements Shader {
 		this.rasterizer = new Rasterizer(this);
 	}
 	
-	public void vertex(Vertex vertex) { }
-
+	public void vertex(Vertex vertex) {}
+	
+	public void waitForVertexQueue() {}
+	
 	public void geometry(Face face) {
 		renderForDirectionalLight(face);
 		renderForSpotLight(face);
 	}
+	
+	public void waitForGeometryQueue() {}
 	
 	private void renderForDirectionalLight(Face face) {
 		final Light directionalLight = shaderBuffer.getShadowDirectionalLight();

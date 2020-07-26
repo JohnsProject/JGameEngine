@@ -82,6 +82,10 @@ public abstract class ThreadedShader implements Shader {
 
 		private BlockingQueue<Vertex> queue;
 		
+		public ThreadedVertexShader() {
+			super("VertexShaderThread");
+		}
+		
 		public void waitForVertexQueue() { }
 		
 		public void geometry(Face face) { }
@@ -112,6 +116,10 @@ public abstract class ThreadedShader implements Shader {
 	protected static abstract class ThreadedGeometryShader extends Thread implements Shader {
 
 		private BlockingQueue<Face> queue;
+		
+		public ThreadedGeometryShader() {
+			super("GeometryShaderThread");
+		}
 		
 		public void vertex(Vertex vertex) { }
 		

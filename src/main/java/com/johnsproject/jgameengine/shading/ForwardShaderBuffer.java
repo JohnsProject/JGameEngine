@@ -122,7 +122,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 			directionalShadowMap.fill(Integer.MAX_VALUE);
 			final int[][] lightSpaceMatrix = shadowDirectionalLight.getTransform().getSpaceEnterMatrix();
 			final int[][] frustumProjectionMatrix = directionalLightFrustum.getProjectionMatrix();
-			MatrixUtils.copy(projectionMatrix, directionalLightFrustum.getProjectionMatrix());
+			MatrixUtils.copy(projectionMatrix, frustumProjectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, frustumProjectionMatrix);
 		}
 	}
@@ -135,7 +135,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 			spotShadowMap.fill(Integer.MAX_VALUE);
 			final int[][] lightSpaceMatrix = shadowSpotLight.getTransform().getSpaceEnterMatrix();
 			final int[][] frustumProjectionMatrix = spotLightFrustum.getProjectionMatrix();
-			MatrixUtils.copy(projectionMatrix, spotLightFrustum.getProjectionMatrix());
+			MatrixUtils.copy(projectionMatrix, frustumProjectionMatrix);
 			MatrixUtils.multiply(projectionMatrix, lightSpaceMatrix, frustumProjectionMatrix);
 		}
 	}
