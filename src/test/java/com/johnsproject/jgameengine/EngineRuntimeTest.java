@@ -2,6 +2,7 @@ package com.johnsproject.jgameengine;
 
 import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
 import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_HALF;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -98,10 +99,10 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 //		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
 		
 		graphicsEngine.getShaders().clear();
-		graphicsEngine.addShader(new ShadowMappingShader());
+//		graphicsEngine.addShader(new ShadowMappingShader());
 //		graphicsEngine.addShader(new PhongShader());
 		graphicsEngine.addShader(new GouraudShader());
-		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1));
+		graphicsEngine.setDefaultShader(graphicsEngine.getShader(0));
 	}
 	
 	private Scene loadScene() {		
@@ -128,6 +129,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			spotLight.setType(LightType.SPOT);
 			spotLight.setSpotSize(FP_ONE * 90);
 			spotLight.setInnerSpotSize(FP_ONE * 80);
+			spotLight.setShadow(false);
 //			spotLight.setIntensity(FP_ONE * 2);
 			scene.addLight(spotLight);
 			

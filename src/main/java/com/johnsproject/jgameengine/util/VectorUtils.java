@@ -216,14 +216,31 @@ public final class VectorUtils {
 	 * @param result
 	 */
 	public static int[] multiply(int[] vector, int[][] matrix) {
-		int x = vector[VECTOR_X];
-		int y = vector[VECTOR_Y];
-		int z = vector[VECTOR_Z];
-		for (int i = 0; i < VECTOR_SIZE; i++) {
-			int res = FixedPointUtils.multiply(matrix[0][i], x);
-			res += FixedPointUtils.multiply(matrix[1][i], y);
-			res += FixedPointUtils.multiply(matrix[2][i], z);
-			vector[i] = res + matrix[3][i];
+		final int x = vector[VECTOR_X];
+		final int y = vector[VECTOR_Y];
+		final int z = vector[VECTOR_Z];
+		int res = FixedPointUtils.multiply(matrix[0][VECTOR_X], x);
+		res += FixedPointUtils.multiply(matrix[1][VECTOR_X], y);
+		res += FixedPointUtils.multiply(matrix[2][VECTOR_X], z);
+		vector[VECTOR_X] = res + matrix[3][VECTOR_X];
+		
+		res = FixedPointUtils.multiply(matrix[0][VECTOR_Y], x);
+		res += FixedPointUtils.multiply(matrix[1][VECTOR_Y], y);
+		res += FixedPointUtils.multiply(matrix[2][VECTOR_Y], z);
+		vector[VECTOR_Y] = res + matrix[3][VECTOR_Y];
+		
+		res = FixedPointUtils.multiply(matrix[0][VECTOR_Z], x);
+		res += FixedPointUtils.multiply(matrix[1][VECTOR_Z], y);
+		res += FixedPointUtils.multiply(matrix[2][VECTOR_Z], z);
+		vector[VECTOR_Z] = res + matrix[3][VECTOR_Z];
+		
+		final int matrix33 = matrix[3][VECTOR_W];
+		if(matrix33 != FP_ONE) {
+			res = FixedPointUtils.multiply(matrix[0][VECTOR_W], x);
+			res += FixedPointUtils.multiply(matrix[1][VECTOR_W], y);
+			res += FixedPointUtils.multiply(matrix[2][VECTOR_W], z);
+			vector[VECTOR_W] = res + matrix33;
+			
 		}
 		return vector;
 	}

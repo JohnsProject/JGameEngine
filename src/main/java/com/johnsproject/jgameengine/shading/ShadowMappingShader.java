@@ -18,12 +18,16 @@ public class ShadowMappingShader implements Shader {
 	
 	private ForwardShaderBuffer shaderBuffer;
 	private final Rasterizer rasterizer;
-
+	private final int[] faceLocation;
+	private final int[] lightDirection;
+	
 	private int shadowBias;
 	private Texture shadowMap;
 
 	public ShadowMappingShader() {
 		this.rasterizer = new Rasterizer(this);
+		this.faceLocation = VectorUtils.emptyVector();
+		this.lightDirection = VectorUtils.emptyVector();
 	}
 	
 	public void vertex(Vertex vertex) {}
@@ -62,8 +66,18 @@ public class ShadowMappingShader implements Shader {
 	}
 	
 	private int calculateBias(Face face, Light light) {
-		// TODO change the amount of bias based on the surface angle towards the light
-		return 0;
+		VectorUtils.copy(faceLocation, face.getVertex(0).getWorldLocation());
+		VectorUtils.add(faceLocation, face.getVertex(1).getWorldLocation());
+		VectorUtils.add(faceLocation, face.getVertex(2).getWorldLocation());
+		VectorUtils.divide(faceLocation, 3);
+		
+		VectorUtils.copy(lightDirection, light.getTransform().getLocation());
+		VectorUtils.subtract(lightDirection, faceLocation);
+		VectorUtils.normalize(lightDirection);
+		
+		final int[] normal = VectorUtils.normalize(face.getWorldNormal());
+		int bias = (int) VectorUtils.dotProduct(normal, lightDirection);
+		return FixedPointUtils.multiply(bias, 1);
 	}
 	
 	private void transformVertices(Face face, int[][] lightMatrix, Frustum lightFrustum) {

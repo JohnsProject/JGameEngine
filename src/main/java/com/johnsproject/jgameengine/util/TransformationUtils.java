@@ -54,6 +54,7 @@ public final class TransformationUtils {
 		w = FixedPointUtils.divide(FP_ONE, w == 0 ? 1 : w);
 		location[VECTOR_X] = FixedPointUtils.multiply(location[VECTOR_X], w) + halfX;
 		location[VECTOR_Y] = FixedPointUtils.multiply(location[VECTOR_Y], w) + halfY;
+		location[VECTOR_W] = FP_ONE;
 		return location;
 	}
 	
