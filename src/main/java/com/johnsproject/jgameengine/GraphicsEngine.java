@@ -46,7 +46,7 @@ public class GraphicsEngine implements EngineListener {
 		addShader(defaultShader);
 	}
 
-	public void initialize(EngineEvent e) { }
+	public void initialize(EngineEvent e) {}
 	
 	public void fixedUpdate(EngineEvent e) { 
 		Scene scene = e.getScene();
@@ -141,7 +141,7 @@ public class GraphicsEngine implements EngineListener {
 			if(!camera.isActive())
 				continue;
 			camera.setRenderTarget(frameBuffer);
-			shaderBuffer.setup(camera, scene.getLights());
+			shaderBuffer.initialize(camera, scene.getLights());
 			renderModels(scene);
 		}
 	}
@@ -149,7 +149,7 @@ public class GraphicsEngine implements EngineListener {
 	private void renderModels(Scene scene) {
 		for (int s = 0; s < shaders.size(); s++) {
 			Shader shader = shaders.get(s);
-			shader.setShaderBuffer(shaderBuffer);
+			shader.initialize(shaderBuffer);
 			for (int m = 0; m < scene.getModels().size(); m++) {
 				Model model = scene.getModels().get(m);
 				if(!model.isActive() || model.isCulled())
@@ -198,7 +198,7 @@ public class GraphicsEngine implements EngineListener {
 		return shaderBuffer;
 	}
 
-	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
+	public void initialize(ShaderBuffer shaderBuffer) {
 		this.shaderBuffer = shaderBuffer;
 	}
 	

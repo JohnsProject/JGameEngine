@@ -41,6 +41,12 @@ public class BasicShader implements Shader {
 	public BasicShader() {
 		rasterizer = new LinearRasterizer2(this);
 	}
+
+	public void initialize(ShaderBuffer shaderBuffer) {
+		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
+		this.camera = shaderBuffer.getCamera();
+		this.frustum = camera.getFrustum();
+	}
 	
 	public void vertex(Vertex vertex) {
 		final int[] location = vertex.getLocation();
@@ -58,11 +64,8 @@ public class BasicShader implements Shader {
 	public void waitForVertexQueue() {}
 
 	public void geometry(Face face) {
-		// get material of the face
 		final Material material = face.getMaterial();
-		// get color of the face
 		diffuseColor = material.getDiffuseColor();
-		// get texture of the face
 		texture = material.getTexture();
 		// set the texture space location of the vertices to the rasterizer so they're interpolated
 		setUVs(face);
@@ -94,7 +97,6 @@ public class BasicShader implements Shader {
 	public void waitForGeometryQueue() {}
 
 	public void fragment() {
-		// get the color and depth buffers
 		final Texture depthBuffer = shaderBuffer.getCamera().getRenderTarget().getDepthBuffer();
 		final Texture colorBuffer = shaderBuffer.getCamera().getRenderTarget().getColorBuffer();
 		// get the location of this fragment in screen space
@@ -122,21 +124,12 @@ public class BasicShader implements Shader {
 			// The result will be, but pixels are not accessed with fixed point
 			final int u = uv[VECTOR_X] >> FixedPointUtils.FP_BIT;
 			final int v = uv[VECTOR_Y] >> FixedPointUtils.FP_BIT;
-			// get the texture color of the fragment
 			return texture.getPixel(u, v);
 		}
 	}
 
 	public ShaderBuffer getShaderBuffer() {
 		return shaderBuffer;
-	}
-
-	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
-		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
-		// get the camera that the graphics engine is currently rendering to
-		this.camera = shaderBuffer.getCamera();
-		// get the frustum that vertices will be projected to
-		this.frustum = camera.getFrustum();
 	}
 
 	public boolean isGlobal() {

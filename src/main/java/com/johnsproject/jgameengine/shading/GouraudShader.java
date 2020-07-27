@@ -4,7 +4,11 @@ import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
+import java.util.List;
+
+import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Face;
+import com.johnsproject.jgameengine.model.FrameBuffer;
 import com.johnsproject.jgameengine.model.Frustum;
 import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Material;
@@ -42,37 +46,46 @@ public class GouraudShader extends ThreadedShader {
 		
 		private ForwardShaderBuffer shaderBuffer;
 		
+		private Camera camera;
+		private Frustum frustum;
+		private List<Light> lights;
+		
 		private int[] lightDirection;
 		private int[] viewDirection;
-		
-		private Material material;
 
 		public VertexShader() {
 			this.lightDirection = VectorUtils.emptyVector();
 			this.viewDirection = VectorUtils.emptyVector();
 		}
+
+		public void initialize(ShaderBuffer shaderBuffer) {
+			this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
+			this.camera = shaderBuffer.getCamera();
+			this.frustum = camera.getFrustum();
+			this.lights = shaderBuffer.getLights();
+		}
 		
 		public void vertex(Vertex vertex) {
-			material = vertex.getMaterial();
+			final Material material = vertex.getMaterial();
 			final int[] location = vertex.getLocation();
 			final int[] normal = vertex.getWorldNormal();
 			VectorUtils.copy(location, vertex.getWorldLocation());
 			
 			vertex.setLightColor(calculateLights(location, normal, material));
 			
-			VectorUtils.multiply(location, shaderBuffer.getCamera().getTransform().getSpaceEnterMatrix());
-			VectorUtils.multiply(location, shaderBuffer.getCamera().getFrustum().getProjectionMatrix());
-			TransformationUtils.screenportVector(location, shaderBuffer.getCamera().getFrustum());
+			VectorUtils.multiply(location, camera.getTransform().getSpaceEnterMatrix());
+			VectorUtils.multiply(location, frustum.getProjectionMatrix());
+			TransformationUtils.screenportVector(location, frustum);
 		}
 		
 		private int calculateLights(int[] location, int[] normal, Material material) {
-			VectorUtils.copy(viewDirection, shaderBuffer.getCamera().getTransform().getLocation());
+			VectorUtils.copy(viewDirection, camera.getTransform().getLocation());
 			VectorUtils.subtract(viewDirection, location);
 			VectorUtils.normalize(viewDirection);
 			VectorUtils.normalize(normal);
 			int color = ColorUtils.BLACK;
-			for (int i = 0; i < shaderBuffer.getLights().size(); i++) {
-				final Light light = shaderBuffer.getLights().get(i);
+			for (int i = 0; i < lights.size(); i++) {
+				final Light light = lights.get(i);
 				if(!light.isActive() || light.isCulled())
 					continue;
 				final int lighting = calculateLight(location, normal, material, light);
@@ -198,48 +211,65 @@ public class GouraudShader extends ThreadedShader {
 		public ShaderBuffer getShaderBuffer() {
 			return shaderBuffer;
 		}
-
-		public void setShaderBuffer(ShaderBuffer shaderBuffer) {
-			this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
-		}
 	}
 	
 	private static class GeometryShader extends ThreadedGeometryShader {
 
 		private ForwardShaderBuffer shaderBuffer;
 		private final LinearRasterizer4 rasterizer = new LinearRasterizer4(this);
-
+		
+		private Camera camera;
+		private Frustum frustum;
+		private FrameBuffer frameBuffer;
+		
+		private Frustum directionalLightFrustum;
+		private Texture directionalLightShadowMap;
+		private Frustum spotLightFrustum;
+		private Texture spotLightShadowMap;
+		
 		private Material material;
 		private Texture texture;
 		private int texelColor;
 		private int[] lightSpaceLocation;
 		private boolean isInShadow;
 		
-		private Texture directionalLightShadowMap;
-		private Texture spotLightShadowMap;
-		
 		public GeometryShader() {
 			this.lightSpaceLocation = VectorUtils.emptyVector();
+		}
+
+		public void initialize(ShaderBuffer shaderBuffer) {
+			this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
+			this.camera = shaderBuffer.getCamera();
+			this.frustum = camera.getFrustum();
+			this.frameBuffer = camera.getRenderTarget();
+			initialize();
+		}
+		
+		private void initialize() {
+			if(shaderBuffer.getShadowDirectionalLight() == null) {
+				directionalLightFrustum = null;
+				directionalLightShadowMap = null;
+			} else {
+				directionalLightFrustum = shaderBuffer.getDirectionalLightFrustum();
+				directionalLightShadowMap = shaderBuffer.getDirectionalShadowMap();
+			}
+			if(shaderBuffer.getShadowSpotLight() == null) {
+				spotLightFrustum = null;
+				spotLightShadowMap = null;
+			} else {
+				spotLightFrustum = shaderBuffer.getSpotLightFrustum();
+				spotLightShadowMap = shaderBuffer.getSpotShadowMap();
+			}
 		}
 		
 		public void geometry(Face face) {
 			material = face.getMaterial();
 			texture = material.getTexture();
-			if(shaderBuffer.getShadowDirectionalLight() == null) {
-				directionalLightShadowMap = null;
-			} else {
-				directionalLightShadowMap = shaderBuffer.getDirectionalShadowMap();
-			}
-			if(shaderBuffer.getShadowSpotLight() == null) {
-				spotLightShadowMap = null;
-			} else {
-				spotLightShadowMap = shaderBuffer.getSpotShadowMap();
-			}
 			setUVs(face);
 			setColors(face);
 			setDirectionalLightSpaceVectors(face);
 			setSpotLightSpaceVectors(face);
-			rasterizer.linearDraw4(face, shaderBuffer.getCamera().getFrustum());
+			rasterizer.linearDraw4(face, frustum);
 		}
 
 		private void setUVs(Face face) {
@@ -274,33 +304,31 @@ public class GouraudShader extends ThreadedShader {
 		
 		private void setDirectionalLightSpaceVectors(Face face) {
 			if(directionalLightShadowMap != null) {
-				final Frustum lightFrustum = shaderBuffer.getDirectionalLightFrustum();
-				final int[][] lightMatrix = lightFrustum.getProjectionMatrix();
+				final int[][] lightMatrix = directionalLightFrustum.getProjectionMatrix();
 				
 				int[] worldLocation = face.getVertex(0).getWorldLocation();
-				rasterizer.setVector20(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+				rasterizer.setVector20(transformToLightSpace(worldLocation, lightMatrix, directionalLightFrustum));
 				
 				worldLocation = face.getVertex(1).getWorldLocation();
-				rasterizer.setVector21(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+				rasterizer.setVector21(transformToLightSpace(worldLocation, lightMatrix, directionalLightFrustum));
 				
 				worldLocation = face.getVertex(2).getWorldLocation();
-				rasterizer.setVector22(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+				rasterizer.setVector22(transformToLightSpace(worldLocation, lightMatrix, directionalLightFrustum));
 			}
 		}
 		
 		private void setSpotLightSpaceVectors(Face face) {
 			if(spotLightShadowMap != null) {
-				final Frustum lightFrustum = shaderBuffer.getSpotLightFrustum();
-				final int[][] lightMatrix = lightFrustum.getProjectionMatrix();
+				final int[][] lightMatrix = spotLightFrustum.getProjectionMatrix();
 				
 				int[] worldLocation = face.getVertex(0).getWorldLocation();
-				rasterizer.setVector30(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+				rasterizer.setVector30(transformToLightSpace(worldLocation, lightMatrix, spotLightFrustum));
 				
 				worldLocation = face.getVertex(1).getWorldLocation();
-				rasterizer.setVector31(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+				rasterizer.setVector31(transformToLightSpace(worldLocation, lightMatrix, spotLightFrustum));
 				
 				worldLocation = face.getVertex(2).getWorldLocation();
-				rasterizer.setVector32(transformToLightSpace(worldLocation, lightMatrix, lightFrustum));
+				rasterizer.setVector32(transformToLightSpace(worldLocation, lightMatrix, spotLightFrustum));
 			}
 		}
 		
@@ -314,8 +342,8 @@ public class GouraudShader extends ThreadedShader {
 		}
 		
 		public void fragment() {
-			final Texture depthBuffer = shaderBuffer.getCamera().getRenderTarget().getDepthBuffer();
-			final Texture colorBuffer = shaderBuffer.getCamera().getRenderTarget().getColorBuffer();
+			final Texture depthBuffer = frameBuffer.getDepthBuffer();
+			final Texture colorBuffer = frameBuffer.getColorBuffer();
 			final int x = rasterizer.getLocation()[VECTOR_X];
 			final int y = rasterizer.getLocation()[VECTOR_Y];
 			final int z = rasterizer.getLocation()[VECTOR_Z];
@@ -375,10 +403,6 @@ public class GouraudShader extends ThreadedShader {
 
 		public ShaderBuffer getShaderBuffer() {
 			return shaderBuffer;
-		}
-
-		public void setShaderBuffer(ShaderBuffer shaderBuffer) {
-			this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
 		}
 	}
 }

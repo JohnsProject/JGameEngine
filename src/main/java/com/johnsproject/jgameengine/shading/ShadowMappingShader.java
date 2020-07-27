@@ -18,11 +18,40 @@ public class ShadowMappingShader implements Shader {
 	private ForwardShaderBuffer shaderBuffer;
 	private final Rasterizer rasterizer;
 	
+	private Light directionalLight;
+	private Frustum directionalLightFrustum;
+	private Texture directionalLightShadowMap;
+	private int directionalLightBias;
+	
+	private Light spotLight;
+	private Frustum spotLightFrustum;
+	private Texture spotLightShadowMap;
+	private int spotLightBias;
+	
 	private int shadowBias;
 	private Texture shadowMap;
 
 	public ShadowMappingShader() {
 		this.rasterizer = new Rasterizer(this);
+	}
+
+	public void initialize(ShaderBuffer shaderBuffer) {
+		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
+		initialize();
+	}
+	
+	private void initialize() {
+		directionalLight = shaderBuffer.getShadowDirectionalLight();
+		directionalLightFrustum = shaderBuffer.getDirectionalLightFrustum();
+		directionalLightShadowMap = shaderBuffer.getDirectionalShadowMap();
+		if(directionalLight != null)
+			directionalLightBias = directionalLight.getShadowBias() >> 10;
+		
+		spotLight = shaderBuffer.getShadowSpotLight();
+		spotLightFrustum = shaderBuffer.getSpotLightFrustum();
+		spotLightShadowMap = shaderBuffer.getSpotShadowMap();
+		if(spotLight != null)
+			spotLightBias = spotLight.getShadowBias() >> 10;
 	}
 	
 	public void vertex(Vertex vertex) {}
@@ -37,26 +66,22 @@ public class ShadowMappingShader implements Shader {
 	public void waitForGeometryQueue() {}
 	
 	private void renderForDirectionalLight(Face face) {
-		final Light directionalLight = shaderBuffer.getShadowDirectionalLight();
 		if(directionalLight != null) {
-			final Frustum frustum = shaderBuffer.getDirectionalLightFrustum();
-			transformVertices(face, frustum.getProjectionMatrix(), frustum);
-			shadowBias = directionalLight.getShadowBias() >> 10;
-			shadowMap = shaderBuffer.getDirectionalShadowMap();
+			transformVertices(face, directionalLightFrustum.getProjectionMatrix(), directionalLightFrustum);
+			shadowBias = directionalLightBias;
+			shadowMap = directionalLightShadowMap;
 			rasterizer.setFrustumCull(false);
-			rasterizer.draw(face, frustum);
+			rasterizer.draw(face, directionalLightFrustum);
 		}
 	}
 	
 	private void renderForSpotLight(Face face) {
-		final Light spotLight = shaderBuffer.getShadowSpotLight();
 		if(spotLight != null) {
-			final Frustum frustum = shaderBuffer.getSpotLightFrustum();
-			transformVertices(face, frustum.getProjectionMatrix(), frustum);
-			shadowBias = spotLight.getShadowBias() >> 10;
-			shadowMap = shaderBuffer.getSpotShadowMap();
+			transformVertices(face, spotLightFrustum.getProjectionMatrix(), spotLightFrustum);
+			shadowBias = spotLightBias;
+			shadowMap = spotLightShadowMap;
 			rasterizer.setFrustumCull(true);
-			rasterizer.draw(face, frustum);
+			rasterizer.draw(face, spotLightFrustum);
 		}
 	}
 	
@@ -80,10 +105,6 @@ public class ShadowMappingShader implements Shader {
 
 	public ShaderBuffer getShaderBuffer() {
 		return shaderBuffer;
-	}
-
-	public void setShaderBuffer(ShaderBuffer shaderBuffer) {
-		this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
 	}
 	
 	public boolean isGlobal() {

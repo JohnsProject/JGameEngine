@@ -5,6 +5,8 @@ import com.johnsproject.jgameengine.model.Vertex;
 
 public interface Shader {
 	
+	void initialize(ShaderBuffer shaderBuffer);
+	
 	void vertex(Vertex vertex);
 	
 	/**
@@ -24,8 +26,6 @@ public interface Shader {
 	void fragment();
 
 	ShaderBuffer getShaderBuffer();
-
-	void setShaderBuffer(ShaderBuffer shaderBuffer);
 	
 	/**
 	 * Is this shader a global shader?

@@ -44,7 +44,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.spotShadowMap = new Texture(1024, 1024);
 	}
 
-	public void setup(Camera camera, List<Light> lights) {
+	public void initialize(Camera camera, List<Light> lights) {
 		this.camera = camera;
 		this.lights = lights;
 		final int[] cameraLocation = camera.getTransform().getLocation();
