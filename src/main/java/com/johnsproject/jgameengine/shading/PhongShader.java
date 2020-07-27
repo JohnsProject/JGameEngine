@@ -23,7 +23,7 @@ public class PhongShader extends ThreadedShader {
 	
 	@Override
 	public ThreadedVertexShader[] createVertexShaders(int count) {
-		final ThreadedVertexShader[] shaders = new ThreadedVertexShader[count];
+		final ThreadedVertexShader[] shaders = new VertexShader[count];
 		for (int i = 0; i < shaders.length; i++)
 			shaders[i] = new VertexShader();
 		return shaders;
@@ -31,7 +31,7 @@ public class PhongShader extends ThreadedShader {
 
 	@Override
 	public ThreadedGeometryShader[] createGeometryShaders(int count) {
-		final ThreadedGeometryShader[] shaders = new ThreadedGeometryShader[count];
+		final ThreadedGeometryShader[] shaders = new GeometryShader[count];
 		for (int i = 0; i < shaders.length; i++)
 			shaders[i] = new GeometryShader();
 		return shaders;
