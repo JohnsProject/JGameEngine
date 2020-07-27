@@ -9,9 +9,8 @@ public class Light extends SceneObject {
 	
 	public static final String LIGHT_TAG = "Light";
 	
-	private static final int DIRECTIONAL_BIAS = FixedPointUtils.toFixedPoint(0.00005f);
-	private static final int SPOT_BIAS = FixedPointUtils.toFixedPoint(0.00025f);
-	private static final int POINT_BIAS = FixedPointUtils.toFixedPoint(0.00035f);
+	private static final int DIRECTIONAL_BIAS = FixedPointUtils.toFixedPoint(0.05f);
+	private static final int SPOT_BIAS = FixedPointUtils.toFixedPoint(2f);
 	
 	private LightType type;
 	private int intensity;
@@ -65,8 +64,7 @@ public class Light extends SceneObject {
 			case SPOT:
 				shadowBias = SPOT_BIAS;
 				break;
-			case POINT:
-				shadowBias = POINT_BIAS;
+			default:
 				break;
 			}
 		}
@@ -74,8 +72,7 @@ public class Light extends SceneObject {
 	
 	private boolean hasShadowBiasDefaultValue() {
 		return (shadowBias == DIRECTIONAL_BIAS)
-				|| (shadowBias == SPOT_BIAS)
-				|| (shadowBias == POINT_BIAS);
+				|| (shadowBias == SPOT_BIAS);
 	}
 
 	public int getIntensity() {

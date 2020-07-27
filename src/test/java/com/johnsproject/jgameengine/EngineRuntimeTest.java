@@ -99,10 +99,10 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 //		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
 		
 		graphicsEngine.getShaders().clear();
-//		graphicsEngine.addShader(new ShadowMappingShader());
+		graphicsEngine.addShader(new ShadowMappingShader());
 //		graphicsEngine.addShader(new PhongShader());
 		graphicsEngine.addShader(new GouraudShader());
-		graphicsEngine.setDefaultShader(graphicsEngine.getShader(0));
+		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1));
 	}
 	
 	private Scene loadScene() {		
@@ -120,6 +120,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			
 			Light directionalLight = new Light("DirectionalLight", new Transform());
 			directionalLight.getTransform().worldRotate(FP_ONE * -90, 0, 0);
+//			directionalLight.setShadow(false);
 //			directionalLight.setIntensity(FP_ONE / 5);
 			scene.addLight(directionalLight);
 			scene.setMainDirectionalLight(directionalLight);
@@ -129,7 +130,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			spotLight.setType(LightType.SPOT);
 			spotLight.setSpotSize(FP_ONE * 90);
 			spotLight.setInnerSpotSize(FP_ONE * 80);
-			spotLight.setShadow(false);
+//			spotLight.setShadow(false);
 //			spotLight.setIntensity(FP_ONE * 2);
 			scene.addLight(spotLight);
 			
@@ -158,7 +159,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 			}
 			for (int y = 0; y < shadowMap.getHeight(); y++) {
 				for (int x = 0; x < shadowMap.getWidth(); x++) {
-					int depth = shadowMap.getPixel(x, y) >> 1;
+					int depth = shadowMap.getPixel(x, y) >> 9;
 					int color = com.johnsproject.jgameengine.util.ColorUtils.toColor(depth, depth, depth);
 					if(shaderBuffer.getCamera() != null)
 						shaderBuffer.getCamera().getRenderTarget().getColorBuffer().setPixel(x, y, color);		

@@ -20,7 +20,6 @@ import com.johnsproject.jgameengine.util.VectorUtils;
 public class PhongShader extends ThreadedShader {
 
 	// TODO implement gouraud and flat shaders
-	// TODO use inverse depth map for higher precision
 	
 	@Override
 	public ThreadedVertexShader[] createVertexShaders(int count) {

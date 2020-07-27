@@ -10,7 +10,6 @@ import com.johnsproject.jgameengine.model.Light;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterization.Rasterizer;
-import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
@@ -18,16 +17,12 @@ public class ShadowMappingShader implements Shader {
 	
 	private ForwardShaderBuffer shaderBuffer;
 	private final Rasterizer rasterizer;
-	private final int[] faceLocation;
-	private final int[] lightDirection;
 	
 	private int shadowBias;
 	private Texture shadowMap;
 
 	public ShadowMappingShader() {
 		this.rasterizer = new Rasterizer(this);
-		this.faceLocation = VectorUtils.emptyVector();
-		this.lightDirection = VectorUtils.emptyVector();
 	}
 	
 	public void vertex(Vertex vertex) {}
@@ -46,7 +41,7 @@ public class ShadowMappingShader implements Shader {
 		if(directionalLight != null) {
 			final Frustum frustum = shaderBuffer.getDirectionalLightFrustum();
 			transformVertices(face, frustum.getProjectionMatrix(), frustum);
-			shadowBias = directionalLight.getShadowBias();
+			shadowBias = directionalLight.getShadowBias() >> 10;
 			shadowMap = shaderBuffer.getDirectionalShadowMap();
 			rasterizer.setFrustumCull(false);
 			rasterizer.draw(face);
@@ -58,26 +53,11 @@ public class ShadowMappingShader implements Shader {
 		if(spotLight != null) {
 			final Frustum frustum = shaderBuffer.getSpotLightFrustum();
 			transformVertices(face, frustum.getProjectionMatrix(), frustum);
-			shadowBias = spotLight.getShadowBias();
+			shadowBias = spotLight.getShadowBias() >> 10;
 			shadowMap = shaderBuffer.getSpotShadowMap();
 			rasterizer.setFrustumCull(true);
 			rasterizer.draw(face);
 		}
-	}
-	
-	private int calculateBias(Face face, Light light) {
-		VectorUtils.copy(faceLocation, face.getVertex(0).getWorldLocation());
-		VectorUtils.add(faceLocation, face.getVertex(1).getWorldLocation());
-		VectorUtils.add(faceLocation, face.getVertex(2).getWorldLocation());
-		VectorUtils.divide(faceLocation, 3);
-		
-		VectorUtils.copy(lightDirection, light.getTransform().getLocation());
-		VectorUtils.subtract(lightDirection, faceLocation);
-		VectorUtils.normalize(lightDirection);
-		
-		final int[] normal = VectorUtils.normalize(face.getWorldNormal());
-		int bias = (int) VectorUtils.dotProduct(normal, lightDirection);
-		return FixedPointUtils.multiply(bias, 1);
 	}
 	
 	private void transformVertices(Face face, int[][] lightMatrix, Frustum lightFrustum) {
