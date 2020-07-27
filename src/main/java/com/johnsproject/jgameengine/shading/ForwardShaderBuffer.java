@@ -39,7 +39,7 @@ public class ForwardShaderBuffer implements ShaderBuffer {
 		this.directionalLightFrustum.setFocalLength(FP_ONE >> 3);
 		this.directionalShadowMap = new Texture(2048, 2048);
 		
-		this.spotLightFrustum = new Frustum(0, FP_ONE, 0, FP_ONE, FP_HALF, FP_ONE * 10000);
+		this.spotLightFrustum = new Frustum(0, FP_ONE, 0, FP_ONE, FP_HALF, FP_ONE * 1000);
 		this.spotLightFrustum.setFocalLength(FP_ONE >> 2);
 		this.spotShadowMap = new Texture(1024, 1024);
 	}

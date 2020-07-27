@@ -199,17 +199,13 @@ public class Rasterizer {
         	initializeDx2GreaterDx1();
 	        for (; y1 <= y2; y1++) {
 	        	drawScanline(x1, x2, y1, z, dz);
-	            x1 += dx1;
-	            x2 += dx2;
-	            z += dz1;
+	        	incrementBottomDx2GreaterDx1();
 	        }
         } else {
         	initializeDx1GreaterDx2();
         	for (; y1 <= y2; y1++) {
         		drawScanline(x1, x2, y1, z, dz);
-	            x1 += dx2;
-	            x2 += dx1;
-	            z += dz2;
+        		incrementBottomDx1GreaterDx2();
 	        }
         }
     }
@@ -229,6 +225,18 @@ public class Rasterizer {
         y2 = location1[VECTOR_Y];
         z = location0[VECTOR_Z] << FP_BIT;
 	}
+	
+	protected void incrementBottomDx2GreaterDx1() {
+        x1 += dx1;
+        x2 += dx2;
+        z += dz1;		
+	}
+	
+	protected void incrementBottomDx1GreaterDx2() {
+        x1 += dx2;
+        x2 += dx1;
+        z += dz2;	
+	}
     
 	private void drawTopTriangle() {
 		initializeTopTriangle();
@@ -236,20 +244,28 @@ public class Rasterizer {
 			initializeDx1GreaterDx2();
 	        for (; y1 > y2; y1--) {
 	        	drawScanline(x1, x2, y1, z, dz);
-	            x1 -= dx1;
-	            x2 -= dx2;
-	            z -= dz1;
+	        	incrementTopDx2GreaterDx1();
 	        }
 		} else {
 			initializeDx2GreaterDx1();
 	        for (; y1 > y2; y1--) {
 	        	drawScanline(x1, x2, y1, z, dz);
-	            x1 -= dx2;
-	            x2 -= dx1;
-	            z -= dz2;
+	        	incrementTopDx1GreaterDx2();
 	        }
 		}
     }
+	
+	protected void incrementTopDx2GreaterDx1() {
+        x1 -= dx1;
+        x2 -= dx2;
+        z -= dz1;	
+	}
+	
+	protected void incrementTopDx1GreaterDx2() {
+        x1 -= dx2;
+        x2 -= dx1;
+        z -= dz2;
+	}
 	
 	protected void initializeTopTriangle() {
 		final int xShifted = location2[VECTOR_X] << FP_BIT;

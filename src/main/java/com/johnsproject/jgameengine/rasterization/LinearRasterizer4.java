@@ -120,21 +120,7 @@ public class LinearRasterizer4 extends LinearRasterizer2 {
 	        			v1x, dv1x, v1y, dv1y, v1z, dv1z,
 	        			v2x, dv2x, v2y, dv2y, v2z, dv2z,
 	        			v3x, dv3x, v3y, dv3y, v3z, dv3z);
-	            x1 += dx1;
-	            x2 += dx2;
-	            z += dz1;
-	            v0x += dv0x1;
-	            v0y += dv0y1;
-	            v0z += dv0z1;
-	            v1x += dv1x1;
-	            v1y += dv1y1;
-	            v1z += dv1z1;
-	            v2x += dv2x1;
-	            v2y += dv2y1;
-	            v2z += dv2z1;
-	            v3x += dv3x1;
-	            v3y += dv3y1;
-	            v3z += dv3z1;
+	        	incrementBottomDx2GreaterDx1();
 	        }
         } else {
         	initializeDx1GreaterDx2();
@@ -144,21 +130,7 @@ public class LinearRasterizer4 extends LinearRasterizer2 {
 	        			v1x, dv1x, v1y, dv1y, v1z, dv1z,
 	        			v2x, dv2x, v2y, dv2y, v2z, dv2z,
 	        			v3x, dv3x, v3y, dv3y, v3z, dv3z);
-	            x1 += dx2;
-	            x2 += dx1;
-	            z += dz2;
-	            v0x += dv0x2;
-	            v0y += dv0y2;
-	            v0z += dv0z2;
-	            v1x += dv1x2;
-	            v1y += dv1y2;
-	            v1z += dv1z2;
-	            v2x += dv2x2;
-	            v2y += dv2y2;
-	            v2z += dv2z2;
-	            v3x += dv3x2;
-	            v3y += dv3y2;
-	            v3z += dv3z2;
+        		incrementBottomDx1GreaterDx2();
 	        }
         }
     }
@@ -184,6 +156,26 @@ public class LinearRasterizer4 extends LinearRasterizer2 {
         v3y = vector30[VECTOR_Y];
         v3z = vector30[VECTOR_Z];
 	}
+	
+	protected void incrementBottomDx2GreaterDx1() {
+		super.incrementBottomDx2GreaterDx1();
+		v2x += dv2x1;
+        v2y += dv2y1;
+        v2z += dv2z1;
+        v3x += dv3x1;
+        v3y += dv3y1;
+        v3z += dv3z1;
+	}
+	
+	protected void incrementBottomDx1GreaterDx2() {
+		super.incrementBottomDx1GreaterDx2();
+		v2x += dv2x2;
+        v2y += dv2y2;
+        v2z += dv2z2;
+        v3x += dv3x2;
+        v3y += dv3y2;
+        v3z += dv3z2;
+	}
     
 	private void drawTopTriangle() {
 		initializeTopTriangle();
@@ -195,21 +187,7 @@ public class LinearRasterizer4 extends LinearRasterizer2 {
 	        			v1x, dv1x, v1y, dv1y, v1z, dv1z,
 	        			v2x, dv2x, v2y, dv2y, v2z, dv2z,
 	        			v3x, dv3x, v3y, dv3y, v3z, dv3z);
-	            x1 -= dx1;
-	            x2 -= dx2;
-	            z -= dz1;
-	            v0x -= dv0x1;
-	            v0y -= dv0y1;
-	            v0z -= dv0z1;
-	            v1x -= dv1x1;
-	            v1y -= dv1y1;
-	            v1z -= dv1z1;
-	            v2x -= dv2x1;
-	            v2y -= dv2y1;
-	            v2z -= dv2z1;
-	            v3x -= dv3x1;
-	            v3y -= dv3y1;
-	            v3z -= dv3z1;
+	        	incrementTopDx2GreaterDx1();
 	        }
 		} else {
 			initializeDx2GreaterDx1();
@@ -219,21 +197,7 @@ public class LinearRasterizer4 extends LinearRasterizer2 {
 	        			v1x, dv1x, v1y, dv1y, v1z, dv1z,
 	        			v2x, dv2x, v2y, dv2y, v2z, dv2z,
 	        			v3x, dv3x, v3y, dv3y, v3z, dv3z);
-	            x1 -= dx2;
-	            x2 -= dx1;
-	            z -= dz2;
-	            v0x -= dv0x2;
-	            v0y -= dv0y2;
-	            v0z -= dv0z2;
-	            v1x -= dv1x2;
-	            v1y -= dv1y2;
-	            v1z -= dv1z2;
-	            v2x -= dv2x2;
-	            v2y -= dv2y2;
-	            v2z -= dv2z2;
-	            v3x -= dv3x2;
-	            v3y -= dv3y2;
-	            v3z -= dv3z2;
+	        	incrementTopDx1GreaterDx2();
 	        }
 		}
     }
@@ -258,6 +222,26 @@ public class LinearRasterizer4 extends LinearRasterizer2 {
         v3x = vector32[VECTOR_X];
         v3y = vector32[VECTOR_Y];
         v3z = vector32[VECTOR_Z];
+	}
+	
+	protected void incrementTopDx2GreaterDx1() {
+		super.incrementTopDx2GreaterDx1();
+        v2x -= dv2x1;
+        v2y -= dv2y1;
+        v2z -= dv2z1;
+        v3x -= dv3x1;
+        v3y -= dv3y1;
+        v3z -= dv3z1;
+	}
+	
+	protected void incrementTopDx1GreaterDx2() {
+		super.incrementTopDx1GreaterDx2();
+        v2x -= dv2x2;
+        v2y -= dv2y2;
+        v2z -= dv2z2;
+        v3x -= dv3x2;
+        v3y -= dv3y2;
+        v3z -= dv3z2;
 	}
 	
 	protected void initializeDx1GreaterDx2() {

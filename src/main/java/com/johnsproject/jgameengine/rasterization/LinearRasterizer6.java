@@ -122,27 +122,7 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
 	        			v3x, dv3x, v3y, dv3y, v3z, dv3z,
 	        			v4x, dv4x, v4y, dv4y, v4z, dv4z,
 	        			v5x, dv5x, v5y, dv5y, v5z, dv5z);
-	            x1 += dx1;
-	            x2 += dx2;
-	            z += dz1;
-	            v0x += dv0x1;
-	            v0y += dv0y1;
-	            v0z += dv0z1;
-	            v1x += dv1x1;
-	            v1y += dv1y1;
-	            v1z += dv1z1;
-	            v2x += dv2x1;
-	            v2y += dv2y1;
-	            v2z += dv2z1;
-	            v3x += dv3x1;
-	            v3y += dv3y1;
-	            v3z += dv3z1;
-	            v4x += dv4x1;
-	            v4y += dv4y1;
-	            v4z += dv4z1;
-	            v5x += dv5x1;
-	            v5y += dv5y1;
-	            v5z += dv5z1;
+	        	incrementBottomDx2GreaterDx1();
 	        }
         } else {
         	initializeDx1GreaterDx2();
@@ -154,27 +134,7 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
 	        			v3x, dv3x, v3y, dv3y, v3z, dv3z,
 	        			v4x, dv4x, v4y, dv4y, v4z, dv4z,
 	        			v5x, dv5x, v5y, dv5y, v5z, dv5z);
-	            x1 += dx2;
-	            x2 += dx1;
-	            z += dz2;
-	            v0x += dv0x2;
-	            v0y += dv0y2;
-	            v0z += dv0z2;
-	            v1x += dv1x2;
-	            v1y += dv1y2;
-	            v1z += dv1z2;
-	            v2x += dv2x2;
-	            v2y += dv2y2;
-	            v2z += dv2z2;
-	            v3x += dv3x2;
-	            v3y += dv3y2;
-	            v3z += dv3z2;
-	            v4x += dv4x2;
-	            v4y += dv4y2;
-	            v4z += dv4z2;
-	            v5x += dv5x2;
-	            v5y += dv5y2;
-	            v5z += dv5z2;
+        		incrementBottomDx1GreaterDx2();
 	        }
         }
     }
@@ -200,6 +160,26 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
         v5y = vector50[VECTOR_Y];
         v5z = vector50[VECTOR_Z];
 	}
+	
+	protected void incrementBottomDx2GreaterDx1() {
+		super.incrementBottomDx2GreaterDx1();
+		v4x += dv4x1;
+        v4y += dv4y1;
+        v4z += dv4z1;
+        v5x += dv5x1;
+        v5y += dv5y1;
+        v5z += dv5z1;
+	}
+	
+	protected void incrementBottomDx1GreaterDx2() {
+		super.incrementBottomDx1GreaterDx2();
+		v4x += dv4x2;
+        v4y += dv4y2;
+        v4z += dv4z2;
+        v5x += dv5x2;
+        v5y += dv5y2;
+        v5z += dv5z2;
+	}
     
 	private void drawTopTriangle() {
 		initializeTopTriangle();
@@ -213,27 +193,7 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
 	        			v3x, dv3x, v3y, dv3y, v3z, dv3z,
 	        			v4x, dv4x, v4y, dv4y, v4z, dv4z,
 	        			v5x, dv5x, v5y, dv5y, v5z, dv5z);
-	            x1 -= dx1;
-	            x2 -= dx2;
-	            z -= dz1;
-	            v0x -= dv0x1;
-	            v0y -= dv0y1;
-	            v0z -= dv0z1;
-	            v1x -= dv1x1;
-	            v1y -= dv1y1;
-	            v1z -= dv1z1;
-	            v2x -= dv2x1;
-	            v2y -= dv2y1;
-	            v2z -= dv2z1;
-	            v3x -= dv3x1;
-	            v3y -= dv3y1;
-	            v3z -= dv3z1;
-	            v4x -= dv4x1;
-	            v4y -= dv4y1;
-	            v4z -= dv4z1;
-	            v5x -= dv5x1;
-	            v5y -= dv5y1;
-	            v5z -= dv5z1;
+	        	incrementTopDx2GreaterDx1();
 	        }
 		} else {
 			initializeDx2GreaterDx1();
@@ -245,27 +205,7 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
 	        			v3x, dv3x, v3y, dv3y, v3z, dv3z,
 	        			v4x, dv4x, v4y, dv4y, v4z, dv4z,
 	        			v5x, dv5x, v5y, dv5y, v5z, dv5z);
-	            x1 -= dx2;
-	            x2 -= dx1;
-	            z -= dz2;
-	            v0x -= dv0x2;
-	            v0y -= dv0y2;
-	            v0z -= dv0z2;
-	            v1x -= dv1x2;
-	            v1y -= dv1y2;
-	            v1z -= dv1z2;
-	            v2x -= dv2x2;
-	            v2y -= dv2y2;
-	            v2z -= dv2z2;
-	            v3x -= dv3x2;
-	            v3y -= dv3y2;
-	            v3z -= dv3z2;
-	            v4x -= dv4x2;
-	            v4y -= dv4y2;
-	            v4z -= dv4z2;
-	            v5x -= dv5x2;
-	            v5y -= dv5y2;
-	            v5z -= dv5z2;
+	        	incrementTopDx1GreaterDx2();
 	        }
 		}
     }
@@ -290,6 +230,26 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
         v5x = vector52[VECTOR_X];
         v5y = vector52[VECTOR_Y];
         v5z = vector52[VECTOR_Z];
+	}
+	
+	protected void incrementTopDx2GreaterDx1() {
+		super.incrementTopDx2GreaterDx1();
+		 v4x -= dv4x1;
+         v4y -= dv4y1;
+         v4z -= dv4z1;
+         v5x -= dv5x1;
+         v5y -= dv5y1;
+         v5z -= dv5z1;
+	}
+	
+	protected void incrementTopDx1GreaterDx2() {
+		super.incrementTopDx1GreaterDx2();
+		v4x -= dv4x2;
+        v4y -= dv4y2;
+        v4z -= dv4z2;
+        v5x -= dv5x2;
+        v5y -= dv5y2;
+        v5z -= dv5z2;
 	}
 	
 	protected void initializeDx1GreaterDx2() {

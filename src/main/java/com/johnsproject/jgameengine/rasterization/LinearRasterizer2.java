@@ -120,15 +120,7 @@ public class LinearRasterizer2 extends Rasterizer {
 	        	drawScanline(x1, x2, y1, z, dz,
 	        			v0x, dv0x, v0y, dv0y, v0z, dv0z,
 	        			v1x, dv1x, v1y, dv1y, v1z, dv1z);
-	            x1 += dx1;
-	            x2 += dx2;
-	            z += dz1;
-	            v0x += dv0x1;
-	            v0y += dv0y1;
-	            v0z += dv0z1;
-	            v1x += dv1x1;
-	            v1y += dv1y1;
-	            v1z += dv1z1;
+	        	incrementBottomDx2GreaterDx1();
 	        }
         } else {
         	initializeDx1GreaterDx2();
@@ -136,15 +128,7 @@ public class LinearRasterizer2 extends Rasterizer {
         		drawScanline(x1, x2, y1, z, dz,
 	        			v0x, dv0x, v0y, dv0y, v0z, dv0z,
 	        			v1x, dv1x, v1y, dv1y, v1z, dv1z);
-	            x1 += dx2;
-	            x2 += dx1;
-	            z += dz2;
-	            v0x += dv0x2;
-	            v0y += dv0y2;
-	            v0z += dv0z2;
-	            v1x += dv1x2;
-	            v1y += dv1y2;
-	            v1z += dv1z2;
+        		incrementBottomDx1GreaterDx2();
 	        }
         }
     }
@@ -172,6 +156,26 @@ public class LinearRasterizer2 extends Rasterizer {
         v1y = vector10[VECTOR_Y];
         v1z = vector10[VECTOR_Z];
 	}
+	
+	protected void incrementBottomDx2GreaterDx1() {
+		super.incrementBottomDx2GreaterDx1();
+        v0x += dv0x1;
+        v0y += dv0y1;
+        v0z += dv0z1;
+        v1x += dv1x1;
+        v1y += dv1y1;
+        v1z += dv1z1;
+	}
+	
+	protected void incrementBottomDx1GreaterDx2() {
+		super.incrementBottomDx1GreaterDx2();
+        v0x += dv0x2;
+        v0y += dv0y2;
+        v0z += dv0z2;
+        v1x += dv1x2;
+        v1y += dv1y2;
+        v1z += dv1z2;
+	}
     
 	private void drawTopTriangle() {
 		initializeTopTriangle();
@@ -181,15 +185,7 @@ public class LinearRasterizer2 extends Rasterizer {
 	        	drawScanline(x1, x2, y1, z, dz,
 	        			v0x, dv0x, v0y, dv0y, v0z, dv0z,
 	        			v1x, dv1x, v1y, dv1y, v1z, dv1z);
-	            x1 -= dx1;
-	            x2 -= dx2;
-	            z -= dz1;
-	            v0x -= dv0x1;
-	            v0y -= dv0y1;
-	            v0z -= dv0z1;
-	            v1x -= dv1x1;
-	            v1y -= dv1y1;
-	            v1z -= dv1z1;
+	        	incrementTopDx2GreaterDx1();
 	        }
 		} else {
 			initializeDx2GreaterDx1();
@@ -197,15 +193,7 @@ public class LinearRasterizer2 extends Rasterizer {
 	        	drawScanline(x1, x2, y1, z, dz,
 	        			v0x, dv0x, v0y, dv0y, v0z, dv0z,
 	        			v1x, dv1x, v1y, dv1y, v1z, dv1z);
-	            x1 -= dx2;
-	            x2 -= dx1;
-	            z -= dz2;
-	            v0x -= dv0x2;
-	            v0y -= dv0y2;
-	            v0z -= dv0z2;
-	            v1x -= dv1x2;
-	            v1y -= dv1y2;
-	            v1z -= dv1z2;
+	        	incrementTopDx1GreaterDx2();
 	        }
 		}
     }
@@ -232,6 +220,26 @@ public class LinearRasterizer2 extends Rasterizer {
         v1x = vector12[VECTOR_X];
         v1y = vector12[VECTOR_Y];
         v1z = vector12[VECTOR_Z];
+	}
+	
+	protected void incrementTopDx2GreaterDx1() {
+		super.incrementTopDx2GreaterDx1();
+        v0x -= dv0x1;
+        v0y -= dv0y1;
+        v0z -= dv0z1;
+        v1x -= dv1x1;
+        v1y -= dv1y1;
+        v1z -= dv1z1;
+	}
+	
+	protected void incrementTopDx1GreaterDx2() {
+		super.incrementTopDx1GreaterDx2();
+        v0x -= dv0x2;
+        v0y -= dv0y2;
+        v0z -= dv0z2;
+        v1x -= dv1x2;
+        v1y -= dv1y2;
+        v1z -= dv1z2;
 	}
 	
 	protected void initializeDx1GreaterDx2() {
