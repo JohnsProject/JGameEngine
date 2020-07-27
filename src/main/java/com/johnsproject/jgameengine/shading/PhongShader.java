@@ -103,7 +103,7 @@ public class PhongShader extends ThreadedShader {
 			setWorldSpaceVetors(face);
 			setDirectionalLightSpaceVectors(face);
 			setSpotLightSpaceVectors(face);
-			rasterizer.linearDraw6(face);
+			rasterizer.linearDraw6(face, shaderBuffer.getCamera().getFrustum());
 		}
 		
 		private void setUVs(Face face) {

@@ -6,6 +6,7 @@ import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
 
 import com.johnsproject.jgameengine.model.Face;
+import com.johnsproject.jgameengine.model.Frustum;
 import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
@@ -48,9 +49,9 @@ public class LinearRasterizer4 extends LinearRasterizer2 {
 		this.vector33 = VectorUtils.emptyVector();
 	}
 	
-	public void linearDraw4(Face face) {
+	public void linearDraw4(Face face, Frustum frustum) {
 		copyLocations(face);
-		copyFrustum();
+		copyFrustum(frustum);
 		if(isCulled())
 			return;
 		sortY();

@@ -63,9 +63,9 @@ public class Rasterizer {
 		this.faceCull = faceCull;
 	}
 	
-	public void draw(Face face) {
+	public void draw(Face face, Frustum frustum) {
 		copyLocations(face);
-		copyFrustum();
+		copyFrustum(frustum);
 		if(isCulled())
 			return;
 		sortY();
@@ -88,8 +88,7 @@ public class Rasterizer {
 		VectorUtils.copy(location2, face.getVertex(2).getLocation());
 	}
 	
-	protected void copyFrustum() {
-		final Frustum frustum = shader.getShaderBuffer().getCamera().getFrustum();
+	protected void copyFrustum(Frustum frustum) {
 		renderTargetLeft = frustum.getRenderTargetLeft();
 		renderTargetRight = frustum.getRenderTargetRight();
 		renderTargetTop = frustum.getRenderTargetTop();

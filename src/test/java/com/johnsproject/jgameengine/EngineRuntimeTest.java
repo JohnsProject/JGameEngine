@@ -23,6 +23,7 @@ import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.shading.GouraudShader;
+import com.johnsproject.jgameengine.shading.BasicShader;
 import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
 import com.johnsproject.jgameengine.shading.PhongShader;
 import com.johnsproject.jgameengine.shading.Shader;
@@ -99,10 +100,10 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 //		((ForwardShaderBuffer)graphicsEngine.getShaderBuffer()).getDirectionalLightFrustum().setFocalLength(FP_ONE >> 1);
 		
 		graphicsEngine.getShaders().clear();
-		graphicsEngine.addShader(new ShadowMappingShader());
+//		graphicsEngine.addShader(new ShadowMappingShader());
 //		graphicsEngine.addShader(new PhongShader());
-		graphicsEngine.addShader(new GouraudShader());
-		graphicsEngine.setDefaultShader(graphicsEngine.getShader(1));
+		graphicsEngine.addShader(new BasicShader());
+		graphicsEngine.setDefaultShader(graphicsEngine.getShader(0));
 	}
 	
 	private Scene loadScene() {		

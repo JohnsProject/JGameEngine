@@ -44,7 +44,7 @@ public class ShadowMappingShader implements Shader {
 			shadowBias = directionalLight.getShadowBias() >> 10;
 			shadowMap = shaderBuffer.getDirectionalShadowMap();
 			rasterizer.setFrustumCull(false);
-			rasterizer.draw(face);
+			rasterizer.draw(face, shaderBuffer.getCamera().getFrustum());
 		}
 	}
 	
@@ -56,7 +56,7 @@ public class ShadowMappingShader implements Shader {
 			shadowBias = spotLight.getShadowBias() >> 10;
 			shadowMap = shaderBuffer.getSpotShadowMap();
 			rasterizer.setFrustumCull(true);
-			rasterizer.draw(face);
+			rasterizer.draw(face, shaderBuffer.getCamera().getFrustum());
 		}
 	}
 	

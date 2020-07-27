@@ -239,7 +239,7 @@ public class GouraudShader extends ThreadedShader {
 			setColors(face);
 			setDirectionalLightSpaceVectors(face);
 			setSpotLightSpaceVectors(face);
-			rasterizer.linearDraw4(face);
+			rasterizer.linearDraw4(face, shaderBuffer.getCamera().getFrustum());
 		}
 
 		private void setUVs(Face face) {
