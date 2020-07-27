@@ -236,11 +236,19 @@ public final class VectorUtils {
 		
 		final int matrix33 = matrix[3][VECTOR_W];
 		if(matrix33 != FP_ONE) {
+			vector[VECTOR_W] = FP_ONE;
 			res = FixedPointUtils.multiply(matrix[0][VECTOR_W], x);
 			res += FixedPointUtils.multiply(matrix[1][VECTOR_W], y);
 			res += FixedPointUtils.multiply(matrix[2][VECTOR_W], z);
-			vector[VECTOR_W] = res + matrix33;
+			int w = res + matrix33;
 			
+			if(w != FP_ONE) {
+				final int precisionBit = FP_BIT >> 1;
+				w = FixedPointUtils.divide(FP_ONE << precisionBit, w == 0 ? 1 : w);
+				vector[VECTOR_X] = FixedPointUtils.multiply(vector[VECTOR_X], w) >> precisionBit;
+				vector[VECTOR_Y] = FixedPointUtils.multiply(vector[VECTOR_Y], w) >> precisionBit;
+				vector[VECTOR_Z] = FixedPointUtils.multiply(vector[VECTOR_Z], w) >> precisionBit;
+			}
 		}
 		return vector;
 	}

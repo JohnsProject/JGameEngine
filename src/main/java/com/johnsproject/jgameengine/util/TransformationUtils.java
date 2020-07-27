@@ -11,50 +11,46 @@ public final class TransformationUtils {
 	private TransformationUtils() { }
 
 	public static int[][] orthographicMatrix(int[][] matrix, Frustum frustum) {
-		int top = frustum.getRenderTargetTop();
-		int bottom = frustum.getRenderTargetBottom();
-		int near = frustum.getNear();
-		int far = frustum.getFar();		
-		int farNear = far - near;
-		int scaleFactor = FixedPointUtils.multiply(frustum.getFocalLength(), bottom - top + 1);
-		int[][] projectionMatrix = MatrixUtils.copy(matrix, MatrixUtils.MATRIX_IDENTITY);
-		projectionMatrix[0][0] = scaleFactor;
-		projectionMatrix[1][1] = scaleFactor;
-		projectionMatrix[2][2] = -FixedPointUtils.divide(FP_ONE, farNear);
-		projectionMatrix[3][2] = -FixedPointUtils.divide(near, farNear);
-		projectionMatrix[3][3] = -FP_ONE << 4;
+		final int top = frustum.getRenderTargetTop();
+		final int bottom = frustum.getRenderTargetBottom();
+		final int near = frustum.getNear();
+		final int far = frustum.getFar();		
+		final int scaleFactor = FixedPointUtils.multiply(frustum.getFocalLength(), bottom - top + 1);
+		final int[][] projectionMatrix = MatrixUtils.copy(matrix, MatrixUtils.MATRIX_IDENTITY);
+		projectionMatrix[0][0] = scaleFactor >> 5;
+		projectionMatrix[1][1] = -scaleFactor >> 5;
+		projectionMatrix[2][2] = -FixedPointUtils.divide(FP_ONE, far);
+		projectionMatrix[3][2] = -FixedPointUtils.divide(near, far);
+		projectionMatrix[3][3] = FP_ONE;
 		return projectionMatrix;
 	}
 
 	public static int[][] perspectiveMatrix(int[][] matrix, Frustum frustum) {
-		int top = frustum.getRenderTargetTop();
-		int bottom = frustum.getRenderTargetBottom();
-		int near = frustum.getNear();
-		int far = frustum.getFar();	
-		int farNear = far - near;
-		int scaleFactor = FixedPointUtils.multiply(frustum.getFocalLength(), bottom - top + 1);
-		int[][] projectionMatrix = MatrixUtils.copy(matrix, MatrixUtils.MATRIX_IDENTITY);
-		projectionMatrix[0][0] = -scaleFactor;
-		projectionMatrix[1][1] = scaleFactor;
-		projectionMatrix[2][2] = -FixedPointUtils.divide(FP_ONE, farNear);
-		projectionMatrix[3][2] = -FixedPointUtils.divide(near, farNear);
-		projectionMatrix[2][3] = FP_ONE;
+		final int top = frustum.getRenderTargetTop();
+		final int bottom = frustum.getRenderTargetBottom();
+		final int near = frustum.getNear();
+		final int far = frustum.getFar();	
+		final int farNear = far - near;
+		final int scaleFactor = FixedPointUtils.multiply(frustum.getFocalLength(), bottom - top + 1);
+		final int[][] projectionMatrix = MatrixUtils.copy(matrix, MatrixUtils.MATRIX_IDENTITY);
+		projectionMatrix[0][0] = scaleFactor;
+		projectionMatrix[1][1] = -scaleFactor;
+		projectionMatrix[2][2] = -FixedPointUtils.divide(far, farNear);
+		projectionMatrix[3][2] = -FixedPointUtils.divide(FixedPointUtils.multiply(near, far), farNear);
+		projectionMatrix[2][3] = -FP_ONE;
 		projectionMatrix[3][3] = 0;
 		return projectionMatrix;
 	}
 
 	public static int[] screenportVector(int[] location, Frustum frustum) {
-		int top = frustum.getRenderTargetTop();
-		int bottom = frustum.getRenderTargetBottom();
-		int left = frustum.getRenderTargetLeft();
-		int right = frustum.getRenderTargetRight();
-		int halfX = left + ((right - left) >> 1);
-		int halfY = top + ((bottom - top) >> 1);
-		int w = location[VECTOR_W];
-		w = FixedPointUtils.divide(FP_ONE, w == 0 ? 1 : w);
-		location[VECTOR_X] = FixedPointUtils.multiply(location[VECTOR_X], w) + halfX;
-		location[VECTOR_Y] = FixedPointUtils.multiply(location[VECTOR_Y], w) + halfY;
-		location[VECTOR_W] = FP_ONE;
+		final int left = frustum.getRenderTargetLeft();
+		final int right = frustum.getRenderTargetRight();
+		final int top = frustum.getRenderTargetTop();
+		final int bottom = frustum.getRenderTargetBottom();
+		final int halfWidth = left + ((right - left) >> 1);
+		final int halfHeight = top + ((bottom - top) >> 1);
+		location[VECTOR_X] += halfWidth;
+		location[VECTOR_Y] += halfHeight;
 		return location;
 	}
 	
@@ -84,10 +80,10 @@ public final class TransformationUtils {
 	 * @param result
 	 */
 	public static int[] reflect(int[] vector, int[] reflectionVector) {
-		int x = reflectionVector[VECTOR_X];
-		int y = reflectionVector[VECTOR_Y];
-		int z = reflectionVector[VECTOR_Z];
-		int dot = (int)(2 * VectorUtils.dotProduct(vector, reflectionVector));
+		final int x = reflectionVector[VECTOR_X];
+		final int y = reflectionVector[VECTOR_Y];
+		final int z = reflectionVector[VECTOR_Z];
+		final int dot = (int)(2 * VectorUtils.dotProduct(vector, reflectionVector));
 		VectorUtils.multiply(reflectionVector, dot);
 		VectorUtils.subtract(vector, reflectionVector);
 		reflectionVector[VECTOR_X] = x;
@@ -105,11 +101,11 @@ public final class TransformationUtils {
 	 * @return
 	 */
 	public static int[] rotateX(int[] vector, int angle) {
-		int sin = FixedPointUtils.sin(angle);
-		int cos = FixedPointUtils.cos(angle);
-		int x = vector[VECTOR_X];
-		int y = vector[VECTOR_Y];
-		int z = vector[VECTOR_Z];
+		final int sin = FixedPointUtils.sin(angle);
+		final int cos = FixedPointUtils.cos(angle);
+		final int x = vector[VECTOR_X];
+		final int y = vector[VECTOR_Y];
+		final int z = vector[VECTOR_Z];
 		vector[VECTOR_X] = x;
 		vector[VECTOR_Y] = FixedPointUtils.multiply(y, cos);
 		vector[VECTOR_Y] -= FixedPointUtils.multiply(z, sin);
@@ -127,11 +123,11 @@ public final class TransformationUtils {
 	 * @return
 	 */
 	public static int[] rotateY(int[] vector, int angle) {
-		int sin = FixedPointUtils.sin(angle);
-		int cos = FixedPointUtils.cos(angle);
-		int x = vector[VECTOR_X];
-		int y = vector[VECTOR_Y];
-		int z = vector[VECTOR_Z];
+		final int sin = FixedPointUtils.sin(angle);
+		final int cos = FixedPointUtils.cos(angle);
+		final int x = vector[VECTOR_X];
+		final int y = vector[VECTOR_Y];
+		final int z = vector[VECTOR_Z];
 		vector[VECTOR_X] = FixedPointUtils.multiply(x, cos);
 		vector[VECTOR_X] += FixedPointUtils.multiply(z, sin);
 		vector[VECTOR_Y] = y;
@@ -149,11 +145,11 @@ public final class TransformationUtils {
 	 * @return
 	 */
 	public static int[] rotateZ(int[] vector, int angle) {
-		int sin = FixedPointUtils.sin(angle);
-		int cos = FixedPointUtils.cos(angle);
-		int x = vector[VECTOR_X];
-		int y = vector[VECTOR_Y];
-		int z = vector[VECTOR_Z];
+		final int sin = FixedPointUtils.sin(angle);
+		final int cos = FixedPointUtils.cos(angle);
+		final int x = vector[VECTOR_X];
+		final int y = vector[VECTOR_Y];
+		final int z = vector[VECTOR_Z];
 		vector[VECTOR_X] = FixedPointUtils.multiply(x, cos);
 		vector[VECTOR_X] += FixedPointUtils.multiply(y, sin);
 		vector[VECTOR_Y] = FixedPointUtils.multiply(y, cos);
@@ -206,8 +202,8 @@ public final class TransformationUtils {
 	
 	public static int[][] xRotationMatrix(int[][] matrix, int angle) {
 		MatrixUtils.copy(matrix, MATRIX_IDENTITY);
-		int cos = FixedPointUtils.cos(angle);
-		int sin = FixedPointUtils.sin(angle);
+		final int cos = FixedPointUtils.cos(angle);
+		final int sin = FixedPointUtils.sin(angle);
 		matrix[1][1] = cos;
 		matrix[1][2] = sin;
 		matrix[2][1] = -sin;
@@ -217,8 +213,8 @@ public final class TransformationUtils {
 	
 	public static int[][] yRotationMatrix(int[][] matrix, int angle) {
 		MatrixUtils.copy(matrix, MATRIX_IDENTITY);
-		int cos = FixedPointUtils.cos(angle);
-		int sin = FixedPointUtils.sin(angle);
+		final int cos = FixedPointUtils.cos(angle);
+		final int sin = FixedPointUtils.sin(angle);
 		matrix[0][0] = cos;
 		matrix[0][2] = -sin;
 		matrix[2][0] = sin;
@@ -228,8 +224,8 @@ public final class TransformationUtils {
 	
 	public static int[][] zRotationMatrix(int[][] matrix, int angle) {
 		MatrixUtils.copy(matrix, MATRIX_IDENTITY);
-		int cos = FixedPointUtils.cos(angle);
-		int sin = FixedPointUtils.sin(angle);
+		final int cos = FixedPointUtils.cos(angle);
+		final int sin = FixedPointUtils.sin(angle);
 		matrix[0][0] = cos;
 		matrix[0][1] = sin;
 		matrix[1][0] = -sin;
