@@ -256,18 +256,6 @@ public class Rasterizer {
 		}
     }
 	
-	protected void incrementTopDx2GreaterDx1() {
-        x1 -= dx1;
-        x2 -= dx2;
-        z -= dz1;	
-	}
-	
-	protected void incrementTopDx1GreaterDx2() {
-        x1 -= dx2;
-        x2 -= dx1;
-        z -= dz2;
-	}
-	
 	protected void initializeTopTriangle() {
 		final int xShifted = location2[VECTOR_X] << FP_BIT;
 		y3y1 = location2[VECTOR_Y] - location0[VECTOR_Y];
@@ -285,6 +273,18 @@ public class Rasterizer {
 		y1 = location2[VECTOR_Y];
         y2 = location0[VECTOR_Y];
 		z = location2[VECTOR_Z] << FP_BIT;
+	}
+	
+	protected void incrementTopDx2GreaterDx1() {
+        x1 -= dx1;
+        x2 -= dx2;
+        z -= dz1;	
+	}
+	
+	protected void incrementTopDx1GreaterDx2() {
+        x1 -= dx2;
+        x2 -= dx1;
+        z -= dz2;
 	}
 	
 	protected void initializeDx2GreaterDx1() {

@@ -18,10 +18,11 @@ Graphics engine
 * [x] Shaders (flat, gouraud and phong shaders)
 * [x] Multithreaded shaders
 * [x] Point, directional and spot lights
-* [x] Shadow mapping for all light types (experimental)
+* [x] Directional and spot light shadow mapping
 * [x] Skeletal animation (experimental)
 * [ ] Skybox
 * [x] Custom Wavefront OBJ `.obj` importer
+* [ ] Animation importer
 
 Input engine
 * [x] Keyboard

@@ -1,9 +1,9 @@
 package com.johnsproject.jgameengine.shading;
 
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
-import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
 
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Face;
@@ -97,16 +97,16 @@ public class BasicThreadedShader extends ThreadedShader {
 		private int diffuseColor;
 		// texture of the face to draw
 		private Texture texture;
+		
+		public GeometryShader() {
+			rasterizer = new LinearRasterizer2(this);
+		}
 
 		public void initialize(ShaderBuffer shaderBuffer) {
 			this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
 			this.camera = shaderBuffer.getCamera();
 			this.frustum = camera.getFrustum();
 			this.frameBuffer = camera.getRenderTarget();
-		}
-		
-		public GeometryShader() {
-			rasterizer = new LinearRasterizer2(this);
 		}
 		
 		public void geometry(Face face) {

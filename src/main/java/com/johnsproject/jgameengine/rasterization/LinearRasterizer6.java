@@ -67,7 +67,8 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
             drawTopTriangle();
         }
 	}
-	
+
+	@Override
 	protected void sortY() {
 		super.sortY();
 		if (sortY00 > sortY01) {
@@ -83,7 +84,8 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
 			VectorUtils.swap(vector50, vector51);
 		}
 	}
-	
+
+	@Override
 	protected int splitTriangle() {
         int dy = super.splitTriangle();
         vector43[VECTOR_X] = vector40[VECTOR_X] + FixedPointUtils.multiply(dy, vector42[VECTOR_X] - vector40[VECTOR_X]);
@@ -94,13 +96,15 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
         vector53[VECTOR_Z] = vector50[VECTOR_Z] + FixedPointUtils.multiply(dy, vector52[VECTOR_Z] - vector50[VECTOR_Z]);
         return dy;
 	}
-	
+
+	@Override
 	protected void swapSplitedBottomTriangle() {
 		super.swapSplitedBottomTriangle();
 		VectorUtils.swap(vector43, vector42);
 		VectorUtils.swap(vector53, vector52);
 	}
-	
+
+	@Override
 	protected void swapSplitedTopTriangle() {
 		super.swapSplitedTopTriangle();
 	    VectorUtils.swap(vector43, vector42);
@@ -139,7 +143,8 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
 	        }
         }
     }
-	
+
+	@Override
 	protected void initializeBottomTriangle() {
 		super.initializeBottomTriangle();
 		dv4x1 = FixedPointUtils.multiply(vector41[VECTOR_X] - vector40[VECTOR_X], y2y1Shifted);
@@ -161,7 +166,8 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
         v5y = vector50[VECTOR_Y];
         v5z = vector50[VECTOR_Z];
 	}
-	
+
+	@Override
 	protected void incrementBottomDx2GreaterDx1() {
 		super.incrementBottomDx2GreaterDx1();
 		v4x += dv4x1;
@@ -171,7 +177,8 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
         v5y += dv5y1;
         v5z += dv5z1;
 	}
-	
+
+	@Override
 	protected void incrementBottomDx1GreaterDx2() {
 		super.incrementBottomDx1GreaterDx2();
 		v4x += dv4x2;
@@ -210,7 +217,8 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
 	        }
 		}
     }
-	
+
+	@Override
 	protected void initializeTopTriangle() {
 		super.initializeTopTriangle();
 		dv4x1 = FixedPointUtils.multiply(vector42[VECTOR_X] - vector40[VECTOR_X], y3y1Shifted);
@@ -232,7 +240,8 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
         v5y = vector52[VECTOR_Y];
         v5z = vector52[VECTOR_Z];
 	}
-	
+
+	@Override
 	protected void incrementTopDx2GreaterDx1() {
 		super.incrementTopDx2GreaterDx1();
 		 v4x -= dv4x1;
@@ -242,7 +251,8 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
          v5y -= dv5y1;
          v5z -= dv5z1;
 	}
-	
+
+	@Override
 	protected void incrementTopDx1GreaterDx2() {
 		super.incrementTopDx1GreaterDx2();
 		v4x -= dv4x2;
@@ -252,7 +262,8 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
         v5y -= dv5y2;
         v5z -= dv5z2;
 	}
-	
+
+	@Override
 	protected void initializeDx1GreaterDx2() {
 		super.initializeDx1GreaterDx2();
 		dv4x = FixedPointUtils.multiply(dv4x1 - dv4x2, dxdx);
@@ -262,7 +273,8 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
     	dv5y = FixedPointUtils.multiply(dv5y1 - dv5y2, dxdx);
     	dv5z = FixedPointUtils.multiply(dv5z1 - dv5z2, dxdx);
 	}
-	
+
+	@Override
 	protected void initializeDx2GreaterDx1() {
 		super.initializeDx2GreaterDx1();
 		dv4x = FixedPointUtils.multiply(dv4x2 - dv4x1, dxdx);
