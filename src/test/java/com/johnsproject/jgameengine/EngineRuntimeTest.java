@@ -103,7 +103,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener, Mou
 		graphicsEngine.getShaders().clear();
 //		graphicsEngine.addShader(new ShadowMappingShader());
 //		graphicsEngine.addShader(new PhongShader());
-		graphicsEngine.addShader(new BasicShader());
+		graphicsEngine.addShader(new BasicThreadedShader());
 		graphicsEngine.setDefaultShader(graphicsEngine.getShader(0));
 	}
 	
