@@ -3,6 +3,9 @@ package com.johnsproject.jgameengine.shading;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_HALF;
 
 import java.util.List;
 
@@ -194,7 +197,7 @@ public class GouraudShader extends ThreadedShader {
 			int attenuation = lightConstant;
 			attenuation += FixedPointUtils.multiply(lightLinear, distance);
 			attenuation += FixedPointUtils.multiply(lightQuadratic, distanceSquared);
-			attenuation = FixedPointUtils.divide(FixedPointUtils.FP_ONE, attenuation);
+			attenuation = FixedPointUtils.divide(FP_ONE, attenuation);
 			return attenuation;
 		}
 		
@@ -204,7 +207,7 @@ public class GouraudShader extends ThreadedShader {
 			int theta = (int)VectorUtils.dotProduct(lightDirection, direction);
 			int intesity = theta - light.getSpotSizeCosine();
 			intesity = FixedPointUtils.divide(intesity, light.getSpotSoftness());
-			intesity = FixedPointUtils.clamp(intesity, 0, FixedPointUtils.FP_ONE);
+			intesity = FixedPointUtils.clamp(intesity, 0, FP_ONE);
 			return intesity;
 		}
 
@@ -288,17 +291,17 @@ public class GouraudShader extends ThreadedShader {
 		}
 		
 		private void setColors(Face face) {
-			int r = ColorUtils.getRed(face.getVertex(0).getLightColor()) << FixedPointUtils.FP_BIT;
-			int g = ColorUtils.getGreen(face.getVertex(0).getLightColor()) << FixedPointUtils.FP_BIT;
-			int b = ColorUtils.getBlue(face.getVertex(0).getLightColor()) << FixedPointUtils.FP_BIT;
+			int r = ColorUtils.getRed(face.getVertex(0).getLightColor()) << FP_BIT;
+			int g = ColorUtils.getGreen(face.getVertex(0).getLightColor()) << FP_BIT;
+			int b = ColorUtils.getBlue(face.getVertex(0).getLightColor()) << FP_BIT;
 			rasterizer.setVector10(r, g, b);
-			r = ColorUtils.getRed(face.getVertex(1).getLightColor()) << FixedPointUtils.FP_BIT;
-			g = ColorUtils.getGreen(face.getVertex(1).getLightColor()) << FixedPointUtils.FP_BIT;
-			b = ColorUtils.getBlue(face.getVertex(1).getLightColor()) << FixedPointUtils.FP_BIT;
+			r = ColorUtils.getRed(face.getVertex(1).getLightColor()) << FP_BIT;
+			g = ColorUtils.getGreen(face.getVertex(1).getLightColor()) << FP_BIT;
+			b = ColorUtils.getBlue(face.getVertex(1).getLightColor()) << FP_BIT;
 			rasterizer.setVector11(r, g, b);
-			r = ColorUtils.getRed(face.getVertex(2).getLightColor()) << FixedPointUtils.FP_BIT;
-			g = ColorUtils.getGreen(face.getVertex(2).getLightColor()) << FixedPointUtils.FP_BIT;
-			b = ColorUtils.getBlue(face.getVertex(2).getLightColor()) << FixedPointUtils.FP_BIT;
+			r = ColorUtils.getRed(face.getVertex(2).getLightColor()) << FP_BIT;
+			g = ColorUtils.getGreen(face.getVertex(2).getLightColor()) << FP_BIT;
+			b = ColorUtils.getBlue(face.getVertex(2).getLightColor()) << FP_BIT;
 			rasterizer.setVector12(r, g, b);
 		}
 		
@@ -337,7 +340,7 @@ public class GouraudShader extends ThreadedShader {
 			VectorUtils.multiply(lightSpaceLocation, lightMatrix);
 			TransformationUtils.screenportVector(lightSpaceLocation, lightFrustum);
 			// The rasterizer will interpolate fixed point vectors but screen space vectors are not fixed point
-			VectorUtils.multiply(lightSpaceLocation, FixedPointUtils.FP_ONE << FixedPointUtils.FP_BIT);
+			VectorUtils.multiply(lightSpaceLocation, FP_ONE << FP_BIT);
 			return lightSpaceLocation;
 		}
 		
@@ -364,7 +367,7 @@ public class GouraudShader extends ThreadedShader {
 				
 				int color = ColorUtils.multiplyColor(lightColor, texelColor);
 				if(isInShadow)
-					color = ColorUtils.multiply(color, FixedPointUtils.FP_HALF);
+					color = ColorUtils.multiply(color, FP_HALF);
 				
 				colorBuffer.setPixel(x, y, color);
 				depthBuffer.setPixel(x, y, z);
@@ -376,8 +379,8 @@ public class GouraudShader extends ThreadedShader {
 				return ColorUtils.WHITE;
 			} else {
 				// The result will be, but pixels are not accessed with fixed point
-				final int u = uv[VECTOR_X] >> FixedPointUtils.FP_BIT;
-				final int v = uv[VECTOR_Y] >> FixedPointUtils.FP_BIT;
+				final int u = uv[VECTOR_X] >> FP_BIT;
+				final int v = uv[VECTOR_Y] >> FP_BIT;
 				return texture.getPixel(u, v);
 			}
 		}
@@ -387,17 +390,17 @@ public class GouraudShader extends ThreadedShader {
 				return false;
 			} else {
 				// The result will be, but pixels are not accessed with fixed point
-				final int x = lightSpaceLocation[VECTOR_X] >> FixedPointUtils.FP_BIT;
-				final int y = lightSpaceLocation[VECTOR_Y] >> FixedPointUtils.FP_BIT;
+				final int x = lightSpaceLocation[VECTOR_X] >> FP_BIT;
+				final int y = lightSpaceLocation[VECTOR_Y] >> FP_BIT;
 				final int depth = shadowMap.getPixel(x, y);
-				return depth < lightSpaceLocation[VECTOR_Z] >> FixedPointUtils.FP_BIT;
+				return depth < lightSpaceLocation[VECTOR_Z] >> FP_BIT;
 			}
 		}
 		
 		private int getFragmentLightColor(int[] color) {
-			final int r = color[0] >> FixedPointUtils.FP_BIT;
-			final int g = color[1] >> FixedPointUtils.FP_BIT;
-			final int b = color[2] >> FixedPointUtils.FP_BIT;
+			final int r = color[0] >> FP_BIT;
+			final int g = color[1] >> FP_BIT;
+			final int b = color[2] >> FP_BIT;
 			return ColorUtils.toColor(r, g, b);
 		}
 

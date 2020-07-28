@@ -3,6 +3,8 @@ package com.johnsproject.jgameengine.shading;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
 
 import java.util.List;
 
@@ -195,7 +197,7 @@ public class PhongShader extends ThreadedShader {
 			VectorUtils.multiply(lightSpaceLocation, lightMatrix);
 			TransformationUtils.screenportVector(lightSpaceLocation, lightFrustum);
 			// The rasterizer will interpolate fixed point vectors but screen space vectors are not fixed point
-			VectorUtils.multiply(lightSpaceLocation, FixedPointUtils.FP_ONE << FixedPointUtils.FP_BIT);
+			VectorUtils.multiply(lightSpaceLocation, FP_ONE << FP_BIT);
 			return lightSpaceLocation;
 		}
 		
@@ -230,8 +232,8 @@ public class PhongShader extends ThreadedShader {
 				return ColorUtils.WHITE;
 			} else {
 				// The result will be, but pixels are not accessed with fixed point
-				final int u = uv[VECTOR_X] >> FixedPointUtils.FP_BIT;
-				final int v = uv[VECTOR_Y] >> FixedPointUtils.FP_BIT;
+				final int u = uv[VECTOR_X] >> FP_BIT;
+				final int v = uv[VECTOR_Y] >> FP_BIT;
 				return texture.getPixel(u, v);
 			}
 		}
@@ -241,10 +243,10 @@ public class PhongShader extends ThreadedShader {
 				return false;
 			} else {
 				// The result will be, but pixels are not accessed with fixed point
-				final int x = lightSpaceLocation[VECTOR_X] >> FixedPointUtils.FP_BIT;
-				final int y = lightSpaceLocation[VECTOR_Y] >> FixedPointUtils.FP_BIT;
+				final int x = lightSpaceLocation[VECTOR_X] >> FP_BIT;
+				final int y = lightSpaceLocation[VECTOR_Y] >> FP_BIT;
 				final int depth = shadowMap.getPixel(x, y);
-				return depth < lightSpaceLocation[VECTOR_Z] >> FixedPointUtils.FP_BIT;
+				return depth < lightSpaceLocation[VECTOR_Z] >> FP_BIT;
 			}
 		}
 		
@@ -369,7 +371,7 @@ public class PhongShader extends ThreadedShader {
 			int attenuation = lightConstant;
 			attenuation += FixedPointUtils.multiply(lightLinear, distance);
 			attenuation += FixedPointUtils.multiply(lightQuadratic, distanceSquared);
-			attenuation = FixedPointUtils.divide(FixedPointUtils.FP_ONE, attenuation);
+			attenuation = FixedPointUtils.divide(FP_ONE, attenuation);
 			return attenuation;
 		}
 		
@@ -379,7 +381,7 @@ public class PhongShader extends ThreadedShader {
 			int theta = (int)VectorUtils.dotProduct(lightDirection, direction);
 			int intesity = theta - light.getSpotSizeCosine();
 			intesity = FixedPointUtils.divide(intesity, light.getSpotSoftness());
-			intesity = FixedPointUtils.clamp(intesity, 0, FixedPointUtils.FP_ONE);
+			intesity = FixedPointUtils.clamp(intesity, 0, FP_ONE);
 			return intesity;
 		}
 	

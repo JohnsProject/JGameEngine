@@ -3,6 +3,7 @@ package com.johnsproject.jgameengine.shading;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
 import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
+import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
 
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Face;
@@ -12,7 +13,6 @@ import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.rasterization.LinearRasterizer2;
 import com.johnsproject.jgameengine.util.ColorUtils;
-import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
@@ -122,8 +122,8 @@ public class BasicShader implements Shader {
 			return ColorUtils.WHITE;
 		} else {
 			// The result will be, but pixels are not accessed with fixed point
-			final int u = uv[VECTOR_X] >> FixedPointUtils.FP_BIT;
-			final int v = uv[VECTOR_Y] >> FixedPointUtils.FP_BIT;
+			final int u = uv[VECTOR_X] >> FP_BIT;
+			final int v = uv[VECTOR_Y] >> FP_BIT;
 			return texture.getPixel(u, v);
 		}
 	}
