@@ -14,7 +14,7 @@ is a lightweight 3D game engine written in Java.
 * [x] Input engine
 
 Graphics engine
-* [x] Scanline triangle rasterization (linear interpolation, no perspective needed as triangles can't be too big anyway because of clipping)
+* [x] Scanline triangle rasterization (linear interpolation, no perspective needed as big triangles are culled)
 * [x] Shaders (flat, gouraud and phong shaders)
 * [x] Multithreaded shaders
 * [x] Point, directional and spot lights
