@@ -142,18 +142,18 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
 	
 	protected void initializeBottomTriangle() {
 		super.initializeBottomTriangle();
-		dv4x1 = FixedPointUtils.divide(vector41[VECTOR_X] - vector40[VECTOR_X], y2y1Shifted);
-		dv4x2 = FixedPointUtils.divide(vector42[VECTOR_X] - vector40[VECTOR_X], y3y1Shifted);
-		dv4y1 = FixedPointUtils.divide(vector41[VECTOR_Y] - vector40[VECTOR_Y], y2y1Shifted);
-		dv4y2 = FixedPointUtils.divide(vector42[VECTOR_Y] - vector40[VECTOR_Y], y3y1Shifted);
-		dv4z1 = FixedPointUtils.divide(vector41[VECTOR_Z] - vector40[VECTOR_Z], y2y1Shifted);
-		dv4z2 = FixedPointUtils.divide(vector42[VECTOR_Z] - vector40[VECTOR_Z], y3y1Shifted);
-		dv5x1 = FixedPointUtils.divide(vector51[VECTOR_X] - vector50[VECTOR_X], y2y1Shifted);
-		dv5x2 = FixedPointUtils.divide(vector52[VECTOR_X] - vector50[VECTOR_X], y3y1Shifted);
-		dv5y1 = FixedPointUtils.divide(vector51[VECTOR_Y] - vector50[VECTOR_Y], y2y1Shifted);
-		dv5y2 = FixedPointUtils.divide(vector52[VECTOR_Y] - vector50[VECTOR_Y], y3y1Shifted);
-		dv5z1 = FixedPointUtils.divide(vector51[VECTOR_Z] - vector50[VECTOR_Z], y2y1Shifted);
-		dv5z2 = FixedPointUtils.divide(vector52[VECTOR_Z] - vector50[VECTOR_Z], y3y1Shifted);
+		dv4x1 = FixedPointUtils.multiply(vector41[VECTOR_X] - vector40[VECTOR_X], y2y1Shifted);
+		dv4x2 = FixedPointUtils.multiply(vector42[VECTOR_X] - vector40[VECTOR_X], y3y1Shifted);
+		dv4y1 = FixedPointUtils.multiply(vector41[VECTOR_Y] - vector40[VECTOR_Y], y2y1Shifted);
+		dv4y2 = FixedPointUtils.multiply(vector42[VECTOR_Y] - vector40[VECTOR_Y], y3y1Shifted);
+		dv4z1 = FixedPointUtils.multiply(vector41[VECTOR_Z] - vector40[VECTOR_Z], y2y1Shifted);
+		dv4z2 = FixedPointUtils.multiply(vector42[VECTOR_Z] - vector40[VECTOR_Z], y3y1Shifted);
+		dv5x1 = FixedPointUtils.multiply(vector51[VECTOR_X] - vector50[VECTOR_X], y2y1Shifted);
+		dv5x2 = FixedPointUtils.multiply(vector52[VECTOR_X] - vector50[VECTOR_X], y3y1Shifted);
+		dv5y1 = FixedPointUtils.multiply(vector51[VECTOR_Y] - vector50[VECTOR_Y], y2y1Shifted);
+		dv5y2 = FixedPointUtils.multiply(vector52[VECTOR_Y] - vector50[VECTOR_Y], y3y1Shifted);
+		dv5z1 = FixedPointUtils.multiply(vector51[VECTOR_Z] - vector50[VECTOR_Z], y2y1Shifted);
+		dv5z2 = FixedPointUtils.multiply(vector52[VECTOR_Z] - vector50[VECTOR_Z], y3y1Shifted);
         v4x = vector40[VECTOR_X];
         v4y = vector40[VECTOR_Y];
         v4z = vector40[VECTOR_Z];
@@ -213,18 +213,18 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
 	
 	protected void initializeTopTriangle() {
 		super.initializeTopTriangle();
-		dv4x1 = FixedPointUtils.divide(vector42[VECTOR_X] - vector40[VECTOR_X], y3y1Shifted);
-		dv4x2 = FixedPointUtils.divide(vector42[VECTOR_X] - vector41[VECTOR_X], y3y2Shifted);
-		dv4y1 = FixedPointUtils.divide(vector42[VECTOR_Y] - vector40[VECTOR_Y], y3y1Shifted);
-		dv4y2 = FixedPointUtils.divide(vector42[VECTOR_Y] - vector41[VECTOR_Y], y3y2Shifted);
-		dv4z1 = FixedPointUtils.divide(vector42[VECTOR_Z] - vector40[VECTOR_Z], y3y1Shifted);
-		dv4z2 = FixedPointUtils.divide(vector42[VECTOR_Z] - vector41[VECTOR_Z], y3y2Shifted);
-		dv5x1 = FixedPointUtils.divide(vector52[VECTOR_X] - vector50[VECTOR_X], y3y1Shifted);
-		dv5x2 = FixedPointUtils.divide(vector52[VECTOR_X] - vector51[VECTOR_X], y3y2Shifted);
-		dv5y1 = FixedPointUtils.divide(vector52[VECTOR_Y] - vector50[VECTOR_Y], y3y1Shifted);
-		dv5y2 = FixedPointUtils.divide(vector52[VECTOR_Y] - vector51[VECTOR_Y], y3y2Shifted);
-		dv5z1 = FixedPointUtils.divide(vector52[VECTOR_Z] - vector50[VECTOR_Z], y3y1Shifted);
-		dv5z2 = FixedPointUtils.divide(vector52[VECTOR_Z] - vector51[VECTOR_Z], y3y2Shifted);
+		dv4x1 = FixedPointUtils.multiply(vector42[VECTOR_X] - vector40[VECTOR_X], y3y1Shifted);
+		dv4x2 = FixedPointUtils.multiply(vector42[VECTOR_X] - vector41[VECTOR_X], y3y2Shifted);
+		dv4y1 = FixedPointUtils.multiply(vector42[VECTOR_Y] - vector40[VECTOR_Y], y3y1Shifted);
+		dv4y2 = FixedPointUtils.multiply(vector42[VECTOR_Y] - vector41[VECTOR_Y], y3y2Shifted);
+		dv4z1 = FixedPointUtils.multiply(vector42[VECTOR_Z] - vector40[VECTOR_Z], y3y1Shifted);
+		dv4z2 = FixedPointUtils.multiply(vector42[VECTOR_Z] - vector41[VECTOR_Z], y3y2Shifted);
+		dv5x1 = FixedPointUtils.multiply(vector52[VECTOR_X] - vector50[VECTOR_X], y3y1Shifted);
+		dv5x2 = FixedPointUtils.multiply(vector52[VECTOR_X] - vector51[VECTOR_X], y3y2Shifted);
+		dv5y1 = FixedPointUtils.multiply(vector52[VECTOR_Y] - vector50[VECTOR_Y], y3y1Shifted);
+		dv5y2 = FixedPointUtils.multiply(vector52[VECTOR_Y] - vector51[VECTOR_Y], y3y2Shifted);
+		dv5z1 = FixedPointUtils.multiply(vector52[VECTOR_Z] - vector50[VECTOR_Z], y3y1Shifted);
+		dv5z2 = FixedPointUtils.multiply(vector52[VECTOR_Z] - vector51[VECTOR_Z], y3y2Shifted);
         v4x = vector42[VECTOR_X];
         v4y = vector42[VECTOR_Y];
         v4z = vector42[VECTOR_Z];
@@ -255,22 +255,22 @@ public class LinearRasterizer6 extends LinearRasterizer4 {
 	
 	protected void initializeDx1GreaterDx2() {
 		super.initializeDx1GreaterDx2();
-		dv4x = FixedPointUtils.divide(dv4x1 - dv4x2, dxdx);
-    	dv4y = FixedPointUtils.divide(dv4y1 - dv4y2, dxdx);
-    	dv4z = FixedPointUtils.divide(dv4z1 - dv4z2, dxdx);
-    	dv5x = FixedPointUtils.divide(dv5x1 - dv5x2, dxdx);
-    	dv5y = FixedPointUtils.divide(dv5y1 - dv5y2, dxdx);
-    	dv5z = FixedPointUtils.divide(dv5z1 - dv5z2, dxdx);
+		dv4x = FixedPointUtils.multiply(dv4x1 - dv4x2, dxdx);
+    	dv4y = FixedPointUtils.multiply(dv4y1 - dv4y2, dxdx);
+    	dv4z = FixedPointUtils.multiply(dv4z1 - dv4z2, dxdx);
+    	dv5x = FixedPointUtils.multiply(dv5x1 - dv5x2, dxdx);
+    	dv5y = FixedPointUtils.multiply(dv5y1 - dv5y2, dxdx);
+    	dv5z = FixedPointUtils.multiply(dv5z1 - dv5z2, dxdx);
 	}
 	
 	protected void initializeDx2GreaterDx1() {
 		super.initializeDx2GreaterDx1();
-		dv4x = FixedPointUtils.divide(dv4x2 - dv4x1, dxdx);
-    	dv4y = FixedPointUtils.divide(dv4y2 - dv4y1, dxdx);
-    	dv4z = FixedPointUtils.divide(dv4z2 - dv4z1, dxdx);
-    	dv5x = FixedPointUtils.divide(dv5x2 - dv5x1, dxdx);
-    	dv5y = FixedPointUtils.divide(dv5y2 - dv5y1, dxdx);
-    	dv5z = FixedPointUtils.divide(dv5z2 - dv5z1, dxdx);
+		dv4x = FixedPointUtils.multiply(dv4x2 - dv4x1, dxdx);
+    	dv4y = FixedPointUtils.multiply(dv4y2 - dv4y1, dxdx);
+    	dv4z = FixedPointUtils.multiply(dv4z2 - dv4z1, dxdx);
+    	dv5x = FixedPointUtils.multiply(dv5x2 - dv5x1, dxdx);
+    	dv5y = FixedPointUtils.multiply(dv5y2 - dv5y1, dxdx);
+    	dv5z = FixedPointUtils.multiply(dv5z2 - dv5z1, dxdx);
 	}
 	
 	private void drawScanline(int x1, int x2, int y, int z, int dz,

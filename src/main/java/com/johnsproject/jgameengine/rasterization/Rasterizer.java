@@ -214,10 +214,12 @@ public class Rasterizer {
 		y2y1 = location1[VECTOR_Y] - location0[VECTOR_Y];
 		y2y1 = y2y1 == 0 ? 1 : y2y1;
 		y3y1 = y2y1;
-		dx1 = FixedPointUtils.divide(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
-		dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-		dz1 = FixedPointUtils.divide(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
-		dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		y2y1 = FixedPointUtils.divide(FP_ONE, y2y1);
+		y3y1 = FixedPointUtils.divide(FP_ONE, y3y1);
+		dx1 = FixedPointUtils.multiply(location1[VECTOR_X] - location0[VECTOR_X], y2y1);
+		dx2 = FixedPointUtils.multiply(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		dz1 = FixedPointUtils.multiply(location1[VECTOR_Z] - location0[VECTOR_Z], y2y1);
+		dz2 = FixedPointUtils.multiply(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
         x1 = xShifted;
         x2 = xShifted;
         y1 = location0[VECTOR_Y];
@@ -272,10 +274,12 @@ public class Rasterizer {
 		y3y2 = location2[VECTOR_Y] - location1[VECTOR_Y];
 		y3y1 = y3y1 == 0 ? 1 : y3y1;
 		y3y2 = y3y2 == 0 ? 1 : y3y2;
-		dx1 = FixedPointUtils.divide(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
-		dx2 = FixedPointUtils.divide(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
-		dz1 = FixedPointUtils.divide(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
-		dz2 = FixedPointUtils.divide(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
+		y3y1 = FixedPointUtils.divide(FP_ONE, y3y1);
+		y3y2 = FixedPointUtils.divide(FP_ONE, y3y2);
+		dx1 = FixedPointUtils.multiply(location2[VECTOR_X] - location0[VECTOR_X], y3y1);
+		dx2 = FixedPointUtils.multiply(location2[VECTOR_X] - location1[VECTOR_X], y3y2);
+		dz1 = FixedPointUtils.multiply(location2[VECTOR_Z] - location0[VECTOR_Z], y3y1);
+		dz2 = FixedPointUtils.multiply(location2[VECTOR_Z] - location1[VECTOR_Z], y3y2);
 		x1 = xShifted;
 		x2 = xShifted;
 		y1 = location2[VECTOR_Y];
@@ -286,13 +290,15 @@ public class Rasterizer {
 	protected void initializeDx2GreaterDx1() {
 		dxdx = dx2 - dx1;
 		dxdx = dxdx == 0 ? 1 : dxdx;
-		dz = FixedPointUtils.divide(dz2 - dz1, dxdx);
+		dxdx = FixedPointUtils.divide(FP_ONE, dxdx);
+		dz = FixedPointUtils.multiply(dz2 - dz1, dxdx);
 	}
 	
 	protected void initializeDx1GreaterDx2() {
 		dxdx = dx1 - dx2;
 		dxdx = dxdx == 0 ? 1 : dxdx;
-		dz = FixedPointUtils.divide(dz1 - dz2, dxdx);
+		dxdx = FixedPointUtils.divide(FP_ONE, dxdx);
+		dz = FixedPointUtils.multiply(dz1 - dz2, dxdx);
 	}
 	
 	private void drawScanline(int x1, int x2, int y, int z, int dz) {
