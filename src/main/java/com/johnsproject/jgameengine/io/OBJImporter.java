@@ -70,6 +70,21 @@ public final class OBJImporter {
 	private OBJImporter() { }
 	
 	/**
+	 * Parses the <code>.obj</code> file at the specified resource path and returns a {@link Model}.
+	 * 
+	 * @param classLoader used to load the resource.
+	 * @param path to the file in the resources folder.
+	 * @return A Model representation of the data in the specified path.
+	 * @throws IOException If the file does not exist, is a directory rather than a regular file,
+	 * or for some other reason cannot be opened for reading.
+	 */
+	public static Mesh parseResource(ClassLoader classLoader, String path) throws IOException {
+		final String materialData = FileUtils.readStream(classLoader.getResourceAsStream(path.replace(OBJECT_FILE, MATERIAL_FILE)));
+		final String objectData = FileUtils.readStream(classLoader.getResourceAsStream(path));
+		return parseMesh(objectData, materialData);
+	}
+	
+	/**
 	 * Parses the <code>.obj</code> file at the specified path and returns a {@link Model}.
 	 * 
 	 * @param path to the file.
