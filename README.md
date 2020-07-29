@@ -31,14 +31,22 @@ Input engine
 * [ ] Touch
 
 ## Screenshots
-Flat shading
+Single threaded basic shader (without lights)
 
-![Screenshot](Images/Example1.PNG "Example1")
+![Screenshot](Images/Screenshot00.PNG "Screenshot00")
 
-Gouraud shading
+Multithreaded basic shader (without lights)
 
-![Screenshot](Images/Example2.PNG "Example2")
+![Screenshot](Images/Screenshot01.PNG "Screenshot01")
 
-Phong shading
+Multithreaded flat shading (directional, spot and point lights and directional and spot light shadows)
 
-![Screenshot](Images/Example3.PNG "Example3")
+![Screenshot](Images/Screenshot02.PNG "Screenshot02")
+
+Multithreaded gouraud shading (directional, spot and point lights and directional and spot light shadows)
+
+![Screenshot](Images/Screenshot03.PNG "Screenshot03")
+
+Multithreaded phong shading (directional, spot and point lights and directional and spot light shadows)
+
+![Screenshot](Images/Screenshot04.PNG "Screenshot04")
