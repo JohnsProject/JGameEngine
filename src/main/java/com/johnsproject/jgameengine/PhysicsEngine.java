@@ -1,48 +1,25 @@
-/**
- * MIT License
- *
- * Copyright (c) 2018 John Salomon - John´s Project
- *  
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.johnsproject.jgameengine;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.RigidBody;
 import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.SceneObject;
 import com.johnsproject.jgameengine.model.Transform;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class PhysicsEngine implements EngineListener {
 	
-	public static final int FP_EARTH_GRAVITY = FixedPointMath.toFixedPoint(-9.81f);
+	public static final int FP_EARTH_GRAVITY = FixedPointUtils.toFixedPoint(-9.81f);
 	
 	private final int[] vectorCache1;
 	
 	public PhysicsEngine() {
-		this.vectorCache1 = VectorMath.emptyVector();
+		this.vectorCache1 = VectorUtils.emptyVector();
 	}
 	
-	public void start(EngineEvent e) {
+	public void initialize(EngineEvent e) {
 		
 	}
 	
@@ -70,12 +47,12 @@ public class PhysicsEngine implements EngineListener {
 	private void applyForces(SceneObject sceneObject) {
 		final RigidBody rigidBody = sceneObject.getRigidBody();
 		if(!rigidBody.isKinematic()) {
-			int gravity = FixedPointMath.multiply(rigidBody.getMass(), FP_EARTH_GRAVITY);
+			int gravity = FixedPointUtils.multiply(rigidBody.getMass(), FP_EARTH_GRAVITY);
 			rigidBody.setForce(0, 0, gravity);
 		}
 	}
 
-	public void update(EngineEvent e) {
+	public void dynamicUpdate(EngineEvent e) {
 		final Scene scene = e.getScene();
 		for (int i = 0; i < scene.getSceneObjects().size(); i++) {
 			SceneObject sceneObject = scene.getSceneObjects().get(i);
@@ -84,21 +61,21 @@ public class PhysicsEngine implements EngineListener {
 			final RigidBody rigidBody = sceneObject.getRigidBody();
 			final Transform transform = sceneObject.getTransform();
 			applyForces(sceneObject);
-			int[] linearAcceleration = VectorMath.copy(vectorCache1, rigidBody.getForce());
-			VectorMath.divide(linearAcceleration, rigidBody.getMass());
-			VectorMath.multiply(linearAcceleration, e.getDeltaTime());
+			int[] linearAcceleration = VectorUtils.copy(vectorCache1, rigidBody.getForce());
+			VectorUtils.divide(linearAcceleration, rigidBody.getMass());
+			VectorUtils.multiply(linearAcceleration, e.getDeltaTime());
 			rigidBody.addLinearVelocity(linearAcceleration);
-			int[] linearVelocity = VectorMath.copy(vectorCache1, rigidBody.getLinearVelocity());
-			VectorMath.multiply(linearVelocity, e.getDeltaTime());
-			transform.translate(linearVelocity);
-			int[] angularAcceleration = VectorMath.copy(vectorCache1, rigidBody.getTorque());
-			VectorMath.divide(angularAcceleration, rigidBody.getMass());
-			VectorMath.multiply(angularAcceleration, e.getDeltaTime());
+			int[] linearVelocity = VectorUtils.copy(vectorCache1, rigidBody.getLinearVelocity());
+			VectorUtils.multiply(linearVelocity, e.getDeltaTime());
+			transform.worldTranslate(linearVelocity);
+			int[] angularAcceleration = VectorUtils.copy(vectorCache1, rigidBody.getTorque());
+			VectorUtils.divide(angularAcceleration, rigidBody.getMass());
+			VectorUtils.multiply(angularAcceleration, e.getDeltaTime());
 			rigidBody.addAngularVelocity(angularAcceleration);
-			int[] angularVelocity = VectorMath.copy(vectorCache1, rigidBody.getAngularVelocity());
-			VectorMath.multiply(angularVelocity, e.getDeltaTime());
-			VectorMath.multiply(angularVelocity, FixedPointMath.FP_RAD_DEGREE);
-			transform.rotate(angularVelocity);
+			int[] angularVelocity = VectorUtils.copy(vectorCache1, rigidBody.getAngularVelocity());
+			VectorUtils.multiply(angularVelocity, e.getDeltaTime());
+			VectorUtils.multiply(angularVelocity, FixedPointUtils.FP_RAD_DEGREE);
+			transform.worldRotate(angularVelocity);
 		}
 	}
 

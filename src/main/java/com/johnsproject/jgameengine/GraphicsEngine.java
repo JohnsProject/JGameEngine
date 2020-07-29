@@ -1,26 +1,3 @@
-/**
- * MIT License
- *
- * Copyright (c) 2018 John Salomon - John´s Project
- *  
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.johnsproject.jgameengine;
 
 import java.util.ArrayList;
@@ -28,28 +5,29 @@ import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.math.VectorMath;
 import com.johnsproject.jgameengine.model.AnimationFrame;
 import com.johnsproject.jgameengine.model.Armature;
 import com.johnsproject.jgameengine.model.Camera;
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.FrameBuffer;
+import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Mesh;
 import com.johnsproject.jgameengine.model.Model;
 import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.model.VertexGroup;
-import com.johnsproject.jgameengine.shader.ForwardShaderBuffer;
-import com.johnsproject.jgameengine.shader.GeometryBuffer;
-import com.johnsproject.jgameengine.shader.Shader;
-import com.johnsproject.jgameengine.shader.ShaderBuffer;
-import com.johnsproject.jgameengine.shader.ShadowMappingShader;
-import com.johnsproject.jgameengine.shader.VertexBuffer;
+import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
+import com.johnsproject.jgameengine.shading.GouraudShader;
+import com.johnsproject.jgameengine.shading.Shader;
+import com.johnsproject.jgameengine.shading.ShaderBuffer;
+import com.johnsproject.jgameengine.shading.ShadowMappingShader;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class GraphicsEngine implements EngineListener {
 	
-	private final List<Shader> preShaders;
+	private Shader defaultShader;
+	private final List<Shader> shaders;
 	private ShaderBuffer shaderBuffer;
 	private FrameBuffer frameBuffer;
 	private final int[]	locationVector;
@@ -58,17 +36,17 @@ public class GraphicsEngine implements EngineListener {
 	
 	public GraphicsEngine(FrameBuffer frameBuffer) {
 		this.shaderBuffer = new ForwardShaderBuffer();
-		this.preShaders = new ArrayList<Shader>();
+		this.shaders = new ArrayList<Shader>();
 		this.frameBuffer = frameBuffer;
-		this.locationVector = VectorMath.emptyVector();
-		this.normalVector = VectorMath.emptyVector();
-		this.multiplyVector = VectorMath.emptyVector();
-		addPreprocessingShader(new ShadowMappingShader());
+		this.locationVector = VectorUtils.emptyVector();
+		this.normalVector = VectorUtils.emptyVector();
+		this.multiplyVector = VectorUtils.emptyVector();
+		defaultShader = new GouraudShader();
+		addShader(new ShadowMappingShader());
+		addShader(defaultShader);
 	}
 
-	public void start(EngineEvent e) {
-	
-	}
+	public void initialize(EngineEvent e) {}
 	
 	public void fixedUpdate(EngineEvent e) { 
 		Scene scene = e.getScene();
@@ -81,137 +59,147 @@ public class GraphicsEngine implements EngineListener {
 		}		
 	}
 	
-	public void update(EngineEvent e) {
+	public void dynamicUpdate(EngineEvent e) {
 		Scene scene = e.getScene();
 		frameBuffer.getColorBuffer().fill(0);
 		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
 		frameBuffer.getStencilBuffer().fill(0);
-		transformToWorld(scene);
-		for (int c = 0; c < scene.getCameras().size(); c++) {
-			Camera camera = scene.getCameras().get(c);
-			if(!camera.isActive())
-				continue;
-			if(camera.getRenderTarget() == null) {
-				camera.setRenderTarget(frameBuffer);
-			}
-			shaderBuffer.setup(camera, scene.getLights());
-			callShaders(scene, preShaders);
-			for (int m = 0; m < scene.getModels().size(); m++) {
-				Model model = scene.getModels().get(m);
-				if(!model.isActive())
-					continue;
-				final Mesh mesh = model.getMesh();
-				for (int v = 0; v < mesh.getVertices().length; v++) {
-					final Vertex vertex = mesh.getVertex(v);
-					final Shader shader = vertex.getMaterial().getShader();
-					shader.setShaderBuffer(shaderBuffer);
-					shader.vertex(vertex.getBuffer());
-				}
-				for (int f = 0; f < mesh.getFaces().length; f++) {
-					final Face face = mesh.getFace(f);
-					final Shader shader = face.getMaterial().getShader();
-					shader.setShaderBuffer(shaderBuffer);
-					shader.geometry(face.getBuffer());
-				}
-			}
-		}
+		localToWorldSpace(scene);
+		renderForEachCamera(scene);
 	}
 	
-	private void callShaders(Scene scene, List<Shader> shaders) {
-		for (int s = 0; s < shaders.size(); s++) {
-			final Shader shader = shaders.get(s);
-			for (int i = 0; i < scene.getModels().size(); i++) {
-				Model model = scene.getModels().get(i);
-				if(!model.isActive())
-					continue;
-				final Mesh mesh = model.getMesh();
-				for (int v = 0; v < mesh.getVertices().length; v++) {
-					final Vertex vertex = mesh.getVertex(v);
-					shader.setShaderBuffer(shaderBuffer);
-					shader.vertex(vertex.getBuffer());
-				}
-				for (int f = 0; f < mesh.getFaces().length; f++) {
-					final Face face = mesh.getFace(f);
-					shader.setShaderBuffer(shaderBuffer);
-					shader.geometry(face.getBuffer());
-				}
-			}
-		}
-	}
-	
-	private void transformToWorld(Scene scene) {
+	private void localToWorldSpace(Scene scene) {
 		for (int i = 0; i < scene.getModels().size(); i++) {
 			Model model = scene.getModels().get(i);
 			if(!model.isActive())
 				continue;
 			final Mesh mesh = model.getMesh();
 			final Armature armature = model.getArmature();
-			AnimationFrame animationFrame = null;
-			if(armature != null) {
-				animationFrame = armature.getCurrentAnimationFrame();
-			}
 			final Transform transform = model.getTransform();
-			for (int v = 0; v < mesh.getVertices().length; v++) {
-				final Vertex vertex = mesh.getVertex(v);
-				final VertexBuffer vertexBuffer = vertex.getBuffer();
-				final int[] worldLocation = vertexBuffer.getWorldLocation();
-				final int[] worldNormal = vertexBuffer.getWorldNormal();
-				VectorMath.copy(worldLocation, vertex.getLocation());
-				VectorMath.copy(worldNormal, vertex.getNormal());
-				animateVertex(armature, animationFrame, vertex, worldLocation, worldNormal);
-				VectorMath.multiply(worldLocation, transform.getSpaceExitMatrix());
-				VectorMath.multiply(worldNormal, transform.getSpaceExitNormalMatrix());
-			}
-			for (int f = 0; f < mesh.getFaces().length; f++) {
-				final Face face = mesh.getFace(f);
-				final GeometryBuffer geometryBuffer = face.getBuffer();
-				int[] worldNormal = geometryBuffer.getWorldNormal();
-				VectorMath.copy(worldNormal, face.getNormal());
-				VectorMath.multiply(worldNormal, transform.getSpaceExitNormalMatrix());
-				VectorMath.copy(geometryBuffer.getUV(0), face.getUV(0));
-				VectorMath.copy(geometryBuffer.getUV(1), face.getUV(1));
-				VectorMath.copy(geometryBuffer.getUV(2), face.getUV(2));
-				geometryBuffer.getVertexBuffers()[0] = face.getVertex(0).getBuffer();
-				geometryBuffer.getVertexBuffers()[1] = face.getVertex(1).getBuffer();
-				geometryBuffer.getVertexBuffers()[2] = face.getVertex(2).getBuffer();
-			}
+			transformVertices(mesh, transform, armature);
+			transformFaces(mesh, transform);
 		}
 	}
 	
-	private void animateVertex(Armature armature, AnimationFrame animationFrame, Vertex vertex, int[] location, int[] normal) {
+	private void transformVertices(Mesh mesh, Transform transform, Armature armature) {
+		AnimationFrame animationFrame = null;
+		if(armature != null) {
+			animationFrame = armature.getCurrentAnimationFrame();
+		}
+		for (int v = 0; v < mesh.getVertices().length; v++) {
+			final Vertex vertex = mesh.getVertex(v);
+			VectorUtils.copy(vertex.getWorldLocation(), vertex.getLocalLocation());
+			VectorUtils.copy(vertex.getWorldNormal(), VectorUtils.VECTOR_ZERO);
+			animateVertex(armature, animationFrame, vertex);
+			VectorUtils.multiply(vertex.getWorldLocation(), transform.getSpaceExitMatrix());
+		}
+	}
+	
+	private void animateVertex(Armature armature, AnimationFrame animationFrame, Vertex vertex) {
 		if(animationFrame != null) {
-			VectorMath.copy(locationVector, VectorMath.VECTOR_ZERO);
-			VectorMath.copy(normalVector, VectorMath.VECTOR_ZERO);
+			VectorUtils.copy(locationVector, VectorUtils.VECTOR_ZERO);
+			VectorUtils.copy(normalVector, VectorUtils.VECTOR_ZERO);
 			for (int i = 0; i < armature.getVertexGroups().length; i++) {
 				final VertexGroup vertexGroup = armature.getVertexGroup(i);
 				final int boneWeight = vertexGroup.getWeight(vertex);
 				if(boneWeight != -1) {
-					int[][] rotationMatrix = animationFrame.getBoneMatrix(vertexGroup.getBoneIndex());
-					VectorMath.copy(multiplyVector, location);
-					VectorMath.multiply(multiplyVector, rotationMatrix);
-					VectorMath.multiply(multiplyVector, boneWeight);
-					VectorMath.add(locationVector, multiplyVector);
-					VectorMath.copy(multiplyVector, normal);
-					VectorMath.multiply(multiplyVector, rotationMatrix);
-					VectorMath.multiply(multiplyVector, boneWeight);
-					VectorMath.add(normalVector, multiplyVector);
+					final int[][] boneMatrix = animationFrame.getBoneMatrix(vertexGroup.getBoneIndex());
+					applyBone(vertex, boneWeight, boneMatrix);
 				}
 			}
-			VectorMath.copy(location, locationVector);
-			VectorMath.copy(normal, normalVector);
+			VectorUtils.copy(vertex.getWorldLocation(), locationVector);
+			VectorUtils.copy(vertex.getWorldNormal(), normalVector);
 		}
+	}
+	
+	private void applyBone(Vertex vertex, int boneWeight, int[][] boneMatrix) {
+		VectorUtils.copy(multiplyVector, vertex.getWorldLocation());
+		VectorUtils.multiply(multiplyVector, boneMatrix);
+		VectorUtils.multiply(multiplyVector, boneWeight);
+		VectorUtils.add(locationVector, multiplyVector);
+		VectorUtils.copy(multiplyVector, vertex.getWorldNormal());
+		VectorUtils.multiply(multiplyVector, boneMatrix);
+		VectorUtils.multiply(multiplyVector, boneWeight);
+		VectorUtils.add(normalVector, multiplyVector);
+	}
+	
+	private void transformFaces(Mesh mesh, Transform transform) {
+		for (int f = 0; f < mesh.getFaces().length; f++) {
+			final Face face = mesh.getFace(f);
+			VectorUtils.copy(face.getWorldNormal(), face.getLocalNormal());
+			VectorUtils.multiply(face.getWorldNormal(), transform.getSpaceExitNormalMatrix());
+			// calculate vertex normals, just add the face the normals of the faces this vertex is a part of
+			VectorUtils.add(face.getVertex(0).getWorldNormal(), face.getWorldNormal());
+			VectorUtils.add(face.getVertex(1).getWorldNormal(), face.getWorldNormal());
+			VectorUtils.add(face.getVertex(2).getWorldNormal(), face.getWorldNormal());			
+		}
+	}
+	
+	private void renderForEachCamera(Scene scene) {
+		for (int c = 0; c < scene.getCameras().size(); c++) {
+			Camera camera = scene.getCameras().get(c);
+			if(!camera.isActive())
+				continue;
+			camera.setRenderTarget(frameBuffer);
+			shaderBuffer.initialize(camera, scene.getLights());
+			renderModels(scene);
+		}
+	}
+	
+	private void renderModels(Scene scene) {
+		for (int s = 0; s < shaders.size(); s++) {
+			Shader shader = shaders.get(s);
+			shader.initialize(shaderBuffer);
+			for (int m = 0; m < scene.getModels().size(); m++) {
+				Model model = scene.getModels().get(m);
+				if(!model.isActive() || model.isCulled())
+					continue;
+				final Mesh mesh = model.getMesh();
+				shadeVertices(mesh, shader);
+				shader.waitForVertexQueue();
+				
+				shadeFaces(mesh, shader);
+				shader.waitForGeometryQueue();
+			}
+		}
+	}
+	
+	private void shadeVertices(Mesh mesh, Shader shader) {
+		for (int v = 0; v < mesh.getVertices().length; v++) {
+			final Vertex vertex = mesh.getVertex(v);
+			final Material material = vertex.getMaterial();
+			if(canUseShader(shader, material)) {
+				shader.vertex(vertex);
+			}
+		}
+	}
+	
+	private void shadeFaces(Mesh mesh, Shader shader) {
+		for (int f = 0; f < mesh.getFaces().length; f++) {
+			final Face face = mesh.getFace(f);
+			final Material material = face.getMaterial();
+			if(canUseShader(shader, material)) {
+				shader.geometry(face);
+			}
+		}
+	}
+	
+	private boolean canUseShader(Shader shader, Material material) {
+		return ((material.getShader() == null) && shader.equals(defaultShader))
+		|| shader.equals(material.getShader())
+		|| shader.isGlobal();
 	}
 
 	public int getLayer() {
 		return GRAPHICS_ENGINE_LAYER;
 	}
 
-	public ShaderBuffer getShaderDataBuffer() {
+	public ShaderBuffer getShaderBuffer() {
 		return shaderBuffer;
 	}
 
-	public void setShaderDataBuffer(ShaderBuffer shaderDataBuffer) {
-		this.shaderBuffer = shaderDataBuffer;
+	public void initialize(ShaderBuffer shaderBuffer) {
+		this.shaderBuffer = shaderBuffer;
 	}
 	
 	public void setFrameBuffer(FrameBuffer frameBuffer) {
@@ -222,15 +210,27 @@ public class GraphicsEngine implements EngineListener {
 		return frameBuffer;
 	}
 	
-	public List<Shader> getPreprocessingShaders() {
-		return preShaders;
+	public List<Shader> getShaders() {
+		return shaders;
 	}
 	
-	public Shader getPreprocessingShader(int index) {
-		return preShaders.get(index);
+	public Shader getShader(int index) {
+		return shaders.get(index);
+	}	
+	
+	public void addShader(Shader shader) {
+		shaders.add(shader);
 	}
 	
-	public void addPreprocessingShader(Shader shader) {
-		preShaders.add(shader);
+	public void removeShader(Shader shader) {
+		shaders.remove(shader);
+	}
+
+	public Shader getDefaultShader() {
+		return defaultShader;
+	}
+
+	public void setDefaultShader(Shader defaultShader) {
+		this.defaultShader = defaultShader;
 	}
 }

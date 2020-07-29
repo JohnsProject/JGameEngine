@@ -1,31 +1,10 @@
-/**
- * MIT License
- *
- * Copyright (c) 2018 John Salomon - John´s Project
- *  
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.johnsproject.jgameengine;
 
 import java.awt.Canvas;
 import java.awt.Frame;
-import java.awt.Graphics2D;
+import java.awt.Graphics;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -38,63 +17,93 @@ public class EngineWindow extends Frame implements EngineListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private final EnginePanel panel;
-	private int width;
-	private int height;
+	private final Canvas canvas;
+	private BufferStrategy bufferStrategy;
+	private Graphics graphics;
 	private FrameBuffer frameBuffer;
 	
 	public EngineWindow(FrameBuffer frameBuffer) {
+		canvas = new Canvas();
+		setLayout(null);
 		setFrameBuffer(frameBuffer);
-		this.setVisible(true);
-		this.setTitle("JGameEngine");
-		this.addWindowListener(new WindowAdapter() {
+		setTitle("JGameEngine");
+		addWindowListener(handleWindowClose());
+		addComponentListener(handleWindowResize());
+		add(canvas);
+		setVisible(true);
+	}
+	
+	private WindowAdapter handleWindowClose() {
+		return new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
 				System.exit(0);
 			}
-		});
-		this.createBufferStrategy(2);
-		panel = new EnginePanel();
-		this.add(panel);
-		panel.setup();
+		};
+	}
+	
+	public ComponentAdapter handleWindowResize() {
+		return new ComponentAdapter() {
+		    public void componentResized(ComponentEvent componentEvent) {
+		    	recreateCanvasBuffer();
+		    }
+		};
 	}
 
-	public void start(EngineEvent e) {}
+	public void initialize(EngineEvent e) {}
 	
 	public void fixedUpdate(EngineEvent e) {}
 	
-	public void update(EngineEvent e) {
-		panel.drawBuffer();
-		if (this.getWidth() != width || this.getHeight() != height) {
-			width = this.getWidth();
-			height = this.getHeight();
-			panel.setSize(width, height);
+	public void dynamicUpdate(EngineEvent e) {
+		synchronized (canvas) {
+			final int width = getWidth();
+			final int height = getHeight();
+			graphics.clearRect(0, 0, width, height);
+			graphics.drawImage(frameBuffer.getImage(), 0, 0, width, height, null);
+			bufferStrategy.show();
 		}
 	}
 	
-	public void setFullscreen(boolean fullscreen) {
-		dispose();
-		if(fullscreen) {
-			setExtendedState(Frame.MAXIMIZED_BOTH);
-		} else {
-			setExtendedState(Frame.NORMAL);
+	@Override
+	public void setVisible(boolean isVisible) {
+		super.setVisible(isVisible);
+		recreateCanvasBuffer();
+	}
+	
+	private void recreateCanvasBuffer() {
+	   	synchronized (canvas) {
+	   		if(isVisible()) {
+				canvas.setSize(getWidth(), getHeight());
+				canvas.createBufferStrategy(2);
+				if(bufferStrategy != null) {
+					graphics.dispose();
+					bufferStrategy.dispose();
+				}
+				bufferStrategy = canvas.getBufferStrategy();
+				graphics = bufferStrategy.getDrawGraphics();
+			}
 		}
+	}
+	
+	public void setFullscreen(boolean isFullscreen) {
+		dispose();
+		if(isFullscreen)
+			setExtendedState(Frame.MAXIMIZED_BOTH);
+		else
+			setExtendedState(Frame.NORMAL);
 		setVisible(true);
 	}
 	
 	public boolean isFullscreen() {
-		if(getExtendedState() == Frame.NORMAL) {
-			return false;
-		}
-		return true;
+		return getExtendedState() != Frame.NORMAL;
 	}
 	
-	public void setBorders(boolean borders) {
+	public void setBorders(boolean hasBorders) {
 		dispose();
-		setUndecorated(!borders);
+		setUndecorated(!hasBorders);
 		setVisible(true);
 	}
 	
-	public boolean usingBorders() {
+	public boolean hasBorders() {
 		return !isUndecorated();
 	}
 	
@@ -106,33 +115,12 @@ public class EngineWindow extends Frame implements EngineListener {
 	public FrameBuffer getFrameBuffer() {
 		return frameBuffer;
 	}
-
-	public Canvas getCanvas() {
-		return panel;
-	}
-	
-	private class EnginePanel extends Canvas {
-
-		private static final long serialVersionUID = 1L;
-
-		private BufferStrategy bufferStrategy;
-		
-		private void setup() {
-			if (bufferStrategy == null) {
-				this.createBufferStrategy(2);
-			}
-			bufferStrategy = this.getBufferStrategy();
-		}
-		
-		public void drawBuffer() {
-			Graphics2D graphics = (Graphics2D) bufferStrategy.getDrawGraphics();
-			graphics.clearRect(0, 0, width, height);
-			graphics.drawImage(frameBuffer.getImage(), 0, 0, width, height, null);
-			bufferStrategy.show();
-		}
-	}
 	
 	public int getLayer() {
 		return GRAPHICS_ENGINE_LAYER + 1;
+	}
+
+	public Canvas getCanvas() {
+		return canvas;
 	}
 }

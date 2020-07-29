@@ -1,19 +1,52 @@
 # JGameEngine
 
-JGameEngine is a tiny 3D game engine written in Java. 
-It only uses Java AWT, as the 3D part is done by software rendering.
+is a lightweight 3D game engine written in Java.
 
-## Features 
-* Pure Java and Java 1.5+ compatibility
-* Pure fixed point (no floats)
-* [Blender](https://www.blender.org/) exporter and importer
-* Scanline triangle rasterization (flat, gouraud and phong + texture mapping)
-* Shaders (flat, gouraud and phong shaders)
-* Point, directional and spot lights + shadow mapping shaders (experimental)
-* Skeletal animation
+## TODO
+* [x] No dependencies
+* [x] Java 1.5+ compatibility
+* [x] Fixed point math only
+* [ ] Multithreading
+* [x] Graphics engine
+* [ ] Physics engine
+* [ ] Audio engine
+* [ ] Networking engine
+* [x] Input engine
+
+Graphics engine
+* [x] Scanline triangle rasterization (linear interpolation, no perspective needed as big triangles are culled)
+* [x] Shaders (flat, gouraud and phong shaders)
+* [x] Multithreaded shaders
+* [x] Point, directional and spot lights
+* [x] Directional and spot light shadow mapping
+* [x] Skeletal animation (experimental)
+* [ ] Skybox
+* [x] Custom Wavefront OBJ `.obj` importer
+* [ ] Animation importer
+
+Input engine
+* [x] Keyboard
+* [x] Mouse
+* [ ] Gamepad
+* [ ] Touch
 
 ## Screenshots
-![Screenshot](Images/Example1.PNG "Example1")
-![Screenshot](Images/Example2.PNG "Example2")
-![Screenshot](Images/Example3.PNG "Example3")
-![Screenshot](Images/Example4.PNG "Example4")
+Single threaded basic shader (without lights)
+
+![Screenshot](Images/Screenshot00.PNG "Screenshot00")
+
+Multithreaded basic shader (without lights)
+
+![Screenshot](Images/Screenshot01.PNG "Screenshot01")
+
+Multithreaded flat shading (directional, spot and point lights and directional and spot light shadows)
+
+![Screenshot](Images/Screenshot02.PNG "Screenshot02")
+
+Multithreaded gouraud shading (directional, spot and point lights and directional and spot light shadows)
+
+![Screenshot](Images/Screenshot03.PNG "Screenshot03")
+
+Multithreaded phong shading (directional, spot and point lights and directional and spot light shadows)
+
+![Screenshot](Images/Screenshot04.PNG "Screenshot04")

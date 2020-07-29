@@ -1,33 +1,10 @@
-/**
- * MIT License
- *
- * Copyright (c) 2018 John Salomon - John´s Project
- *  
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.johnsproject.jgameengine.model;
 
-import static com.johnsproject.jgameengine.math.VectorMath.*;
+import static com.johnsproject.jgameengine.util.VectorUtils.*;
 
-import com.johnsproject.jgameengine.math.FixedPointMath;
-import com.johnsproject.jgameengine.math.MatrixMath;
-import com.johnsproject.jgameengine.math.VectorMath;
+import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.util.MatrixUtils;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class RigidBody {
 	
@@ -41,12 +18,12 @@ public class RigidBody {
 	
 	public RigidBody() {
 		this.kinematic = false;
-		this.mass = FixedPointMath.FP_ONE;
-		this.force = VectorMath.emptyVector();
-		this.torque = VectorMath.emptyVector();
-		this.linearVelocity = VectorMath.emptyVector();
-		this.angularVelocity = VectorMath.emptyVector();
-		this.momentOfInertia = MatrixMath.indentityMatrix();
+		this.mass = FixedPointUtils.FP_ONE;
+		this.force = VectorUtils.emptyVector();
+		this.torque = VectorUtils.emptyVector();
+		this.linearVelocity = VectorUtils.emptyVector();
+		this.angularVelocity = VectorUtils.emptyVector();
+		this.momentOfInertia = MatrixUtils.indentityMatrix();
 	}
 
 	public boolean isKinematic() {

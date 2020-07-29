@@ -1,67 +1,69 @@
-/**
- * MIT License
- *
- * Copyright (c) 2018 John Salomon - John´s Project
- *  
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.johnsproject.jgameengine.model;
 
-import com.johnsproject.jgameengine.shader.VertexBuffer;
+import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class Vertex {
 	
 	private final int index;
+	private final int[] localLocation;
+	private final int[] worldLocation;
+	private final int[] worldNormal;
 	private final int[] location;
-	private final int[] normal;
 	private final Material material;
-	private VertexBuffer buffer;
+	private int lightColor;
 	
-	public Vertex(int index, int[] location, int[] normal, Material material) {
+	public Vertex(int index, int[] location, Material material) {
 		this.index = index;
-		this.location = location;
-		this.normal = normal;
+		this.localLocation = location;
+		this.worldLocation = VectorUtils.emptyVector();
+		this.worldNormal = VectorUtils.emptyVector();
+		this.location = VectorUtils.emptyVector();
 		this.material = material;
-		this.buffer = new VertexBuffer();
 	}
 
 	public int getIndex() {
 		return index;
 	}
+	
+	public int[] getLocalLocation() {
+		return localLocation;
+	}
+
+	public int[] getWorldLocation() {
+		return worldLocation;
+	}
+
+	public int[] getWorldNormal() {
+		return worldNormal;
+	}
 
 	public int[] getLocation() {
 		return location;
 	}
-	
-	public int[] getNormal() {
-		return normal;
-	}
-	
+
 	public Material getMaterial() {
 		return material;
 	}
 
-	public VertexBuffer getBuffer() {
-		return buffer;
+	/**
+	 * Returns the light color of this {@link Vertex}.
+	 * The light color is the color of all lights that reach and affect the illumination of
+	 * this Vertex put together.
+	 * 
+	 * @return The light color of this Vertex.
+	 */
+	public int getLightColor() {
+		return lightColor;
 	}
 
-	public void setBuffer(VertexBuffer buffer) {
-		this.buffer = buffer;
+	/**
+	 * Sets the light color of this {@link Vertex}.
+	 * The light color is the color of all lights that reach and affect the illumination of 
+	 * this Vertex put together.
+	 * 
+	 * @param lightColor to set.
+	 */
+	public void setLightColor(int lightColor) {
+		this.lightColor = lightColor;
 	}
 }
