@@ -85,10 +85,9 @@ public class PhongShader extends ThreadedShader {
 		private Frustum spotLightFrustum;
 		private Texture spotLightShadowMap;
 		
-		
-		private int[] lightDirection;
-		private int[] viewDirection;
-		private int[] lightSpaceLocation;
+		private final int[] lightDirection;
+		private final int[] viewDirection;
+		private final int[] lightSpaceLocation;
 		
 		private Material material;
 		private Texture texture;

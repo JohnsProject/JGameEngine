@@ -13,8 +13,6 @@ import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class Rasterizer {
-
-	//TODO implement perspective rasterizers
 	
 	protected final Shader shader;
 	protected final int[] location;

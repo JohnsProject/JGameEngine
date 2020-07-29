@@ -23,7 +23,7 @@ import com.johnsproject.jgameengine.util.FixedPointUtils;
 import com.johnsproject.jgameengine.util.TransformationUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
-public class GouraudShader extends ThreadedShader {
+public class FlatShader extends ThreadedShader {
 	
 	@Override
 	public ThreadedVertexShader[] createVertexShaders(int count) {
@@ -51,34 +51,149 @@ public class GouraudShader extends ThreadedShader {
 		
 		private Camera camera;
 		private Frustum frustum;
+
+		public void initialize(ShaderBuffer shaderBuffer) {
+			this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
+			this.camera = shaderBuffer.getCamera();
+			this.frustum = camera.getFrustum();
+		}
+		
+		public void vertex(Vertex vertex) {
+			final int[] location = vertex.getLocation();
+			VectorUtils.copy(location, vertex.getWorldLocation());			
+			VectorUtils.multiply(location, camera.getTransform().getSpaceEnterMatrix());
+			VectorUtils.multiply(location, frustum.getProjectionMatrix());
+			TransformationUtils.screenportVector(location, frustum);
+		}
+
+		public ShaderBuffer getShaderBuffer() {
+			return shaderBuffer;
+		}
+	}
+	
+	private static class GeometryShader extends ThreadedGeometryShader {
+
+		private ForwardShaderBuffer shaderBuffer;
+		private final LinearRasterizer4 rasterizer = new LinearRasterizer4(this);
+		
+		private Camera camera;
+		private Frustum frustum;
+		private FrameBuffer frameBuffer;
 		private List<Light> lights;
 		
+		private Frustum directionalLightFrustum;
+		private Texture directionalLightShadowMap;
+		private Frustum spotLightFrustum;
+		private Texture spotLightShadowMap;
+		
+		private Texture texture;
+		private int lightColor;
+		private int texelColor;
+		private final int[] lightSpaceLocation;		
 		private final int[] lightDirection;
 		private final int[] viewDirection;
-
-		public VertexShader() {
+		private final int[] faceLocation;
+		private boolean isInShadow;
+		
+		public GeometryShader() {
+			this.lightSpaceLocation = VectorUtils.emptyVector();
 			this.lightDirection = VectorUtils.emptyVector();
 			this.viewDirection = VectorUtils.emptyVector();
+			this.faceLocation = VectorUtils.emptyVector();
 		}
 
 		public void initialize(ShaderBuffer shaderBuffer) {
 			this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
 			this.camera = shaderBuffer.getCamera();
 			this.frustum = camera.getFrustum();
+			this.frameBuffer = camera.getRenderTarget();
 			this.lights = shaderBuffer.getLights();
+			initialize();
 		}
 		
-		public void vertex(Vertex vertex) {
-			final Material material = vertex.getMaterial();
-			final int[] location = vertex.getLocation();
-			final int[] normal = vertex.getWorldNormal();
-			VectorUtils.copy(location, vertex.getWorldLocation());
-			
-			vertex.setLightColor(calculateLights(location, normal, material));
-			
-			VectorUtils.multiply(location, camera.getTransform().getSpaceEnterMatrix());
-			VectorUtils.multiply(location, frustum.getProjectionMatrix());
-			TransformationUtils.screenportVector(location, frustum);
+		private void initialize() {
+			if(shaderBuffer.getShadowDirectionalLight() == null) {
+				directionalLightFrustum = null;
+				directionalLightShadowMap = null;
+			} else {
+				directionalLightFrustum = shaderBuffer.getDirectionalLightFrustum();
+				directionalLightShadowMap = shaderBuffer.getDirectionalShadowMap();
+			}
+			if(shaderBuffer.getShadowSpotLight() == null) {
+				spotLightFrustum = null;
+				spotLightShadowMap = null;
+			} else {
+				spotLightFrustum = shaderBuffer.getSpotLightFrustum();
+				spotLightShadowMap = shaderBuffer.getSpotShadowMap();
+			}
+		}
+		
+		public void geometry(Face face) {
+			final Material material = face.getMaterial();
+			texture = material.getTexture();
+			VectorUtils.copy(faceLocation, face.getVertex(0).getWorldLocation());
+			VectorUtils.add(faceLocation, face.getVertex(1).getWorldLocation());
+			VectorUtils.add(faceLocation, face.getVertex(2).getWorldLocation());
+			VectorUtils.divide(faceLocation, 3 << FP_BIT);
+			lightColor = calculateLights(faceLocation, face.getWorldNormal(), material);
+			setUVs(face);
+			setDirectionalLightSpaceVectors(face);
+			setSpotLightSpaceVectors(face);
+			rasterizer.linearDraw4(face, frustum);
+		}
+
+		private void setUVs(Face face) {
+			if(texture != null) {
+				// port uvs to texture space
+				int u = face.getUV(0)[VECTOR_X] * texture.getWidth();
+				int v = face.getUV(0)[VECTOR_Y] * texture.getHeight();
+				rasterizer.setVector00(u, v, 0);
+				u = face.getUV(1)[VECTOR_X] * texture.getWidth();
+				v = face.getUV(1)[VECTOR_Y] * texture.getHeight();
+				rasterizer.setVector01(u, v, 0);
+				u = face.getUV(2)[VECTOR_X] * texture.getWidth();
+				v = face.getUV(2)[VECTOR_Y] * texture.getHeight();
+				rasterizer.setVector02(u, v, 0);
+			}
+		}
+		
+		private void setDirectionalLightSpaceVectors(Face face) {
+			if(directionalLightShadowMap != null) {
+				final int[][] lightMatrix = directionalLightFrustum.getProjectionMatrix();
+				
+				int[] worldLocation = face.getVertex(0).getWorldLocation();
+				rasterizer.setVector10(transformToLightSpace(worldLocation, lightMatrix, directionalLightFrustum));
+				
+				worldLocation = face.getVertex(1).getWorldLocation();
+				rasterizer.setVector11(transformToLightSpace(worldLocation, lightMatrix, directionalLightFrustum));
+				
+				worldLocation = face.getVertex(2).getWorldLocation();
+				rasterizer.setVector12(transformToLightSpace(worldLocation, lightMatrix, directionalLightFrustum));
+			}
+		}
+		
+		private void setSpotLightSpaceVectors(Face face) {
+			if(spotLightShadowMap != null) {
+				final int[][] lightMatrix = spotLightFrustum.getProjectionMatrix();
+				
+				int[] worldLocation = face.getVertex(0).getWorldLocation();
+				rasterizer.setVector20(transformToLightSpace(worldLocation, lightMatrix, spotLightFrustum));
+				
+				worldLocation = face.getVertex(1).getWorldLocation();
+				rasterizer.setVector21(transformToLightSpace(worldLocation, lightMatrix, spotLightFrustum));
+				
+				worldLocation = face.getVertex(2).getWorldLocation();
+				rasterizer.setVector22(transformToLightSpace(worldLocation, lightMatrix, spotLightFrustum));
+			}
+		}
+		
+		private int[] transformToLightSpace(int[] worldLocation, int[][] lightMatrix, Frustum lightFrustum) {
+			VectorUtils.copy(lightSpaceLocation, worldLocation);
+			VectorUtils.multiply(lightSpaceLocation, lightMatrix);
+			TransformationUtils.screenportVector(lightSpaceLocation, lightFrustum);
+			// The rasterizer will interpolate fixed point vectors but screen space vectors are not fixed point
+			VectorUtils.multiply(lightSpaceLocation, FP_ONE << FP_BIT);
+			return lightSpaceLocation;
 		}
 		
 		private int calculateLights(int[] location, int[] normal, Material material) {
@@ -210,138 +325,6 @@ public class GouraudShader extends ThreadedShader {
 			intesity = FixedPointUtils.clamp(intesity, 0, FP_ONE);
 			return intesity;
 		}
-
-		public ShaderBuffer getShaderBuffer() {
-			return shaderBuffer;
-		}
-	}
-	
-	private static class GeometryShader extends ThreadedGeometryShader {
-
-		private ForwardShaderBuffer shaderBuffer;
-		private final LinearRasterizer4 rasterizer = new LinearRasterizer4(this);
-		
-		private Camera camera;
-		private Frustum frustum;
-		private FrameBuffer frameBuffer;
-		
-		private Frustum directionalLightFrustum;
-		private Texture directionalLightShadowMap;
-		private Frustum spotLightFrustum;
-		private Texture spotLightShadowMap;
-		
-		private Texture texture;
-		private int texelColor;
-		private final int[] lightSpaceLocation;
-		private boolean isInShadow;
-		
-		public GeometryShader() {
-			this.lightSpaceLocation = VectorUtils.emptyVector();
-		}
-
-		public void initialize(ShaderBuffer shaderBuffer) {
-			this.shaderBuffer = (ForwardShaderBuffer) shaderBuffer;
-			this.camera = shaderBuffer.getCamera();
-			this.frustum = camera.getFrustum();
-			this.frameBuffer = camera.getRenderTarget();
-			initialize();
-		}
-		
-		private void initialize() {
-			if(shaderBuffer.getShadowDirectionalLight() == null) {
-				directionalLightFrustum = null;
-				directionalLightShadowMap = null;
-			} else {
-				directionalLightFrustum = shaderBuffer.getDirectionalLightFrustum();
-				directionalLightShadowMap = shaderBuffer.getDirectionalShadowMap();
-			}
-			if(shaderBuffer.getShadowSpotLight() == null) {
-				spotLightFrustum = null;
-				spotLightShadowMap = null;
-			} else {
-				spotLightFrustum = shaderBuffer.getSpotLightFrustum();
-				spotLightShadowMap = shaderBuffer.getSpotShadowMap();
-			}
-		}
-		
-		public void geometry(Face face) {
-			final Material material = face.getMaterial();
-			texture = material.getTexture();
-			setUVs(face);
-			setColors(face);
-			setDirectionalLightSpaceVectors(face);
-			setSpotLightSpaceVectors(face);
-			rasterizer.linearDraw4(face, frustum);
-		}
-
-		private void setUVs(Face face) {
-			if(texture != null) {
-				// port uvs to texture space
-				int u = face.getUV(0)[VECTOR_X] * texture.getWidth();
-				int v = face.getUV(0)[VECTOR_Y] * texture.getHeight();
-				rasterizer.setVector00(u, v, 0);
-				u = face.getUV(1)[VECTOR_X] * texture.getWidth();
-				v = face.getUV(1)[VECTOR_Y] * texture.getHeight();
-				rasterizer.setVector01(u, v, 0);
-				u = face.getUV(2)[VECTOR_X] * texture.getWidth();
-				v = face.getUV(2)[VECTOR_Y] * texture.getHeight();
-				rasterizer.setVector02(u, v, 0);
-			}
-		}
-		
-		private void setColors(Face face) {
-			int r = ColorUtils.getRed(face.getVertex(0).getLightColor()) << FP_BIT;
-			int g = ColorUtils.getGreen(face.getVertex(0).getLightColor()) << FP_BIT;
-			int b = ColorUtils.getBlue(face.getVertex(0).getLightColor()) << FP_BIT;
-			rasterizer.setVector10(r, g, b);
-			r = ColorUtils.getRed(face.getVertex(1).getLightColor()) << FP_BIT;
-			g = ColorUtils.getGreen(face.getVertex(1).getLightColor()) << FP_BIT;
-			b = ColorUtils.getBlue(face.getVertex(1).getLightColor()) << FP_BIT;
-			rasterizer.setVector11(r, g, b);
-			r = ColorUtils.getRed(face.getVertex(2).getLightColor()) << FP_BIT;
-			g = ColorUtils.getGreen(face.getVertex(2).getLightColor()) << FP_BIT;
-			b = ColorUtils.getBlue(face.getVertex(2).getLightColor()) << FP_BIT;
-			rasterizer.setVector12(r, g, b);
-		}
-		
-		private void setDirectionalLightSpaceVectors(Face face) {
-			if(directionalLightShadowMap != null) {
-				final int[][] lightMatrix = directionalLightFrustum.getProjectionMatrix();
-				
-				int[] worldLocation = face.getVertex(0).getWorldLocation();
-				rasterizer.setVector20(transformToLightSpace(worldLocation, lightMatrix, directionalLightFrustum));
-				
-				worldLocation = face.getVertex(1).getWorldLocation();
-				rasterizer.setVector21(transformToLightSpace(worldLocation, lightMatrix, directionalLightFrustum));
-				
-				worldLocation = face.getVertex(2).getWorldLocation();
-				rasterizer.setVector22(transformToLightSpace(worldLocation, lightMatrix, directionalLightFrustum));
-			}
-		}
-		
-		private void setSpotLightSpaceVectors(Face face) {
-			if(spotLightShadowMap != null) {
-				final int[][] lightMatrix = spotLightFrustum.getProjectionMatrix();
-				
-				int[] worldLocation = face.getVertex(0).getWorldLocation();
-				rasterizer.setVector30(transformToLightSpace(worldLocation, lightMatrix, spotLightFrustum));
-				
-				worldLocation = face.getVertex(1).getWorldLocation();
-				rasterizer.setVector31(transformToLightSpace(worldLocation, lightMatrix, spotLightFrustum));
-				
-				worldLocation = face.getVertex(2).getWorldLocation();
-				rasterizer.setVector32(transformToLightSpace(worldLocation, lightMatrix, spotLightFrustum));
-			}
-		}
-		
-		private int[] transformToLightSpace(int[] worldLocation, int[][] lightMatrix, Frustum lightFrustum) {
-			VectorUtils.copy(lightSpaceLocation, worldLocation);
-			VectorUtils.multiply(lightSpaceLocation, lightMatrix);
-			TransformationUtils.screenportVector(lightSpaceLocation, lightFrustum);
-			// The rasterizer will interpolate fixed point vectors but screen space vectors are not fixed point
-			VectorUtils.multiply(lightSpaceLocation, FP_ONE << FP_BIT);
-			return lightSpaceLocation;
-		}
 		
 		public void fragment() {
 			final Texture depthBuffer = frameBuffer.getDepthBuffer();
@@ -354,15 +337,12 @@ public class GouraudShader extends ThreadedShader {
 				final int[] uv = rasterizer.getVector0();
 				texelColor = getFragmentTexelColor(uv);
 				
-				final int[] directionalLightSpaceLocation = rasterizer.getVector2();
+				final int[] directionalLightSpaceLocation = rasterizer.getVector1();
 				isInShadow = isFragmentInShadow(directionalLightSpaceLocation, directionalLightShadowMap);
 				if(!isInShadow) {
-					final int[] spotLightSpaceLocation = rasterizer.getVector3();
+					final int[] spotLightSpaceLocation = rasterizer.getVector2();
 					isInShadow = isFragmentInShadow(spotLightSpaceLocation, spotLightShadowMap);
 				}
-				
-				final int[] lightColorVector = rasterizer.getVector1();
-				final int lightColor = getFragmentLightColor(lightColorVector);
 				
 				int color = ColorUtils.multiplyColor(lightColor, texelColor);
 				if(isInShadow)
@@ -394,13 +374,6 @@ public class GouraudShader extends ThreadedShader {
 				final int depth = shadowMap.getPixel(x, y);
 				return depth < lightSpaceLocation[VECTOR_Z] >> FP_BIT;
 			}
-		}
-		
-		private int getFragmentLightColor(int[] color) {
-			final int r = color[0] >> FP_BIT;
-			final int g = color[1] >> FP_BIT;
-			final int b = color[2] >> FP_BIT;
-			return ColorUtils.toColor(r, g, b);
 		}
 
 		public ShaderBuffer getShaderBuffer() {
