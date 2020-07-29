@@ -18,7 +18,7 @@ import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.model.VertexGroup;
 import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
-import com.johnsproject.jgameengine.shading.PhongShader;
+import com.johnsproject.jgameengine.shading.GouraudShader;
 import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.shading.ShaderBuffer;
 import com.johnsproject.jgameengine.shading.ShadowMappingShader;
@@ -41,7 +41,7 @@ public class GraphicsEngine implements EngineListener {
 		this.locationVector = VectorUtils.emptyVector();
 		this.normalVector = VectorUtils.emptyVector();
 		this.multiplyVector = VectorUtils.emptyVector();
-		defaultShader = new PhongShader();
+		defaultShader = new GouraudShader();
 		addShader(new ShadowMappingShader());
 		addShader(defaultShader);
 	}
@@ -216,10 +216,14 @@ public class GraphicsEngine implements EngineListener {
 	
 	public Shader getShader(int index) {
 		return shaders.get(index);
-	}
+	}	
 	
 	public void addShader(Shader shader) {
 		shaders.add(shader);
+	}
+	
+	public void removeShader(Shader shader) {
+		shaders.remove(shader);
 	}
 
 	public Shader getDefaultShader() {
