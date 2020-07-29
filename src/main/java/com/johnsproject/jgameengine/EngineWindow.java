@@ -2,7 +2,9 @@ package com.johnsproject.jgameengine;
 
 import java.awt.Canvas;
 import java.awt.Frame;
-import java.awt.Graphics2D;
+import java.awt.Graphics;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -15,20 +17,20 @@ public class EngineWindow extends Frame implements EngineListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private final EnginePanel panel;
+	private final Canvas canvas;
+	private BufferStrategy bufferStrategy;
+	private Graphics graphics;
 	private FrameBuffer frameBuffer;
-	private int width;
-	private int height;
 	
 	public EngineWindow(FrameBuffer frameBuffer) {
-		panel = new EnginePanel();
+		canvas = new Canvas();
+		setLayout(null);
 		setFrameBuffer(frameBuffer);
-		setVisible(true);
 		setTitle("JGameEngine");
 		addWindowListener(handleWindowClose());
-		createBufferStrategy(2);
-		add(panel);
-		panel.setup();
+		addComponentListener(handleWindowResize());
+		add(canvas);
+		setVisible(true);
 	}
 	
 	private WindowAdapter handleWindowClose() {
@@ -38,40 +40,66 @@ public class EngineWindow extends Frame implements EngineListener {
 			}
 		};
 	}
+	
+	public ComponentAdapter handleWindowResize() {
+		return new ComponentAdapter() {
+		    public void componentResized(ComponentEvent componentEvent) {
+		    	recreateCanvasBuffer();
+		    }
+		};
+	}
 
 	public void initialize(EngineEvent e) {}
 	
 	public void fixedUpdate(EngineEvent e) {}
 	
 	public void dynamicUpdate(EngineEvent e) {
-		panel.drawBuffer();
-		if (getWidth() != width || getHeight() != height) {
-			width = getWidth();
-			height = getHeight();
-			panel.setSize(width, height);
+		synchronized (canvas) {
+			final int width = getWidth();
+			final int height = getHeight();
+			graphics.clearRect(0, 0, width, height);
+			graphics.drawImage(frameBuffer.getImage(), 0, 0, width, height, null);
+			bufferStrategy.show();
 		}
 	}
 	
-	public void setFullscreen(boolean fullscreen) {
-		dispose();
-		if(fullscreen) {
-			setExtendedState(Frame.MAXIMIZED_BOTH);
-		} else {
-			setExtendedState(Frame.NORMAL);
+	@Override
+	public void setVisible(boolean isVisible) {
+		super.setVisible(isVisible);
+		recreateCanvasBuffer();
+	}
+	
+	private void recreateCanvasBuffer() {
+	   	synchronized (canvas) {
+	   		if(isVisible()) {
+				canvas.setSize(getWidth(), getHeight());
+				canvas.createBufferStrategy(2);
+				if(bufferStrategy != null) {
+					graphics.dispose();
+					bufferStrategy.dispose();
+				}
+				bufferStrategy = canvas.getBufferStrategy();
+				graphics = bufferStrategy.getDrawGraphics();
+			}
 		}
+	}
+	
+	public void setFullscreen(boolean isFullscreen) {
+		dispose();
+		if(isFullscreen)
+			setExtendedState(Frame.MAXIMIZED_BOTH);
+		else
+			setExtendedState(Frame.NORMAL);
 		setVisible(true);
 	}
 	
 	public boolean isFullscreen() {
-		if(getExtendedState() == Frame.NORMAL) {
-			return false;
-		}
-		return true;
+		return getExtendedState() != Frame.NORMAL;
 	}
 	
-	public void setBorders(boolean borders) {
+	public void setBorders(boolean hasBorders) {
 		dispose();
-		setUndecorated(!borders);
+		setUndecorated(!hasBorders);
 		setVisible(true);
 	}
 	
@@ -87,33 +115,12 @@ public class EngineWindow extends Frame implements EngineListener {
 	public FrameBuffer getFrameBuffer() {
 		return frameBuffer;
 	}
-
-	public Canvas getCanvas() {
-		return panel;
-	}
-	
-	private class EnginePanel extends Canvas {
-
-		private static final long serialVersionUID = 1L;
-
-		private BufferStrategy bufferStrategy;
-		
-		private void setup() {
-			if (bufferStrategy == null) {
-				this.createBufferStrategy(2);
-			}
-			bufferStrategy = this.getBufferStrategy();
-		}
-		
-		public void drawBuffer() {
-			Graphics2D graphics = (Graphics2D) bufferStrategy.getDrawGraphics();
-			graphics.clearRect(0, 0, width, height);
-			graphics.drawImage(frameBuffer.getImage(), 0, 0, width, height, null);
-			bufferStrategy.show();
-		}
-	}
 	
 	public int getLayer() {
 		return GRAPHICS_ENGINE_LAYER + 1;
+	}
+
+	public Canvas getCanvas() {
+		return canvas;
 	}
 }
