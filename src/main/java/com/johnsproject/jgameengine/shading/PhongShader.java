@@ -259,11 +259,11 @@ public class PhongShader extends ThreadedShader {
 				final Light light = lights.get(i);
 				if(!light.isActive() || light.isCulled())
 					continue;
-				final int lighting = calculateLight(location, normal, material, light);
 				final int ambient = ColorUtils.multiplyColor(texelColor, light.getAmbientColor());
+				int lighting = calculateLight(location, normal, material, light);
+				lighting = ColorUtils.multiply(lighting, light.getIntensity());
 				color = ColorUtils.add(color, lighting);
 				color = ColorUtils.add(color, ambient);
-				color = ColorUtils.multiply(color, light.getIntensity());
 			}
 			return color;
 		}
