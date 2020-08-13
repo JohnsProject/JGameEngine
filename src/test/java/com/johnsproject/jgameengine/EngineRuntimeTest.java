@@ -11,8 +11,6 @@ import java.awt.Panel;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
@@ -30,12 +28,13 @@ import com.johnsproject.jgameengine.model.Texture;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.shading.BasicShader;
 import com.johnsproject.jgameengine.shading.BasicThreadedShader;
+import com.johnsproject.jgameengine.shading.DirectionalLightShadowShader;
 import com.johnsproject.jgameengine.shading.FlatShader;
 import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
 import com.johnsproject.jgameengine.shading.GouraudShader;
 import com.johnsproject.jgameengine.shading.PhongShader;
 import com.johnsproject.jgameengine.shading.Shader;
-import com.johnsproject.jgameengine.shading.ShadowMappingShader;
+import com.johnsproject.jgameengine.shading.SpotLightShadowShader;
 import com.johnsproject.jgameengine.util.FileUtils;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
@@ -59,18 +58,18 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener {
 	
 	private static final int CAMERA_TRANSLATION_SPEED = FP_ONE / 10;
 	
-	private final ShadowMappingShader shadowShader;
-	private final BasicShader basicShader;
-	private final BasicThreadedShader basicThreadedShader;
-	private final FlatShader flatShader;
-	private final GouraudShader gouraudShader;
-	private final PhongShader phongShader;
+	private final FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
+	private final EngineWindow window = new EngineWindow(frameBuffer);
+	private final GraphicsEngine graphicsEngine = new GraphicsEngine(frameBuffer);
+	private final InputEngine inputEngine = new InputEngine();
+	private final PhysicsEngine physicsEngine = new PhysicsEngine();
+	private final EngineStatistics engineStats = new EngineStatistics(window);
 	
-	private final FrameBuffer frameBuffer;
-	private final EngineWindow window;
-	private final GraphicsEngine graphicsEngine;
-	private final InputEngine inputEngine;
-	private final PhysicsEngine physicsEngine;
+	private final BasicShader basicShader = new BasicShader();
+	private final BasicThreadedShader basicThreadedShader = new BasicThreadedShader();
+	private final FlatShader flatShader = new FlatShader();
+	private final GouraudShader gouraudShader = new GouraudShader();
+	private final PhongShader phongShader = new PhongShader();
 	
 	private final Scene scene;
 	private Camera camera;
@@ -87,19 +86,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener {
 		new EngineRuntimeTest();
 	}
 	
-	EngineRuntimeTest() {
-		shadowShader = new ShadowMappingShader();
-		basicShader = new BasicShader();
-		basicThreadedShader = new BasicThreadedShader();
-		flatShader = new FlatShader();
-		gouraudShader = new GouraudShader();
-		phongShader = new PhongShader();
-		
-		frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
-		window = new EngineWindow(frameBuffer);
-		graphicsEngine = new GraphicsEngine(frameBuffer);
-		inputEngine = new InputEngine();
-		physicsEngine = new PhysicsEngine();
+	EngineRuntimeTest() {		
 		scene = loadScene();
 		Engine.getInstance().addEngineListener(this);
 		Engine.getInstance().addEngineListener(graphicsEngine);
@@ -107,8 +94,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener {
 //		Engine.getInstance().addEngineListener(physicsEngine);
 		Engine.getInstance().addEngineListener(window);
 		if(SHOW_ENGINE_STATISTICS) {
-			final EngineStatistics stats = new EngineStatistics(window);
-			Engine.getInstance().addEngineListener(stats);
+			Engine.getInstance().addEngineListener(engineStats);
 		}
 		Engine.getInstance().start();	
 	}
@@ -121,7 +107,8 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener {
 		cameraTranslationSpeed = CAMERA_TRANSLATION_SPEED;
 		
 		graphicsEngine.getShaders().clear();
-		graphicsEngine.addShader(shadowShader);
+		graphicsEngine.addShader(new DirectionalLightShadowShader());
+		graphicsEngine.addShader(new SpotLightShadowShader()); 
 		graphicsEngine.addShader(basicShader);
 		graphicsEngine.addShader(basicThreadedShader);
 		graphicsEngine.addShader(flatShader);

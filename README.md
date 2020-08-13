@@ -30,7 +30,18 @@ Input engine
 * [ ] Gamepad
 * [ ] Touch
 
+## Tests
+
+There are some built in tests for the game engine that can be found in the `Tests` folder.
+To run the test just double click the `.jar` file.
+
+Or open a terminal and type ``java -jar TestFile.jar``
+
 ## Screenshots
+Spaceship game
+
+[![Spaceship game](Images/SpaceshipGame.PNG)](https://www.youtube.com/watch?v=jaY7MnLMf94)
+
 Single threaded basic shader (without lights)
 
 ![Screenshot](Images/Screenshot00.PNG "Screenshot00")
