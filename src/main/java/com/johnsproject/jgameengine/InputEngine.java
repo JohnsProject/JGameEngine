@@ -84,6 +84,24 @@ public class InputEngine implements EngineListener {
 		return mouseLocationOnScreen;
 	}
 	
+	public boolean isKeyPressed(int keyCode) {
+		for (int i = 0; i < inputEvents.size(); i++) {
+			final InputEvent event = inputEvents.get(i);
+			if((event.getType() == KEY_HOLD) && (event.getKeyEvent().getKeyCode() == keyCode))
+				return true;
+		}
+		return false;
+	}
+	
+	public boolean isMousePressed(int button) {
+		for (int i = 0; i < inputEvents.size(); i++) {
+			final InputEvent event = inputEvents.get(i);
+			if((event.getType() == MOUSE_HOLD) && (event.getMouseEvent().getButton() == button))
+				return true;
+		}
+		return false;
+	}
+	
 	public void addEngineKeyListener(EngineKeyListener listener) {
 		keyListeners.add(listener);
 	}
