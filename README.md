@@ -37,10 +37,13 @@ To run the test just double click the `.jar` file.
 
 Or open a terminal and type ``java -jar TestFile.jar``
 
-## Screenshots
+## Videos
+
 Spaceship game
 
 [![Spaceship game](Images/SpaceshipGame.PNG)](https://www.youtube.com/watch?v=jaY7MnLMf94)
+
+## Screenshots
 
 Single threaded basic shader (without lights)
 
