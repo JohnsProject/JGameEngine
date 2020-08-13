@@ -17,11 +17,12 @@ import com.johnsproject.jgameengine.model.Scene;
 import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.model.VertexGroup;
+import com.johnsproject.jgameengine.shading.DirectionalLightShadowShader;
 import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
 import com.johnsproject.jgameengine.shading.GouraudShader;
 import com.johnsproject.jgameengine.shading.Shader;
 import com.johnsproject.jgameengine.shading.ShaderBuffer;
-import com.johnsproject.jgameengine.shading.ShadowMappingShader;
+import com.johnsproject.jgameengine.shading.SpotLightShadowShader;
 import com.johnsproject.jgameengine.util.VectorUtils;
 
 public class GraphicsEngine implements EngineListener {
@@ -42,7 +43,8 @@ public class GraphicsEngine implements EngineListener {
 		this.normalVector = VectorUtils.emptyVector();
 		this.multiplyVector = VectorUtils.emptyVector();
 		defaultShader = new GouraudShader();
-		addShader(new ShadowMappingShader());
+		addShader(new DirectionalLightShadowShader());
+		addShader(new SpotLightShadowShader());
 		addShader(defaultShader);
 	}
 
