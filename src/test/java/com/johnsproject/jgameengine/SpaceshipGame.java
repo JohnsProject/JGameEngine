@@ -32,16 +32,14 @@ import com.johnsproject.jgameengine.util.VectorUtils;
 @SuppressWarnings("unused")
 public class SpaceshipGame implements EngineListener {
 
-	private static final int WINDOW_W = 1920;
-	private static final int WINDOW_H = 1080;
-	private static final int RENDER_W = (WINDOW_W * 100) / 100;
-	private static final int RENDER_H = (WINDOW_H * 100) / 100;
+	private static final int WINDOW_WIDTH = 1920;
+	private static final int WINDOW_HEIGHT = 1080;
 	
-	private final FrameBuffer frameBuffer = new FrameBuffer(RENDER_W, RENDER_H);
-	private final GraphicsEngine graphicsEngine = new GraphicsEngine(frameBuffer);
+	private final FrameBuffer frameBuffer;
+	private final EngineWindow window;
+	private final GraphicsEngine graphicsEngine;
+	private final EngineStatistics engineStats;
 	private final InputEngine inputEngine = new InputEngine();
-	private final EngineWindow window = new EngineWindow(frameBuffer);
-	private final EngineStatistics engineStats = new EngineStatistics(window);
 	private final Scene scene = new Scene();
 	
 	private Transform cameraTransform;
@@ -54,10 +52,30 @@ public class SpaceshipGame implements EngineListener {
 	private int spaceshipFireScale = 2000;
 	
 	public static void main(String[] args) {
-		new SpaceshipGame();
+		int width = WINDOW_WIDTH;
+		int height = WINDOW_HEIGHT;
+		int scaling = 100;
+		for (int i = 0; i < args.length; i++) {
+			final String setting = args[i];
+			if(setting.contains("window")) {
+				final String[] resolution = setting.replace("window", "").split("x");
+				width = Integer.parseInt(resolution[0]);
+				height = Integer.parseInt(resolution[1]);
+			}
+			else if(setting.contains("render")) {
+				scaling = Integer.parseInt(setting.replace("render", ""));
+			}
+		}
+		new SpaceshipGame(width, height, scaling);
 	}
 
-	public SpaceshipGame() {
+	public SpaceshipGame(int width, int height, int scaling) {		
+		frameBuffer = new FrameBuffer((width * scaling) / 100, (height * scaling) / 100);
+		window = new EngineWindow(frameBuffer);
+		graphicsEngine = new GraphicsEngine(frameBuffer);
+		engineStats = new EngineStatistics(window);
+		window.setSize(width, height);
+		
 		Engine.getInstance().setScene(scene);
 		Engine.getInstance().addEngineListener(this);
 		Engine.getInstance().addEngineListener(graphicsEngine);
@@ -69,7 +87,6 @@ public class SpaceshipGame implements EngineListener {
 
 	public void initialize(EngineEvent e) {
 		window.setTitle("Spaceship Game");
-		window.setSize(WINDOW_W, WINDOW_H);
 		
 		// remove unused shaders to save performance
 		graphicsEngine.getShaders().clear();
@@ -90,35 +107,35 @@ public class SpaceshipGame implements EngineListener {
 	}
 	
 	private void loadTerrain(ClassLoader classLoader) throws IOException {
-		final Mesh terrainMesh = OBJImporter.parseResource(classLoader, "SpaceshipGame/Terrain.obj");
-		final Model terrainModel = new Model("Terrain", new Transform(), terrainMesh);
-		terrainModel.getTransform().setScale(3 << FP_BIT, 3 << FP_BIT, 3 << FP_BIT);
+		final Model terrainModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/Terrain.obj");
 		scene.addModel(terrainModel);
 		
+		terrainModel.getTransform().setScale(3 << FP_BIT, 3 << FP_BIT, 3 << FP_BIT);
+		
 		final Texture texture = new Texture(FileUtils.loadImage(this.getClass().getResourceAsStream("/JohnsProjectLogo.png")));
-		terrainMesh.getMaterial(0).setTexture(texture);
+		terrainModel.getMesh().getMaterial(0).setTexture(texture);
 	}
 	
 	private void loadSpaceshipFire(ClassLoader classLoader) throws IOException {
-		spaceshipFireTransform = new Transform();
-		spaceshipFireTransform.setScale(FP_HALF, FP_HALF, FP_HALF);
-		final Mesh spaceshipFireMesh = OBJImporter.parseResource(classLoader, "SpaceshipGame/SpaceshipFire.obj");
-		spaceshipFireModel = new Model("SpaceshipFire", spaceshipFireTransform, spaceshipFireMesh);
+		spaceshipFireModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/SpaceshipFire.obj");
 		scene.addModel(spaceshipFireModel);
+		
+		spaceshipFireTransform = spaceshipFireModel.getTransform();
+		spaceshipFireTransform.setScale(FP_HALF, FP_HALF, FP_HALF);
 		
 		// the basic shader has no illumination so it will have a glow like effect
 		final BasicThreadedShader basicShader = new BasicThreadedShader();
 		graphicsEngine.addShader(basicShader);
-		spaceshipFireMesh.getMaterial(0).setShader(basicShader);
+		spaceshipFireModel.getMesh().getMaterial(0).setShader(basicShader);
 	}
 	
 	private void loadSpaceship(ClassLoader classLoader) throws IOException {
-		spaceshipTransform = new Transform();
+		final Model spaceshipModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/Spaceship.obj");
+		scene.addModel(spaceshipModel);
+		
+		spaceshipTransform = spaceshipModel.getTransform();
 		spaceshipTransform.worldTranslate(0, 5 << FP_BIT, 0);
 		spaceshipTransform.setScale(FP_HALF, FP_HALF, FP_HALF);
-		final Mesh spaceshipMesh = OBJImporter.parseResource(classLoader, "SpaceshipGame/Spaceship.obj");
-		final Model spaceshipModel = new Model("Spaceship", spaceshipTransform, spaceshipMesh);
-		scene.addModel(spaceshipModel);
 	}
 	
 	private void createCamera() {
