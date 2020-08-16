@@ -94,18 +94,7 @@ public class Rasterizer {
 	}
 	
 	protected boolean isCulled() {
-		if(isBiggerThanRenderTarget()) {
-			return true;
-		}
-		else if(isOutOfFrustum()) {
-			return true;
-		}
-		else if(isBackface()) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return isBiggerThanRenderTarget() || isOutOfFrustum() || isBackface();
 	}
 	
 	private boolean isBiggerThanRenderTarget() {

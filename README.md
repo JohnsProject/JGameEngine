@@ -37,11 +37,19 @@ To run the test just double click the `.jar` file.
 
 Or open a terminal and type ``java -jar TestFile.jar``
 
+The window size can be configured using the ``window640x480`` argument.
+
+The render resolution can be set as a percentage of the window size using the ``render75`` argument.
+
 ## Videos
 
 Spaceship game
 
 [![Spaceship game](Images/SpaceshipGame.PNG)](https://www.youtube.com/watch?v=jaY7MnLMf94)
+
+Model viewer
+
+[![Model viewer](Images/ModelViewer.PNG)](https://www.youtube.com/watch?v=6UVMvJErhTc)
 
 ## Screenshots
 
