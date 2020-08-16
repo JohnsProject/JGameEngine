@@ -62,7 +62,6 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener {
 	private final EngineWindow window = new EngineWindow(frameBuffer);
 	private final GraphicsEngine graphicsEngine = new GraphicsEngine(frameBuffer);
 	private final InputEngine inputEngine = new InputEngine();
-	private final PhysicsEngine physicsEngine = new PhysicsEngine();
 	private final EngineStatistics engineStats = new EngineStatistics(window);
 	
 	private final BasicShader basicShader = new BasicShader();
@@ -91,7 +90,6 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener {
 		Engine.getInstance().addEngineListener(this);
 		Engine.getInstance().addEngineListener(graphicsEngine);
 		Engine.getInstance().addEngineListener(inputEngine);
-//		Engine.getInstance().addEngineListener(physicsEngine);
 		Engine.getInstance().addEngineListener(window);
 		if(SHOW_ENGINE_STATISTICS) {
 			Engine.getInstance().addEngineListener(engineStats);
@@ -226,9 +224,8 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener {
 			Texture texture = new Texture(FileUtils.loadImage(this.getClass().getResourceAsStream("/JohnsProjectLogo.png")));
 			
 			Scene scene = new Scene();
-			Mesh mesh = OBJImporter.parseResource(this.getClass().getClassLoader(), "DefaultTest.obj");
-			model = new Model("Model", new Transform(), mesh);
-			mesh.getMaterial("Material.006").setTexture(texture);
+			model = OBJImporter.parseResource(this.getClass().getClassLoader(), "DefaultTest.obj");
+			model.getMesh().getMaterial("Material.006").setTexture(texture);
 			scene.addModel(model);
 			
 			camera = new Camera("Camera", new Transform());
@@ -283,16 +280,7 @@ public class EngineRuntimeTest implements EngineListener, EngineKeyListener {
 		}
 	}
 	
-	public void fixedUpdate(EngineEvent e) {
-		Model model = e.getScene().getModel("Ground");
-		if(model != null) {
-			model.getRigidBody().setTorque(0, 0, 10);
-	//		model.getRigidBody().setAngularVelocity(0, 0, 1024);
-	//		model.getRigidBody().setLinearVelocity(1024, 0, 0);
-	//		model.getTransform().rotate(0, 0, 1024);
-	//		model.getTransform().setLocation(1024 * 4, 0, 0);
-		}
-	}
+	public void fixedUpdate(EngineEvent e) { }
 
 	public int getLayer() {
 		if(SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP || SHOW_SPOT_LIGHT_SHADOW_MAP) {

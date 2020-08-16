@@ -1,12 +1,15 @@
 package com.johnsproject.jgameengine.io;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.johnsproject.jgameengine.model.Face;
 import com.johnsproject.jgameengine.model.Material;
 import com.johnsproject.jgameengine.model.Mesh;
+import com.johnsproject.jgameengine.model.Model;
+import com.johnsproject.jgameengine.model.Transform;
 import com.johnsproject.jgameengine.model.Vertex;
 import com.johnsproject.jgameengine.util.ColorUtils;
 import com.johnsproject.jgameengine.util.FileUtils;
@@ -78,10 +81,12 @@ public final class OBJImporter {
 	 * @throws IOException If the file does not exist, is a directory rather than a regular file,
 	 * or for some other reason cannot be opened for reading.
 	 */
-	public static Mesh parseResource(ClassLoader classLoader, String path) throws IOException {
-		final String materialData = FileUtils.readStream(classLoader.getResourceAsStream(path.replace(OBJECT_FILE, MATERIAL_FILE)));
-		final String objectData = FileUtils.readStream(classLoader.getResourceAsStream(path));
-		return parseMesh(objectData, materialData);
+	public static Model parseResource(ClassLoader classLoader, String path) throws IOException {
+		final InputStream materialStream = classLoader.getResourceAsStream(path.replace(OBJECT_FILE, MATERIAL_FILE));
+		final InputStream objectStream = classLoader.getResourceAsStream(path);
+		final String materialData = FileUtils.readStream(materialStream);
+		final String objectData = FileUtils.readStream(objectStream);
+		return createModel(path, parseMesh(objectData, materialData));
 	}
 	
 	/**
@@ -92,10 +97,16 @@ public final class OBJImporter {
 	 * @throws IOException If the file does not exist, is a directory rather than a regular file,
 	 * or for some other reason cannot be opened for reading.
 	 */
-	public static Mesh parse(String path) throws IOException {
+	public static Model parse(String path) throws IOException {
 		final String materialData = FileUtils.readFile(path.replace(OBJECT_FILE, MATERIAL_FILE));
 		final String objectData = FileUtils.readFile(path);
-		return parseMesh(objectData, materialData);
+		return createModel(path, parseMesh(objectData, materialData));
+	}
+	
+	private static Model createModel(String path, Mesh mesh) {
+		final String[] modelNameData = path.split("/");
+		final String modelName = modelNameData[modelNameData.length - 1].replace(OBJECT_FILE, "");
+		return new Model(modelName, new Transform(), mesh);
 	}
 	
 	static Mesh parseMesh(String objectData, String materialData) {

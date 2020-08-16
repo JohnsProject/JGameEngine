@@ -90,35 +90,35 @@ public class SpaceshipGame implements EngineListener {
 	}
 	
 	private void loadTerrain(ClassLoader classLoader) throws IOException {
-		final Mesh terrainMesh = OBJImporter.parseResource(classLoader, "SpaceshipGame/Terrain.obj");
-		final Model terrainModel = new Model("Terrain", new Transform(), terrainMesh);
-		terrainModel.getTransform().setScale(3 << FP_BIT, 3 << FP_BIT, 3 << FP_BIT);
+		final Model terrainModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/Terrain.obj");
 		scene.addModel(terrainModel);
 		
+		terrainModel.getTransform().setScale(3 << FP_BIT, 3 << FP_BIT, 3 << FP_BIT);
+		
 		final Texture texture = new Texture(FileUtils.loadImage(this.getClass().getResourceAsStream("/JohnsProjectLogo.png")));
-		terrainMesh.getMaterial(0).setTexture(texture);
+		terrainModel.getMesh().getMaterial(0).setTexture(texture);
 	}
 	
 	private void loadSpaceshipFire(ClassLoader classLoader) throws IOException {
-		spaceshipFireTransform = new Transform();
-		spaceshipFireTransform.setScale(FP_HALF, FP_HALF, FP_HALF);
-		final Mesh spaceshipFireMesh = OBJImporter.parseResource(classLoader, "SpaceshipGame/SpaceshipFire.obj");
-		spaceshipFireModel = new Model("SpaceshipFire", spaceshipFireTransform, spaceshipFireMesh);
+		spaceshipFireModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/SpaceshipFire.obj");
 		scene.addModel(spaceshipFireModel);
+		
+		spaceshipFireTransform = spaceshipFireModel.getTransform();
+		spaceshipFireTransform.setScale(FP_HALF, FP_HALF, FP_HALF);
 		
 		// the basic shader has no illumination so it will have a glow like effect
 		final BasicThreadedShader basicShader = new BasicThreadedShader();
 		graphicsEngine.addShader(basicShader);
-		spaceshipFireMesh.getMaterial(0).setShader(basicShader);
+		spaceshipFireModel.getMesh().getMaterial(0).setShader(basicShader);
 	}
 	
 	private void loadSpaceship(ClassLoader classLoader) throws IOException {
-		spaceshipTransform = new Transform();
+		final Model spaceshipModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/Spaceship.obj");
+		scene.addModel(spaceshipModel);
+		
+		spaceshipTransform = spaceshipModel.getTransform();
 		spaceshipTransform.worldTranslate(0, 5 << FP_BIT, 0);
 		spaceshipTransform.setScale(FP_HALF, FP_HALF, FP_HALF);
-		final Mesh spaceshipMesh = OBJImporter.parseResource(classLoader, "SpaceshipGame/Spaceship.obj");
-		final Model spaceshipModel = new Model("Spaceship", spaceshipTransform, spaceshipMesh);
-		scene.addModel(spaceshipModel);
 	}
 	
 	private void createCamera() {
