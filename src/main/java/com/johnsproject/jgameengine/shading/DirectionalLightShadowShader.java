@@ -160,6 +160,5 @@ public class DirectionalLightShadowShader extends ThreadedShader {
 		public ShaderBuffer getShaderBuffer() {
 			return shaderBuffer;
 		}
-		
 	}
 }
