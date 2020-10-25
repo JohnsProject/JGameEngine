@@ -1,6 +1,7 @@
 package com.johnsproject.jgameengine;
 
 import java.awt.Canvas;
+import java.awt.Component;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.event.ComponentAdapter;
@@ -107,6 +108,11 @@ public class EngineWindow extends Frame implements EngineListener {
 		return !isUndecorated();
 	}
 	
+	@Override
+	public Component add(Component comp) {
+		return super.add(comp, 0);
+	}
+
 	public void setFrameBuffer(FrameBuffer frameBuffer) {
 		setSize(frameBuffer.getWidth(), frameBuffer.getHeight());
 		this.frameBuffer = frameBuffer;

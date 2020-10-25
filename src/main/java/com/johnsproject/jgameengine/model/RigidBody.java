@@ -26,42 +26,6 @@ public class RigidBody {
 		this.momentOfInertia = MatrixUtils.indentityMatrix();
 	}
 
-	public boolean isKinematic() {
-		return kinematic;
-	}
-
-	public void setKinematic(boolean kinematic) {
-		this.kinematic = kinematic;
-	}
-
-	public int getMass() {
-		return mass;
-	}
-
-	public void setMass(int mass) {
-		this.mass = mass;
-	}
-
-	public int[] getForce() {
-		return force;
-	}
-
-	public int[] getTorque() {
-		return torque;
-	}
-	
-	public int[] getLinearVelocity() {
-		return linearVelocity;
-	}
-	
-	public int[] getAngularVelocity() {
-		return angularVelocity;
-	}
-
-	public int[][] getMomentOfInertia() {
-		return momentOfInertia;
-	}
-
 	public void setForce(int x, int y, int z) {
 		force[VECTOR_X] = x;
 		force[VECTOR_Y] = y;
@@ -116,7 +80,6 @@ public class RigidBody {
 		linearVelocity[VECTOR_Z] += vector[VECTOR_Z];
 	}
 	
-	// needs to be converted to radians
 	public void setAngularVelocity(int x, int y, int z) {
 		angularVelocity[VECTOR_X] = x;
 		angularVelocity[VECTOR_Y] = y;
@@ -133,5 +96,41 @@ public class RigidBody {
 		angularVelocity[VECTOR_X] += vector[VECTOR_X];
 		angularVelocity[VECTOR_Y] += vector[VECTOR_Y];
 		angularVelocity[VECTOR_Z] += vector[VECTOR_Z];
+	}
+
+	public boolean isKinematic() {
+		return kinematic;
+	}
+
+	public void setKinematic(boolean kinematic) {
+		this.kinematic = kinematic;
+	}
+
+	public int getMass() {
+		return mass;
+	}
+
+	public void setMass(int mass) {
+		this.mass = mass;
+	}
+
+	public int[] getForce() {
+		return force;
+	}
+
+	public int[] getTorque() {
+		return torque;
+	}
+	
+	public int[] getLinearVelocity() {
+		return linearVelocity;
+	}
+	
+	public int[] getAngularVelocity() {
+		return angularVelocity;
+	}
+
+	public int[][] getMomentOfInertia() {
+		return momentOfInertia;
 	}
 }

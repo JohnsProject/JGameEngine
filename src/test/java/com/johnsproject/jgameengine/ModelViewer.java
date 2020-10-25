@@ -156,7 +156,7 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 		y = addShaderSettings(y, panel);
 		y = addLightSettings(y, panel);
 		y = addLoadModelButton(y, panel);
-		window.add(panel, 0);
+		window.add(panel);
 		addHelp();
 	}
 	
@@ -198,7 +198,7 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 		final TextArea textArea = new TextArea(help, 0, 0, TextArea.SCROLLBARS_NONE);
 		textArea.setBounds(PANEL_WIDTH + 11, 30, PANEL_WIDTH, 130);
 		textArea.setEditable(false);		
-		window.add(textArea, 0);
+		window.add(textArea);
 	}
 	
 	private int createCheckbox(String text, boolean state, int y, Panel panel,

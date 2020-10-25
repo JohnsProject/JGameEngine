@@ -26,7 +26,7 @@ public class EngineStatistics implements EngineListener {
 	
 	public EngineStatistics(EngineWindow window) {
 		this.textArea = new TextArea("", 0, 0, TextArea.SCROLLBARS_NONE);
-		window.add(textArea, 0);
+		window.add(textArea);
 	}
 	
 	public void initialize(EngineEvent e) { 
