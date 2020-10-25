@@ -192,10 +192,6 @@ public class GraphicsEngine implements EngineListener {
 		|| shader.isGlobal();
 	}
 
-	public int getLayer() {
-		return GRAPHICS_ENGINE_LAYER;
-	}
-
 	public ShaderBuffer getShaderBuffer() {
 		return shaderBuffer;
 	}

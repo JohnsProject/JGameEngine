@@ -121,10 +121,6 @@ public class EngineWindow extends Frame implements EngineListener {
 	public FrameBuffer getFrameBuffer() {
 		return frameBuffer;
 	}
-	
-	public int getLayer() {
-		return GRAPHICS_ENGINE_LAYER + 1;
-	}
 
 	public Canvas getCanvas() {
 		return canvas;

@@ -34,19 +34,6 @@ public class EngineStatistics implements EngineListener {
 		textArea.setSize(STATISTICS_WIDTH, STATISTICS_HEIGHT);
 		textArea.setEditable(false);
 		textArea.setBackground(STATISTICS_BACKROUND);
-		graphicsEngine = getGraphicsEngine();
-	}
-	
-	private GraphicsEngine getGraphicsEngine() {
-		GraphicsEngine graphicsEngine = null;
-		final List<EngineListener> engineListeners = Engine.getInstance().getEngineListeners(); 
-		for (int i = 0; i < engineListeners.size(); i++) {
-			final EngineListener engineListener = engineListeners.get(i);
-			if(engineListener instanceof GraphicsEngine) {
-				graphicsEngine = (GraphicsEngine) engineListener;
-			}
-		}
-		return graphicsEngine;				
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
@@ -55,10 +42,6 @@ public class EngineStatistics implements EngineListener {
 	}
 
 	public void dynamicUpdate(EngineEvent e) { }
-
-	public int getLayer() {
-		return GRAPHICS_ENGINE_LAYER - 1;
-	}
 	
 	private String getOutput(EngineEvent e) {
 		final List<Model> models = e.getScene().getModels();		
@@ -94,8 +77,23 @@ public class EngineStatistics implements EngineListener {
 	}
 	
 	private String getFrameBufferSize() {
+		if(graphicsEngine == null) {
+			graphicsEngine = getGraphicsEngine();
+		}
 		final FrameBuffer frameBuffer = graphicsEngine.getFrameBuffer();
 		return "Framebuffer\t" + frameBuffer.getWidth() + "x" + frameBuffer.getHeight() + "\n";
+	}
+	
+	private GraphicsEngine getGraphicsEngine() {
+		GraphicsEngine graphicsEngine = null;
+		final List<EngineListener> engineListeners = Engine.getInstance().getEngineListeners(); 
+		for (int i = 0; i < engineListeners.size(); i++) {
+			final EngineListener engineListener = engineListeners.get(i);
+			if(engineListener instanceof GraphicsEngine) {
+				graphicsEngine = (GraphicsEngine) engineListener;
+			}
+		}
+		return graphicsEngine;				
 	}
 	
 	private String getVertexCount(List<Model> models) {

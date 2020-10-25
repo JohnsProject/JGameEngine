@@ -118,12 +118,10 @@ public final class Engine {
 	public void addEngineListener(EngineListener listener) {
 		listener.initialize(new EngineEvent(scene, 0, 0, 0));
 		engineListeners.add(listener);
-		sortListeners();
 	}
 
 	public void removeEngineListener(EngineListener listener) {
 		engineListeners.remove(listener);
-		sortListeners();
 	}
 	
 	public List<EngineListener> getEngineListeners() {
@@ -160,20 +158,5 @@ public final class Engine {
 
 	public void setScene(Scene scene) {
 		this.scene = scene;
-	}
-
-	private void sortListeners() {
-		final int listenerCount = engineListeners.size();
-		for (int i = 0; i < listenerCount; i++) {
-			int min_i = i;
-			for (int j = i + 1; j < listenerCount; j++) {
-				if (engineListeners.get(j).getLayer() < engineListeners.get(min_i).getLayer()) {
-					min_i = j;
-				}
-			}
-			EngineListener temp = engineListeners.get(min_i);
-			engineListeners.set(min_i, engineListeners.get(i));
-			engineListeners.set(i, temp);
-		}
 	}
 }

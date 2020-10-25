@@ -77,8 +77,4 @@ public final class PhysicsEngine implements EngineListener {
 		VectorUtils.multiply(angularVelocity, FixedPointUtils.FP_RAD_DEGREE);
 		transform.worldRotate(angularVelocity);
 	}
-
-	public int getLayer() {
-		return PHYSICS_ENGINE_LAYER;
-	}
 }

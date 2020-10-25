@@ -339,8 +339,4 @@ public class InputEngine implements EngineListener {
 	}
 	
 	public void dynamicUpdate(EngineEvent e) { }
-
-	public int getLayer() {
-		return INPUT_ENGINE_LAYER;
-	}
 }

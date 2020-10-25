@@ -77,11 +77,11 @@ public class SpaceshipGame implements EngineListener {
 		window.setSize(width, height);
 		
 		Engine.getInstance().setScene(scene);
+		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(this);
 		Engine.getInstance().addEngineListener(graphicsEngine);
-		Engine.getInstance().addEngineListener(inputEngine);
-		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(engineStats);
+		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().start();
 	}
 
@@ -216,9 +216,5 @@ public class SpaceshipGame implements EngineListener {
 	private void moveLightToCamera() {
 		final int[] cameraLocation = cameraTransform.getLocation();
 		lightTransform.setLocation(cameraLocation[VECTOR_X], cameraLocation[VECTOR_Y], cameraLocation[VECTOR_Z]);
-	}
-
-	public int getLayer() {
-		return DEFAULT_LAYER;
 	}
 }

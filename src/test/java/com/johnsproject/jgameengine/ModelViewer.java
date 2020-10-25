@@ -115,13 +115,18 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 		window.setSize(width, height);
 		
 		scene = loadScene();
-		Engine.getInstance().addEngineListener(this);
-		Engine.getInstance().addEngineListener(graphicsEngine);
 		Engine.getInstance().addEngineListener(inputEngine);
-		Engine.getInstance().addEngineListener(window);
 		if(SHOW_ENGINE_STATISTICS) {
 			Engine.getInstance().addEngineListener(engineStats);
 		}
+		if(SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP || SHOW_SPOT_LIGHT_SHADOW_MAP) {
+			Engine.getInstance().addEngineListener(graphicsEngine);
+			Engine.getInstance().addEngineListener(this);
+		} else {
+			Engine.getInstance().addEngineListener(this);
+			Engine.getInstance().addEngineListener(graphicsEngine);
+		}
+		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().start();	
 	}
 	
@@ -349,13 +354,6 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 	}
 	
 	public void fixedUpdate(EngineEvent e) { }
-
-	public int getLayer() {
-		if(SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP || SHOW_SPOT_LIGHT_SHADOW_MAP) {
-			return GRAPHICS_ENGINE_LAYER + 1;
-		}
-		return DEFAULT_LAYER;
-	}
 
 	public void keyTyped(KeyEvent e) {
 		
