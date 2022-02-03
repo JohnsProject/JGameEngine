@@ -1,7 +1,7 @@
 package com.johnsproject.jgameengine.graphics.shading;
 
-import static com.johnsproject.jgameengine.math.FixedPoint.FP_BIT;
-import static com.johnsproject.jgameengine.math.FixedPoint.FP_ONE;
+import static com.johnsproject.jgameengine.math.Fixed.FP_BIT;
+import static com.johnsproject.jgameengine.math.Fixed.FP_ONE;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_X;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_Y;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_Z;
@@ -17,7 +17,7 @@ import com.johnsproject.jgameengine.graphics.Material;
 import com.johnsproject.jgameengine.graphics.Texture;
 import com.johnsproject.jgameengine.graphics.Vertex;
 import com.johnsproject.jgameengine.graphics.rasterization.LinearRasterizer6;
-import com.johnsproject.jgameengine.math.FixedPoint;
+import com.johnsproject.jgameengine.math.Fixed;
 import com.johnsproject.jgameengine.math.Frustum;
 import com.johnsproject.jgameengine.math.Transformation;
 import com.johnsproject.jgameengine.math.Vector;
@@ -317,7 +317,7 @@ public class PhongShader extends ThreadedShader {
 			calculateLightDirection(location, light);
 			final int spotIntensity = calculateSpotIntensity(light);
 			final int attenuation = calculateAttenuation(location, light);
-			final int lightIntensity = FixedPoint.multiply(attenuation, spotIntensity);
+			final int lightIntensity = Fixed.multiply(attenuation, spotIntensity);
 			int diffuse = calculateDiffuseColor(normal, material, light);
 			diffuse = Color.multiply(diffuse, lightIntensity);
 			color = Color.add(color, diffuse);
@@ -354,7 +354,7 @@ public class PhongShader extends ThreadedShader {
 			Transformation.reflect(lightDirection, normal);
 			int specularIntensity = (int)Vector.dotProduct(viewDirection, lightDirection);
 			specularIntensity = Math.max(specularIntensity, 0);
-			specularIntensity = FixedPoint.pow(specularIntensity, material.getShininess());
+			specularIntensity = Fixed.pow(specularIntensity, material.getShininess());
 			int specular = Color.multiplyColor(material.getSpecularColor(), texelColor);
 			specular = Color.multiply(specular, specularIntensity);
 			specular = Color.multiplyColor(specular, light.getColor());
@@ -366,11 +366,11 @@ public class PhongShader extends ThreadedShader {
 			final int lightLinear = light.getLinearAttenuation();
 			final int lightQuadratic = light.getQuadraticAttenuation();
 			final int distance = Vector.distance(light.getTransform().getLocation(), location);
-			final int distanceSquared = FixedPoint.multiply(distance, distance);
+			final int distanceSquared = Fixed.multiply(distance, distance);
 			int attenuation = lightConstant;
-			attenuation += FixedPoint.multiply(lightLinear, distance);
-			attenuation += FixedPoint.multiply(lightQuadratic, distanceSquared);
-			attenuation = FixedPoint.divide(FP_ONE, attenuation);
+			attenuation += Fixed.multiply(lightLinear, distance);
+			attenuation += Fixed.multiply(lightQuadratic, distanceSquared);
+			attenuation = Fixed.divide(FP_ONE, attenuation);
 			return attenuation;
 		}
 		
@@ -379,8 +379,8 @@ public class PhongShader extends ThreadedShader {
 			Vector.invert(direction);
 			int theta = (int)Vector.dotProduct(lightDirection, direction);
 			int intesity = theta - light.getSpotSizeCosine();
-			intesity = FixedPoint.divide(intesity, light.getSpotSoftness());
-			intesity = FixedPoint.clamp(intesity, 0, FP_ONE);
+			intesity = Fixed.divide(intesity, light.getSpotSoftness());
+			intesity = Fixed.clamp(intesity, 0, FP_ONE);
 			return intesity;
 		}
 	

@@ -2,7 +2,7 @@ package com.johnsproject.jgameengine.physics;
 
 import static com.johnsproject.jgameengine.math.Vector.*;
 
-import com.johnsproject.jgameengine.math.FixedPoint;
+import com.johnsproject.jgameengine.math.Fixed;
 import com.johnsproject.jgameengine.math.Matrix;
 import com.johnsproject.jgameengine.math.Vector;
 
@@ -18,7 +18,7 @@ public class RigidBody {
 	
 	public RigidBody() {
 		this.kinematic = false;
-		this.mass = FixedPoint.FP_ONE;
+		this.mass = Fixed.FP_ONE;
 		this.force = Vector.emptyVector();
 		this.torque = Vector.emptyVector();
 		this.linearVelocity = Vector.emptyVector();

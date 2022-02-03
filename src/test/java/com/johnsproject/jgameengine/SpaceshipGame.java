@@ -1,7 +1,7 @@
 package com.johnsproject.jgameengine;
 
-import static com.johnsproject.jgameengine.math.FixedPoint.FP_BIT;
-import static com.johnsproject.jgameengine.math.FixedPoint.FP_HALF;
+import static com.johnsproject.jgameengine.math.Fixed.FP_BIT;
+import static com.johnsproject.jgameengine.math.Fixed.FP_HALF;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_X;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_Y;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_Z;
@@ -27,7 +27,7 @@ import com.johnsproject.jgameengine.graphics.shading.PhongShader;
 import com.johnsproject.jgameengine.io.FileUtil;
 import com.johnsproject.jgameengine.io.InputEngine;
 import com.johnsproject.jgameengine.io.OBJImporter;
-import com.johnsproject.jgameengine.math.FixedPoint;
+import com.johnsproject.jgameengine.math.Fixed;
 import com.johnsproject.jgameengine.math.Transform;
 import com.johnsproject.jgameengine.math.Vector;
 
@@ -142,14 +142,14 @@ public class SpaceshipGame implements EngineListener {
 	
 	private void createCamera() {
 		cameraTransform = new Transform();
-		cameraTransform.worldRotate(-45 << FP_BIT, 0, 0);
+		cameraTransform.worldRotate(Fixed.toFixed(-45), 0, 0);
 		final Camera camera = new Camera("Camera", cameraTransform);
 		scene.addCamera(camera);
 	}
 	
 	private void createLight() {
 		lightTransform = new Transform();
-		lightTransform.worldRotate(-60 << FP_BIT, 25 << FP_BIT, 0);
+		lightTransform.worldRotate(Fixed.toFixed(-60), Fixed.toFixed(25), 0);
 		final Light directionalLight = new Light("DirectionalLight", lightTransform);
 		scene.addLight(directionalLight);
 	}
@@ -197,7 +197,7 @@ public class SpaceshipGame implements EngineListener {
 		else if(inputEngine.isKeyPressed(KeyEvent.VK_D)) {
 			spaceshipTransform.setRotation(0, -90 << FP_BIT, 0);
 		}
-		spaceshipTransform.localTranslate(0, 0, -FixedPoint.multiply(FP_HALF, deltaTime));
+		spaceshipTransform.localTranslate(0, 0, -Fixed.multiply(FP_HALF, deltaTime));
 	}
 
 	

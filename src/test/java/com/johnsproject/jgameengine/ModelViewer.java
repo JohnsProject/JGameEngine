@@ -1,7 +1,7 @@
 package com.johnsproject.jgameengine;
 
-import static com.johnsproject.jgameengine.math.FixedPoint.FP_BIT;
-import static com.johnsproject.jgameengine.math.FixedPoint.FP_ONE;
+import static com.johnsproject.jgameengine.math.Fixed.FP_BIT;
+import static com.johnsproject.jgameengine.math.Fixed.FP_ONE;
 
 import java.awt.Button;
 import java.awt.Checkbox;

@@ -11,7 +11,7 @@ import com.johnsproject.jgameengine.graphics.Material;
 import com.johnsproject.jgameengine.graphics.Mesh;
 import com.johnsproject.jgameengine.graphics.Model;
 import com.johnsproject.jgameengine.graphics.Vertex;
-import com.johnsproject.jgameengine.math.FixedPoint;
+import com.johnsproject.jgameengine.math.Fixed;
 import com.johnsproject.jgameengine.math.Transform;
 import com.johnsproject.jgameengine.math.Vector;
 
@@ -144,7 +144,7 @@ public final class OBJImporter {
 	
 	private static boolean parseMaterial(String[] lineData, Material material) {
 		if(lineData[0].equals(KEYWORD_MATERIAL_SHININESS)) {
-			material.setShininess(FixedPoint.toFixedPoint(lineData[1]));
+			material.setShininess(Fixed.toFixed(lineData[1]));
 		} 
 		else if(lineData[0].equals(KEYWORD_MATERIAL_DIFFUSE)) {
 			material.setDiffuseColor(parseColor(lineData));
@@ -260,12 +260,12 @@ public final class OBJImporter {
 	}
 	
 	private static int[] parseVector(String[] lineData) {
-		final int x = FixedPoint.toFixedPoint(lineData[1]);
-		final int y = FixedPoint.toFixedPoint(lineData[2]);
+		final int x = Fixed.toFixed(lineData[1]);
+		final int y = Fixed.toFixed(lineData[2]);
 		if(lineData.length == 3) {
 			return Vector.toVector(x, y);
 		}
-		final int z = FixedPoint.toFixedPoint(lineData[3]);
+		final int z = Fixed.toFixed(lineData[3]);
 		return Vector.toVector(x, y, z);
 	}
 	

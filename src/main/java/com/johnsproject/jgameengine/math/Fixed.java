@@ -1,13 +1,13 @@
 package com.johnsproject.jgameengine.math;
 
 /**
- * The FixedPoint class contains methods for generating fixed point numbers and 
+ * The Fixed class contains methods for generating fixed point numbers and 
  * performing fixed point math operations such as power, square root, multiply, 
  * divide, and some trigonometric functions.
  * 
  * @author John Ferraz Salomon
  */
-public final class FixedPoint {
+public final class Fixed {
 	
 	/**
 	 * This is the bit representation of the default fixed point precision value. 
@@ -19,15 +19,15 @@ public final class FixedPoint {
 	 * This is the integer representation of the default fixed point precision value. 
 	 * It is the same as the fixed point '1'.
 	 */
-	public static final int FP_ONE = 1 << FP_BIT;
+	public static final int FP_ONE = toFixed(1);
 	
 	/**
 	 * It is the same as the fixed point '0.5'.
 	 */
 	public static final int FP_HALF = FP_ONE >> 1;
 	
-	public static final int FP_DEGREE_RAD = toFixedPoint(Math.PI / 180.0f);
-	public static final int FP_RAD_DEGREE = toFixedPoint(180.0f / Math.PI);
+	public static final int FP_DEGREE_RAD = toFixed(Math.PI / 180.0f);
+	public static final int FP_RAD_DEGREE = toFixed(180.0f / Math.PI);
 	
 	private static final short[] sinLUT = new short[] {
 			0, 572, 1144, 1715, 2286, 2856, 3425, 3993, 4560, 5126, 5690, 6252, 6813, 7371, 7927, 8481,
@@ -39,7 +39,7 @@ public final class FixedPoint {
 			32365, 32449, 32524, 32588, 32643, 32688, 32723, 32748, 32763, 32767
 	};
 	
-	private FixedPoint() { }
+	private Fixed() { }
 	
 	/**
 	 * Returns the fixed point representation of value.
@@ -47,8 +47,8 @@ public final class FixedPoint {
 	 * @param value
 	 * @return
 	 */
-	public static int toFixedPoint(String value) {
-		return toFixedPoint(Float.parseFloat(value));
+	public static int toFixed(String value) {
+		return toFixed(Float.parseFloat(value));
 	}
 	
 	/**
@@ -57,18 +57,110 @@ public final class FixedPoint {
 	 * @param value
 	 * @return
 	 */
-	public static int toFixedPoint(double value) {
+	public static int toFixed(int value) {
+		return value << FP_BIT;
+	}
+	
+	/**
+	 * Returns the fixed point representation of value.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public static int toFixed(long value) {
+		return (int)value << FP_BIT;
+	}
+	
+	/**
+	 * Returns the fixed point representation of value.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public static int toFixed(double value) {
 		return (int)Math.round(value * FP_ONE);
 	}
 	
 	/**
-	 * Returns the floating point representation of value.
+	 * Returns the int representation of value.
+	 * 
+	 * @param value fixed point value.
+	 * @return
+	 */
+	public static int toInt(int value) {
+		return value >> FP_BIT;
+	}
+	
+	/**
+	 * Returns the int representation of value.
+	 * 
+	 * @param value fixed point value.
+	 * @return
+	 */
+	public static int toInt(long value) {
+		return (int) (value >> FP_BIT);
+	}
+	
+	/**
+	 * Returns the float representation of value.
+	 * 
+	 * @param value fixed point value.
+	 * @return
+	 */
+	public static float toFloat(int value) {
+		return (float)value / FP_ONE;
+	}
+	
+	/**
+	 * Returns the float representation of value.
+	 * 
+	 * @param value fixed point value.
+	 * @return
+	 */
+	public static float toFloat(long value) {
+		return (float)value / FP_ONE;
+	}
+	
+	/**
+	 * Returns the double representation of value.
+	 * 
+	 * @param value fixed point value.
+	 * @return
+	 */
+	public static double toDouble(int value) {
+		return (double)value / FP_ONE;
+	}
+	
+	/**
+	 * Returns the double representation of value.
 	 * 
 	 * @param value fixed point value.
 	 * @return
 	 */
 	public static double toDouble(long value) {
 		return (double)value / FP_ONE;
+	}
+	
+	/**
+	 * Returns the double fixed point representation of value.
+	 * A double fixed point has the 'point' at the 30th bit of the long.
+	 * 
+	 * @param value fixed point value.
+	 * @return
+	 */
+	public static long toDoubleFixed(long value) {
+		return value << FP_BIT;
+	}
+	
+	/**
+	 * Returns the single fixed point representation of value.
+	 * A single fixed point has the 'point' at the 15th bit of the long.
+	 * 
+	 * @param value double fixed point value.
+	 * @return
+	 */
+	public static int toSingleFixed(long value) {
+		return (int)(value >> FP_BIT);
 	}
 	
 	/**
@@ -99,7 +191,7 @@ public final class FixedPoint {
 	 * @return The sine of the specified angle.
 	 */
 	public static int sin(int degrees) {
-		degrees >>= FP_BIT;
+		degrees = toInt(degrees);
 		degrees = ((degrees % 360) + 360) % 360;
 		final int quadrant = degrees;
 		degrees %= 90;
@@ -125,7 +217,7 @@ public final class FixedPoint {
 	 * @return The cosine of the specified angle.
 	 */
 	public static int cos(int degrees) {
-		degrees >>= FP_BIT;
+		degrees = toInt(degrees);
 		degrees = ((degrees % 360) + 360) % 360;
 		final int quadrant = degrees;
 		degrees %= 90;
@@ -152,7 +244,7 @@ public final class FixedPoint {
 	 */
 	public static int tan(int degrees) {
 		// no need to convert to long, the range of sine is 0 - 1
-		return (sin(degrees) << FP_BIT) / cos(degrees);
+		return toFixed(sin(degrees)) / cos(degrees);
 	}
 	
 	/**
@@ -175,7 +267,7 @@ public final class FixedPoint {
 				if(absSine < lut0 + half) {
 					degrees--;
 				}
-				degrees <<= FP_BIT;
+				degrees = toFixed(degrees);
 				if(sine > 0)
 					return degrees;
 				else
@@ -204,9 +296,9 @@ public final class FixedPoint {
 					degrees--;
 				}
 				if(cosine < 0)
-					return (degrees + 90) << FP_BIT;
+					return toFixed(degrees + 90);
 				else
-					return (90 - degrees) << FP_BIT;
+					return toFixed(90 - degrees);
 			}
 		}
 		return 0;
@@ -268,7 +360,7 @@ public final class FixedPoint {
 	 */
 	public static int sqrt(long number) {
 		// integral part
-		int num = (int)(number >> FP_BIT);
+		int num = toInt(number);
 		if(num < 0) {
 			return 0;
 		}
@@ -286,7 +378,7 @@ public final class FixedPoint {
 		}
 		long result = (g << FP_BIT);
 		// fractional part
-		final short increment = FP_ONE >> 7;
+		final int increment = FP_ONE >> 7;
 		for (; (result * result + FP_HALF) >> FP_BIT < number; result += increment);
 		result -= increment;
 		return (int)result;
@@ -321,7 +413,7 @@ public final class FixedPoint {
 	 */
 	public static int multiply(long value1, long value2) {
 		long result = value1 * value2 + FP_HALF;
-		return (int) (result >> FP_BIT);
+		return toSingleFixed(result);
 	}
 
 	/**
@@ -332,7 +424,7 @@ public final class FixedPoint {
 	 * @return fixed point result.
 	 */
 	public static int divide(long dividend, long divisor) {
-		long result = dividend << FP_BIT;
+		long result = toDoubleFixed(dividend);
 		result /= divisor;
 		return (int) result;
 	}
@@ -344,7 +436,6 @@ public final class FixedPoint {
 	 * @return
 	 */
 	public static String toString(int value) {
-		float floatValue = (float)value / FP_ONE;
-		return "" + floatValue;
+		return "" + toFloat(value);
 	}
 }

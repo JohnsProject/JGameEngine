@@ -4,13 +4,13 @@ import com.johnsproject.jgameengine.Scene;
 import com.johnsproject.jgameengine.SceneObject;
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.math.FixedPoint;
+import com.johnsproject.jgameengine.math.Fixed;
 import com.johnsproject.jgameengine.math.Transform;
 import com.johnsproject.jgameengine.math.Vector;
 
 public final class PhysicsEngine implements EngineListener {
 	
-	public static final int FP_EARTH_GRAVITY = FixedPoint.toFixedPoint(-9.81f);
+	public static final int FP_EARTH_GRAVITY = Fixed.toFixed(-9.81f);
 	
 	private final int[] vectorCache1;
 	
@@ -42,7 +42,7 @@ public final class PhysicsEngine implements EngineListener {
 	
 	private void applyForces(RigidBody rigidBody) {
 		if(!rigidBody.isKinematic()) {
-			final int gravity = FixedPoint.multiply(rigidBody.getMass(), FP_EARTH_GRAVITY);
+			final int gravity = Fixed.multiply(rigidBody.getMass(), FP_EARTH_GRAVITY);
 			rigidBody.addForce(0, gravity, 0);
 		}
 	}
@@ -62,18 +62,18 @@ public final class PhysicsEngine implements EngineListener {
 	
 	private void applyAngularAcceleration(RigidBody rigidBody, int deltaTime) {
 		final int[] angularAcceleration = Vector.copy(vectorCache1, rigidBody.getTorque());
-		Vector.multiply(angularAcceleration, FixedPoint.FP_DEGREE_RAD);
+		Vector.multiply(angularAcceleration, Fixed.FP_DEGREE_RAD);
 		Vector.divide(angularAcceleration, rigidBody.getMass());
 		Vector.multiply(angularAcceleration, deltaTime);
-		Vector.multiply(angularAcceleration, FixedPoint.FP_RAD_DEGREE);
+		Vector.multiply(angularAcceleration, Fixed.FP_RAD_DEGREE);
 		rigidBody.addAngularVelocity(angularAcceleration);
 	}
 	
 	private void applyAngularVelocity(Transform transform, RigidBody rigidBody, int deltaTime) {
 		final int[] angularVelocity = Vector.copy(vectorCache1, rigidBody.getAngularVelocity());
-		Vector.multiply(angularVelocity, FixedPoint.FP_DEGREE_RAD);
+		Vector.multiply(angularVelocity, Fixed.FP_DEGREE_RAD);
 		Vector.multiply(angularVelocity, deltaTime);
-		Vector.multiply(angularVelocity, FixedPoint.FP_RAD_DEGREE);
+		Vector.multiply(angularVelocity, Fixed.FP_RAD_DEGREE);
 		transform.worldRotate(angularVelocity);
 	}
 }

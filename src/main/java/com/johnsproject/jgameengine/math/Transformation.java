@@ -1,6 +1,6 @@
 package com.johnsproject.jgameengine.math;
 
-import static com.johnsproject.jgameengine.math.FixedPoint.*;
+import static com.johnsproject.jgameengine.math.Fixed.*;
 import static com.johnsproject.jgameengine.math.Matrix.*;
 import static com.johnsproject.jgameengine.math.Vector.*;
 
@@ -19,12 +19,12 @@ public final class Transformation {
 		final int bottom = frustum.getRenderTargetBottom();
 		final int near = frustum.getNear();
 		final int far = frustum.getFar();		
-		final int scaleFactor = FixedPoint.multiply(frustum.getFocalLength(), bottom - top + 1);
+		final int scaleFactor = Fixed.multiply(frustum.getFocalLength(), bottom - top + 1);
 		final int[][] projectionMatrix = Matrix.copy(matrix, Matrix.MATRIX_IDENTITY);
 		projectionMatrix[0][0] = scaleFactor >> 5;
 		projectionMatrix[1][1] = -scaleFactor >> 5;
-		projectionMatrix[2][2] = -FixedPoint.divide(FP_ONE, far);
-		projectionMatrix[3][2] = -FixedPoint.divide(near, far);
+		projectionMatrix[2][2] = -Fixed.divide(FP_ONE, far);
+		projectionMatrix[3][2] = -Fixed.divide(near, far);
 		projectionMatrix[3][3] = FP_ONE;
 		return projectionMatrix;
 	}
@@ -35,12 +35,12 @@ public final class Transformation {
 		final int near = frustum.getNear();
 		final int far = frustum.getFar();	
 		final int farNear = far - near;
-		final int scaleFactor = FixedPoint.multiply(frustum.getFocalLength(), bottom - top + 1);
+		final int scaleFactor = Fixed.multiply(frustum.getFocalLength(), bottom - top + 1);
 		final int[][] projectionMatrix = Matrix.copy(matrix, Matrix.MATRIX_IDENTITY);
 		projectionMatrix[0][0] = scaleFactor;
 		projectionMatrix[1][1] = -scaleFactor;
-		projectionMatrix[2][2] = -FixedPoint.divide(far, farNear);
-		projectionMatrix[3][2] = -FixedPoint.divide(FixedPoint.multiply(near, far), farNear);
+		projectionMatrix[2][2] = -Fixed.divide(far, farNear);
+		projectionMatrix[3][2] = -Fixed.divide(Fixed.multiply(near, far), farNear);
 		projectionMatrix[2][3] = -FP_ONE;
 		projectionMatrix[3][3] = 0;
 		return projectionMatrix;
@@ -70,9 +70,9 @@ public final class Transformation {
 	}
 	
 	public static int[] scale(int[] vector, int factor) {
-		vector[VECTOR_X] = FixedPoint.multiply(vector[VECTOR_X], factor);
-		vector[VECTOR_Y] = FixedPoint.multiply(vector[VECTOR_Y], factor);
-		vector[VECTOR_Z] = FixedPoint.multiply(vector[VECTOR_Z], factor);
+		vector[VECTOR_X] = Fixed.multiply(vector[VECTOR_X], factor);
+		vector[VECTOR_Y] = Fixed.multiply(vector[VECTOR_Y], factor);
+		vector[VECTOR_Z] = Fixed.multiply(vector[VECTOR_Z], factor);
 		return vector;
 	}
 	
@@ -105,16 +105,16 @@ public final class Transformation {
 	 * @return
 	 */
 	public static int[] rotateX(int[] vector, int angle) {
-		final int sin = FixedPoint.sin(angle);
-		final int cos = FixedPoint.cos(angle);
+		final int sin = Fixed.sin(angle);
+		final int cos = Fixed.cos(angle);
 		final int x = vector[VECTOR_X];
 		final int y = vector[VECTOR_Y];
 		final int z = vector[VECTOR_Z];
 		vector[VECTOR_X] = x;
-		vector[VECTOR_Y] = FixedPoint.multiply(y, cos);
-		vector[VECTOR_Y] -= FixedPoint.multiply(z, sin);
-		vector[VECTOR_Z] = FixedPoint.multiply(z, cos);
-		vector[VECTOR_Z] += FixedPoint.multiply(y, sin);
+		vector[VECTOR_Y] = Fixed.multiply(y, cos);
+		vector[VECTOR_Y] -= Fixed.multiply(z, sin);
+		vector[VECTOR_Z] = Fixed.multiply(z, cos);
+		vector[VECTOR_Z] += Fixed.multiply(y, sin);
 		return vector;
 	}
 	
@@ -127,16 +127,16 @@ public final class Transformation {
 	 * @return
 	 */
 	public static int[] rotateY(int[] vector, int angle) {
-		final int sin = FixedPoint.sin(angle);
-		final int cos = FixedPoint.cos(angle);
+		final int sin = Fixed.sin(angle);
+		final int cos = Fixed.cos(angle);
 		final int x = vector[VECTOR_X];
 		final int y = vector[VECTOR_Y];
 		final int z = vector[VECTOR_Z];
-		vector[VECTOR_X] = FixedPoint.multiply(x, cos);
-		vector[VECTOR_X] += FixedPoint.multiply(z, sin);
+		vector[VECTOR_X] = Fixed.multiply(x, cos);
+		vector[VECTOR_X] += Fixed.multiply(z, sin);
 		vector[VECTOR_Y] = y;
-		vector[VECTOR_Z] = FixedPoint.multiply(z, cos);
-		vector[VECTOR_Z] -= FixedPoint.multiply(x, sin);
+		vector[VECTOR_Z] = Fixed.multiply(z, cos);
+		vector[VECTOR_Z] -= Fixed.multiply(x, sin);
 		return vector;
 	}
 	
@@ -149,15 +149,15 @@ public final class Transformation {
 	 * @return
 	 */
 	public static int[] rotateZ(int[] vector, int angle) {
-		final int sin = FixedPoint.sin(angle);
-		final int cos = FixedPoint.cos(angle);
+		final int sin = Fixed.sin(angle);
+		final int cos = Fixed.cos(angle);
 		final int x = vector[VECTOR_X];
 		final int y = vector[VECTOR_Y];
 		final int z = vector[VECTOR_Z];
-		vector[VECTOR_X] = FixedPoint.multiply(x, cos);
-		vector[VECTOR_X] += FixedPoint.multiply(y, sin);
-		vector[VECTOR_Y] = FixedPoint.multiply(y, cos);
-		vector[VECTOR_Y] -= FixedPoint.multiply(x, sin);
+		vector[VECTOR_X] = Fixed.multiply(x, cos);
+		vector[VECTOR_X] += Fixed.multiply(y, sin);
+		vector[VECTOR_Y] = Fixed.multiply(y, cos);
+		vector[VECTOR_Y] -= Fixed.multiply(x, sin);
 		vector[VECTOR_Z] = z;
 		return vector;
 	}
@@ -206,8 +206,8 @@ public final class Transformation {
 	
 	public static int[][] xRotationMatrix(int[][] matrix, int angle) {
 		Matrix.copy(matrix, MATRIX_IDENTITY);
-		final int cos = FixedPoint.cos(angle);
-		final int sin = FixedPoint.sin(angle);
+		final int cos = Fixed.cos(angle);
+		final int sin = Fixed.sin(angle);
 		matrix[1][1] = cos;
 		matrix[1][2] = sin;
 		matrix[2][1] = -sin;
@@ -217,8 +217,8 @@ public final class Transformation {
 	
 	public static int[][] yRotationMatrix(int[][] matrix, int angle) {
 		Matrix.copy(matrix, MATRIX_IDENTITY);
-		final int cos = FixedPoint.cos(angle);
-		final int sin = FixedPoint.sin(angle);
+		final int cos = Fixed.cos(angle);
+		final int sin = Fixed.sin(angle);
 		matrix[0][0] = cos;
 		matrix[0][2] = -sin;
 		matrix[2][0] = sin;
@@ -228,8 +228,8 @@ public final class Transformation {
 	
 	public static int[][] zRotationMatrix(int[][] matrix, int angle) {
 		Matrix.copy(matrix, MATRIX_IDENTITY);
-		final int cos = FixedPoint.cos(angle);
-		final int sin = FixedPoint.sin(angle);
+		final int cos = Fixed.cos(angle);
+		final int sin = Fixed.sin(angle);
 		matrix[0][0] = cos;
 		matrix[0][1] = sin;
 		matrix[1][0] = -sin;

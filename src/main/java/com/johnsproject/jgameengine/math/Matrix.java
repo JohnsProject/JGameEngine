@@ -1,6 +1,6 @@
 package com.johnsproject.jgameengine.math;
 
-import static com.johnsproject.jgameengine.math.FixedPoint.*;
+import static com.johnsproject.jgameengine.math.Fixed.*;
 
 /**
  * The Matrix class contains methods for generating matrices and performing matrix 
@@ -85,10 +85,10 @@ public final class Matrix {
 	public static int[][] multiply(int[][] matrix1, int[][] matrix2, int[][] result) {
 		for (int i = 0; i < MATRIX_SIZE; i++) {
 			for (int j = 0; j < MATRIX_SIZE; j++) {
-				int res = FixedPoint.multiply(matrix1[0][j], matrix2[i][0]);
-				res += FixedPoint.multiply(matrix1[1][j], matrix2[i][1]);
-				res += FixedPoint.multiply(matrix1[2][j], matrix2[i][2]);
-				res += FixedPoint.multiply(matrix1[3][j], matrix2[i][3]);
+				int res = Fixed.multiply(matrix1[0][j], matrix2[i][0]);
+				res += Fixed.multiply(matrix1[1][j], matrix2[i][1]);
+				res += Fixed.multiply(matrix1[2][j], matrix2[i][2]);
+				res += Fixed.multiply(matrix1[3][j], matrix2[i][3]);
 				result[i][j] = res;
 			}
 		}
@@ -105,10 +105,10 @@ public final class Matrix {
 	public static int[][] divide(int[][] matrix1, int[][] matrix2, int[][] result) {
 		for (int i = 0; i < MATRIX_SIZE; i++) {
 			for (int j = 0; j < MATRIX_SIZE; j++) {
-				int res = FixedPoint.divide(matrix1[0][j], matrix2[i][0]);
-				res += FixedPoint.divide(matrix1[1][j], matrix2[i][1]);
-				res += FixedPoint.divide(matrix1[2][j], matrix2[i][2]);
-				res += FixedPoint.divide(matrix1[3][j], matrix2[i][3]);
+				int res = Fixed.divide(matrix1[0][j], matrix2[i][0]);
+				res += Fixed.divide(matrix1[1][j], matrix2[i][1]);
+				res += Fixed.divide(matrix1[2][j], matrix2[i][2]);
+				res += Fixed.divide(matrix1[3][j], matrix2[i][3]);
 				result[i][j] = res;
 			}
 		}
@@ -157,7 +157,7 @@ public final class Matrix {
 	public static int[][] multiply(int[][] matrix, int value) {
 		for (int i = 0; i < MATRIX_SIZE; i++) {
 			for (int j = 0; j < MATRIX_SIZE; j++) {
-				matrix[i][j] = FixedPoint.multiply(matrix[i][j], value);
+				matrix[i][j] = Fixed.multiply(matrix[i][j], value);
 			}
 		}
 		return matrix;
@@ -173,7 +173,7 @@ public final class Matrix {
 	public static int[][] divide(int[][] matrix, int value) {
 		for (int i = 0; i < MATRIX_SIZE; i++) {
 			for (int j = 0; j < MATRIX_SIZE; j++) {
-				matrix[i][j] = FixedPoint.divide(matrix[i][j], value);
+				matrix[i][j] = Fixed.divide(matrix[i][j], value);
 			}
 		}
 		return matrix;
@@ -200,30 +200,30 @@ public final class Matrix {
 	 * @param matrix
 	 */
 	public static int determinant(int[][] matrix) {
-		return	FixedPoint.multiply(FixedPoint.multiply(matrix[3][0], matrix[2][1]), FixedPoint.multiply(matrix[1][2], matrix[0][3])) - 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[2][0], matrix[3][1]), FixedPoint.multiply(matrix[1][2], matrix[0][3])) -
-				FixedPoint.multiply(FixedPoint.multiply(matrix[3][0], matrix[1][1]), FixedPoint.multiply(matrix[2][2], matrix[0][3])) + 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[1][0], matrix[3][1]), FixedPoint.multiply(matrix[2][2], matrix[0][3])) +
-				FixedPoint.multiply(FixedPoint.multiply(matrix[2][0], matrix[1][1]), FixedPoint.multiply(matrix[3][2], matrix[0][3])) - 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[1][0], matrix[2][1]), FixedPoint.multiply(matrix[3][2], matrix[0][3])) -
-				FixedPoint.multiply(FixedPoint.multiply(matrix[3][0], matrix[2][1]), FixedPoint.multiply(matrix[0][2], matrix[1][3])) + 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[2][0], matrix[3][1]), FixedPoint.multiply(matrix[0][2], matrix[1][3])) +
-				FixedPoint.multiply(FixedPoint.multiply(matrix[3][0], matrix[0][1]), FixedPoint.multiply(matrix[2][2], matrix[1][3])) - 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[0][0], matrix[3][1]), FixedPoint.multiply(matrix[2][2], matrix[1][3])) -
-				FixedPoint.multiply(FixedPoint.multiply(matrix[2][0], matrix[0][1]), FixedPoint.multiply(matrix[3][2], matrix[1][3])) + 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[0][0], matrix[2][1]), FixedPoint.multiply(matrix[3][2], matrix[1][3])) +
-				FixedPoint.multiply(FixedPoint.multiply(matrix[3][0], matrix[1][1]), FixedPoint.multiply(matrix[0][2], matrix[2][3])) - 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[1][0], matrix[3][1]), FixedPoint.multiply(matrix[0][2], matrix[2][3])) -
-				FixedPoint.multiply(FixedPoint.multiply(matrix[3][0], matrix[0][1]), FixedPoint.multiply(matrix[1][2], matrix[2][3])) + 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[0][0], matrix[3][1]), FixedPoint.multiply(matrix[1][2], matrix[2][3])) +
-				FixedPoint.multiply(FixedPoint.multiply(matrix[1][0], matrix[0][1]), FixedPoint.multiply(matrix[3][2], matrix[2][3])) - 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[0][0], matrix[1][1]), FixedPoint.multiply(matrix[3][2], matrix[2][3])) -
-				FixedPoint.multiply(FixedPoint.multiply(matrix[2][0], matrix[1][1]), FixedPoint.multiply(matrix[0][2], matrix[3][3])) + 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[1][0], matrix[2][1]), FixedPoint.multiply(matrix[0][2], matrix[3][3])) +
-				FixedPoint.multiply(FixedPoint.multiply(matrix[2][0], matrix[0][1]), FixedPoint.multiply(matrix[1][2], matrix[3][3])) - 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[0][0], matrix[2][1]), FixedPoint.multiply(matrix[1][2], matrix[3][3])) -
-				FixedPoint.multiply(FixedPoint.multiply(matrix[1][0], matrix[0][1]), FixedPoint.multiply(matrix[2][2], matrix[3][3])) + 
-				FixedPoint.multiply(FixedPoint.multiply(matrix[0][0], matrix[1][1]), FixedPoint.multiply(matrix[2][2], matrix[3][3]));
+		return	Fixed.multiply(Fixed.multiply(matrix[3][0], matrix[2][1]), Fixed.multiply(matrix[1][2], matrix[0][3])) - 
+				Fixed.multiply(Fixed.multiply(matrix[2][0], matrix[3][1]), Fixed.multiply(matrix[1][2], matrix[0][3])) -
+				Fixed.multiply(Fixed.multiply(matrix[3][0], matrix[1][1]), Fixed.multiply(matrix[2][2], matrix[0][3])) + 
+				Fixed.multiply(Fixed.multiply(matrix[1][0], matrix[3][1]), Fixed.multiply(matrix[2][2], matrix[0][3])) +
+				Fixed.multiply(Fixed.multiply(matrix[2][0], matrix[1][1]), Fixed.multiply(matrix[3][2], matrix[0][3])) - 
+				Fixed.multiply(Fixed.multiply(matrix[1][0], matrix[2][1]), Fixed.multiply(matrix[3][2], matrix[0][3])) -
+				Fixed.multiply(Fixed.multiply(matrix[3][0], matrix[2][1]), Fixed.multiply(matrix[0][2], matrix[1][3])) + 
+				Fixed.multiply(Fixed.multiply(matrix[2][0], matrix[3][1]), Fixed.multiply(matrix[0][2], matrix[1][3])) +
+				Fixed.multiply(Fixed.multiply(matrix[3][0], matrix[0][1]), Fixed.multiply(matrix[2][2], matrix[1][3])) - 
+				Fixed.multiply(Fixed.multiply(matrix[0][0], matrix[3][1]), Fixed.multiply(matrix[2][2], matrix[1][3])) -
+				Fixed.multiply(Fixed.multiply(matrix[2][0], matrix[0][1]), Fixed.multiply(matrix[3][2], matrix[1][3])) + 
+				Fixed.multiply(Fixed.multiply(matrix[0][0], matrix[2][1]), Fixed.multiply(matrix[3][2], matrix[1][3])) +
+				Fixed.multiply(Fixed.multiply(matrix[3][0], matrix[1][1]), Fixed.multiply(matrix[0][2], matrix[2][3])) - 
+				Fixed.multiply(Fixed.multiply(matrix[1][0], matrix[3][1]), Fixed.multiply(matrix[0][2], matrix[2][3])) -
+				Fixed.multiply(Fixed.multiply(matrix[3][0], matrix[0][1]), Fixed.multiply(matrix[1][2], matrix[2][3])) + 
+				Fixed.multiply(Fixed.multiply(matrix[0][0], matrix[3][1]), Fixed.multiply(matrix[1][2], matrix[2][3])) +
+				Fixed.multiply(Fixed.multiply(matrix[1][0], matrix[0][1]), Fixed.multiply(matrix[3][2], matrix[2][3])) - 
+				Fixed.multiply(Fixed.multiply(matrix[0][0], matrix[1][1]), Fixed.multiply(matrix[3][2], matrix[2][3])) -
+				Fixed.multiply(Fixed.multiply(matrix[2][0], matrix[1][1]), Fixed.multiply(matrix[0][2], matrix[3][3])) + 
+				Fixed.multiply(Fixed.multiply(matrix[1][0], matrix[2][1]), Fixed.multiply(matrix[0][2], matrix[3][3])) +
+				Fixed.multiply(Fixed.multiply(matrix[2][0], matrix[0][1]), Fixed.multiply(matrix[1][2], matrix[3][3])) - 
+				Fixed.multiply(Fixed.multiply(matrix[0][0], matrix[2][1]), Fixed.multiply(matrix[1][2], matrix[3][3])) -
+				Fixed.multiply(Fixed.multiply(matrix[1][0], matrix[0][1]), Fixed.multiply(matrix[2][2], matrix[3][3])) + 
+				Fixed.multiply(Fixed.multiply(matrix[0][0], matrix[1][1]), Fixed.multiply(matrix[2][2], matrix[3][3]));
 	}
 	
 	/**
@@ -235,102 +235,102 @@ public final class Matrix {
 	public static int[][] inverse(int[][] matrix, int[][] result) {
 		copy(result, matrix);
 		int determinant = determinant(matrix) + 1;
-		result[0][0] = FixedPoint.multiply(matrix[2][1], FixedPoint.multiply(matrix[3][2], matrix[1][3])) -
-						FixedPoint.multiply(matrix[3][1], FixedPoint.multiply(matrix[2][2], matrix[1][3])) +
-						FixedPoint.multiply(matrix[3][1], FixedPoint.multiply(matrix[1][2], matrix[2][3])) -
-						FixedPoint.multiply(matrix[1][1], FixedPoint.multiply(matrix[3][2], matrix[2][3])) -
-						FixedPoint.multiply(matrix[2][1], FixedPoint.multiply(matrix[1][2], matrix[3][3])) +
-						FixedPoint.multiply(matrix[1][1], FixedPoint.multiply(matrix[2][2], matrix[3][3]));
-		result[1][0] = FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[2][2], matrix[1][3])) -
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[2][3], matrix[1][3])) -
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[2][1], matrix[2][3])) +
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[2][3], matrix[2][3])) +
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[2][1], matrix[3][3])) -
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[2][2], matrix[3][3]));
-		result[2][0] = FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[3][1], matrix[1][3])) -
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[2][1], matrix[1][3])) +
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[1][1], matrix[2][3])) -
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[3][1], matrix[2][3])) -
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[1][1], matrix[3][3])) +
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[2][1], matrix[3][3]));
-		result[3][0] = FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[2][1], matrix[1][2])) -
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[3][1], matrix[1][2])) -
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[1][1], matrix[2][2])) +
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[3][1], matrix[2][2])) +
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[1][1], matrix[3][2])) -
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[2][1], matrix[3][2]));
-		result[0][1] = FixedPoint.multiply(matrix[3][1], FixedPoint.multiply(matrix[2][2], matrix[0][3])) -
-						FixedPoint.multiply(matrix[2][1], FixedPoint.multiply(matrix[3][2], matrix[0][3])) -
-						FixedPoint.multiply(matrix[3][1], FixedPoint.multiply(matrix[0][2], matrix[2][3])) +
-						FixedPoint.multiply(matrix[0][1], FixedPoint.multiply(matrix[3][2], matrix[2][3])) +
-						FixedPoint.multiply(matrix[2][1], FixedPoint.multiply(matrix[0][2], matrix[3][3])) -
-						FixedPoint.multiply(matrix[0][1], FixedPoint.multiply(matrix[2][2], matrix[3][3]));
-		result[1][1] = FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[3][2], matrix[0][3])) -
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[2][2], matrix[0][3])) +
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[0][2], matrix[2][3])) -
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[3][2], matrix[2][3])) -
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[0][2], matrix[3][3])) +
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[2][2], matrix[3][3]));
-		result[2][1] = FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[2][1], matrix[0][3])) -
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[3][1], matrix[0][3])) -
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[0][1], matrix[2][3])) +
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[3][1], matrix[2][3])) +
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[0][1], matrix[3][3])) -
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[2][1], matrix[3][3]));
-		result[3][1] = FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[3][1], matrix[0][2])) -
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[2][1], matrix[0][2])) +
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[0][1], matrix[2][2])) -
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[3][1], matrix[2][2])) -
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[0][1], matrix[3][2])) +
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[2][1], matrix[3][2]));
-		result[0][2] = FixedPoint.multiply(matrix[1][1], FixedPoint.multiply(matrix[3][2], matrix[0][3])) -
-						FixedPoint.multiply(matrix[3][1], FixedPoint.multiply(matrix[1][2], matrix[0][3])) +
-						FixedPoint.multiply(matrix[3][1], FixedPoint.multiply(matrix[0][2], matrix[1][3])) -
-						FixedPoint.multiply(matrix[0][1], FixedPoint.multiply(matrix[3][2], matrix[1][3])) -
-						FixedPoint.multiply(matrix[1][1], FixedPoint.multiply(matrix[0][2], matrix[3][3])) +
-						FixedPoint.multiply(matrix[0][1], FixedPoint.multiply(matrix[1][2], matrix[3][3]));
-		result[1][2] = FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[1][2], matrix[0][3])) -
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[3][2], matrix[0][3])) -
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[0][2], matrix[1][3])) +
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[3][2], matrix[1][3])) +
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[0][2], matrix[3][3])) -
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[1][2], matrix[3][3]));
-		result[2][2] = FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[3][1], matrix[0][3])) -
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[1][1], matrix[0][3])) +
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[0][1], matrix[1][3])) -
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[3][1], matrix[1][3])) -
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[0][1], matrix[3][3])) +
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[1][1], matrix[3][3]));
-		result[3][2] = FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[1][1], matrix[0][2])) -
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[3][1], matrix[0][2])) -
-						FixedPoint.multiply(matrix[3][0], FixedPoint.multiply(matrix[0][1], matrix[1][2])) +
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[3][1], matrix[1][2])) +
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[0][1], matrix[3][2])) -
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[1][1], matrix[3][2]));
-		result[0][3] = FixedPoint.multiply(matrix[2][1], FixedPoint.multiply(matrix[1][2], matrix[0][3])) -
-						FixedPoint.multiply(matrix[1][1], FixedPoint.multiply(matrix[2][2], matrix[0][3])) -
-						FixedPoint.multiply(matrix[2][1], FixedPoint.multiply(matrix[0][2], matrix[1][3])) +
-						FixedPoint.multiply(matrix[0][1], FixedPoint.multiply(matrix[2][2], matrix[1][3])) +
-						FixedPoint.multiply(matrix[1][1], FixedPoint.multiply(matrix[0][2], matrix[2][3])) -
-						FixedPoint.multiply(matrix[0][1], FixedPoint.multiply(matrix[1][2], matrix[2][3]));
-		result[1][3] = FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[2][2], matrix[0][3])) -
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[1][2], matrix[0][3])) +
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[0][2], matrix[1][3])) -
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[2][2], matrix[1][3])) -
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[0][2], matrix[2][3])) +
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[1][2], matrix[2][3]));
-		result[2][3] = FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[1][1], matrix[0][3])) -
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[2][1], matrix[0][3])) -
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[0][1], matrix[1][3])) +
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[2][1], matrix[1][3])) +
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[0][1], matrix[2][3])) -
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[1][1], matrix[2][3]));
-		result[3][3] = FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[2][1], matrix[0][2])) -
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[1][1], matrix[0][2])) +
-						FixedPoint.multiply(matrix[2][0], FixedPoint.multiply(matrix[0][1], matrix[1][2])) -
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[2][1], matrix[1][2])) -
-						FixedPoint.multiply(matrix[1][0], FixedPoint.multiply(matrix[0][1], matrix[2][2])) +
-						FixedPoint.multiply(matrix[0][0], FixedPoint.multiply(matrix[1][1], matrix[2][2]));
+		result[0][0] = Fixed.multiply(matrix[2][1], Fixed.multiply(matrix[3][2], matrix[1][3])) -
+						Fixed.multiply(matrix[3][1], Fixed.multiply(matrix[2][2], matrix[1][3])) +
+						Fixed.multiply(matrix[3][1], Fixed.multiply(matrix[1][2], matrix[2][3])) -
+						Fixed.multiply(matrix[1][1], Fixed.multiply(matrix[3][2], matrix[2][3])) -
+						Fixed.multiply(matrix[2][1], Fixed.multiply(matrix[1][2], matrix[3][3])) +
+						Fixed.multiply(matrix[1][1], Fixed.multiply(matrix[2][2], matrix[3][3]));
+		result[1][0] = Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[2][2], matrix[1][3])) -
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[2][3], matrix[1][3])) -
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[2][1], matrix[2][3])) +
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[2][3], matrix[2][3])) +
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[2][1], matrix[3][3])) -
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[2][2], matrix[3][3]));
+		result[2][0] = Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[3][1], matrix[1][3])) -
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[2][1], matrix[1][3])) +
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[1][1], matrix[2][3])) -
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[3][1], matrix[2][3])) -
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[1][1], matrix[3][3])) +
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[2][1], matrix[3][3]));
+		result[3][0] = Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[2][1], matrix[1][2])) -
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[3][1], matrix[1][2])) -
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[1][1], matrix[2][2])) +
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[3][1], matrix[2][2])) +
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[1][1], matrix[3][2])) -
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[2][1], matrix[3][2]));
+		result[0][1] = Fixed.multiply(matrix[3][1], Fixed.multiply(matrix[2][2], matrix[0][3])) -
+						Fixed.multiply(matrix[2][1], Fixed.multiply(matrix[3][2], matrix[0][3])) -
+						Fixed.multiply(matrix[3][1], Fixed.multiply(matrix[0][2], matrix[2][3])) +
+						Fixed.multiply(matrix[0][1], Fixed.multiply(matrix[3][2], matrix[2][3])) +
+						Fixed.multiply(matrix[2][1], Fixed.multiply(matrix[0][2], matrix[3][3])) -
+						Fixed.multiply(matrix[0][1], Fixed.multiply(matrix[2][2], matrix[3][3]));
+		result[1][1] = Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[3][2], matrix[0][3])) -
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[2][2], matrix[0][3])) +
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[0][2], matrix[2][3])) -
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[3][2], matrix[2][3])) -
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[0][2], matrix[3][3])) +
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[2][2], matrix[3][3]));
+		result[2][1] = Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[2][1], matrix[0][3])) -
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[3][1], matrix[0][3])) -
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[0][1], matrix[2][3])) +
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[3][1], matrix[2][3])) +
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[0][1], matrix[3][3])) -
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[2][1], matrix[3][3]));
+		result[3][1] = Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[3][1], matrix[0][2])) -
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[2][1], matrix[0][2])) +
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[0][1], matrix[2][2])) -
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[3][1], matrix[2][2])) -
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[0][1], matrix[3][2])) +
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[2][1], matrix[3][2]));
+		result[0][2] = Fixed.multiply(matrix[1][1], Fixed.multiply(matrix[3][2], matrix[0][3])) -
+						Fixed.multiply(matrix[3][1], Fixed.multiply(matrix[1][2], matrix[0][3])) +
+						Fixed.multiply(matrix[3][1], Fixed.multiply(matrix[0][2], matrix[1][3])) -
+						Fixed.multiply(matrix[0][1], Fixed.multiply(matrix[3][2], matrix[1][3])) -
+						Fixed.multiply(matrix[1][1], Fixed.multiply(matrix[0][2], matrix[3][3])) +
+						Fixed.multiply(matrix[0][1], Fixed.multiply(matrix[1][2], matrix[3][3]));
+		result[1][2] = Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[1][2], matrix[0][3])) -
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[3][2], matrix[0][3])) -
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[0][2], matrix[1][3])) +
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[3][2], matrix[1][3])) +
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[0][2], matrix[3][3])) -
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[1][2], matrix[3][3]));
+		result[2][2] = Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[3][1], matrix[0][3])) -
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[1][1], matrix[0][3])) +
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[0][1], matrix[1][3])) -
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[3][1], matrix[1][3])) -
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[0][1], matrix[3][3])) +
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[1][1], matrix[3][3]));
+		result[3][2] = Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[1][1], matrix[0][2])) -
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[3][1], matrix[0][2])) -
+						Fixed.multiply(matrix[3][0], Fixed.multiply(matrix[0][1], matrix[1][2])) +
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[3][1], matrix[1][2])) +
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[0][1], matrix[3][2])) -
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[1][1], matrix[3][2]));
+		result[0][3] = Fixed.multiply(matrix[2][1], Fixed.multiply(matrix[1][2], matrix[0][3])) -
+						Fixed.multiply(matrix[1][1], Fixed.multiply(matrix[2][2], matrix[0][3])) -
+						Fixed.multiply(matrix[2][1], Fixed.multiply(matrix[0][2], matrix[1][3])) +
+						Fixed.multiply(matrix[0][1], Fixed.multiply(matrix[2][2], matrix[1][3])) +
+						Fixed.multiply(matrix[1][1], Fixed.multiply(matrix[0][2], matrix[2][3])) -
+						Fixed.multiply(matrix[0][1], Fixed.multiply(matrix[1][2], matrix[2][3]));
+		result[1][3] = Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[2][2], matrix[0][3])) -
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[1][2], matrix[0][3])) +
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[0][2], matrix[1][3])) -
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[2][2], matrix[1][3])) -
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[0][2], matrix[2][3])) +
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[1][2], matrix[2][3]));
+		result[2][3] = Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[1][1], matrix[0][3])) -
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[2][1], matrix[0][3])) -
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[0][1], matrix[1][3])) +
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[2][1], matrix[1][3])) +
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[0][1], matrix[2][3])) -
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[1][1], matrix[2][3]));
+		result[3][3] = Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[2][1], matrix[0][2])) -
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[1][1], matrix[0][2])) +
+						Fixed.multiply(matrix[2][0], Fixed.multiply(matrix[0][1], matrix[1][2])) -
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[2][1], matrix[1][2])) -
+						Fixed.multiply(matrix[1][0], Fixed.multiply(matrix[0][1], matrix[2][2])) +
+						Fixed.multiply(matrix[0][0], Fixed.multiply(matrix[1][1], matrix[2][2]));
 		divide(result, determinant);
 		return result;
 	}
@@ -378,7 +378,7 @@ public final class Matrix {
 		for (int i = 0; i < MATRIX_SIZE; i++) {
 			result += '|';
 			for (int j = 0; j < MATRIX_SIZE; j++) {
-				result += FixedPoint.toDouble(matrix[j][i]) + ",";
+				result += Fixed.toDouble(matrix[j][i]) + ",";
 			}
 			result += "|\n";
 		}

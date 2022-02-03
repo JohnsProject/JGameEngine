@@ -1,7 +1,7 @@
 
 package com.johnsproject.jgameengine.graphics.shading;
 
-import static com.johnsproject.jgameengine.math.FixedPoint.*;
+import static com.johnsproject.jgameengine.math.Fixed.*;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.johnsproject.jgameengine.graphics.shading;
 
-import static com.johnsproject.jgameengine.math.FixedPoint.FP_BIT;
+import static com.johnsproject.jgameengine.math.Fixed.FP_BIT;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_X;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_Y;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_Z;

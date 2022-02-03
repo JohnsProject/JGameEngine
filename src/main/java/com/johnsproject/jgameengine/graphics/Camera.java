@@ -1,6 +1,6 @@
 package com.johnsproject.jgameengine.graphics;
 
-import static com.johnsproject.jgameengine.math.FixedPoint.FP_ONE;
+import static com.johnsproject.jgameengine.math.Fixed.FP_ONE;
 
 import com.johnsproject.jgameengine.SceneObject;
 import com.johnsproject.jgameengine.math.Frustum;

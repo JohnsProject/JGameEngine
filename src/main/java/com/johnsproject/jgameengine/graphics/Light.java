@@ -1,7 +1,7 @@
 package com.johnsproject.jgameengine.graphics;
 
 import com.johnsproject.jgameengine.SceneObject;
-import com.johnsproject.jgameengine.math.FixedPoint;
+import com.johnsproject.jgameengine.math.Fixed;
 import com.johnsproject.jgameengine.math.Transform;
 import com.johnsproject.jgameengine.math.Transformation;
 import com.johnsproject.jgameengine.math.Vector;
@@ -10,8 +10,8 @@ public class Light extends SceneObject {
 	
 	public static final String LIGHT_TAG = "Light";
 	
-	private static final int DIRECTIONAL_BIAS = FixedPoint.toFixedPoint(0.05f);
-	private static final int SPOT_BIAS = FixedPoint.toFixedPoint(2f);
+	private static final int DIRECTIONAL_BIAS = Fixed.toFixed(0.05f);
+	private static final int SPOT_BIAS = Fixed.toFixed(2f);
 	
 	private LightType type;
 	private int intensity;
@@ -36,19 +36,19 @@ public class Light extends SceneObject {
 		super.tag = LIGHT_TAG;
 		super.rigidBody.setKinematic(true);
 		this.type = LightType.DIRECTIONAL;
-		this.intensity = FixedPoint.FP_ONE;
+		this.intensity = Fixed.FP_ONE;
 		this.color = Color.WHITE;
 		this.ambientColor = Color.toColor(30, 30, 30);
 		this.directionRotation = Vector.emptyVector();
 		this.direction = Vector.VECTOR_FORWARD.clone();
-		this.constantAttenuation = FixedPoint.toFixedPoint(1);
-		this.linearAttenuation = FixedPoint.toFixedPoint(0.09);
-		this.quadraticAttenuation = FixedPoint.toFixedPoint(0.032);
+		this.constantAttenuation = Fixed.toFixed(1);
+		this.linearAttenuation = Fixed.toFixed(0.09);
+		this.quadraticAttenuation = Fixed.toFixed(0.032);
 		this.shadowBias = DIRECTIONAL_BIAS;
 		this.hasShadow = true;
 		this.isMain = false;
-		setSpotSize(FixedPoint.toFixedPoint(45));
-		setInnerSpotSize(FixedPoint.toFixedPoint(35));
+		setSpotSize(Fixed.toFixed(45));
+		setInnerSpotSize(Fixed.toFixed(35));
 	}
 	
 	public LightType getType() {
@@ -136,7 +136,7 @@ public class Light extends SceneObject {
 	public void setSpotSize(int degrees) {
 		this.spotSize = degrees;
 		// divide by 2 so the size is the size of the whole spot
-		this.spotSizeCos = FixedPoint.cos(degrees >> 1);
+		this.spotSizeCos = Fixed.cos(degrees >> 1);
 		calculateSpotSoftness();
 	}
 	
@@ -156,7 +156,7 @@ public class Light extends SceneObject {
 
 	public void setInnerSpotSize(int degrees) {
 		this.innerSpotSize = degrees;
-		this.innerSpotSizeCos = FixedPoint.cos(degrees >> 1);
+		this.innerSpotSizeCos = Fixed.cos(degrees >> 1);
 		calculateSpotSoftness();
 	}
 	

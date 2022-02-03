@@ -5,7 +5,7 @@ import static com.johnsproject.jgameengine.math.Matrix.MATRIX_SIZE;
 
 import org.junit.Test;
 
-import com.johnsproject.jgameengine.math.FixedPoint;
+import com.johnsproject.jgameengine.math.Fixed;
 import com.johnsproject.jgameengine.math.Matrix;
 
 public class MatrixTest {
@@ -16,7 +16,7 @@ public class MatrixTest {
 		for (int i = 1; i < 256; i++) {
 			double precision = 0.000000000000000000000000000000000001;
 			double value1 = i;
-			int fpValue1 = FixedPoint.toFixedPoint(i);
+			int fpValue1 = Fixed.toFixed(i);
 			int[][] fpMatrix1 = Matrix.indentityMatrix();
 			// fill matrix
 			Matrix.add(fpMatrix1, fpValue1);
@@ -45,7 +45,7 @@ public class MatrixTest {
 		// 127 because 128 * 128 = 16384 and 16384 * 4 = 65536 will cause overflow of integer part of fixed point
 		for (int i = 1; i < 128; i++) {
 			double precision = 0.0001;
-			int fpValue = FixedPoint.toFixedPoint(i);
+			int fpValue = Fixed.toFixed(i);
 			int[][] fpMatrix1 = Matrix.indentityMatrix();
 			int[][] fpMatrix2 = Matrix.indentityMatrix();
 			int[][] fpResult = Matrix.indentityMatrix();
@@ -78,7 +78,7 @@ public class MatrixTest {
 	public void determinantTest() throws Exception {
 		for (int i = 1; i < 16; i++) {
 			double precision = 0.000000001;
-			int fpValue = FixedPoint.toFixedPoint(i);
+			int fpValue = Fixed.toFixed(i);
 			int[][] fpMatrix1 = Matrix.indentityMatrix();
 			fpMatrix1[0][0] = fpValue;
 			fpMatrix1[1][1] = fpValue;
@@ -86,7 +86,7 @@ public class MatrixTest {
 			fpMatrix1[3][3] = fpValue;
 			double[][] matrix1 = toMatrix(fpMatrix1);
 			double fpResult = Matrix.determinant(fpMatrix1);
-			fpResult = FixedPoint.toDouble((long)fpResult);
+			fpResult = Fixed.toDouble((long)fpResult);
 			double result = determinant(matrix1);
 			assert((fpResult >= result - precision) && (fpResult <= result + precision));
 		}
@@ -96,7 +96,7 @@ public class MatrixTest {
 	public void inverseTest() throws Exception {
 		for (int i = 1; i < 16; i++) {
 			double precision = 0.0001;
-			int fpValue = FixedPoint.toFixedPoint(i);
+			int fpValue = Fixed.toFixed(i);
 			int[][] fpMatrix1 = Matrix.indentityMatrix();
 			fpMatrix1[0][0] = fpValue;
 			fpMatrix1[1][1] = fpValue;
@@ -144,7 +144,7 @@ public class MatrixTest {
 		double[][] result = new double[MATRIX_SIZE][MATRIX_SIZE];
 		for (int i = 0; i < MATRIX_SIZE; i++) {
 			for (int j = 0; j < MATRIX_SIZE; j++) {
-				result[i][j] = FixedPoint.toDouble(matrix[i][j]);
+				result[i][j] = Fixed.toDouble(matrix[i][j]);
 			}
 		}
 		return result;

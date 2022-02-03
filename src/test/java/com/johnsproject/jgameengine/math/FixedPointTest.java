@@ -2,7 +2,7 @@ package com.johnsproject.jgameengine.math;
 
 import org.junit.Test;
 
-import com.johnsproject.jgameengine.math.FixedPoint;
+import com.johnsproject.jgameengine.math.Fixed;
 
 public class FixedPointTest {
 	
@@ -24,9 +24,9 @@ public class FixedPointTest {
 	public void toDegreeTest() throws Exception {
 		for (int i = 1; i < 360; i++) {
 			double precision = 0.001;
-			int fpRad = FixedPoint.toFixedPoint(Math.toRadians(i));
-			double fpDegree = FixedPoint.toDegrees(fpRad);
-			fpDegree = FixedPoint.toDouble((int)fpDegree);
+			int fpRad = Fixed.toFixed(Math.toRadians(i));
+			double fpDegree = Fixed.toDegrees(fpRad);
+			fpDegree = Fixed.toDouble((int)fpDegree);
 			double mathDegree = i;
 			assert((fpDegree >= mathDegree - precision) && (fpDegree <= mathDegree + precision));
 		}
@@ -36,9 +36,9 @@ public class FixedPointTest {
 	public void toRadiansTest() throws Exception {
 		for (int i = 1; i < 360; i++) {
 			double precision = 0.1;
-			int fpDegree = FixedPoint.toFixedPoint(Math.toDegrees(i));
-			double fpRad = FixedPoint.toRadians(fpDegree);
-			fpRad = FixedPoint.toDouble((int)fpRad);
+			int fpDegree = Fixed.toFixed(Math.toDegrees(i));
+			double fpRad = Fixed.toRadians(fpDegree);
+			fpRad = Fixed.toDouble((int)fpRad);
 			double mathRad = i;
 			assert((fpRad >= mathRad - precision) && (fpRad <= mathRad + precision));
 		}
@@ -48,17 +48,17 @@ public class FixedPointTest {
 	public void sinTest() throws Exception {
 		for (int i = 0; i < 361; i++) {
 			double precision = 0.0001;
-			int fpAngle = FixedPoint.toFixedPoint(i);
-			double fpSin = FixedPoint.sin(fpAngle);
-			fpSin = FixedPoint.toDouble((int)fpSin);
+			int fpAngle = Fixed.toFixed(i);
+			double fpSin = Fixed.sin(fpAngle);
+			fpSin = Fixed.toDouble((int)fpSin);
 			double sin = Math.sin(Math.toRadians(i));
 			assert ((fpSin >= sin - precision) && (fpSin <= sin + precision));
 		}
 		for (int i = 0; i > -361; i--) {
 			double precision = 0.0001;
-			int fpAngle = FixedPoint.toFixedPoint(i);
-			double fpSin = FixedPoint.sin(fpAngle);
-			fpSin = FixedPoint.toDouble((int)fpSin);
+			int fpAngle = Fixed.toFixed(i);
+			double fpSin = Fixed.sin(fpAngle);
+			fpSin = Fixed.toDouble((int)fpSin);
 			double sin = Math.sin(Math.toRadians(i));
 			assert ((fpSin >= sin - precision) && (fpSin <= sin + precision));
 		}
@@ -68,17 +68,17 @@ public class FixedPointTest {
 	public void cosTest() throws Exception {
 		for (int i = 0; i < 361; i++) {
 			double precision = 0.0001;
-			int fpAngle = FixedPoint.toFixedPoint(i);
-			double fpCos = FixedPoint.cos(fpAngle);
-			fpCos = FixedPoint.toDouble((int)fpCos);
+			int fpAngle = Fixed.toFixed(i);
+			double fpCos = Fixed.cos(fpAngle);
+			fpCos = Fixed.toDouble((int)fpCos);
 			double cos = Math.cos(Math.toRadians(i));
 			assert ((fpCos >= cos - precision) && (fpCos <= cos + precision));
 		}
 		for (int i = 0; i > -361; i--) {
 			double precision = 0.0001;
-			int fpAngle = FixedPoint.toFixedPoint(i);
-			double fpCos = FixedPoint.cos(fpAngle);
-			fpCos = FixedPoint.toDouble((int)fpCos);
+			int fpAngle = Fixed.toFixed(i);
+			double fpCos = Fixed.cos(fpAngle);
+			fpCos = Fixed.toDouble((int)fpCos);
 			double cos = Math.cos(Math.toRadians(i));
 			assert ((fpCos >= cos - precision) && (fpCos <= cos + precision));
 		}
@@ -88,9 +88,9 @@ public class FixedPointTest {
 	public void tanTest() throws Exception {
 		for (int i = 0; i < 90; i++) {
 			double precision = 0.1;
-			int fpAngle = FixedPoint.toFixedPoint(i);
-			double fpTan = FixedPoint.tan(fpAngle);
-			fpTan = FixedPoint.toDouble((int)fpTan);
+			int fpAngle = Fixed.toFixed(i);
+			double fpTan = Fixed.tan(fpAngle);
+			fpTan = Fixed.toDouble((int)fpTan);
 			double tan = Math.tan(Math.toRadians(i));
 			assert ((fpTan >= tan - precision) && (fpTan <= tan + precision));
 		}
@@ -100,20 +100,20 @@ public class FixedPointTest {
 	public void asinTest() throws Exception {
 		for (int i = 0; i < 361; i++) {
 			double precision = 0.0001;
-			double fpAngle = FixedPoint.toFixedPoint(i);
-			int fpSin = FixedPoint.sin((int)fpAngle);
-			fpAngle = FixedPoint.asin(fpSin);
-			fpAngle = FixedPoint.toDouble((int)fpAngle);
+			double fpAngle = Fixed.toFixed(i);
+			int fpSin = Fixed.sin((int)fpAngle);
+			fpAngle = Fixed.asin(fpSin);
+			fpAngle = Fixed.toDouble((int)fpAngle);
 			double sin = Math.sin(Math.toRadians(i));		
 			double angle = Math.toDegrees(Math.asin(sin));
 			assert ((fpAngle >= angle - precision) && (fpAngle <= angle + precision));
 		}
 		for (int i = 0; i > -361; i--) {
 			double precision = 0.0001;
-			double fpAngle = FixedPoint.toFixedPoint(i);
-			int fpSin = FixedPoint.sin((int)fpAngle);
-			fpAngle = FixedPoint.asin(fpSin);
-			fpAngle = FixedPoint.toDouble((int)fpAngle);
+			double fpAngle = Fixed.toFixed(i);
+			int fpSin = Fixed.sin((int)fpAngle);
+			fpAngle = Fixed.asin(fpSin);
+			fpAngle = Fixed.toDouble((int)fpAngle);
 			double sin = Math.sin(Math.toRadians(i));		
 			double angle = Math.toDegrees(Math.asin(sin));
 			assert ((fpAngle >= angle - precision) && (fpAngle <= angle + precision));
@@ -124,20 +124,20 @@ public class FixedPointTest {
 	public void acosTest() throws Exception {
 		for (int i = 0; i < 361; i++) {
 			double precision = 0.0001;
-			double fpAngle = FixedPoint.toFixedPoint(i);
-			int fpCos = FixedPoint.cos((int)fpAngle);
-			fpAngle = FixedPoint.acos(fpCos);
-			fpAngle = FixedPoint.toDouble((int)fpAngle);
+			double fpAngle = Fixed.toFixed(i);
+			int fpCos = Fixed.cos((int)fpAngle);
+			fpAngle = Fixed.acos(fpCos);
+			fpAngle = Fixed.toDouble((int)fpAngle);
 			double cos = Math.cos(Math.toRadians(i));
 			double angle = Math.toDegrees(Math.acos(cos));
 			assert ((fpAngle >= angle - precision) && (fpAngle <= angle + precision));
 		}
 		for (int i = 0; i > -361; i--) {
 			double precision = 0.0001;
-			double fpAngle = FixedPoint.toFixedPoint(i);
-			int fpCos = FixedPoint.cos((int)fpAngle);
-			fpAngle = FixedPoint.acos(fpCos);
-			fpAngle = FixedPoint.toDouble((int)fpAngle);
+			double fpAngle = Fixed.toFixed(i);
+			int fpCos = Fixed.cos((int)fpAngle);
+			fpAngle = Fixed.acos(fpCos);
+			fpAngle = Fixed.toDouble((int)fpAngle);
 			double cos = Math.cos(Math.toRadians(i));
 			double angle = Math.toDegrees(Math.acos(cos));
 			assert ((fpAngle >= angle - precision) && (fpAngle <= angle + precision));
@@ -149,12 +149,12 @@ public class FixedPointTest {
 		// 255 because 256 * 256 = 65536 and will cause overflow of integer part of fixed point
 		for (int i = 1; i < 256; i++) {
 			double precision = 0.000000000000000000000000000000000001;
-			int fpValue1 = FixedPoint.toFixedPoint(i);
-			int fpValue2 = FixedPoint.toFixedPoint(i);
-			double fpMultiply = FixedPoint.multiply(fpValue1, fpValue2);
-			double fpDivide = FixedPoint.divide(fpValue1, fpValue2);
-			fpMultiply = FixedPoint.toDouble((int)fpMultiply);
-			fpDivide = FixedPoint.toDouble((int)fpDivide);
+			int fpValue1 = Fixed.toFixed(i);
+			int fpValue2 = Fixed.toFixed(i);
+			double fpMultiply = Fixed.multiply(fpValue1, fpValue2);
+			double fpDivide = Fixed.divide(fpValue1, fpValue2);
+			fpMultiply = Fixed.toDouble((int)fpMultiply);
+			fpDivide = Fixed.toDouble((int)fpDivide);
 			double value1 = i;
 			double value2 = i;
 			double mathMultiply = value1 * value2;
@@ -166,22 +166,22 @@ public class FixedPointTest {
 	
 	@Test
 	public void normalizeTest() throws Exception {
-		for (int i = 2; i < FixedPoint.FP_ONE; i++) {
-			int fpMin = FixedPoint.toFixedPoint(i);
-			int fpMax = FixedPoint.toFixedPoint(i + 2);
-			int fpValue = FixedPoint.toFixedPoint(i + 5);
-			int fpNormalizedValue = FixedPoint.normalize(fpValue, fpMin, fpMax);
+		for (int i = 2; i < Fixed.FP_ONE; i++) {
+			int fpMin = Fixed.toFixed(i);
+			int fpMax = Fixed.toFixed(i + 2);
+			int fpValue = Fixed.toFixed(i + 5);
+			int fpNormalizedValue = Fixed.normalize(fpValue, fpMin, fpMax);
 			assert(fpNormalizedValue >= fpMin && fpNormalizedValue <= fpMax);
 		}
 	}
 	
 	@Test
 	public void clampTest() throws Exception {
-		for (int i = 0; i < FixedPoint.FP_ONE; i++) {
-			int fpMin = FixedPoint.toFixedPoint(i);
-			int fpMax = FixedPoint.toFixedPoint(i + 5);
-			int fpValue = FixedPoint.toFixedPoint(i + 10);
-			int fpNormalizedValue = FixedPoint.clamp(fpValue, fpMin, fpMax);
+		for (int i = 0; i < Fixed.FP_ONE; i++) {
+			int fpMin = Fixed.toFixed(i);
+			int fpMax = Fixed.toFixed(i + 5);
+			int fpValue = Fixed.toFixed(i + 10);
+			int fpNormalizedValue = Fixed.clamp(fpValue, fpMin, fpMax);
 			assert(fpNormalizedValue >= fpMin && fpNormalizedValue <= fpMax);
 		}
 	}
@@ -189,21 +189,21 @@ public class FixedPointTest {
 	@Test
 	public void randomTest() throws Exception {
 		int lastRandomValue = 0;
-		for (int i = 1; i < FixedPoint.FP_ONE; i++) {
-			int randomValue = FixedPoint.random(lastRandomValue);
+		for (int i = 1; i < Fixed.FP_ONE; i++) {
+			int randomValue = Fixed.random(lastRandomValue);
 			lastRandomValue = randomValue;
-			assert(randomValue != FixedPoint.random(i));
+			assert(randomValue != Fixed.random(i));
 		}
 	}
 	@Test
 	public void minMaxRandomTest() throws Exception {
 		int lastRandomValue = 0;
-		for (int i = 1; i < FixedPoint.FP_ONE; i++) {
-			int fpMin = FixedPoint.toFixedPoint(0);
-			int fpMax = FixedPoint.toFixedPoint(100);
-			int randomValue = FixedPoint.random(lastRandomValue, fpMin, fpMax);
+		for (int i = 1; i < Fixed.FP_ONE; i++) {
+			int fpMin = Fixed.toFixed(0);
+			int fpMax = Fixed.toFixed(100);
+			int randomValue = Fixed.random(lastRandomValue, fpMin, fpMax);
 			lastRandomValue = randomValue;
-			assert(randomValue != FixedPoint.random(i, fpMin, fpMax));
+			assert(randomValue != Fixed.random(i, fpMin, fpMax));
 			assert((randomValue <= fpMax) && (randomValue >= fpMin));
 			assert((randomValue <= fpMax) && (randomValue >= fpMin));
 		}
@@ -215,9 +215,9 @@ public class FixedPointTest {
 		for (int i = 0; i < 16; i++) {
 			double precision = 0.000000000001;
 			int value = 2;
-			int fpValue = FixedPoint.toFixedPoint(value);
-			double fpPow = FixedPoint.pow(fpValue, FixedPoint.toFixedPoint(i));
-			fpPow = FixedPoint.toDouble((int)fpPow);
+			int fpValue = Fixed.toFixed(value);
+			double fpPow = Fixed.pow(fpValue, Fixed.toFixed(i));
+			fpPow = Fixed.toDouble((int)fpPow);
 			double mathPow = Math.pow(value, i);
 			assert((fpPow >= mathPow - precision) && (fpPow <= mathPow + precision));
 		}
@@ -225,10 +225,10 @@ public class FixedPointTest {
 	
 	@Test
 	public void sqrtTest() throws Exception {
-		for (int i = 1; i < FixedPoint.FP_ONE; i++) {
+		for (int i = 1; i < Fixed.FP_ONE; i++) {
 			double precision = 0.01;
-			double fpSqrt = FixedPoint.sqrt(FixedPoint.toFixedPoint(i));
-			fpSqrt = FixedPoint.toDouble((int)fpSqrt);
+			double fpSqrt = Fixed.sqrt(Fixed.toFixed(i));
+			fpSqrt = Fixed.toDouble((int)fpSqrt);
 			double mathSqrt = Math.sqrt(i);
 			assert((fpSqrt >= mathSqrt - precision) && (fpSqrt <= mathSqrt + precision));
 		}

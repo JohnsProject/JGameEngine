@@ -14,7 +14,7 @@ import com.johnsproject.jgameengine.graphics.Face;
 import com.johnsproject.jgameengine.graphics.Material;
 import com.johnsproject.jgameengine.graphics.Mesh;
 import com.johnsproject.jgameengine.graphics.Vertex;
-import com.johnsproject.jgameengine.math.FixedPoint;
+import com.johnsproject.jgameengine.math.Fixed;
 import com.johnsproject.jgameengine.math.Vector;
 
 public class OBJImporterTest {
@@ -29,7 +29,7 @@ public class OBJImporterTest {
 		assert(material.getIndex() == 0);
 		assertEquals(material.getName(), "Material");
 		
-		int shininess = FixedPoint.toFixedPoint(17.647059);
+		int shininess = Fixed.toFixed(17.647059);
 		assert(material.getShininess() == shininess);
 		
 		int r = Math.round(0.8f * Color.COLOR_ONE);
@@ -48,7 +48,7 @@ public class OBJImporterTest {
 		assert(material.getIndex() == 1);
 		assertEquals(material.getName(), "Material.001");
 		
-		shininess = FixedPoint.toFixedPoint(96.078431);
+		shininess = Fixed.toFixed(96.078431);
 		assert(material.getShininess() == shininess);
 		
 		r = Math.round(0.64f * Color.COLOR_ONE);
@@ -71,25 +71,25 @@ public class OBJImporterTest {
 		assert(vertices.size() == 16);
 		
 		OBJImporter.VertexData vertex = vertices.get(0);
-		int x = FixedPoint.toFixedPoint(-4.198291);
-		int y = FixedPoint.toFixedPoint(2.563459);
-		int z = FixedPoint.toFixedPoint(-1.020053);
+		int x = Fixed.toFixed(-4.198291);
+		int y = Fixed.toFixed(2.563459);
+		int z = Fixed.toFixed(-1.020053);
 		assert(vertex.location[Vector.VECTOR_X] == x);
 		assert(vertex.location[Vector.VECTOR_Y] == y);
 		assert(vertex.location[Vector.VECTOR_Z] == z);
 		
 		vertex = vertices.get(3);
-		x = FixedPoint.toFixedPoint(-6.198290);
-		y = FixedPoint.toFixedPoint(2.563459);
-		z = FixedPoint.toFixedPoint(-1.020054);
+		x = Fixed.toFixed(-6.198290);
+		y = Fixed.toFixed(2.563459);
+		z = Fixed.toFixed(-1.020054);
 		assert(vertex.location[Vector.VECTOR_X] == x);
 		assert(vertex.location[Vector.VECTOR_Y] == y);
 		assert(vertex.location[Vector.VECTOR_Z] == z);		
 		
 		vertex = vertices.get(15);
-		x = FixedPoint.toFixedPoint(-1);
-		y = FixedPoint.toFixedPoint(1);
-		z = FixedPoint.toFixedPoint(-1);
+		x = Fixed.toFixed(-1);
+		y = Fixed.toFixed(1);
+		z = Fixed.toFixed(-1);
 		assert(vertex.location[Vector.VECTOR_X] == x);
 		assert(vertex.location[Vector.VECTOR_Y] == y);
 		assert(vertex.location[Vector.VECTOR_Z] == z);		
@@ -103,17 +103,17 @@ public class OBJImporterTest {
 		assert(faceNormals.size() == 12);
 		
 		OBJImporter.FaceNormal faceNormal = faceNormals.get(0);
-		int x = FixedPoint.toFixedPoint(0);
-		int y = FixedPoint.toFixedPoint(-1);
-		int z = FixedPoint.toFixedPoint(0);
+		int x = Fixed.toFixed(0);
+		int y = Fixed.toFixed(-1);
+		int z = Fixed.toFixed(0);
 		assert(faceNormal.normal[Vector.VECTOR_X] == x);
 		assert(faceNormal.normal[Vector.VECTOR_Y] == y);
 		assert(faceNormal.normal[Vector.VECTOR_Z] == z);
 		
 		faceNormal = faceNormals.get(11);
-		x = FixedPoint.toFixedPoint(0);
-		y = FixedPoint.toFixedPoint(0);
-		z = FixedPoint.toFixedPoint(-1);
+		x = Fixed.toFixed(0);
+		y = Fixed.toFixed(0);
+		z = Fixed.toFixed(-1);
 		assert(faceNormal.normal[Vector.VECTOR_X] == x);
 		assert(faceNormal.normal[Vector.VECTOR_Y] == y);
 		assert(faceNormal.normal[Vector.VECTOR_Z] == z);
@@ -125,14 +125,14 @@ public class OBJImporterTest {
 		final List<OBJImporter.FaceUV> faceUVs = OBJImporter.parseFaceUVs(data);
 		
 		OBJImporter.FaceUV faceUV = faceUVs.get(0);
-		int x = FixedPoint.toFixedPoint(1);
-		int y = FixedPoint.toFixedPoint(0);
+		int x = Fixed.toFixed(1);
+		int y = Fixed.toFixed(0);
 		assert(faceUV.uv[Vector.VECTOR_X] == x);
 		assert(faceUV.uv[Vector.VECTOR_Y] == y);
 		
 		faceUV = faceUVs.get(39);
-		x = FixedPoint.toFixedPoint(1);
-		y = FixedPoint.toFixedPoint(1);
+		x = Fixed.toFixed(1);
+		y = Fixed.toFixed(1);
 		assert(faceUV.uv[Vector.VECTOR_X] == x);
 		assert(faceUV.uv[Vector.VECTOR_Y] == y);
 	}
@@ -200,9 +200,9 @@ public class OBJImporterTest {
 		
 		Vertex vertex = mesh.getVertex(0);
 		assert(vertex.getIndex() == 0);
-		int x = FixedPoint.toFixedPoint(-4.198291);
-		int y = FixedPoint.toFixedPoint(2.563459);
-		int z = FixedPoint.toFixedPoint(-1.020053);
+		int x = Fixed.toFixed(-4.198291);
+		int y = Fixed.toFixed(2.563459);
+		int z = Fixed.toFixed(-1.020053);
 		assert(vertex.getLocalLocation()[Vector.VECTOR_X] == x);
 		assert(vertex.getLocalLocation()[Vector.VECTOR_Y] == y);
 		assert(vertex.getLocalLocation()[Vector.VECTOR_Z] == z);
@@ -210,9 +210,9 @@ public class OBJImporterTest {
 		
 		vertex = mesh.getVertex(15);
 		assert(vertex.getIndex() == 15);
-		x = FixedPoint.toFixedPoint(-1);
-		y = FixedPoint.toFixedPoint(1);
-		z = FixedPoint.toFixedPoint(-1);
+		x = Fixed.toFixed(-1);
+		y = Fixed.toFixed(1);
+		z = Fixed.toFixed(-1);
 		assert(vertex.getLocalLocation()[Vector.VECTOR_X] == x);
 		assert(vertex.getLocalLocation()[Vector.VECTOR_Y] == y);
 		assert(vertex.getLocalLocation()[Vector.VECTOR_Z] == z);
@@ -224,25 +224,25 @@ public class OBJImporterTest {
 		assert(face.getVertex(1) == mesh.getVertex(3));
 		assert(face.getVertex(2) == mesh.getVertex(0));
 		
-		x = FixedPoint.toFixedPoint(0);
-		y = FixedPoint.toFixedPoint(-1);
-		z = FixedPoint.toFixedPoint(0);
+		x = Fixed.toFixed(0);
+		y = Fixed.toFixed(-1);
+		z = Fixed.toFixed(0);
 		assert(face.getLocalNormal()[Vector.VECTOR_X] == x);
 		assert(face.getLocalNormal()[Vector.VECTOR_Y] == y);
 		assert(face.getLocalNormal()[Vector.VECTOR_Z] == z);
 		
-		x = FixedPoint.toFixedPoint(1);
-		y = FixedPoint.toFixedPoint(0);
+		x = Fixed.toFixed(1);
+		y = Fixed.toFixed(0);
 		assert(face.getUV(0)[Vector.VECTOR_X] == x);
 		assert(face.getUV(0)[Vector.VECTOR_Y] == y);
 		
-		x = FixedPoint.toFixedPoint(0);
-		y = FixedPoint.toFixedPoint(1);
+		x = Fixed.toFixed(0);
+		y = Fixed.toFixed(1);
 		assert(face.getUV(1)[Vector.VECTOR_X] == x);
 		assert(face.getUV(1)[Vector.VECTOR_Y] == y);
 		
-		x = FixedPoint.toFixedPoint(0);
-		y = FixedPoint.toFixedPoint(0);
+		x = Fixed.toFixed(0);
+		y = Fixed.toFixed(0);
 		assert(face.getUV(2)[Vector.VECTOR_X] == x);
 		assert(face.getUV(2)[Vector.VECTOR_Y] == y);
 		

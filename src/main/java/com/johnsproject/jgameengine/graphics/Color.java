@@ -2,7 +2,7 @@ package com.johnsproject.jgameengine.graphics;
 
 import java.awt.image.BufferedImage;
 
-import com.johnsproject.jgameengine.math.FixedPoint;
+import com.johnsproject.jgameengine.math.Fixed;
 
 /**
  * The ColorUtils class contains methods for generating integer sRGB colors 
@@ -136,14 +136,14 @@ public final class Color {
 	 * This method only changes the RGB values of the color.
 	 * 
 	 * @param color
-	 * @param factor a fixed point value between 0 and {@link FixedPoint#FP_ONE}
+	 * @param factor a fixed point value between 0 and {@link Fixed#FP_ONE}
 	 * @return
 	 */
 	public static int multiply(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
-		r = FixedPoint.multiply(r, factor);
-		g = FixedPoint.multiply(g, factor);
-		b = FixedPoint.multiply(b, factor);
+		r = Fixed.multiply(r, factor);
+		g = Fixed.multiply(g, factor);
+		b = Fixed.multiply(b, factor);
 		return toColor(a, r, g, b);
 	}
 	
@@ -151,15 +151,15 @@ public final class Color {
 	 * Returns the result of the multiplication of color and factor.
 	 * 
 	 * @param color
-	 * @param factor a fixed point value between 0 and {@link FixedPoint#FP_ONE}
+	 * @param factor a fixed point value between 0 and {@link Fixed#FP_ONE}
 	 * @return
 	 */
 	public static int multiplyARGB(int color, int factor) {
 		int r = getRed(color), g = getGreen(color), b = getBlue(color), a = getAlpha(color);
-		r = FixedPoint.multiply(r, factor);
-		g = FixedPoint.multiply(g, factor);
-		b = FixedPoint.multiply(b, factor);
-		a = FixedPoint.multiply(a, factor);
+		r = Fixed.multiply(r, factor);
+		g = Fixed.multiply(g, factor);
+		b = Fixed.multiply(b, factor);
+		a = Fixed.multiply(a, factor);
 		return toColor(a, r, g, b);
 	}
 	

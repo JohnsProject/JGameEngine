@@ -1,7 +1,7 @@
 package com.johnsproject.jgameengine.math;
 
 
-import static com.johnsproject.jgameengine.math.FixedPoint.FP_ONE;
+import static com.johnsproject.jgameengine.math.Fixed.FP_ONE;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_X;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_Y;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_Z;
@@ -65,9 +65,9 @@ public class Transform {
 	}
 	
 	private void spaceEnterMatrix() {
-		int scaleX = FixedPoint.divide(FP_ONE, scale[VECTOR_X] == 0 ? 1 : scale[VECTOR_X]);
-		int scaleY = FixedPoint.divide(FP_ONE, scale[VECTOR_Y] == 0 ? 1 : scale[VECTOR_Y]);
-		int scaleZ = FixedPoint.divide(FP_ONE, scale[VECTOR_Z] == 0 ? 1 : scale[VECTOR_Z]);
+		int scaleX = Fixed.divide(FP_ONE, scale[VECTOR_X] == 0 ? 1 : scale[VECTOR_X]);
+		int scaleY = Fixed.divide(FP_ONE, scale[VECTOR_Y] == 0 ? 1 : scale[VECTOR_Y]);
+		int scaleZ = Fixed.divide(FP_ONE, scale[VECTOR_Z] == 0 ? 1 : scale[VECTOR_Z]);
 		Vector.invert(location);
 		Vector.invert(rotation);
 		Matrix.copy(spaceEnterMatrix, Matrix.MATRIX_IDENTITY);
@@ -81,9 +81,9 @@ public class Transform {
 	}
 	
 	private void spaceEnterNormalMatrix() {
-		int scaleX = FixedPoint.divide(FP_ONE, scale[VECTOR_X] == 0 ? 1 : scale[VECTOR_X]);
-		int scaleY = FixedPoint.divide(FP_ONE, scale[VECTOR_Y] == 0 ? 1 : scale[VECTOR_Y]);
-		int scaleZ = FixedPoint.divide(FP_ONE, scale[VECTOR_Z] == 0 ? 1 : scale[VECTOR_Z]);
+		int scaleX = Fixed.divide(FP_ONE, scale[VECTOR_X] == 0 ? 1 : scale[VECTOR_X]);
+		int scaleY = Fixed.divide(FP_ONE, scale[VECTOR_Y] == 0 ? 1 : scale[VECTOR_Y]);
+		int scaleZ = Fixed.divide(FP_ONE, scale[VECTOR_Z] == 0 ? 1 : scale[VECTOR_Z]);
 		Vector.invert(rotation);
 		Matrix.copy(spaceEnterNormalMatrix, Matrix.MATRIX_IDENTITY);
 		rotateZ(spaceEnterNormalMatrix, rotation[VECTOR_Z]);

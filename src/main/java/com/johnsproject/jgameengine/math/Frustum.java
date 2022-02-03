@@ -1,6 +1,6 @@
 package com.johnsproject.jgameengine.math;
 
-import static com.johnsproject.jgameengine.math.FixedPoint.FP_ONE;
+import static com.johnsproject.jgameengine.math.Fixed.FP_ONE;
 
 public class Frustum {
 
@@ -42,10 +42,10 @@ public class Frustum {
 	}
 
 	private void recalculateFrustum() {
-		renderTargetLeft = FixedPoint.multiply(renderTargetWidth, left);
-		renderTargetRight = FixedPoint.multiply(renderTargetWidth, right);
-		renderTargetTop = FixedPoint.multiply(renderTargetHeight, top);
-		renderTargetBottom = FixedPoint.multiply(renderTargetHeight, bottom);
+		renderTargetLeft = Fixed.multiply(renderTargetWidth, left);
+		renderTargetRight = Fixed.multiply(renderTargetWidth, right);
+		renderTargetTop = Fixed.multiply(renderTargetHeight, top);
+		renderTargetBottom = Fixed.multiply(renderTargetHeight, bottom);
 		recalculateProjectionMatrix();
 	}
 	

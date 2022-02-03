@@ -2,7 +2,7 @@ package com.johnsproject.jgameengine.math;
 
 import org.junit.Test;
 
-import com.johnsproject.jgameengine.math.FixedPoint;
+import com.johnsproject.jgameengine.math.Fixed;
 import com.johnsproject.jgameengine.math.Matrix;
 import com.johnsproject.jgameengine.math.Vector;
 
@@ -14,7 +14,7 @@ public class VectorTest {
 		for (int i = 1; i < 256; i++) {
 			double precision = 0.000000000000000000000000000000000001;
 			double value1 = i;
-			int fpValue1 = FixedPoint.toFixedPoint(i);
+			int fpValue1 = Fixed.toFixed(i);
 			int[] fpVector1 = Vector.toVector((float)i, (float)i, (float)i);
 			double[] vector1 = toVector(fpVector1);
 			// vector value operations
@@ -71,12 +71,12 @@ public class VectorTest {
 		int[] vector1 = Vector.toVector(3f, 6f, 9f);
 		int[] resultVector = Vector.toVector(16f, 35f, 84f);
 		int[][] matrix1 = Matrix.indentityMatrix();
-		matrix1[0][0] = FixedPoint.toFixedPoint(2);
-		matrix1[1][1] = FixedPoint.toFixedPoint(4);
-		matrix1[2][2] = FixedPoint.toFixedPoint(8);
-		matrix1[3][0] = FixedPoint.toFixedPoint(10);
-		matrix1[3][1] = FixedPoint.toFixedPoint(11);
-		matrix1[3][2] = FixedPoint.toFixedPoint(12);
+		matrix1[0][0] = Fixed.toFixed(2);
+		matrix1[1][1] = Fixed.toFixed(4);
+		matrix1[2][2] = Fixed.toFixed(8);
+		matrix1[3][0] = Fixed.toFixed(10);
+		matrix1[3][1] = Fixed.toFixed(11);
+		matrix1[3][2] = Fixed.toFixed(12);
 		Vector.multiply(vector1, matrix1);
 		assert(Vector.equals(vector1, resultVector));		
 	}
@@ -91,14 +91,14 @@ public class VectorTest {
 			double[] vector2 = toVector(fpVector2);
 			double fpResult = Vector.dotProduct(fpVector1, fpVector2);
 			double result = dotProduct(vector1, vector2);
-			fpResult = FixedPoint.toDouble((long)fpResult);
+			fpResult = Fixed.toDouble((long)fpResult);
 			assert((fpResult >= result - precision) && (fpResult <= result + precision));	
 		}
 	}
 	
 	@Test
 	public void crossProductTest() throws Exception {
-		for (int i = 1; i < FixedPoint.FP_ONE; i++) {
+		for (int i = 1; i < Fixed.FP_ONE; i++) {
 			double precision = 0.0001;
 			int[] fpVector1 = Vector.toVector((float)i, (float)i * 0.8f, (float)i * 0.65f);
 			int[] fpVector2 = Vector.toVector(0.5f, 0.15f, 0.8f);
@@ -118,7 +118,7 @@ public class VectorTest {
 			int[] fpVector1 = Vector.toVector((float)i, (float)i, (float)i);
 			double[] vector1 = toVector(fpVector1);
 			double fpLenght = Vector.length(fpVector1);
-			fpLenght = FixedPoint.toDouble((long)fpLenght);
+			fpLenght = Fixed.toDouble((long)fpLenght);
 			double length = length(vector1);
 			assert((fpLenght >= length - precision) && (fpLenght <= length + precision));	
 		}
@@ -133,7 +133,7 @@ public class VectorTest {
 			double[] vector1 = toVector(fpVector1);
 			double[] vector2 = toVector(fpVector2);
 			double fpDistance = Vector.distance(fpVector1, fpVector2);
-			fpDistance = FixedPoint.toDouble((long)fpDistance);
+			fpDistance = Fixed.toDouble((long)fpDistance);
 			double distance = distance(vector1, vector2);
 			assert((fpDistance >= distance - precision) && (fpDistance <= distance + precision));	
 		}
@@ -152,9 +152,9 @@ public class VectorTest {
 	}	
 	
 	static double[] toVector(int[] fpVector) {
-		double x = FixedPoint.toDouble(fpVector[Vector.VECTOR_X]);
-		double y = FixedPoint.toDouble(fpVector[Vector.VECTOR_Y]);
-		double z = FixedPoint.toDouble(fpVector[Vector.VECTOR_Z]);
+		double x = Fixed.toDouble(fpVector[Vector.VECTOR_X]);
+		double y = Fixed.toDouble(fpVector[Vector.VECTOR_Y]);
+		double z = Fixed.toDouble(fpVector[Vector.VECTOR_Z]);
 		return toVector(x, y, z);
 	}
 	
