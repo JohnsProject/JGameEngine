@@ -1,12 +1,12 @@
 package com.johnsproject.jgameengine;
 
 import java.awt.Color;
+import java.awt.Frame;
 import java.awt.TextArea;
 import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.graphics.EngineWindow;
 import com.johnsproject.jgameengine.graphics.FrameBuffer;
 import com.johnsproject.jgameengine.graphics.GraphicsEngine;
 import com.johnsproject.jgameengine.graphics.Model;
@@ -26,7 +26,7 @@ public class EngineStatistics implements EngineListener {
 	private long averageUpdates;
 	private long loops;
 	
-	public EngineStatistics(EngineWindow window) {
+	public EngineStatistics(Frame window) {
 		this.textArea = new TextArea("", 0, 0, TextArea.SCROLLBARS_NONE);
 		window.add(textArea);
 	}

@@ -13,7 +13,14 @@ import java.awt.image.BufferStrategy;
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
 
-public class EngineWindow extends Frame implements EngineListener {
+
+/**
+ * The FrameBufferWindow is a {@link Frame} with {@link FrameBuffer} as background.
+ * 
+ * @author John Ferraz Salomon
+ *
+ */
+public class FrameBufferWindow extends Frame implements EngineListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -22,7 +29,7 @@ public class EngineWindow extends Frame implements EngineListener {
 	private Graphics graphics;
 	private FrameBuffer frameBuffer;
 	
-	public EngineWindow(FrameBuffer frameBuffer) {
+	public FrameBufferWindow(FrameBuffer frameBuffer) {
 		canvas = new Canvas();
 		setLayout(null);
 		setFrameBuffer(frameBuffer);

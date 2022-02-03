@@ -12,7 +12,7 @@ import java.io.IOException;
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
 import com.johnsproject.jgameengine.graphics.Camera;
-import com.johnsproject.jgameengine.graphics.EngineWindow;
+import com.johnsproject.jgameengine.graphics.FrameBufferWindow;
 import com.johnsproject.jgameengine.graphics.FrameBuffer;
 import com.johnsproject.jgameengine.graphics.GraphicsEngine;
 import com.johnsproject.jgameengine.graphics.Light;
@@ -38,7 +38,7 @@ public class SpaceshipGame implements EngineListener {
 	private static final int WINDOW_HEIGHT = 1080;
 	
 	private final FrameBuffer frameBuffer;
-	private final EngineWindow window;
+	private final FrameBufferWindow window;
 	private final GraphicsEngine graphicsEngine;
 	private final EngineStatistics engineStats;
 	private final InputEngine inputEngine = new InputEngine();
@@ -73,7 +73,7 @@ public class SpaceshipGame implements EngineListener {
 
 	public SpaceshipGame(int width, int height, int scaling) {		
 		frameBuffer = new FrameBuffer((width * scaling) / 100, (height * scaling) / 100);
-		window = new EngineWindow(frameBuffer);
+		window = new FrameBufferWindow(frameBuffer);
 		graphicsEngine = new GraphicsEngine(frameBuffer);
 		engineStats = new EngineStatistics(window);
 		window.setSize(width, height);
