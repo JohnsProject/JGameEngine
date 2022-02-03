@@ -6,8 +6,10 @@ import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.model.FrameBuffer;
-import com.johnsproject.jgameengine.model.Model;
+import com.johnsproject.jgameengine.graphics.EngineWindow;
+import com.johnsproject.jgameengine.graphics.FrameBuffer;
+import com.johnsproject.jgameengine.graphics.GraphicsEngine;
+import com.johnsproject.jgameengine.graphics.Model;
 
 public class EngineStatistics implements EngineListener {
 

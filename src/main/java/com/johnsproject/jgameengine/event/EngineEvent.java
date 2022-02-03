@@ -1,6 +1,6 @@
 package com.johnsproject.jgameengine.event;
 
-import com.johnsproject.jgameengine.model.Scene;
+import com.johnsproject.jgameengine.Scene;
 
 public class EngineEvent {
 
