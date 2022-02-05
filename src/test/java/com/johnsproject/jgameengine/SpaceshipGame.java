@@ -1,33 +1,35 @@
 package com.johnsproject.jgameengine;
 
-import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
-import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_HALF;
-import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_X;
-import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Y;
-import static com.johnsproject.jgameengine.util.VectorUtils.VECTOR_Z;
+import static com.johnsproject.jgameengine.math.Fixed.FP_BIT;
+import static com.johnsproject.jgameengine.math.Fixed.FP_HALF;
+import static com.johnsproject.jgameengine.math.Vector.VECTOR_X;
+import static com.johnsproject.jgameengine.math.Vector.VECTOR_Y;
+import static com.johnsproject.jgameengine.math.Vector.VECTOR_Z;
 
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
+import com.johnsproject.jgameengine.graphics.Camera;
+import com.johnsproject.jgameengine.graphics.FrameBufferWindow;
+import com.johnsproject.jgameengine.graphics.FrameBuffer;
+import com.johnsproject.jgameengine.graphics.GraphicsEngine;
+import com.johnsproject.jgameengine.graphics.Light;
+import com.johnsproject.jgameengine.graphics.Mesh;
+import com.johnsproject.jgameengine.graphics.Model;
+import com.johnsproject.jgameengine.graphics.Texture;
+import com.johnsproject.jgameengine.graphics.shading.BasicThreadedShader;
+import com.johnsproject.jgameengine.graphics.shading.DirectionalLightShadowShader;
+import com.johnsproject.jgameengine.graphics.shading.FlatShader;
+import com.johnsproject.jgameengine.graphics.shading.GouraudShader;
+import com.johnsproject.jgameengine.graphics.shading.PhongShader;
+import com.johnsproject.jgameengine.io.FileUtil;
+import com.johnsproject.jgameengine.io.InputEngine;
 import com.johnsproject.jgameengine.io.OBJImporter;
-import com.johnsproject.jgameengine.model.Camera;
-import com.johnsproject.jgameengine.model.FrameBuffer;
-import com.johnsproject.jgameengine.model.Light;
-import com.johnsproject.jgameengine.model.Mesh;
-import com.johnsproject.jgameengine.model.Model;
-import com.johnsproject.jgameengine.model.Scene;
-import com.johnsproject.jgameengine.model.Texture;
-import com.johnsproject.jgameengine.model.Transform;
-import com.johnsproject.jgameengine.shading.BasicThreadedShader;
-import com.johnsproject.jgameengine.shading.DirectionalLightShadowShader;
-import com.johnsproject.jgameengine.shading.FlatShader;
-import com.johnsproject.jgameengine.shading.GouraudShader;
-import com.johnsproject.jgameengine.shading.PhongShader;
-import com.johnsproject.jgameengine.util.FileUtils;
-import com.johnsproject.jgameengine.util.FixedPointUtils;
-import com.johnsproject.jgameengine.util.VectorUtils;
+import com.johnsproject.jgameengine.math.Fixed;
+import com.johnsproject.jgameengine.math.Transform;
+import com.johnsproject.jgameengine.math.Vector;
 
 @SuppressWarnings("unused")
 public class SpaceshipGame implements EngineListener {
@@ -36,7 +38,7 @@ public class SpaceshipGame implements EngineListener {
 	private static final int WINDOW_HEIGHT = 1080;
 	
 	private final FrameBuffer frameBuffer;
-	private final EngineWindow window;
+	private final FrameBufferWindow window;
 	private final GraphicsEngine graphicsEngine;
 	private final EngineStatistics engineStats;
 	private final InputEngine inputEngine = new InputEngine();
@@ -71,17 +73,17 @@ public class SpaceshipGame implements EngineListener {
 
 	public SpaceshipGame(int width, int height, int scaling) {		
 		frameBuffer = new FrameBuffer((width * scaling) / 100, (height * scaling) / 100);
-		window = new EngineWindow(frameBuffer);
+		window = new FrameBufferWindow(frameBuffer);
 		graphicsEngine = new GraphicsEngine(frameBuffer);
 		engineStats = new EngineStatistics(window);
 		window.setSize(width, height);
 		
 		Engine.getInstance().setScene(scene);
+		Engine.getInstance().addEngineListener(inputEngine);
 		Engine.getInstance().addEngineListener(this);
 		Engine.getInstance().addEngineListener(graphicsEngine);
-		Engine.getInstance().addEngineListener(inputEngine);
-		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().addEngineListener(engineStats);
+		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().start();
 	}
 
@@ -107,18 +109,22 @@ public class SpaceshipGame implements EngineListener {
 	}
 	
 	private void loadTerrain(ClassLoader classLoader) throws IOException {
-		final Model terrainModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/Terrain.obj");
-		scene.addModel(terrainModel);
+		final SceneObject terrainObject = OBJImporter.parseResource(classLoader, "SpaceshipGame/Terrain.obj");
+		scene.addSceneObject(terrainObject);
+		
+		final Model terrainModel = terrainObject.getComponentWithType(Model.class);
 		
 		terrainModel.getTransform().setScale(3 << FP_BIT, 3 << FP_BIT, 3 << FP_BIT);
 		
-		final Texture texture = new Texture(FileUtils.loadImage(this.getClass().getResourceAsStream("/JohnsProjectLogo.png")));
+		final Texture texture = new Texture(FileUtil.loadImage(this.getClass().getResourceAsStream("/JohnsProjectLogo.png")));
 		terrainModel.getMesh().getMaterial(0).setTexture(texture);
 	}
 	
 	private void loadSpaceshipFire(ClassLoader classLoader) throws IOException {
-		spaceshipFireModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/SpaceshipFire.obj");
-		scene.addModel(spaceshipFireModel);
+		final SceneObject spaceshipFireObject = OBJImporter.parseResource(classLoader, "SpaceshipGame/SpaceshipFire.obj");
+		scene.addSceneObject(spaceshipFireObject);
+		
+		spaceshipFireModel = spaceshipFireObject.getComponentWithType(Model.class);
 		
 		spaceshipFireTransform = spaceshipFireModel.getTransform();
 		spaceshipFireTransform.setScale(FP_HALF, FP_HALF, FP_HALF);
@@ -130,8 +136,10 @@ public class SpaceshipGame implements EngineListener {
 	}
 	
 	private void loadSpaceship(ClassLoader classLoader) throws IOException {
-		final Model spaceshipModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/Spaceship.obj");
-		scene.addModel(spaceshipModel);
+		final SceneObject spaceshipObject = OBJImporter.parseResource(classLoader, "SpaceshipGame/Spaceship.obj");
+		scene.addSceneObject(spaceshipObject);
+		
+		final Model spaceshipModel = spaceshipObject.getComponentWithType(Model.class);
 		
 		spaceshipTransform = spaceshipModel.getTransform();
 		spaceshipTransform.worldTranslate(0, 5 << FP_BIT, 0);
@@ -140,16 +148,30 @@ public class SpaceshipGame implements EngineListener {
 	
 	private void createCamera() {
 		cameraTransform = new Transform();
-		cameraTransform.worldRotate(-45 << FP_BIT, 0, 0);
-		final Camera camera = new Camera("Camera", cameraTransform);
-		scene.addCamera(camera);
+		cameraTransform.worldRotate(Fixed.toFixed(-45), 0, 0);
+		
+		final SceneObject cameraObject = new SceneObject("Camera");
+		scene.addSceneObject(cameraObject);
+		
+		cameraObject.addComponent(cameraTransform);
+		
+		final Camera camera = new Camera();
+		camera.setMain(true);
+		cameraObject.addComponent(camera);
 	}
 	
 	private void createLight() {
 		lightTransform = new Transform();
-		lightTransform.worldRotate(-60 << FP_BIT, 25 << FP_BIT, 0);
-		final Light directionalLight = new Light("DirectionalLight", lightTransform);
-		scene.addLight(directionalLight);
+		lightTransform.worldRotate(Fixed.toFixed(-60), Fixed.toFixed(25), 0);
+		
+		final SceneObject lightObject = new SceneObject("DirectionalLight");
+		scene.addSceneObject(lightObject);
+		
+		lightObject.addComponent(lightTransform);
+		
+		final Light directionalLight = new Light();
+		directionalLight.setMain(true);
+		lightObject.addComponent(directionalLight);
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
@@ -195,13 +217,13 @@ public class SpaceshipGame implements EngineListener {
 		else if(inputEngine.isKeyPressed(KeyEvent.VK_D)) {
 			spaceshipTransform.setRotation(0, -90 << FP_BIT, 0);
 		}
-		spaceshipTransform.localTranslate(0, 0, -FixedPointUtils.multiply(FP_HALF, deltaTime));
+		spaceshipTransform.localTranslate(0, 0, -Fixed.multiply(FP_HALF, deltaTime));
 	}
 
 	
 	private void moveFireToSpaceship() {		
 		spaceshipFireTransform.setLocation(0, 0, 4 << FP_BIT);
-		VectorUtils.multiply(spaceshipFireTransform.getLocation(), spaceshipTransform.getSpaceExitMatrix());
+		Vector.multiply(spaceshipFireTransform.getLocation(), spaceshipTransform.getSpaceExitMatrix());
 		
 		final int[] spaceshipRotation = spaceshipTransform.getRotation();
 		spaceshipFireTransform.setRotation(spaceshipRotation[VECTOR_X], spaceshipRotation[VECTOR_Y], spaceshipRotation[VECTOR_Z]);
@@ -216,9 +238,5 @@ public class SpaceshipGame implements EngineListener {
 	private void moveLightToCamera() {
 		final int[] cameraLocation = cameraTransform.getLocation();
 		lightTransform.setLocation(cameraLocation[VECTOR_X], cameraLocation[VECTOR_Y], cameraLocation[VECTOR_Z]);
-	}
-
-	public int getLayer() {
-		return DEFAULT_LAYER;
 	}
 }

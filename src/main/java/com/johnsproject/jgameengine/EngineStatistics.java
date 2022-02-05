@@ -1,13 +1,15 @@
 package com.johnsproject.jgameengine;
 
 import java.awt.Color;
+import java.awt.Frame;
 import java.awt.TextArea;
 import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.model.FrameBuffer;
-import com.johnsproject.jgameengine.model.Model;
+import com.johnsproject.jgameengine.graphics.FrameBuffer;
+import com.johnsproject.jgameengine.graphics.GraphicsEngine;
+import com.johnsproject.jgameengine.graphics.Model;
 
 public class EngineStatistics implements EngineListener {
 
@@ -24,7 +26,7 @@ public class EngineStatistics implements EngineListener {
 	private long averageUpdates;
 	private long loops;
 	
-	public EngineStatistics(EngineWindow window) {
+	public EngineStatistics(Frame window) {
 		this.textArea = new TextArea("", 0, 0, TextArea.SCROLLBARS_NONE);
 		window.add(textArea);
 	}
@@ -34,19 +36,6 @@ public class EngineStatistics implements EngineListener {
 		textArea.setSize(STATISTICS_WIDTH, STATISTICS_HEIGHT);
 		textArea.setEditable(false);
 		textArea.setBackground(STATISTICS_BACKROUND);
-		graphicsEngine = getGraphicsEngine();
-	}
-	
-	private GraphicsEngine getGraphicsEngine() {
-		GraphicsEngine graphicsEngine = null;
-		final List<EngineListener> engineListeners = Engine.getInstance().getEngineListeners(); 
-		for (int i = 0; i < engineListeners.size(); i++) {
-			final EngineListener engineListener = engineListeners.get(i);
-			if(engineListener instanceof GraphicsEngine) {
-				graphicsEngine = (GraphicsEngine) engineListener;
-			}
-		}
-		return graphicsEngine;				
 	}
 	
 	public void fixedUpdate(EngineEvent e) {
@@ -55,20 +44,15 @@ public class EngineStatistics implements EngineListener {
 	}
 
 	public void dynamicUpdate(EngineEvent e) { }
-
-	public int getLayer() {
-		return GRAPHICS_ENGINE_LAYER - 1;
-	}
 	
 	private String getOutput(EngineEvent e) {
-		final List<Model> models = e.getScene().getModels();		
+		final List<SceneObject> models = e.getScene().getSceneObjects();		
 		
 		String output = "== ENGINE STATISTICS ==\n";
 		output += getRAMUsage();
 		output += getCPUTime(e.getElapsedUpdateTime() + 1);
 		output += getFrameBufferSize();
-		output += getVertexCount(models);
-		output += getTriangleCount(models);
+		output += getVertexAndTriangleCount(models);
 		return output;
 	}
 	
@@ -94,23 +78,36 @@ public class EngineStatistics implements EngineListener {
 	}
 	
 	private String getFrameBufferSize() {
+		if(graphicsEngine == null) {
+			graphicsEngine = getGraphicsEngine();
+		}
 		final FrameBuffer frameBuffer = graphicsEngine.getFrameBuffer();
 		return "Framebuffer\t" + frameBuffer.getWidth() + "x" + frameBuffer.getHeight() + "\n";
 	}
 	
-	private String getVertexCount(List<Model> models) {
-		int vertexCount = 0;
-		for (int i = 0; i < models.size(); i++)
-			vertexCount += models.get(i).getMesh().getVertices().length;
-
-		return "Vertices\t\t" + vertexCount + "\n";
+	private GraphicsEngine getGraphicsEngine() {
+		GraphicsEngine graphicsEngine = null;
+		final List<EngineListener> engineListeners = Engine.getInstance().getEngineListeners(); 
+		for (int i = 0; i < engineListeners.size(); i++) {
+			final EngineListener engineListener = engineListeners.get(i);
+			if(engineListener instanceof GraphicsEngine) {
+				graphicsEngine = (GraphicsEngine) engineListener;
+			}
+		}
+		return graphicsEngine;				
 	}
 	
-	private String getTriangleCount(List<Model> models) {
+	private String getVertexAndTriangleCount(List<SceneObject> sceneObjects) {
+		int vertexCount = 0;
 		int triangleCount = 0;
-		for (int i = 0; i < models.size(); i++)
-			triangleCount += models.get(i).getMesh().getFaces().length;
-		
-		return "Triangles\t" + triangleCount + "\n";
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			Model model = sceneObjects.get(i).getComponentWithType(Model.class);
+			if(model != null) {
+				vertexCount += model.getMesh().getVertices().length;
+				triangleCount += model.getMesh().getFaces().length;
+			}
+		}
+		return "Vertices\t\t" + vertexCount + "\n" + 
+				"Triangles\t" + triangleCount + "\n";
 	}
 }

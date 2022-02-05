@@ -5,8 +5,7 @@ import java.util.List;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
 import com.johnsproject.jgameengine.event.EngineListener;
-import com.johnsproject.jgameengine.model.Scene;
-import com.johnsproject.jgameengine.util.FixedPointUtils;
+import com.johnsproject.jgameengine.math.Fixed;
 
 public final class Engine {
 
@@ -65,7 +64,7 @@ public final class Engine {
 				updateTime = 1000 / updateRate;
 				loops = 0;
 				callFixedUpdate();
-				callDynamicUpdate(loops << FixedPointUtils.FP_BIT);
+				callDynamicUpdate(loops << Fixed.FP_BIT);
 				limitUpdateRateSleep(updateTime - elapsedTime);
 			} else {
 				sleep();
@@ -118,12 +117,10 @@ public final class Engine {
 	public void addEngineListener(EngineListener listener) {
 		listener.initialize(new EngineEvent(scene, 0, 0, 0));
 		engineListeners.add(listener);
-		sortListeners();
 	}
 
 	public void removeEngineListener(EngineListener listener) {
 		engineListeners.remove(listener);
-		sortListeners();
 	}
 	
 	public List<EngineListener> getEngineListeners() {
@@ -160,20 +157,5 @@ public final class Engine {
 
 	public void setScene(Scene scene) {
 		this.scene = scene;
-	}
-
-	private void sortListeners() {
-		final int listenerCount = engineListeners.size();
-		for (int i = 0; i < listenerCount; i++) {
-			int min_i = i;
-			for (int j = i + 1; j < listenerCount; j++) {
-				if (engineListeners.get(j).getLayer() < engineListeners.get(min_i).getLayer()) {
-					min_i = j;
-				}
-			}
-			EngineListener temp = engineListeners.get(min_i);
-			engineListeners.set(min_i, engineListeners.get(i));
-			engineListeners.set(i, temp);
-		}
 	}
 }

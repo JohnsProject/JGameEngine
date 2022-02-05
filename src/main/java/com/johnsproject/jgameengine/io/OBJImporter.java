@@ -5,16 +5,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.johnsproject.jgameengine.model.Face;
-import com.johnsproject.jgameengine.model.Material;
-import com.johnsproject.jgameengine.model.Mesh;
-import com.johnsproject.jgameengine.model.Model;
-import com.johnsproject.jgameengine.model.Transform;
-import com.johnsproject.jgameengine.model.Vertex;
-import com.johnsproject.jgameengine.util.ColorUtils;
-import com.johnsproject.jgameengine.util.FileUtils;
-import com.johnsproject.jgameengine.util.FixedPointUtils;
-import com.johnsproject.jgameengine.util.VectorUtils;
+import com.johnsproject.jgameengine.SceneObject;
+import com.johnsproject.jgameengine.graphics.Color;
+import com.johnsproject.jgameengine.graphics.Face;
+import com.johnsproject.jgameengine.graphics.Material;
+import com.johnsproject.jgameengine.graphics.Mesh;
+import com.johnsproject.jgameengine.graphics.Model;
+import com.johnsproject.jgameengine.graphics.Vertex;
+import com.johnsproject.jgameengine.math.Fixed;
+import com.johnsproject.jgameengine.math.Vector;
 
 public final class OBJImporter {
 
@@ -81,11 +80,11 @@ public final class OBJImporter {
 	 * @throws IOException If the file does not exist, is a directory rather than a regular file,
 	 * or for some other reason cannot be opened for reading.
 	 */
-	public static Model parseResource(ClassLoader classLoader, String path) throws IOException {
+	public static SceneObject parseResource(ClassLoader classLoader, String path) throws IOException {
 		final InputStream materialStream = classLoader.getResourceAsStream(path.replace(OBJECT_FILE, MATERIAL_FILE));
 		final InputStream objectStream = classLoader.getResourceAsStream(path);
-		final String materialData = FileUtils.readStream(materialStream);
-		final String objectData = FileUtils.readStream(objectStream);
+		final String materialData = FileUtil.readStream(materialStream);
+		final String objectData = FileUtil.readStream(objectStream);
 		return createModel(path, parseMesh(objectData, materialData));
 	}
 	
@@ -97,16 +96,19 @@ public final class OBJImporter {
 	 * @throws IOException If the file does not exist, is a directory rather than a regular file,
 	 * or for some other reason cannot be opened for reading.
 	 */
-	public static Model parse(String path) throws IOException {
-		final String materialData = FileUtils.readFile(path.replace(OBJECT_FILE, MATERIAL_FILE));
-		final String objectData = FileUtils.readFile(path);
+	public static SceneObject parse(String path) throws IOException {
+		final String materialData = FileUtil.readFile(path.replace(OBJECT_FILE, MATERIAL_FILE));
+		final String objectData = FileUtil.readFile(path);
 		return createModel(path, parseMesh(objectData, materialData));
 	}
 	
-	private static Model createModel(String path, Mesh mesh) {
+	private static SceneObject createModel(String path, Mesh mesh) {
 		final String[] modelNameData = path.split("/");
 		final String modelName = modelNameData[modelNameData.length - 1].replace(OBJECT_FILE, "");
-		return new Model(modelName, new Transform(), mesh);
+		
+		final SceneObject sceneObject = new SceneObject(modelName);
+		sceneObject.addComponent(new Model(mesh));
+		return sceneObject;
 	}
 	
 	static Mesh parseMesh(String objectData, String materialData) {
@@ -145,7 +147,7 @@ public final class OBJImporter {
 	
 	private static boolean parseMaterial(String[] lineData, Material material) {
 		if(lineData[0].equals(KEYWORD_MATERIAL_SHININESS)) {
-			material.setShininess(FixedPointUtils.toFixedPoint(lineData[1]));
+			material.setShininess(Fixed.toFixed(lineData[1]));
 		} 
 		else if(lineData[0].equals(KEYWORD_MATERIAL_DIFFUSE)) {
 			material.setDiffuseColor(parseColor(lineData));
@@ -254,20 +256,20 @@ public final class OBJImporter {
 	}
 	
 	private static int parseColor(String[] lineData) {
-		final int r = Math.round(Float.parseFloat(lineData[1]) * ColorUtils.COLOR_ONE);
-		final int g = Math.round(Float.parseFloat(lineData[2]) * ColorUtils.COLOR_ONE);
-		final int b = Math.round(Float.parseFloat(lineData[3]) * ColorUtils.COLOR_ONE);
-		return ColorUtils.toColor(r, g, b);
+		final int r = Math.round(Float.parseFloat(lineData[1]) * Color.COLOR_ONE);
+		final int g = Math.round(Float.parseFloat(lineData[2]) * Color.COLOR_ONE);
+		final int b = Math.round(Float.parseFloat(lineData[3]) * Color.COLOR_ONE);
+		return Color.toColor(r, g, b);
 	}
 	
 	private static int[] parseVector(String[] lineData) {
-		final int x = FixedPointUtils.toFixedPoint(lineData[1]);
-		final int y = FixedPointUtils.toFixedPoint(lineData[2]);
+		final int x = Fixed.toFixed(lineData[1]);
+		final int y = Fixed.toFixed(lineData[2]);
 		if(lineData.length == 3) {
-			return VectorUtils.toVector(x, y);
+			return Vector.toVector(x, y);
 		}
-		final int z = FixedPointUtils.toFixedPoint(lineData[3]);
-		return VectorUtils.toVector(x, y, z);
+		final int z = Fixed.toFixed(lineData[3]);
+		return Vector.toVector(x, y, z);
 	}
 	
 	private static Vertex[] createVertices(List<VertexData> verticesData, List<FaceData> faces, Material[] materials) {
@@ -298,11 +300,11 @@ public final class OBJImporter {
 			vertices[1] = faceVertices[faceData.vertexIndices[1]];
 			vertices[2] = faceVertices[faceData.vertexIndices[2]];
 			// clone the array so the object has no references and gets garbage collected
-			int[] normal = VectorUtils.emptyVector();
+			int[] normal = Vector.emptyVector();
 			if(faceData.normalIndices[0] >= 0) {
 				normal = faceNormals.get(faceData.normalIndices[0]).normal.clone();
 			}
-			final int[][] uvs = new int[3][VectorUtils.VECTOR_SIZE];
+			final int[][] uvs = new int[3][Vector.VECTOR_SIZE];
 			if(faceData.uvIndices[0] >= 0) {
 				uvs[0] = faceUVs.get(faceData.uvIndices[0]).uv.clone();
 			}

@@ -1,7 +1,7 @@
 package com.johnsproject.jgameengine;
 
-import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_BIT;
-import static com.johnsproject.jgameengine.util.FixedPointUtils.FP_ONE;
+import static com.johnsproject.jgameengine.math.Fixed.FP_BIT;
+import static com.johnsproject.jgameengine.math.Fixed.FP_ONE;
 
 import java.awt.Button;
 import java.awt.Checkbox;
@@ -19,28 +19,30 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import com.johnsproject.jgameengine.event.EngineEvent;
-import com.johnsproject.jgameengine.event.EngineKeyListener;
 import com.johnsproject.jgameengine.event.EngineListener;
+import com.johnsproject.jgameengine.graphics.Camera;
+import com.johnsproject.jgameengine.graphics.FrameBufferWindow;
+import com.johnsproject.jgameengine.graphics.FrameBuffer;
+import com.johnsproject.jgameengine.graphics.GraphicsEngine;
+import com.johnsproject.jgameengine.graphics.Light;
+import com.johnsproject.jgameengine.graphics.LightType;
+import com.johnsproject.jgameengine.graphics.Model;
+import com.johnsproject.jgameengine.graphics.Texture;
+import com.johnsproject.jgameengine.graphics.shading.BasicShader;
+import com.johnsproject.jgameengine.graphics.shading.BasicThreadedShader;
+import com.johnsproject.jgameengine.graphics.shading.DirectionalLightShadowShader;
+import com.johnsproject.jgameengine.graphics.shading.FlatShader;
+import com.johnsproject.jgameengine.graphics.shading.ForwardShaderBuffer;
+import com.johnsproject.jgameengine.graphics.shading.GouraudShader;
+import com.johnsproject.jgameengine.graphics.shading.PhongShader;
+import com.johnsproject.jgameengine.graphics.shading.Shader;
+import com.johnsproject.jgameengine.graphics.shading.SpotLightShadowShader;
+import com.johnsproject.jgameengine.io.FileUtil;
+import com.johnsproject.jgameengine.io.InputEngine;
 import com.johnsproject.jgameengine.io.OBJImporter;
-import com.johnsproject.jgameengine.model.Camera;
-import com.johnsproject.jgameengine.model.FrameBuffer;
-import com.johnsproject.jgameengine.model.Light;
-import com.johnsproject.jgameengine.model.LightType;
-import com.johnsproject.jgameengine.model.Model;
-import com.johnsproject.jgameengine.model.Scene;
-import com.johnsproject.jgameengine.model.Texture;
-import com.johnsproject.jgameengine.model.Transform;
-import com.johnsproject.jgameengine.shading.BasicShader;
-import com.johnsproject.jgameengine.shading.BasicThreadedShader;
-import com.johnsproject.jgameengine.shading.DirectionalLightShadowShader;
-import com.johnsproject.jgameengine.shading.FlatShader;
-import com.johnsproject.jgameengine.shading.ForwardShaderBuffer;
-import com.johnsproject.jgameengine.shading.GouraudShader;
-import com.johnsproject.jgameengine.shading.PhongShader;
-import com.johnsproject.jgameengine.shading.Shader;
-import com.johnsproject.jgameengine.shading.SpotLightShadowShader;
-import com.johnsproject.jgameengine.util.FileUtils;
-import com.johnsproject.jgameengine.util.VectorUtils;
+import com.johnsproject.jgameengine.io.event.EngineKeyListener;
+import com.johnsproject.jgameengine.math.Transform;
+import com.johnsproject.jgameengine.math.Vector;
 
 @SuppressWarnings("unused")
 public class ModelViewer implements EngineListener, EngineKeyListener {
@@ -67,7 +69,7 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 	private static final int CAMERA_TRANSLATION_SPEED = FP_ONE / 10;
 	
 	private final FrameBuffer frameBuffer;
-	private final EngineWindow window;
+	private final FrameBufferWindow window;
 	private final GraphicsEngine graphicsEngine;
 	private final InputEngine inputEngine = new InputEngine();
 	private final EngineStatistics engineStats;
@@ -109,26 +111,31 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 	
 	ModelViewer(int width, int height, int scaling) {		
 		frameBuffer = new FrameBuffer((width * scaling) / 100, (height * scaling) / 100);
-		window = new EngineWindow(frameBuffer);
+		window = new FrameBufferWindow(frameBuffer);
 		graphicsEngine = new GraphicsEngine(frameBuffer);
 		engineStats = new EngineStatistics(window);
 		window.setSize(width, height);
 		
 		scene = loadScene();
-		Engine.getInstance().addEngineListener(this);
-		Engine.getInstance().addEngineListener(graphicsEngine);
 		Engine.getInstance().addEngineListener(inputEngine);
-		Engine.getInstance().addEngineListener(window);
 		if(SHOW_ENGINE_STATISTICS) {
 			Engine.getInstance().addEngineListener(engineStats);
 		}
+		if(SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP || SHOW_SPOT_LIGHT_SHADOW_MAP) {
+			Engine.getInstance().addEngineListener(graphicsEngine);
+			Engine.getInstance().addEngineListener(this);
+		} else {
+			Engine.getInstance().addEngineListener(this);
+			Engine.getInstance().addEngineListener(graphicsEngine);
+		}
+		Engine.getInstance().addEngineListener(window);
 		Engine.getInstance().start();	
 	}
 	
 	public void initialize(EngineEvent e) {
 		inputEngine.addEngineKeyListener(this);
 		Engine.getInstance().setScene(scene);
-		cameraTranslation = VectorUtils.emptyVector();
+		cameraTranslation = Vector.emptyVector();
 		cameraTranslationSpeed = CAMERA_TRANSLATION_SPEED;
 		
 		initializeShaders();	
@@ -261,9 +268,9 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 				if ((directory != null) && (file != null)) {
 					try {
 						final String path = directory + file;
-						scene.getModels().clear();
-						model = OBJImporter.parse(path);
-						scene.addModel(model);
+						scene.removeSceneObject(model.getOwner());
+						final SceneObject modelObject = OBJImporter.parse(path);
+						scene.addSceneObject(modelObject);
 						System.gc();
 					} catch (IOException e1) {
 						e1.printStackTrace();
@@ -290,41 +297,62 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 	}
 	
 	private void loadModel(Scene scene) throws IOException {
-		final Texture texture = new Texture(FileUtils.loadImage(this.getClass().getResourceAsStream("/JohnsProjectLogo.png")));
-		model = OBJImporter.parseResource(this.getClass().getClassLoader(), "DefaultTest.obj");
+		final Texture texture = new Texture(FileUtil.loadImage(this.getClass().getResourceAsStream("/JohnsProjectLogo.png")));
+		
+		final SceneObject modelObject = OBJImporter.parseResource(this.getClass().getClassLoader(), "DefaultTest.obj");
+		scene.addSceneObject(modelObject);
+		
+		model = modelObject.getComponentWithType(Model.class);		
 		model.getMesh().getMaterial("Material.006").setTexture(texture);
-		scene.addModel(model);
 	}
 	
 	private void createCamera(Scene scene) {
-		camera = new Camera("Camera", new Transform());
+		final SceneObject cameraObject = new SceneObject("Camera");
+		scene.addSceneObject(cameraObject);
+		
+		camera = new Camera();
+		cameraObject.addComponent(camera);
+		
+		camera.setMain(true);
 		camera.getTransform().worldTranslate(0, FP_ONE * 10, FP_ONE * 15);
 		camera.getTransform().worldRotate(FP_ONE * -35, 0, 0);
-		scene.addCamera(camera);
+		
 		cameraTransform = camera.getTransform();
 	}
 	
 	private void createDirectionalLight(Scene scene) {
-		directionalLight = new Light("DirectionalLight", new Transform());
+		final SceneObject lightObject = new SceneObject("DirectionalLight");
+		scene.addSceneObject(lightObject);
+		
+		directionalLight = new Light();
+		lightObject.addComponent(directionalLight);
+		
+		directionalLight.setMain(true);
 		directionalLight.getTransform().worldRotate(FP_ONE * -90, 0, 0);
-		scene.addLight(directionalLight);
-		scene.setMainDirectionalLight(directionalLight);
 	}
 	
 	private void createSpotLight(Scene scene) {
-		spotLight = new Light("SpotLight", new Transform());
+		final SceneObject lightObject = new SceneObject("SpotLight");
+		scene.addSceneObject(lightObject);
+		
+		spotLight = new Light();
+		lightObject.addComponent(spotLight);
+		
 		spotLight.getTransform().worldTranslate(0, FP_ONE, FP_ONE * 8);
 		spotLight.setType(LightType.SPOT);
 		spotLight.setSpotSize(FP_ONE * 90);
 		spotLight.setInnerSpotSize(FP_ONE * 80);
-		scene.addLight(spotLight);
 	}
 	
 	private void createPointLight(Scene scene) {
-		pointLight = new Light("PointLight", new Transform());
+		final SceneObject lightObject = new SceneObject("PointLight");
+		scene.addSceneObject(lightObject);
+		
+		pointLight = new Light();
+		lightObject.addComponent(pointLight);
+		
 		pointLight.getTransform().worldTranslate(-FP_ONE * 2, 0, 0);
 		pointLight.setType(LightType.POINT);
-		scene.addLight(pointLight);
 	}
 
 	public void dynamicUpdate(EngineEvent e) {		
@@ -340,7 +368,7 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 			for (int y = 0; y < shadowMap.getHeight(); y++) {
 				for (int x = 0; x < shadowMap.getWidth(); x++) {
 					int depth = shadowMap.getPixel(x, y) >> 9;
-					int color = com.johnsproject.jgameengine.util.ColorUtils.toColor(depth, depth, depth);
+					int color = com.johnsproject.jgameengine.graphics.Color.toColor(depth, depth, depth);
 					if(shaderBuffer.getCamera() != null)
 						shaderBuffer.getCamera().getRenderTarget().getColorBuffer().setPixel(x, y, color);		
 				}
@@ -349,13 +377,6 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 	}
 	
 	public void fixedUpdate(EngineEvent e) { }
-
-	public int getLayer() {
-		if(SHOW_DIRECTIONAL_LIGHT_SHADOW_MAP || SHOW_SPOT_LIGHT_SHADOW_MAP) {
-			return GRAPHICS_ENGINE_LAYER + 1;
-		}
-		return DEFAULT_LAYER;
-	}
 
 	public void keyTyped(KeyEvent e) {
 		
@@ -380,27 +401,27 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 	}
 	
 	public void keyHold(KeyEvent e) {
-		VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_ZERO);
+		Vector.copy(cameraTranslation, Vector.VECTOR_ZERO);
 		if(e.getKeyCode() == KeyEvent.VK_W) {
-			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_FORWARD);
+			Vector.copy(cameraTranslation, Vector.VECTOR_FORWARD);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_A) {
-			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_LEFT);
+			Vector.copy(cameraTranslation, Vector.VECTOR_LEFT);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_D) {
-			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_RIGHT);
+			Vector.copy(cameraTranslation, Vector.VECTOR_RIGHT);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_S) {
-			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_BACK);
+			Vector.copy(cameraTranslation, Vector.VECTOR_BACK);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_E) {
-			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_UP);
+			Vector.copy(cameraTranslation, Vector.VECTOR_UP);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_Y) {
-			VectorUtils.copy(cameraTranslation, VectorUtils.VECTOR_DOWN);
+			Vector.copy(cameraTranslation, Vector.VECTOR_DOWN);
 		}
-		if(!VectorUtils.equals(cameraTranslation, VectorUtils.VECTOR_ZERO)) {
-			VectorUtils.multiply(cameraTranslation, cameraTranslationSpeed);
+		if(!Vector.equals(cameraTranslation, Vector.VECTOR_ZERO)) {
+			Vector.multiply(cameraTranslation, cameraTranslationSpeed);
 			cameraTransform.localTranslate(cameraTranslation);
 		}
 		if(e.getKeyCode() == KeyEvent.VK_R) {
