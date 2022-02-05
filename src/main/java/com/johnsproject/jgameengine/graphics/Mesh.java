@@ -1,7 +1,12 @@
 package com.johnsproject.jgameengine.graphics;
 
+import com.johnsproject.jgameengine.math.Point;
+import com.johnsproject.jgameengine.math.Shape;
+import com.johnsproject.jgameengine.math.Triangle;
+
 public class Mesh {
 
+	private final Shape shape;
 	private final Vertex[] vertices;
 	private final Face[] faces;
 	private final Material[] materials;
@@ -10,8 +15,22 @@ public class Mesh {
 		this.vertices = vertices;
 		this.faces = faces;
 		this.materials = materials;
+		
+		final Point[] points = new Point[vertices.length];
+		for (int i = 0; i < points.length; i++)
+			points[i] = vertices[i].getPoint();
+		
+		final Triangle[] triangles = new Triangle[faces.length];
+		for (int i = 0; i < triangles.length; i++)
+			triangles[i] = faces[i].getTriangle();
+		
+		this.shape = new Shape(points, triangles);
 	}
 
+	public Shape getShape() {
+		return shape;
+	}
+	
 	public Vertex[] getVertices(){
 		return vertices;
 	}
@@ -45,5 +64,4 @@ public class Mesh {
 		}
 		return materials[0];
 	}	
-	
 }

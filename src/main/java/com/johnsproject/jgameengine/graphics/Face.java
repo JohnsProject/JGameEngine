@@ -1,8 +1,12 @@
 package com.johnsproject.jgameengine.graphics;
 
+import com.johnsproject.jgameengine.math.Point;
+import com.johnsproject.jgameengine.math.Triangle;
+
 public class Face {
 		
 	private final int index;
+	private final Triangle triangle;
 	private final Vertex[] vertices;
 	private final int[] localNormal;
 	private final int[] worldNormal;
@@ -11,8 +15,18 @@ public class Face {
 	private int lightColor;
 	
 	public Face(int index, Vertex[] vertices, int[] normal, int[][] uvs, Material material) {
+		this(index,
+				vertices, 
+				new Triangle(new Point[] {vertices[0].getPoint(), vertices[1].getPoint(), vertices[2].getPoint()}),
+				normal,
+				uvs,
+				material);
+	}
+	
+	public Face(int index, Vertex[] vertices, Triangle triangle, int[] normal, int[][] uvs, Material material) {
 		this.index = index;
 		this.vertices = vertices;
+		this.triangle = triangle;
 		this.localNormal = normal;
 		this.worldNormal = normal.clone();
 		this.uvs = uvs;
@@ -21,6 +35,10 @@ public class Face {
 
 	public int getIndex() {
 		return index;
+	}
+
+	public Triangle getTriangle() {
+		return triangle;
 	}
 
 	public Vertex getVertex(int index) {

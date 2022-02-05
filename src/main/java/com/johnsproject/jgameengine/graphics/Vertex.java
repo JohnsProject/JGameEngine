@@ -1,11 +1,12 @@
 package com.johnsproject.jgameengine.graphics;
 
+import com.johnsproject.jgameengine.math.Point;
 import com.johnsproject.jgameengine.math.Vector;
 
 public class Vertex {
 	
 	private final int index;
-	private final int[] localLocation;
+	private final Point point;
 	private final int[] worldLocation;
 	private final int[] worldNormal;
 	private final int[] location;
@@ -13,8 +14,12 @@ public class Vertex {
 	private int lightColor;
 	
 	public Vertex(int index, int[] location, Material material) {
+		this(index, new Point(location), material);
+	}
+	
+	public Vertex(int index, Point point, Material material) {
 		this.index = index;
-		this.localLocation = location;
+		this.point = point;
 		this.worldLocation = Vector.emptyVector();
 		this.worldNormal = Vector.emptyVector();
 		this.location = Vector.emptyVector();
@@ -25,8 +30,12 @@ public class Vertex {
 		return index;
 	}
 	
+	public Point getPoint() {
+		return point;
+	}
+	
 	public int[] getLocalLocation() {
-		return localLocation;
+		return point.getLocation();
 	}
 
 	public int[] getWorldLocation() {
