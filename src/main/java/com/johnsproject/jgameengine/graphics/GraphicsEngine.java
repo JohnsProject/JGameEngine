@@ -25,6 +25,10 @@ public class GraphicsEngine implements EngineListener {
 	private final int[]	normalVector;
 	private final int[] multiplyVector;
 	
+	private final List<Camera> cameras = new ArrayList<Camera>();
+	private final List<Light> lights = new ArrayList<Light>();
+	private final List<Model> models = new ArrayList<Model>();
+	
 	public GraphicsEngine(FrameBuffer frameBuffer) {
 		this.shaderBuffer = new ForwardShaderBuffer();
 		this.shaders = new ArrayList<Shader>();
@@ -42,8 +46,11 @@ public class GraphicsEngine implements EngineListener {
 	
 	public void fixedUpdate(EngineEvent e) { 
 		Scene scene = e.getScene();
-		for (int i = 0; i < scene.getModels().size(); i++) {
-			Model model = scene.getModels().get(i);
+		
+		scene.getSceneObjectsWithComponent(Model.class, models);
+		
+		for (int i = 0; i < models.size(); i++) {
+			Model model = models.get(i);
 			final Armature armature = model.getArmature();
 			if(armature != null) {
 				armature.nextFrame();
@@ -56,13 +63,17 @@ public class GraphicsEngine implements EngineListener {
 		frameBuffer.getColorBuffer().fill(0);
 		frameBuffer.getDepthBuffer().fill(Integer.MAX_VALUE);
 		frameBuffer.getStencilBuffer().fill(0);
+
+		scene.getSceneObjectsWithComponent(Camera.class, cameras);
+		scene.getSceneObjectsWithComponent(Light.class, lights);
+		
 		localToWorldSpace(scene);
 		renderForEachCamera(scene);
 	}
 	
 	private void localToWorldSpace(Scene scene) {
-		for (int i = 0; i < scene.getModels().size(); i++) {
-			Model model = scene.getModels().get(i);
+		for (int i = 0; i < models.size(); i++) {
+			Model model = models.get(i);
 			if(!model.isActive())
 				continue;
 			final Mesh mesh = model.getMesh();
@@ -128,12 +139,12 @@ public class GraphicsEngine implements EngineListener {
 	}
 	
 	private void renderForEachCamera(Scene scene) {
-		for (int c = 0; c < scene.getCameras().size(); c++) {
-			Camera camera = scene.getCameras().get(c);
+		for (int c = 0; c < cameras.size(); c++) {
+			Camera camera = cameras.get(c);
 			if(!camera.isActive())
 				continue;
 			camera.setRenderTarget(frameBuffer);
-			shaderBuffer.initialize(camera, scene.getLights());
+			shaderBuffer.initialize(camera, lights);
 			renderModels(scene);
 		}
 	}
@@ -142,8 +153,8 @@ public class GraphicsEngine implements EngineListener {
 		for (int s = 0; s < shaders.size(); s++) {
 			Shader shader = shaders.get(s);
 			shader.initialize(shaderBuffer);
-			for (int m = 0; m < scene.getModels().size(); m++) {
-				Model model = scene.getModels().get(m);
+			for (int m = 0; m < models.size(); m++) {
+				Model model = models.get(m);
 				if(!model.isActive() || model.isCulled())
 					continue;
 				final Mesh mesh = model.getMesh();

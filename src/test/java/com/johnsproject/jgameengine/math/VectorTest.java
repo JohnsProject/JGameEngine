@@ -2,10 +2,6 @@ package com.johnsproject.jgameengine.math;
 
 import org.junit.Test;
 
-import com.johnsproject.jgameengine.math.Fixed;
-import com.johnsproject.jgameengine.math.Matrix;
-import com.johnsproject.jgameengine.math.Vector;
-
 public class VectorTest {
 
 	@Test

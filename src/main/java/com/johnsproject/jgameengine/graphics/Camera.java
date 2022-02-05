@@ -2,32 +2,40 @@ package com.johnsproject.jgameengine.graphics;
 
 import static com.johnsproject.jgameengine.math.Fixed.FP_ONE;
 
-import com.johnsproject.jgameengine.SceneObject;
+import com.johnsproject.jgameengine.SceneObjectComponent;
 import com.johnsproject.jgameengine.math.Frustum;
 import com.johnsproject.jgameengine.math.Transform;
 
-public class Camera extends SceneObject {
-
-	public static final String CAMERA_TAG = "Camera";
+public class Camera extends SceneObjectComponent {
 	
 	private Frustum frustum;
 	private FrameBuffer renderTarget;
 	private int lightDistance;
 	private boolean isMain;
+	private Transform transform;
 
-	public Camera(String name, Transform transform) {
-		super(name, transform);
-		super.tag = CAMERA_TAG;
-		super.rigidBody.setKinematic(true);
+	public Camera() {
 		this.renderTarget = null;
 		this.frustum = new Frustum(0, FP_ONE, 0, FP_ONE, FP_ONE, FP_ONE * 1000);
 		this.lightDistance = FP_ONE * 100;
 		this.isMain = false;
 	}
 	
-	public Camera(String name, Transform transform, Frustum frustum) {
-		this(name, transform);
+	public Camera(Frustum frustum) {
+		this();
 		this.frustum = frustum;
+	}
+	
+	public Transform getTransform() {
+		if(transform == null)
+			transform = owner.getComponentWithType(Transform.class);
+
+		if(transform == null) {
+			transform = new Transform();
+			owner.addComponent(transform);
+		}
+		
+		return transform;
 	}
 	
 	public Frustum getFrustum() {

@@ -6,7 +6,9 @@ import static com.johnsproject.jgameengine.math.Vector.VECTOR_X;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_Y;
 import static com.johnsproject.jgameengine.math.Vector.VECTOR_Z;
 
-public class Transform {
+import com.johnsproject.jgameengine.SceneObjectComponent;
+
+public class Transform extends SceneObjectComponent {
 	
 	private final int[] location;
 	private final int[] rotation;

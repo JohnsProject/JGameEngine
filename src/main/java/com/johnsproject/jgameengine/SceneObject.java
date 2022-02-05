@@ -1,44 +1,30 @@
 package com.johnsproject.jgameengine;
 
-import com.johnsproject.jgameengine.math.Transform;
-import com.johnsproject.jgameengine.physics.RigidBody;
+import java.util.HashMap;
+import java.util.Map;
 
-public class SceneObject {
+public final class SceneObject {
 	
-	protected String tag;
-	protected boolean active;
-	protected boolean culled;
-	protected final String name;
-	protected final Transform transform;
-	protected final RigidBody rigidBody;
+	private String tag = "";
+	private boolean isActive = true;
+	private boolean culled = false;
+	private final String name;
+	private final Map<Class<?>, SceneObjectComponent> components = new HashMap<Class<?>, SceneObjectComponent>();
 	
-	public SceneObject(String name, Transform transform) {
-		this.tag = "";
+	public SceneObject(String name) {
 		this.name = name;
-		this.transform = transform;
-		this.active = true;
-		this.culled = false;
-		this.rigidBody = new RigidBody();
-	}
-
-	public Transform getTransform() {
-		return this.transform;
 	}
 
 	public String getName() {
 		return name;
 	}
-	
-	public RigidBody getRigidBody() {
-		return rigidBody;
-	}
 
 	public boolean isActive() {
-		return active;
+		return isActive;
 	}
 
 	public void setActive(boolean active) {
-		this.active = active;
+		this.isActive = active;
 	}
 
 	public String getTag() {
@@ -55,5 +41,24 @@ public class SceneObject {
 
 	public void setCulled(boolean culled) {
 		this.culled = culled;
+	}
+	
+	public void addComponent(SceneObjectComponent component) {
+		this.components.put(component.getClass(), component);
+		component.setOwner(this);
+	}
+	
+	public void removeComponent(SceneObjectComponent component) {
+		removeComponentWithType(component.getClass());
+	}
+	
+	public <T extends SceneObjectComponent> void removeComponentWithType(Class<T> type) {
+		SceneObjectComponent component = this.components.remove(type);
+		component.setOwner(null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends SceneObjectComponent> T getComponentWithType(Class<T> type) {
+		return (T)components.get(type);
 	}
 }

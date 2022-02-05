@@ -26,17 +26,18 @@ public final class PhysicsEngine implements EngineListener {
 		final Scene scene = e.getScene();
 		for (int i = 0; i < scene.getSceneObjects().size(); i++) {
 			final SceneObject sceneObject = scene.getSceneObjects().get(i);
-			if(!sceneObject.isActive()) 
-				return;
-
-			final RigidBody rigidBody = sceneObject.getRigidBody();
-			final Transform transform = sceneObject.getTransform();
-			final int deltaTime = e.getDeltaTime() / 10;
-			applyForces(rigidBody);
-			applyLinearAcceleration(rigidBody, deltaTime);
-			applyLinearVelocity(transform, rigidBody, deltaTime);
-			applyAngularAcceleration(rigidBody, deltaTime);
-			applyAngularVelocity(transform, rigidBody, deltaTime);
+			if(sceneObject.isActive()) {
+				final RigidBody rigidBody = sceneObject.getComponentWithType(RigidBody.class);
+				if((rigidBody != null) && rigidBody.isActive()) {
+					final Transform transform = rigidBody.getTransform();
+					final int deltaTime = e.getDeltaTime() / 10;
+					applyForces(rigidBody);
+					applyLinearAcceleration(rigidBody, deltaTime);
+					applyLinearVelocity(transform, rigidBody, deltaTime);
+					applyAngularAcceleration(rigidBody, deltaTime);
+					applyAngularVelocity(transform, rigidBody, deltaTime);
+				}
+			}
 		}
 	}
 	

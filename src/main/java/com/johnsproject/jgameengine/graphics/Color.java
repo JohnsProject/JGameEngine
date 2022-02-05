@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import com.johnsproject.jgameengine.math.Fixed;
 
 /**
- * The ColorUtils class contains methods for generating integer sRGB colors 
+ * The Color class contains methods for generating integer sRGB colors 
  * and performing integer sRGB color operations such as lerp, multiply and add.
  * 
  * @author John Ferraz Salomon

@@ -2,8 +2,6 @@ package com.johnsproject.jgameengine.math;
 
 import org.junit.Test;
 
-import com.johnsproject.jgameengine.math.Fixed;
-
 public class FixedPointTest {
 	
 //	@Test

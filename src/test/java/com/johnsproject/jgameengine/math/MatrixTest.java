@@ -5,9 +5,6 @@ import static com.johnsproject.jgameengine.math.Matrix.MATRIX_SIZE;
 
 import org.junit.Test;
 
-import com.johnsproject.jgameengine.math.Fixed;
-import com.johnsproject.jgameengine.math.Matrix;
-
 public class MatrixTest {
 	
 	@Test

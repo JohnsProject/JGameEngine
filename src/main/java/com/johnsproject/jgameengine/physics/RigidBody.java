@@ -2,11 +2,13 @@ package com.johnsproject.jgameengine.physics;
 
 import static com.johnsproject.jgameengine.math.Vector.*;
 
+import com.johnsproject.jgameengine.SceneObjectComponent;
 import com.johnsproject.jgameengine.math.Fixed;
 import com.johnsproject.jgameengine.math.Matrix;
+import com.johnsproject.jgameengine.math.Transform;
 import com.johnsproject.jgameengine.math.Vector;
 
-public class RigidBody {
+public class RigidBody extends SceneObjectComponent {
 	
 	private boolean kinematic;
 	private int mass;
@@ -15,6 +17,7 @@ public class RigidBody {
 	private final int[] linearVelocity;
 	private final int[] angularVelocity;
 	private final int[][] momentOfInertia;
+	private Transform transform;
 	
 	public RigidBody() {
 		this.kinematic = false;
@@ -24,6 +27,18 @@ public class RigidBody {
 		this.linearVelocity = Vector.emptyVector();
 		this.angularVelocity = Vector.emptyVector();
 		this.momentOfInertia = Matrix.indentityMatrix();
+	}
+	
+	public Transform getTransform() {
+		if(transform == null)
+			transform = owner.getComponentWithType(Transform.class);
+		
+		if(transform == null) {
+			transform = new Transform();
+			owner.addComponent(transform);
+		}
+		
+		return transform;
 	}
 
 	public void setForce(int x, int y, int z) {

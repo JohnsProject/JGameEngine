@@ -268,9 +268,9 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 				if ((directory != null) && (file != null)) {
 					try {
 						final String path = directory + file;
-						scene.getModels().clear();
-						model = OBJImporter.parse(path);
-						scene.addModel(model);
+						scene.removeSceneObject(model.getOwner());
+						final SceneObject modelObject = OBJImporter.parse(path);
+						scene.addSceneObject(modelObject);
 						System.gc();
 					} catch (IOException e1) {
 						e1.printStackTrace();
@@ -298,40 +298,61 @@ public class ModelViewer implements EngineListener, EngineKeyListener {
 	
 	private void loadModel(Scene scene) throws IOException {
 		final Texture texture = new Texture(FileUtil.loadImage(this.getClass().getResourceAsStream("/JohnsProjectLogo.png")));
-		model = OBJImporter.parseResource(this.getClass().getClassLoader(), "DefaultTest.obj");
+		
+		final SceneObject modelObject = OBJImporter.parseResource(this.getClass().getClassLoader(), "DefaultTest.obj");
+		scene.addSceneObject(modelObject);
+		
+		model = modelObject.getComponentWithType(Model.class);		
 		model.getMesh().getMaterial("Material.006").setTexture(texture);
-		scene.addModel(model);
 	}
 	
 	private void createCamera(Scene scene) {
-		camera = new Camera("Camera", new Transform());
+		final SceneObject cameraObject = new SceneObject("Camera");
+		scene.addSceneObject(cameraObject);
+		
+		camera = new Camera();
+		cameraObject.addComponent(camera);
+		
+		camera.setMain(true);
 		camera.getTransform().worldTranslate(0, FP_ONE * 10, FP_ONE * 15);
 		camera.getTransform().worldRotate(FP_ONE * -35, 0, 0);
-		scene.addCamera(camera);
+		
 		cameraTransform = camera.getTransform();
 	}
 	
 	private void createDirectionalLight(Scene scene) {
-		directionalLight = new Light("DirectionalLight", new Transform());
+		final SceneObject lightObject = new SceneObject("DirectionalLight");
+		scene.addSceneObject(lightObject);
+		
+		directionalLight = new Light();
+		lightObject.addComponent(directionalLight);
+		
+		directionalLight.setMain(true);
 		directionalLight.getTransform().worldRotate(FP_ONE * -90, 0, 0);
-		scene.addLight(directionalLight);
-		scene.setMainDirectionalLight(directionalLight);
 	}
 	
 	private void createSpotLight(Scene scene) {
-		spotLight = new Light("SpotLight", new Transform());
+		final SceneObject lightObject = new SceneObject("SpotLight");
+		scene.addSceneObject(lightObject);
+		
+		spotLight = new Light();
+		lightObject.addComponent(spotLight);
+		
 		spotLight.getTransform().worldTranslate(0, FP_ONE, FP_ONE * 8);
 		spotLight.setType(LightType.SPOT);
 		spotLight.setSpotSize(FP_ONE * 90);
 		spotLight.setInnerSpotSize(FP_ONE * 80);
-		scene.addLight(spotLight);
 	}
 	
 	private void createPointLight(Scene scene) {
-		pointLight = new Light("PointLight", new Transform());
+		final SceneObject lightObject = new SceneObject("PointLight");
+		scene.addSceneObject(lightObject);
+		
+		pointLight = new Light();
+		lightObject.addComponent(pointLight);
+		
 		pointLight.getTransform().worldTranslate(-FP_ONE * 2, 0, 0);
 		pointLight.setType(LightType.POINT);
-		scene.addLight(pointLight);
 	}
 
 	public void dynamicUpdate(EngineEvent e) {		

@@ -109,8 +109,10 @@ public class SpaceshipGame implements EngineListener {
 	}
 	
 	private void loadTerrain(ClassLoader classLoader) throws IOException {
-		final Model terrainModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/Terrain.obj");
-		scene.addModel(terrainModel);
+		final SceneObject terrainObject = OBJImporter.parseResource(classLoader, "SpaceshipGame/Terrain.obj");
+		scene.addSceneObject(terrainObject);
+		
+		final Model terrainModel = terrainObject.getComponentWithType(Model.class);
 		
 		terrainModel.getTransform().setScale(3 << FP_BIT, 3 << FP_BIT, 3 << FP_BIT);
 		
@@ -119,8 +121,10 @@ public class SpaceshipGame implements EngineListener {
 	}
 	
 	private void loadSpaceshipFire(ClassLoader classLoader) throws IOException {
-		spaceshipFireModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/SpaceshipFire.obj");
-		scene.addModel(spaceshipFireModel);
+		final SceneObject spaceshipFireObject = OBJImporter.parseResource(classLoader, "SpaceshipGame/SpaceshipFire.obj");
+		scene.addSceneObject(spaceshipFireObject);
+		
+		spaceshipFireModel = spaceshipFireObject.getComponentWithType(Model.class);
 		
 		spaceshipFireTransform = spaceshipFireModel.getTransform();
 		spaceshipFireTransform.setScale(FP_HALF, FP_HALF, FP_HALF);
@@ -132,8 +136,10 @@ public class SpaceshipGame implements EngineListener {
 	}
 	
 	private void loadSpaceship(ClassLoader classLoader) throws IOException {
-		final Model spaceshipModel = OBJImporter.parseResource(classLoader, "SpaceshipGame/Spaceship.obj");
-		scene.addModel(spaceshipModel);
+		final SceneObject spaceshipObject = OBJImporter.parseResource(classLoader, "SpaceshipGame/Spaceship.obj");
+		scene.addSceneObject(spaceshipObject);
+		
+		final Model spaceshipModel = spaceshipObject.getComponentWithType(Model.class);
 		
 		spaceshipTransform = spaceshipModel.getTransform();
 		spaceshipTransform.worldTranslate(0, 5 << FP_BIT, 0);
@@ -143,15 +149,29 @@ public class SpaceshipGame implements EngineListener {
 	private void createCamera() {
 		cameraTransform = new Transform();
 		cameraTransform.worldRotate(Fixed.toFixed(-45), 0, 0);
-		final Camera camera = new Camera("Camera", cameraTransform);
-		scene.addCamera(camera);
+		
+		final SceneObject cameraObject = new SceneObject("Camera");
+		scene.addSceneObject(cameraObject);
+		
+		cameraObject.addComponent(cameraTransform);
+		
+		final Camera camera = new Camera();
+		camera.setMain(true);
+		cameraObject.addComponent(camera);
 	}
 	
 	private void createLight() {
 		lightTransform = new Transform();
 		lightTransform.worldRotate(Fixed.toFixed(-60), Fixed.toFixed(25), 0);
-		final Light directionalLight = new Light("DirectionalLight", lightTransform);
-		scene.addLight(directionalLight);
+		
+		final SceneObject lightObject = new SceneObject("DirectionalLight");
+		scene.addSceneObject(lightObject);
+		
+		lightObject.addComponent(lightTransform);
+		
+		final Light directionalLight = new Light();
+		directionalLight.setMain(true);
+		lightObject.addComponent(directionalLight);
 	}
 	
 	public void fixedUpdate(EngineEvent e) {

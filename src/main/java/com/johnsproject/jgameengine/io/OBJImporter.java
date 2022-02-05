@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.johnsproject.jgameengine.SceneObject;
 import com.johnsproject.jgameengine.graphics.Color;
 import com.johnsproject.jgameengine.graphics.Face;
 import com.johnsproject.jgameengine.graphics.Material;
@@ -12,7 +13,6 @@ import com.johnsproject.jgameengine.graphics.Mesh;
 import com.johnsproject.jgameengine.graphics.Model;
 import com.johnsproject.jgameengine.graphics.Vertex;
 import com.johnsproject.jgameengine.math.Fixed;
-import com.johnsproject.jgameengine.math.Transform;
 import com.johnsproject.jgameengine.math.Vector;
 
 public final class OBJImporter {
@@ -80,7 +80,7 @@ public final class OBJImporter {
 	 * @throws IOException If the file does not exist, is a directory rather than a regular file,
 	 * or for some other reason cannot be opened for reading.
 	 */
-	public static Model parseResource(ClassLoader classLoader, String path) throws IOException {
+	public static SceneObject parseResource(ClassLoader classLoader, String path) throws IOException {
 		final InputStream materialStream = classLoader.getResourceAsStream(path.replace(OBJECT_FILE, MATERIAL_FILE));
 		final InputStream objectStream = classLoader.getResourceAsStream(path);
 		final String materialData = FileUtil.readStream(materialStream);
@@ -96,16 +96,19 @@ public final class OBJImporter {
 	 * @throws IOException If the file does not exist, is a directory rather than a regular file,
 	 * or for some other reason cannot be opened for reading.
 	 */
-	public static Model parse(String path) throws IOException {
+	public static SceneObject parse(String path) throws IOException {
 		final String materialData = FileUtil.readFile(path.replace(OBJECT_FILE, MATERIAL_FILE));
 		final String objectData = FileUtil.readFile(path);
 		return createModel(path, parseMesh(objectData, materialData));
 	}
 	
-	private static Model createModel(String path, Mesh mesh) {
+	private static SceneObject createModel(String path, Mesh mesh) {
 		final String[] modelNameData = path.split("/");
 		final String modelName = modelNameData[modelNameData.length - 1].replace(OBJECT_FILE, "");
-		return new Model(modelName, new Transform(), mesh);
+		
+		final SceneObject sceneObject = new SceneObject(modelName);
+		sceneObject.addComponent(new Model(mesh));
+		return sceneObject;
 	}
 	
 	static Mesh parseMesh(String objectData, String materialData) {

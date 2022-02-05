@@ -1,27 +1,35 @@
 package com.johnsproject.jgameengine.graphics;
 
-import com.johnsproject.jgameengine.SceneObject;
+import com.johnsproject.jgameengine.SceneObjectComponent;
 import com.johnsproject.jgameengine.math.Transform;
 
-public class Model extends SceneObject {
-	
-	public static final String MODEL_TAG = "Model";
-	
+public class Model extends SceneObjectComponent {
+
 	private final Mesh mesh;
 	private final Armature armature;
+	private Transform transform;
+	private boolean isCulled;
 	
-	public Model (String name, Transform transform, Mesh mesh) {
-		super(name, transform);
-		super.tag = MODEL_TAG;
+	public Model (Mesh mesh) {
 		this.mesh = mesh;
 		this.armature = null;
 	}
 	
-	public Model (String name, Transform transform, Mesh mesh, Armature armature) {
-		super(name, transform);
-		super.tag = MODEL_TAG;
+	public Model (Mesh mesh, Armature armature) {
 		this.mesh = mesh;
 		this.armature = armature;
+	}
+	
+	public Transform getTransform() {
+		if(transform == null)
+			transform = owner.getComponentWithType(Transform.class);
+
+		if(transform == null) {
+			transform = new Transform();
+			owner.addComponent(transform);
+		}
+		
+		return transform;
 	}
 
 	public Mesh getMesh() {
@@ -30,5 +38,13 @@ public class Model extends SceneObject {
 	
 	public Armature getArmature() {
 		return armature;
+	}
+
+	public boolean isCulled() {
+		return isCulled;
+	}
+
+	public void setCulled(boolean isCulled) {
+		this.isCulled = isCulled;
 	}
 }

@@ -46,14 +46,13 @@ public class EngineStatistics implements EngineListener {
 	public void dynamicUpdate(EngineEvent e) { }
 	
 	private String getOutput(EngineEvent e) {
-		final List<Model> models = e.getScene().getModels();		
+		final List<SceneObject> models = e.getScene().getSceneObjects();		
 		
 		String output = "== ENGINE STATISTICS ==\n";
 		output += getRAMUsage();
 		output += getCPUTime(e.getElapsedUpdateTime() + 1);
 		output += getFrameBufferSize();
-		output += getVertexCount(models);
-		output += getTriangleCount(models);
+		output += getVertexAndTriangleCount(models);
 		return output;
 	}
 	
@@ -98,19 +97,17 @@ public class EngineStatistics implements EngineListener {
 		return graphicsEngine;				
 	}
 	
-	private String getVertexCount(List<Model> models) {
+	private String getVertexAndTriangleCount(List<SceneObject> sceneObjects) {
 		int vertexCount = 0;
-		for (int i = 0; i < models.size(); i++)
-			vertexCount += models.get(i).getMesh().getVertices().length;
-
-		return "Vertices\t\t" + vertexCount + "\n";
-	}
-	
-	private String getTriangleCount(List<Model> models) {
 		int triangleCount = 0;
-		for (int i = 0; i < models.size(); i++)
-			triangleCount += models.get(i).getMesh().getFaces().length;
-		
-		return "Triangles\t" + triangleCount + "\n";
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			Model model = sceneObjects.get(i).getComponentWithType(Model.class);
+			if(model != null) {
+				vertexCount += model.getMesh().getVertices().length;
+				triangleCount += model.getMesh().getFaces().length;
+			}
+		}
+		return "Vertices\t\t" + vertexCount + "\n" + 
+				"Triangles\t" + triangleCount + "\n";
 	}
 }

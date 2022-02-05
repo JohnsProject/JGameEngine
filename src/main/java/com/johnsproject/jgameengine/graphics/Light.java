@@ -1,14 +1,12 @@
 package com.johnsproject.jgameengine.graphics;
 
-import com.johnsproject.jgameengine.SceneObject;
+import com.johnsproject.jgameengine.SceneObjectComponent;
 import com.johnsproject.jgameengine.math.Fixed;
 import com.johnsproject.jgameengine.math.Transform;
 import com.johnsproject.jgameengine.math.Transformation;
 import com.johnsproject.jgameengine.math.Vector;
 
-public class Light extends SceneObject {
-	
-	public static final String LIGHT_TAG = "Light";
+public class Light extends SceneObjectComponent {
 	
 	private static final int DIRECTIONAL_BIAS = Fixed.toFixed(0.05f);
 	private static final int SPOT_BIAS = Fixed.toFixed(2f);
@@ -30,11 +28,10 @@ public class Light extends SceneObject {
 	private int shadowBias;
 	private boolean hasShadow;
 	private boolean isMain;
+	private boolean isCulled;
+	private Transform transform;
 	
-	public Light(String name, Transform transform) {
-		super(name, transform);
-		super.tag = LIGHT_TAG;
-		super.rigidBody.setKinematic(true);
+	public Light() {
 		this.type = LightType.DIRECTIONAL;
 		this.intensity = Fixed.FP_ONE;
 		this.color = Color.WHITE;
@@ -49,6 +46,18 @@ public class Light extends SceneObject {
 		this.isMain = false;
 		setSpotSize(Fixed.toFixed(45));
 		setInnerSpotSize(Fixed.toFixed(35));
+	}
+	
+	public Transform getTransform() {
+		if(transform == null)
+			transform = owner.getComponentWithType(Transform.class);
+
+		if(transform == null) {
+			transform = new Transform();
+			owner.addComponent(transform);
+		}
+		
+		return transform;
 	}
 	
 	public LightType getType() {
@@ -221,5 +230,13 @@ public class Light extends SceneObject {
 
 	public void setMain(boolean isMain) {
 		this.isMain = isMain;
+	}
+
+	public boolean isCulled() {
+		return isCulled;
+	}
+
+	public void setCulled(boolean isCulled) {
+		this.isCulled = isCulled;
 	}
 }
